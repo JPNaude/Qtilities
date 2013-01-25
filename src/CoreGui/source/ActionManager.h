@@ -70,18 +70,30 @@ namespace Qtilities {
             // --------------------------------
             // IActionManager Implementation
             // --------------------------------
-            ActionContainer* createMenu(const QString &id, bool& existed);
+            ActionContainer* createMenu(const QString &id,
+                                        bool& existed);
             ActionContainer* menu(const QString &id);
-            ActionContainer* createMenuBar(const QString &id, bool& existed);
+            ActionContainer* createMenuBar(const QString &id,
+                                           bool& existed);
             ActionContainer* menuBar(const QString &id);
-            Command *registerAction(const QString &id, QAction *action, const QList<int> &context = QList<int>());
-            Command *registerActionPlaceHolder(const QString &id, const QString& user_text, const QKeySequence& shortcut = QKeySequence(), const QList<int> &context = QList<int>());
-            Command* registerShortcut(const QString &id, const QString& user_text, QShortcut *shortcut, const QList<int> &active_contexts = QList<int>());
+            Command *registerAction(const QString &id,
+                                    QAction *action,
+                                    const QList<int> &context = QList<int>());
+            Command *registerActionPlaceHolder(const QString &id,
+                                               const QString& user_text,
+                                               const QKeySequence& shortcut = QKeySequence(),
+                                               const QList<int> &context = QList<int>(),
+                                               const QIcon& icon = QIcon());
+            Command* registerShortcut(const QString &id,
+                                      const QString& user_text,
+                                      QShortcut *shortcut,
+                                      const QList<int> &active_contexts = QList<int>());
             Command* command(const QString &id) const;
             ActionContainer *actionContainer(const QString &id) const;
 
             void restoreDefaultShortcuts();
-            bool saveShortcutMapping(const QString& file_name, Qtilities::ExportVersion version = Qtilities::Qtilities_Latest);
+            bool saveShortcutMapping(const QString& file_name,
+                                     Qtilities::ExportVersion version = Qtilities::Qtilities_Latest);
             bool loadShortcutMapping(const QString& file_name);
             QWidget* commandEditor();
             QList<Command*> commandsWithKeySequence(QKeySequence shortcut);

@@ -209,7 +209,8 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerAction(c
 Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPlaceHolder(const QString &id,
                                                                                           const QString& user_text,
                                                                                           const QKeySequence& key_sequence,
-                                                                                          const QList<int> &context) {
+                                                                                          const QList<int> &context,
+                                                                                          const QIcon &icon) {
     // First check if an action with the specified id already exist:
     if (d->observer_commands.containsSubjectWithName(id)) {
         LOG_ERROR(tr("Attempting to register action place holder for a command which already exist with ID: ") + id);
@@ -223,6 +224,7 @@ Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPl
     else
         frontend_action = new QAction(user_text,0);
 
+    frontend_action->setIcon(icon);
     frontend_action->setObjectName(id);
     frontend_action->setShortcutContext(Qt::ApplicationShortcut);
 

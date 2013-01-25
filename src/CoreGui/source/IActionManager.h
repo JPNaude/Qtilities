@@ -96,7 +96,8 @@ namespace Qtilities {
                 virtual ActionContainer *menuBar(const QString &id) = 0;
                 //! Registers an action with the action manager.
                 /*!
-                  This function can be used to register an action with the action manager. If an action placeholder already exists with the given id, this action will be added as a backend for the current proxy action under the given contexts.
+                  This function can be used to register an action with the action manager. If an action placeholder already exists with the given id, this
+                  action will be added as a backend for the current proxy action under the given contexts.
 
                   \param id The internal id used to represent the action. This is the name used to display the action in the action manager.
                   \param action The backend action associated with the id & context pairing.
@@ -107,7 +108,9 @@ namespace Qtilities {
 
                   \note The user_text of the command will be taken from the action's text() function.
                   */
-                virtual Command *registerAction(const QString &id, QAction *action, const QList<int> &context = QList<int>()) = 0;
+                virtual Command *registerAction(const QString &id,
+                                                QAction *action,
+                                                const QList<int> &context = QList<int>()) = 0;
                 //! Registers an action placeholder with the action manager.
                 /*!
                     This function is used to create a placeholder for future action types in the system. This is usefull in cases where the actual backend action
@@ -118,16 +121,22 @@ namespace Qtilities {
                     at a later time using the registerAction() call.
 
                     You can also use this function if you want to create a command which is not a multi-backed a command. In that case you
-                    connect directly to the command->action() triggered() signal to access the action. If you want to use the registerActionPlaceHolder
-                    function in this way you must provide an context for the action.
+                    connect directly to the command->action() triggered() signal to access the action. If you want to use the registerActionPlaceHolder()
+                    function in this way you must provide an context for the action to force the function to create a default backend action for you
+                    for the specified context.
 
                   \param id The internal id used to represent the action. This is the name used to display the action in the command editor.
                   \param user_text The user visible text that will be used for this command.
                   \param shortcut A shortcut to be associated with the command.
                   \param context Pass an empty QList<int>() if you do want to use the action as an mutli backed action, pass the needed context otherwise.
+                  \param icon An icon to use in this placeholder.
                   \return The command created for the given id. If a command with the given id already exists, the existing command is returned.
                   */
-                virtual Command *registerActionPlaceHolder(const QString &id, const QString& user_text, const QKeySequence& key_sequence = QKeySequence(), const QList<int> &context = QList<int>()) = 0;
+                virtual Command *registerActionPlaceHolder(const QString &id,
+                                                           const QString& user_text,
+                                                           const QKeySequence& key_sequence = QKeySequence(),
+                                                           const QList<int> &context = QList<int>(),
+                                                           const QIcon& icon = QIcon()) = 0;
                 //! Function to register a shortcut in the action manager.
                 /*!
                   \param id The internal id used to represent the shortcut. This is the name used to display the shortcut in the command editor.
@@ -136,7 +145,10 @@ namespace Qtilities {
                   \param active_contexts Pass an empty QList<int>() if you do want to use the shortcut to be always active.
                   \return The command created for the given id. If a command with the given id already exists, the existing command is returned.
                   */
-                virtual Command *registerShortcut(const QString &id, const QString& user_text, QShortcut *shortcut, const QList<int> &active_contexts = QList<int>()) = 0;
+                virtual Command *registerShortcut(const QString &id,
+                                                  const QString& user_text,
+                                                  QShortcut *shortcut,
+                                                  const QList<int> &active_contexts = QList<int>()) = 0;
                 //! Unregisters all commands for the specified context id.
                 /*!
                  * \param context The applicable context.

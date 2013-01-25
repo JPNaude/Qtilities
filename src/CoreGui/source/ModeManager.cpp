@@ -78,7 +78,7 @@ Qtilities::CoreGui::ModeManager::ModeManager(int manager_id, Qt::Orientation ori
 
     // Setup the mode list widget in the way we need it:
     d->mode_list_widget = new ModeListWidget(orientation);
-    connect(d->mode_list_widget,SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),SLOT(handleModeListCurrentItemChanged(QListWidgetItem*)));
+    connect(d->mode_list_widget,SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),SLOT(handleModeListCurrentItemChanged(QListWidgetItem*,QListWidgetItem*)));
 
     if (d->orientation == Qt::Horizontal) {
         d->mode_list_widget->setFlow(QListWidget::TopToBottom);
