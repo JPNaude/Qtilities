@@ -56,7 +56,8 @@ struct Qtilities::CoreGui::QtilitiesMainWindowPrivateData {
         central_widget(0),
         priority_messages_enabled(true),
         task_summary_widget_visible(true),
-        task_summary_widget(0) {}
+        task_summary_widget(0),
+        last_restore_state_maximized(true) {}
 
     bool                            initialized;
     QPointer<QWidget>               current_widget;
@@ -72,6 +73,7 @@ struct Qtilities::CoreGui::QtilitiesMainWindowPrivateData {
     QTimer                          priority_message_timer;
     bool                            task_summary_widget_visible;
     QPointer<TaskSummaryWidget>     task_summary_widget;
+    bool                            last_restore_state_maximized;
 };
 
 Qtilities::CoreGui::QtilitiesMainWindow::QtilitiesMainWindow(ModeLayout modeLayout, QWidget *parent, Qt::WindowFlags flags) :
@@ -165,12 +167,14 @@ void Qtilities::CoreGui::QtilitiesMainWindow::readSettings() {
     resize(settings.value("size", QSize(1000, 1000)).toSize());
     move(settings.value("pos", QPoint(200, 200)).toPoint());
     restoreState(settings.value("state").toByteArray());
-    bool is_maximized = settings.value("maximized",false).toBool();
-    if (is_maximized)
-        showMaximized();
+    d->last_restore_state_maximized = settings.value("maximized",false).toBool();
     settings.endGroup();
     settings.endGroup();
     settings.endGroup();
+}
+
+bool Qtilities::CoreGui::QtilitiesMainWindow::lastReadSettingsIsMaximized() const {
+    return d->last_restore_state_maximized;
 }
 
 void Qtilities::CoreGui::QtilitiesMainWindow::enablePriorityMessages() {
@@ -448,5 +452,9 @@ bool Qtilities::CoreGui::QtilitiesMainWindow::eventFilter(QObject *object, QEven
     }
 
     return QWidget::eventFilter(object,event);
+}
+
+void Qtilities::CoreGui::QtilitiesMainWindow::showEvent(QShowEvent *e) {
+    QMainWindow::showEvent(e);
 }
 

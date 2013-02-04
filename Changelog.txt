@@ -115,6 +115,7 @@ Qtilities v1.2 Changes
     [+] Added DynamicSideWidgetWrapper::currentWidget() and DynamicSideWidgetWrapper::comboBoxStyle().
     [+] Added ProxyAction::unregisterContext() and IActionManager::unregisterCommandsForContext().
     [+] Added ModeManager::activeModeChanged(), ModeManager::switchToPreviousMode(), ModeManager::previousModeIDs() and ModeManager::switchToPreviousModeAction().
+    [+] Added QtilitiesMainWindow::lastReadSettingsIsMaximized().
 
     [#] LoggerGui's widget logger engine creation functions got new parameter allowing you to specify which message displays
         must be shown in the widget logger engine.

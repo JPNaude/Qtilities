@@ -254,5 +254,12 @@ QString Qtilities::CoreGui::HelpManager::formatFileName(const QString &file_name
 }
 
 void HelpManager::requestUrlDisplay(const QUrl &url, bool ensure_visible) {
-    emit forwardRequestUrlDisplay(url,ensure_visible);
+    // Check if its an external URL, is so open in browser otherwise open in help plugin:
+    if (url.scheme() == "qthelp")
+        emit forwardRequestUrlDisplay(url,ensure_visible);
+    else if (url.scheme() == "qthelp")
+        QDesktopServices::openUrl(url);
+    else if (url.scheme() == "http")
+        QDesktopServices::openUrl(url);
+
 }

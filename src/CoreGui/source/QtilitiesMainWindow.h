@@ -152,6 +152,7 @@ int main(int argc, char *argv[])
             ~QtilitiesMainWindow();
 
             bool eventFilter(QObject *object, QEvent *event);
+            void showEvent(QShowEvent *e);
 
             // ----------------------------------
             // Functions related to modes
@@ -219,6 +220,11 @@ int main(int argc, char *argv[])
             void writeSettings();
             //! Restores the state of the main window.
             void readSettings();
+            //! Returns if the main window was maximized according to the settings read in readSettings().
+            /*!
+             * <i>This function was added in %Qtilities v1.2.</i>
+             */
+            bool lastReadSettingsIsMaximized() const;
             //! Function to enabled priority messages in the status bar of the main window.
             /*!
               Enabled by default.
