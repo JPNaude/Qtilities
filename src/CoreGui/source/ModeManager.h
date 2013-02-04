@@ -387,16 +387,18 @@ ModeListWidget()->setStyleSheet(stylesheet);
              */
             QAction* switchToPreviousModeAction();
 
-        private slots:
-            //! Handles selection changes in the top to bottom mode widget.
-            void handleModeListCurrentItemChanged(QListWidgetItem * new_item, QListWidgetItem * old_item);
-            //! Handle mode shortcut activation.
-            void handleModeShortcutActivated();
+        public slots:
             //! Switches back to the mode that was previously active before the current mode was activated.
             /*!
              * <i>This function was added in %Qtilities v1.2.</i>
              */
             bool switchToPreviousMode();
+
+        private slots:
+            //! Handles selection changes in the top to bottom mode widget.
+            void handleModeListCurrentItemChanged(QListWidgetItem * new_item, QListWidgetItem * old_item);
+            //! Handle mode shortcut activation.
+            void handleModeShortcutActivated();
 
         signals:
             //! This signal is emitted with the new active mode widget as the \p new_central_widget parameter as soon as the active mode changes.

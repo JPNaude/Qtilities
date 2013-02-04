@@ -187,11 +187,11 @@ namespace Qtilities {
                     }
                     return tag_category_map;
               }
-              //! Function which verifies the validity of a new tag. If the tag is already present, false is returend.
+              //! Function which verifies the validity of a new tag. If the tag is already present, false is returned.
               inline bool isTagValid(const QString& tag) const {
                   return data_ifaces.contains(tag);
               }
-              //! Function which verifies the validity of a new tag. If the tag is already present, false is returend.
+              //! Function which returns the category under which the specified tag was registered.
               /*!
                 <i>This function was added in %Qtilities v1.2.</i>
                 */
