@@ -495,7 +495,7 @@ void Qtilities::CoreGui::AbstractTreeItem::setIcon(const QIcon& icon) {
 QIcon Qtilities::CoreGui::AbstractTreeItem::getIcon() const {
     const QObject* obj = getTreeItemObjectBase();
     if (obj) {
-        QVariant variant = ObjectManager::getSharedProperty(obj,qti_prop_TOOLTIP).value();
+        QVariant variant = ObjectManager::getSharedProperty(obj,qti_prop_DECORATION).value();
         return variant.value<QIcon>();
     }
 
@@ -503,7 +503,7 @@ QIcon Qtilities::CoreGui::AbstractTreeItem::getIcon() const {
 }
 
 bool Qtilities::CoreGui::AbstractTreeItem::hasIcon() const {
-    return ObjectManager::propertyExists(getTreeItemObjectBase(),qti_prop_TOOLTIP);
+    return ObjectManager::propertyExists(getTreeItemObjectBase(),qti_prop_DECORATION);
 }
 
 void Qtilities::CoreGui::AbstractTreeItem::setWhatsThis(const QString& whats_this) {

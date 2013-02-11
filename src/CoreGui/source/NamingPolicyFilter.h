@@ -128,9 +128,9 @@ if (ObjectManager::propertyExists(obj,qti_prop_NAME)) {
 
 \endcode
 
-        In most cases its not neccessarry to know if the name was actually set or not (thus not rejected by the NamingPolicyFilter). In other cases you might want to know if the property was set successfully and this can be done through a event filter on the object for which the name must be changed.  If the property change in rejected by the NamingPolicyFilter the QDynamicPropertyChangeEvent event will be filtered by the observer context. Thus you can see if the event was filtered or not.
+        In most cases its not neccessarry to know if the name was actually set or not (thus not rejected by the NamingPolicyFilter). In other cases you might want to know if the property was set successfully and this can be done by connecting a slot to the subjectNameChanged() signal, or through an event filter on the object for which the name must be changed. If the property change in rejected by the NamingPolicyFilter the QDynamicPropertyChangeEvent event will be filtered by the observer context. Thus you can see if the event was filtered or not.
 
-        Another way is to listen for QtilitiesPropertyChangeEvent events on the object (this is not enabled by default on observers). Whenever a property was successfully changed the observer context will post a QtilitiesPropertyChangeEvent event to the object. Thus if you get the event the name was changed successfully. For more information on how this see \ref monitoring_property_changes.
+        Another way is to listen for Qtilities::Core::QtilitiesPropertyChangeEvent events on the object (this is not enabled by default on observers). Whenever a property was successfully changed the observer context will post a QtilitiesPropertyChangeEvent event to the object. Thus if you get the event the name was changed successfully. For more information on how this see \ref monitoring_property_changes.
 
         \section naming_policy_filter_subclassing Subclassing NamingPolicyFilter
 
@@ -270,7 +270,6 @@ if (ObjectManager::propertyExists(obj,qti_prop_NAME)) {
 
             //! Signal which is emitted when the name of an object who's name is managed by this policy filter is changed.
             /*!
-             * \brief subjectNameChanged
              * \param obj The object who's name changed.
              * \param old_name The previous name, before it was changed.
              * \param new_name The new name that was changed.
