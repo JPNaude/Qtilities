@@ -66,6 +66,7 @@ namespace Qtilities {
                 d_factory_tag = QString();
                 d_instance_tag = QString();
                 d_instance_name = QString();
+                d_icon_path = QString();
             }
             InstanceFactoryInfo(QDataStream& stream, Qtilities::ExportVersion version) {
                 importBinary(stream,version);
@@ -87,6 +88,7 @@ namespace Qtilities {
                 d_instance_tag = ref.d_instance_tag;
                 d_instance_name = ref.d_instance_name;
                 d_description = ref.d_description;
+                d_icon_path = ref.d_icon_path;
             }
             bool operator==(const InstanceFactoryInfo& ref) {
                 if (d_factory_tag != ref.d_factory_tag)
@@ -94,6 +96,8 @@ namespace Qtilities {
                 if (d_instance_tag != ref.d_instance_tag)
                     return false;
                 if (d_instance_name != ref.d_instance_name)
+                    return false;
+                if (d_icon_path != ref.d_icon_path)
                     return false;
 
                 return true;
@@ -108,6 +112,7 @@ namespace Qtilities {
                 d_instance_tag = ref.d_instance_tag;
                 d_instance_name = ref.d_instance_name;
                 d_description = ref.d_description;
+                d_icon_path = ref.d_icon_path;
 
                 return *this;
             }
@@ -140,6 +145,8 @@ namespace Qtilities {
             QString d_instance_name;
             //! A description for this type of object. This is not part of any exports.
             QString d_description;
+            //! A path to an icon for this type of object.
+            QString d_icon_path; // We can't use QIcon here, this class is part of QtilitiesCore which does not use QtGui.
         };
     }
 }

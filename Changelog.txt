@@ -4,6 +4,30 @@ This change log uses the following legend to list items.
 [#] Change/Improvement to old code
 
 ================================
+Qtilities v1.3 Changes
+================================
+    To see all closed issues in the issue tracker linked to this milestone, see the following page:
+    https://github.com/JPNaude/Qtilities/issues/milestones
+
+    General:
+    ============================
+
+    ============================
+    QtilitiesLogging:
+    ============================
+
+    ============================
+    QtilitiesCore:
+    ============================
+    [+] Instance factory info got a new icon path parameter which can be used to specify the path of an icon to
+        be associated with the type of manufacturable object.
+
+    ============================
+    QtilitiesCoreGui:
+    ============================
+    [*] Fixed AbstractTreeItem::getIcon() and AbstractTreeItem::hasIcon() which checked the wrong property on the object.
+
+================================
 Qtilities v1.2 Changes
 ================================
     To see all closed issues in the issue tracker linked to this milestone, see the following page:

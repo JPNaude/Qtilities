@@ -156,14 +156,14 @@ else
                 virtual bool supportsRestoreDefaults() const { return false; }
                 //! Initialization function where you can do any initialization required by your page.
                 /*!
-                 *This function will be called when the configuration widget searches the object pool for config pages.
-                 *The function will be called on all found pages before adding them to the configuration widget.
+                 * This function will be called when the configuration widget searches the object pool for config pages.
+                 * The function will be called on all found pages before adding them to the configuration widget.
                  *
-                 *In big applications where many configuration pages exists, it makes sense to make use of this function in order
-                 *to speed up the launch time of your application. Without this function, you will typically initialize your config
-                 *pages in their constructors. Thus, all the pages will be set up during application launch even if the user
-                 *never goes to the configuration page. This function provides a solution to that problem where pages will only be
-                 *initialized when the configuration widget is actually used.
+                 * In big applications where many configuration pages exists, it makes sense to make use of this function in order
+                 * to speed up the launch time of your application. Without this function, you will typically initialize your config
+                 * pages in their constructors. Thus, all the pages will be set up during application launch even if the user
+                 * never goes to the configuration page. This function provides a solution to that problem where pages will only be
+                 * initialized when the configuration widget is actually used.
                  *
                  *\note The default implementation does nothing.
                  *
