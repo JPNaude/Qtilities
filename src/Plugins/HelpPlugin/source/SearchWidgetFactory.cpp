@@ -54,7 +54,6 @@ QWidget* Qtilities::Plugins::Help::SearchWidgetFactory::produceWidget() {
         connect(queryWidget,SIGNAL(search()),SLOT(handleSearchSignal()));
         layout->addWidget(queryWidget);
         QHelpSearchResultWidget* result_widget = d_help_search_engine->resultWidget();
-        result_widget->show();
         layout->addWidget(result_widget);
         layout->setMargin(0);
 

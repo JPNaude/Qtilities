@@ -255,7 +255,6 @@ void HelpMode::initializeMode() {
     }
 
     d->side_viewer_widget->setIFaceMap(text_iface_map,true);
-    d->side_viewer_widget->show();
     d->initialized = true;
 }
 
