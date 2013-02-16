@@ -143,3 +143,4 @@ void Qtilities::Core::QtilitiesCoreApplication::setApplicationBusy(bool is_busy)
 bool Qtilities::Core::QtilitiesCoreApplication::applicationBusy() {
     return QtilitiesCoreApplicationPrivate::instance()->applicationBusy();
 }
+

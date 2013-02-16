@@ -181,10 +181,10 @@ void Qtilities::Core::QtilitiesCoreApplicationPrivate::setApplicationBusy(bool i
 
     if (previous_count == 0 && d_application_busy_count == 1) {
         // Application becomes busy:
-        // Nothing happens for now.
+        emit busyStateChanged(true);
     } else if (previous_count == 1 && d_application_busy_count == 0) {
         // Application not busy anymore:
-        // Nothing happens for now.
+        emit busyStateChanged(false);
     }
 }
 
