@@ -41,13 +41,16 @@
 
 #include <QObject>
 #include <QStringList>
+#include <QAction>
 
-#include <IModificationNotifier.h>
+#include <IModificationNotifier>
 #include <ITaskContainer>
+#include <ActionContainer>
 
 using namespace Qtilities::ProjectManagement::Constants;
 using namespace Qtilities::ProjectManagement::Interfaces;
 using namespace Qtilities::Core::Interfaces;
+using namespace Qtilities::CoreGui;
 
 namespace Qtilities {
     namespace ProjectManagement {
@@ -233,22 +236,8 @@ namespace Qtilities {
             void setActiveProjectBusy(bool is_busy);
             //! Gets if the active project is busy, thus it cannot be closed, saved etc.
             bool activeProjectBusy() const;
-
-            // ----------------------------------------------
-            // Functions related to the project manager state
-            // ----------------------------------------------
-            //! Returns a list of recent project names.
-            QStringList recentProjectNames() const;
-            //! Returns a list of recent project paths.
-            QStringList recentProjectPaths() const;
-            //! Returns the file for a recent project.
-            QString recentProjectPath(const QString& recent_project_name) const;
-            //! Clears the list of recent projects.
-            void clearRecentProjects();
             //! Set project item list.
             void setProjectItemList(QList<IProjectItem*> item_list);
-            //! Returns a list of recent project paths.
-            QStringList registeredProjectItemNames() const;
 
             // ----------------------------------------------
             // Custom project paths
@@ -290,6 +279,8 @@ namespace Qtilities {
             //! Sets the target menu where project menu items should be placed.
             /*!
              * These menu items are not added automatically by the project manager. Its done through the ProjectManagementPlugin.
+             * Alternatively they can be added manually using the access functions on ProjectManager.
+             * \sa actionNewProject(), actionCloseProject(), actionOpenProject(), actionSaveAsProject(), actionSaveProject(), recentProjectsMenuContainer()
              *
              * The default menu is Qtilities::CoreGui::Actions::qti_action_FILE.
              *
@@ -306,6 +297,8 @@ namespace Qtilities {
             //! Sets the command before which the project menus must be placed in the menu specified by projectMenuItemsTargetMenu().
             /*!
              * These menu items are not added automatically by the project manager. Its done through the ProjectManagementPlugin.
+             * Alternatively they can be added manually using the access functions on ProjectManager.
+             * \sa actionNewProject(), actionCloseProject(), actionOpenProject(), actionSaveAsProject(), actionSaveProject(), recentProjectsMenuContainer()
              *
              * The default menu is Qtilities::CoreGui::Actions::qti_action_FILE_SETTINGS.
              *
@@ -419,17 +412,6 @@ namespace Qtilities {
               */
             void setExecutionStyle(ExecStyle exec_style);
 
-            //! Removes a recent project path from the list of recent projects.
-            /*!
-              <i>This function was added in %Qtilities v1.1.</i>
-              */
-            void removeRecentProject(const QString& path);
-            //! Removes all recent project paths which does not exist and return the files that were removed.
-            /*!
-              <i>This function was added in %Qtilities v1.1.</i>
-              */
-            QStringList removeNonExistingRecentProjects();
-
             //! Disables/enables the ability to save projects.
             /*!
               Saving of projects are disabled by default.
@@ -448,6 +430,88 @@ namespace Qtilities {
               */
             QString projectSavingInfoMessage() const;
 
+            // ---------------------------------------
+            // Ready to use actions for common project management tasks.
+            // ---------------------------------------
+            //! Convenience function which returns an action which can be placed in a menu to allow switching back to the previous mode.
+            /*!
+             * This action is registered in the action manager under the following id: Qtilities::CoreGui::Constants::Actions::qti_action_PROJECTS_NEW.
+             *
+             * <i>This function was added in %Qtilities v1.3.</i>
+             */
+            QAction* actionNewProject();
+            //! Convenience function which returns an action which can be placed in a menu to allow switching back to the previous mode.
+            /*!
+             * This action is registered in the action manager under the following id: Qtilities::CoreGui::Constants::Actions::qti_action_PROJECTS_OPEN.
+             *
+             * <i>This function was added in %Qtilities v1.3.</i>
+             */
+            QAction* actionOpenProject();
+            //! Convenience function which returns an action which can be placed in a menu to allow switching back to the previous mode.
+            /*!
+             * This action is registered in the action manager under the following id: Qtilities::CoreGui::Constants::Actions::qti_action_PROJECTS_CLOSE.
+             *
+             * <i>This function was added in %Qtilities v1.3.</i>
+             */
+            QAction* actionCloseProject();
+            //! Convenience function which returns an action which can be placed in a menu to allow switching back to the previous mode.
+            /*!
+             * This action is registered in the action manager under the following id: Qtilities::CoreGui::Constants::Actions::qti_action_PROJECTS_SAVE.
+             *
+             * <i>This function was added in %Qtilities v1.3.</i>
+             */
+            QAction* actionSaveProject();
+            //! Convenience function which returns an action which can be placed in a menu to allow switching back to the previous mode.
+            /*!
+             * This action is registered in the action manager under the following id: Qtilities::CoreGui::Constants::Actions::qti_action_PROJECTS_SAVE_AS.
+             *
+             * <i>This function was added in %Qtilities v1.3.</i>
+             */
+            QAction* actionSaveAsProject();
+
+            // ----------------------------------------------
+            // Recent Projects
+            // ----------------------------------------------
+            //! Returns a list of recent project names.
+            QStringList recentProjectNames() const;
+            //! Returns a list of recent project paths.
+            QStringList recentProjectPaths() const;
+            //! Returns the file for a recent project.
+            QString recentProjectPath(const QString& recent_project_name) const;
+            //! Returns a list of recent project paths.
+            QStringList registeredProjectItemNames() const;
+            //! Convenience function which returns an action which can be placed in a menu to allow switching back to the previous mode.
+            /*!
+             * <i>This function was added in %Qtilities v1.3.</i>
+             */
+            ActionContainer* recentProjectsMenuContainer();
+            //! Removes a recent project path from the list of recent projects.
+            /*!
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            void removeRecentProject(const QString& path);
+
+        public slots:
+            //! Clears the list of recent projects.
+            void clearRecentProjects();
+            //! Removes all recent project paths which does not exist and return the files that were removed.
+            /*!
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            QStringList removeNonExistingRecentProjects();
+
+        private slots:
+            void handle_actionProjectNew();
+            void handle_actionProjectOpen();
+            void handle_actionProjectClose();
+            void handle_actionProjectSave();
+            void handle_actionProjectSaveAs();
+            void handle_projectStateChanged();
+            void handleApplicationBusyStateChanged();
+            void refreshRecentProjects();
+            void handleRecentProjectActionTriggered();
+
+        public:
             // --------------------------------
             // IObjectBase Implementation
             // --------------------------------
@@ -463,6 +527,16 @@ namespace Qtilities {
         signals:
             void modificationStateChanged(bool is_modified) const;
 
+            //! A signal which is emitted when a project loading/opening process starts.
+            /*!
+             * <i>This function was added in %Qtilities v1.3.</i>
+             */
+            void projectCreationStarted();
+            //! A signal which is emitted when a project loading/opening process completes.
+            /*!
+             * <i>This function was added in %Qtilities v1.3.</i>
+             */
+            void projectCreationFinished();
             //! A signal which is emitted when a project loading/opening process starts.
             /*!
               \param project_file The project file from which loading is done.

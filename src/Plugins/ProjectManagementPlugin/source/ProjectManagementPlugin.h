@@ -93,17 +93,7 @@ namespace Qtilities {
                 QString pluginLicense() const;
 
             public slots:
-                void handle_actionProjectNew();
-                void handle_actionProjectOpen();
-                void handle_actionProjectClose();
-                void handle_actionProjectSave();
-                void handle_actionProjectSaveAs();
                 void handle_projectStateChanged();
-                void handleRecentProjectChanged();
-
-            private slots:
-                void handleRecentProjectActionTriggered();
-                void handleApplicationBusyStateChanged();
 
             private:
                 ProjectManagementPluginPrivateData* d;

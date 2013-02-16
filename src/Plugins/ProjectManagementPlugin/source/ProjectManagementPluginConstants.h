@@ -41,7 +41,6 @@ namespace Qtilities {
         The project management plugin can be used to add project management functionality to any application which contains objects implementing the Qtilities::ProjectManagement::IProjectItem interface which are registered in the global object pool.
 
         The plugin will do the following when loaded:
-        - Automatically register all project items found in the global object pool with the project manager.
         - The project management configuration page will be added to the global object pool.
         - Add project management actions to the application's \p File menu (see image below).
         - The name of the current project and its modification state will be added to your application's main window (see image below).
@@ -51,12 +50,6 @@ namespace Qtilities {
         namespace ProjectManagement {
             //! Namespace containing constants defined in the ProjectManagement plugin.
             namespace Constants {
-                // Actions & Action Containers
-                const char * const qti_action_PROJECTS_NEW        = "Projects.New";
-                const char * const qti_action_PROJECTS_OPEN       = "Projects.Open";
-                const char * const qti_action_PROJECTS_CLOSE      = "Projects.Close";
-                const char * const qti_action_PROJECTS_SAVE       = "Projects.Save";
-                const char * const qti_action_PROJECTS_SAVE_AS    = "Projects.SaveAs";
             }
         }
     }

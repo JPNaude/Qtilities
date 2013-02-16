@@ -40,6 +40,8 @@
 #include "TaskManager.h"
 #include "VersionInformation.h"
 
+#include <QObject>
+
 namespace Qtilities {
     namespace Core {
         using namespace Qtilities::Core::Interfaces;
@@ -48,7 +50,9 @@ namespace Qtilities {
           \class QtilitiesCoreApplicationPrivate
           \brief The QtilitiesCoreApplicationPrivate class stores private data used by the QtilitiesCoreApplication class.
          */
-        class QTILIITES_CORE_SHARED_EXPORT QtilitiesCoreApplicationPrivate {
+        class QTILIITES_CORE_SHARED_EXPORT QtilitiesCoreApplicationPrivate : public QObject {
+            Q_OBJECT
+
         public:
             static QtilitiesCoreApplicationPrivate* instance();
             ~QtilitiesCoreApplicationPrivate();
@@ -117,6 +121,13 @@ QString("%1%2").arg(QCoreApplication::applicationDirPath()).arg(Qtilities::Loggi
             void setApplicationBusy(bool is_busy);
             //! Gets if the application is busy, thus it cannot be closed.
             bool applicationBusy() const;
+
+        signals:
+            //! Signal which broadcasts changes to the application's busy state.
+            /*!
+             * <i>This function was added in %Qtilities v1.3.</i>
+             */
+            void busyStateChanged(bool is_busy);
 
         private:
             QtilitiesCoreApplicationPrivate();

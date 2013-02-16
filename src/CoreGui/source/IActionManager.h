@@ -120,7 +120,7 @@ namespace Qtilities {
                     function in this way, leave the context as default. This will create the action place holder and you can register backend actions
                     at a later time using the registerAction() call.
 
-                    You can also use this function if you want to create a command which is not a multi-backed a command. In that case you
+                    You can also use this function if you want to create a command which is not a multi-backed proxy action. In that case you
                     connect directly to the command->action() triggered() signal to access the action. If you want to use the registerActionPlaceHolder()
                     function in this way you must provide an context for the action to force the function to create a default backend action for you
                     for the specified context.

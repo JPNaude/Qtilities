@@ -57,10 +57,10 @@ using namespace Qtilities::ProjectManagement::Constants;
 struct Qtilities::ProjectManagement::ProjectManagerPrivateData  {
     ProjectManagerPrivateData() : current_project(0),
         current_project_busy_count(0),
-        recent_projects_size(5),
+        recent_projects_size(10),
         open_last_project(false),
         use_project_file_locks(true),
-        default_custom_project_paths_category("Default"),
+        default_custom_project_paths_category( QObject::tr("Default")),
         is_initialized(false),
         project_types(IExportable::Binary | IExportable::XML),
         default_project_type(IExportable::XML),
@@ -68,15 +68,16 @@ struct Qtilities::ProjectManagement::ProjectManagerPrivateData  {
         exec_style(ProjectManager::ExecNormal),
         saving_enabled(true),
         project_actions_menu_id(qti_action_FILE),
-        project_actions_command_id(qti_action_FILE_SETTINGS) {}
+        project_actions_command_id(qti_action_FILE_SETTINGS),
+        actionProjectNew(0),
+        actionProjectOpen(0),
+        actionProjectClose(0),
+        actionProjectSave(0),
+        actionProjectSaveAs(0) {}
 
     QPointer<Project>                       current_project;
     int                                     current_project_busy_count;
     QList<IProjectItem*>                    item_list;
-    // Keys = Paths, Values = Names
-    QMap<QString, QVariant>                 recent_project_names;
-    QStringList                             recent_project_stack;
-    int                                     recent_projects_size;
     QPointer<ProjectManagementConfig>       config_widget;
     bool                                    open_last_project;
     bool                                    use_project_file_locks;
@@ -100,6 +101,18 @@ struct Qtilities::ProjectManagement::ProjectManagerPrivateData  {
 
     QString                                 project_actions_menu_id;
     QString                                 project_actions_command_id;
+
+    QAction*                                actionProjectNew;
+    QAction*                                actionProjectOpen;
+    QAction*                                actionProjectClose;
+    QAction*                                actionProjectSave;
+    QAction*                                actionProjectSaveAs;
+
+    // Recent projects:
+    QList<QMenu*>                           recentProjectsMenus;
+    QMap<QString, QVariant>                 recent_project_names; // Keys = Paths, Values = Names
+    QStringList                             recent_project_stack;
+    int                                     recent_projects_size;
 };
 
 Qtilities::ProjectManagement::ProjectManager* Qtilities::ProjectManagement::ProjectManager::m_Instance = 0;
@@ -217,37 +230,39 @@ bool Qtilities::ProjectManagement::ProjectManager::isAllowedFileName(const QStri
 bool Qtilities::ProjectManagement::ProjectManager::newProject() {
     // Check if a current project exist.
     // If not, create it.
+    emit projectCreationStarted();
     if (!d->current_project) {
         d->current_project = new Project;
         connect(d->current_project,SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
         d->current_project->setProjectItems(d->item_list,true);
+        emit projectCreationFinished();
         return true;
     } else {
         if (closeProject()) {
             d->current_project = new Project;
             connect(d->current_project,SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
             d->current_project->setProjectItems(d->item_list,true);
+            emit projectCreationFinished();
             return true;
         }
     }
-
+    emit projectCreationFinished();
     return false;
 }
 
-bool Qtilities::ProjectManagement::ProjectManager::closeProject(){
+bool Qtilities::ProjectManagement::ProjectManager::closeProject() {
     if (d->current_project) {
         if (activeProjectBusy()) {          
             QString msg = tr("You cannot save the current project while it is busy.<br>Wait for it to become idle and try again.");
             if (d->exec_style != ExecSilent) {
                 QMessageBox msgBox;
-                msgBox.setWindowTitle("Project Busy");
+                msgBox.setWindowTitle(tr("Project Busy"));
                 msgBox.setIcon(QMessageBox::Information);
                 msgBox.setText(msg);
                 msgBox.exec();
             } else {
                 LOG_ERROR_P(msg);
             }
-
             return false;
         }
 
@@ -767,7 +782,10 @@ void Qtilities::ProjectManagement::ProjectManager::readSettings() {
 }
 
 void Qtilities::ProjectManagement::ProjectManager::initialize() {
-    LOG_INFO(tr("Qtilities Project Management Framework, initialization started..."));
+    if (d->is_initialized)
+        return;
+
+    LOG_DEBUG(tr("Qtilities Project Management Framework, initialization started..."));
     readSettings();
 
     bool success = true;
@@ -801,11 +819,18 @@ void Qtilities::ProjectManagement::ProjectManager::initialize() {
         }
     }
 
+    connect(this,SIGNAL(modificationStateChanged(bool)),SLOT(handle_projectStateChanged()));
+    connect(this,SIGNAL(projectClosingFinished(bool)),SLOT(handle_projectStateChanged()));
+    connect(this,SIGNAL(projectLoadingFinished(QString,bool)),SLOT(handle_projectStateChanged()));
+    connect(this,SIGNAL(projectCreationFinished()),SLOT(handle_projectStateChanged()));
+
+    //connect(QtilitiesCoreApplication::instance(),SIGNAL(busyStateChanged(bool)),SLOT(handleApplicationBusyStateChanged()));
+
     d->is_initialized = true;
     if (success)
-        LOG_INFO(tr("Qtilities Project Management Framework, initialization finished successfully..."));
+        LOG_DEBUG(tr("Qtilities Project Management Framework, initialization finished successfully..."));
     else
-        LOG_WARNING(tr("Qtilities Project Management Framework, initialization finished with some errors..."));
+        LOG_DEBUG(tr("Qtilities Project Management Framework, initialization finished with some errors..."));
 }
 
 void Qtilities::ProjectManagement::ProjectManager::finalize() {
@@ -896,6 +921,357 @@ QString ProjectManagement::ProjectManager::projectSavingInfoMessage() const {
     return d->saving_info_message;
 }
 
+QAction *ProjectManagement::ProjectManager::actionNewProject() {
+    if (!d->actionProjectNew) {
+        d->actionProjectNew = new QAction(QIcon(),tr("New Project"),this);
+        d->actionProjectNew->setShortcut(QKeySequence(QKeySequence::New));
+        connect(d->actionProjectNew,SIGNAL(triggered()),SLOT(handle_actionProjectNew()));
+        Command* command = ACTION_MANAGER->registerAction(qti_action_PROJECTS_NEW,d->actionProjectNew);
+        command->setCategory(QtilitiesCategory(tr("Projects")));
+    }
+
+    return d->actionProjectNew;
+}
+
+QAction *ProjectManagement::ProjectManager::actionOpenProject() {
+    if (!d->actionProjectOpen) {
+        d->actionProjectOpen = new QAction(QIcon(),tr("Open Project"),this);
+        d->actionProjectOpen->setShortcut(QKeySequence(QKeySequence::Open));
+        connect(d->actionProjectOpen,SIGNAL(triggered()),SLOT(handle_actionProjectOpen()));
+        Command* command = ACTION_MANAGER->registerAction(qti_action_PROJECTS_OPEN,d->actionProjectOpen);
+        command->setCategory(QtilitiesCategory(tr("Projects")));
+    }
+
+    return d->actionProjectOpen;
+}
+
+QAction *ProjectManagement::ProjectManager::actionCloseProject() {
+    if (!d->actionProjectClose) {
+        d->actionProjectClose = new QAction(QIcon(),tr("Close Project"),this);
+        d->actionProjectClose->setEnabled(false);
+        connect(d->actionProjectClose,SIGNAL(triggered()),SLOT(handle_actionProjectClose()));
+        Command* command = ACTION_MANAGER->registerAction(qti_action_PROJECTS_CLOSE,d->actionProjectClose);
+        command->setCategory(QtilitiesCategory(tr("Projects")));
+    }
+
+    return d->actionProjectClose;
+}
+
+QAction *ProjectManagement::ProjectManager::actionSaveProject() {
+    if (!d->actionProjectSave) {
+        d->actionProjectSave = new QAction(QIcon(),tr("Save Project"),this);
+        d->actionProjectSave->setEnabled(false);
+        d->actionProjectSave->setShortcut(QKeySequence(QKeySequence::Save));
+        connect(d->actionProjectSave,SIGNAL(triggered()),SLOT(handle_actionProjectSave()));
+        Command* command = ACTION_MANAGER->registerAction(qti_action_PROJECTS_SAVE,d->actionProjectSave);
+        command->setCategory(QtilitiesCategory(tr("Projects")));
+    }
+
+    return d->actionProjectSave;
+}
+
+QAction *ProjectManagement::ProjectManager::actionSaveAsProject() {
+    if (!d->actionProjectSaveAs) {
+        d->actionProjectSaveAs = new QAction(QIcon(),tr("Save Project As"),this);
+        d->actionProjectSaveAs->setEnabled(false);
+        d->actionProjectSaveAs->setShortcut(QKeySequence(QKeySequence::SaveAs));
+        connect(d->actionProjectSaveAs,SIGNAL(triggered()),SLOT(handle_actionProjectSaveAs()));
+        Command* command = ACTION_MANAGER->registerAction(qti_action_PROJECTS_SAVE_AS,d->actionProjectSaveAs);
+        command->setCategory(QtilitiesCategory(tr("Projects")));
+    }
+
+    return d->actionProjectSaveAs;
+}
+
+ActionContainer *ProjectManagement::ProjectManager::recentProjectsMenuContainer() {
+    bool existed;
+    ActionContainer* action_container = ACTION_MANAGER->createMenu(qti_action_PROJECTS_RECENT,existed);
+
+    QMenu* menu = action_container->menu();
+    menu->setTitle(tr("Recent Projects"));
+
+    d->recentProjectsMenus.append(menu);
+    refreshRecentProjects();
+
+    return action_container;
+}
+
+void ProjectManagement::ProjectManager::handle_actionProjectNew() {
+    newProject();
+}
+
+void ProjectManagement::ProjectManager::handle_actionProjectOpen() {
+    QString filter = allowedProjectTypesFilter();
+    QString project_path;
+    if (useCustomProjectsPath())
+        project_path = customProjectsPath(defaultCustomProjectsCategory());
+    else
+        project_path = QCoreApplication::applicationDirPath() + tr("/Projects");
+    QString file_name = QFileDialog::getOpenFileName(0, tr("Open Existing Project"), project_path, filter);
+    if (file_name.isEmpty())
+        return;
+
+    if (!isAllowedFileName(file_name))
+        file_name.append("." + projectTypeSuffix(defaultProjectType()));
+
+    openProject(file_name);
+}
+
+void ProjectManagement::ProjectManager::handle_actionProjectClose() {
+    closeProject();
+}
+
+void ProjectManagement::ProjectManager::handle_actionProjectSave() {
+    if (!currentProject())
+        return;
+
+    if (currentProject()->projectFile().isEmpty()) {
+        return handle_actionProjectSaveAs();
+    } else {
+        saveProject(currentProject()->projectFile());
+    }
+}
+
+void ProjectManagement::ProjectManager::handle_actionProjectSaveAs() {
+    if (!currentProject())
+        return;
+
+    if (activeProjectBusy()) {
+        if (executionStyle() == ExecNormal) {
+            QMessageBox msgBox;
+            msgBox.setWindowTitle(tr("Project Busy"));
+            msgBox.setIcon(QMessageBox::Information);
+            msgBox.setText(tr("You cannot save the current project while it is busy.<br>Wait for it to become idle and try again."));
+            msgBox.exec();
+            return;
+        } else
+            LOG_WARNING_P(tr("You cannot save the current project while it is busy.<br>Wait for it to become idle and try again."));
+    }
+
+    QString filter = allowedProjectTypesFilter();
+    QString project_path;
+    if (useCustomProjectsPath())
+        project_path = customProjectsPath(defaultCustomProjectsCategory());
+    else
+        project_path = QCoreApplication::applicationDirPath() + "/Projects";
+
+    IExportable::ExportMode target_project_type = defaultProjectType();
+    QString selected_filter;
+    QString file_name = QFileDialog::getSaveFileName(0, tr("Save Project"),project_path, filter, &selected_filter);
+    target_project_type = projectTypeFromTypeFilter(selected_filter);
+    if (file_name.isEmpty())
+        return;
+
+    if (!isAllowedFileName(file_name))
+        file_name.append("." + projectTypeSuffix(target_project_type));
+
+    saveProject(file_name);
+}
+
+void ProjectManagement::ProjectManager::handle_projectStateChanged() {
+    if (!d->is_initialized)
+        return;
+
+    IProject* project = currentProject();
+    if (project) {
+        // Update actions:
+        if (d->actionProjectClose)
+            d->actionProjectClose->setEnabled(true);
+        if (d->actionProjectNew)
+            d->actionProjectNew->setEnabled(true);
+        if (d->actionProjectOpen)
+            d->actionProjectOpen->setEnabled(true);
+        if (d->actionProjectSaveAs)
+            d->actionProjectSaveAs->setEnabled(true);
+        if (d->actionProjectSave)
+            d->actionProjectSave->setEnabled(true);
+
+//        // Check if the project name currently in the main window must change:
+//        QWidget* main_window = QtilitiesApplication::mainWindow();
+//        if (main_window && project) {
+//            // Name was never appended before.
+//            if (d->appended_project_name.isEmpty()) {
+//                QString new_title = main_window->windowTitle().trimmed();
+//                new_title.append(QString(" - %1").arg(project->projectName()));
+//                main_window->setWindowTitle(new_title);
+//                d->appended_project_name = project->projectName();
+//            } else {
+//                if (d->appended_project_name != project->projectName()) {
+//                    // The name of a previous project was appended.
+//                    QString new_title = main_window->windowTitle().trimmed();
+//                    new_title.chop(d->appended_project_name.length() + 3);
+//                    new_title.append(QString(" - %1").arg(project->projectName()));
+//                    main_window->setWindowTitle(new_title);
+//                    d->appended_project_name = project->projectName();
+//                } else {
+//                    // The name of the current project is already appended.
+//                }
+//            }
+//        }
+
+        // Add the * character if neccesarry:
+        if (project->isModified()) {
+            if (d->actionProjectSave)
+                d->actionProjectSave->setEnabled(true);
+//            QWidget* main_window = QtilitiesApplication::mainWindow();
+//            if (main_window) {
+//                if (!main_window->windowTitle().endsWith("*"))
+//                    main_window->setWindowTitle(main_window->windowTitle().append("*"));
+//            }
+        } else {
+            if (d->actionProjectSave)
+                d->actionProjectSave->setEnabled(false);
+//            QWidget* main_window = QtilitiesApplication::mainWindow();
+//            if (main_window) {
+//                if (main_window->windowTitle().endsWith("*")) {
+//                    QString new_title = main_window->windowTitle();
+//                    new_title.chop(1);
+//                    main_window->setWindowTitle(new_title);
+//                }
+//            }
+        }
+    } else {
+        if (d->actionProjectClose)
+            d->actionProjectClose->setEnabled(false);
+        if (d->actionProjectNew)
+            d->actionProjectNew->setEnabled(true);
+        if (d->actionProjectOpen)
+            d->actionProjectOpen->setEnabled(true);
+        if (d->actionProjectSave)
+            d->actionProjectSave->setEnabled(false);
+        if (d->actionProjectSaveAs)
+            d->actionProjectSaveAs->setEnabled(false);
+
+//        QWidget* main_window = QtilitiesApplication::mainWindow();
+//        if (main_window) {
+//            // Remove possible *:
+//            if (main_window->windowTitle().endsWith("*")) {
+//                QString new_title = main_window->windowTitle();
+//                new_title.chop(1);
+//                main_window->setWindowTitle(new_title);
+//            }
+
+//            // Remove possible last appended name:
+//            if (!d->appended_project_name.isEmpty()) {
+//                QString new_title = main_window->windowTitle();
+//                new_title.chop(d->appended_project_name.length() + 3);
+//                main_window->setWindowTitle(new_title);
+//                d->appended_project_name.clear();
+//            }
+//        }
+    }
+
+    refreshRecentProjects();
+}
+
+void ProjectManagement::ProjectManager::handleApplicationBusyStateChanged() {
+    if (QtilitiesApplication::applicationBusy()) {
+        if (d->actionProjectClose)
+            d->actionProjectClose->setEnabled(false);
+        if (d->actionProjectNew)
+            d->actionProjectNew->setEnabled(false);
+        if (d->actionProjectOpen)
+            d->actionProjectOpen->setEnabled(false);
+        if (d->actionProjectSave)
+            d->actionProjectSave->setEnabled(false);
+        if (d->actionProjectSaveAs)
+            d->actionProjectSaveAs->setEnabled(false);
+        // Need to loop through all of them.
+//        if (d->recentProjectsMenus)
+//            d->recentProjectsMenus->setEnabled(false);
+    } else{
+        if (d->actionProjectClose)
+            d->actionProjectClose->setEnabled(true);
+        if (d->actionProjectNew)
+            d->actionProjectNew->setEnabled(true);
+        if (d->actionProjectOpen)
+            d->actionProjectOpen->setEnabled(true);
+        if (d->actionProjectSave)
+            d->actionProjectSave->setEnabled(true);
+        if (d->actionProjectSaveAs)
+            d->actionProjectSaveAs->setEnabled(true);
+//        if (d->recentProjectsMenus)
+//            d->recentProjectsMenus->setEnabled(true);
+    }
+}
+
+void ProjectManagement::ProjectManager::refreshRecentProjects() {    
+    if (d->recentProjectsMenus.isEmpty())
+        return;
+
+    QStringList names = recentProjectNames();
+    QStringList paths = recentProjectPaths();
+
+    if (names.count() != paths.count()) {
+        qWarning() << "refreshRecentProjects::handleRecentProjectChanged received invalid parameters.";
+        return;
+    }
+
+    foreach (QMenu* menu, d->recentProjectsMenus)
+        menu->clear();
+
+    int recent_count = 0;
+    for (int i = 0; i < paths.count(); ++i) {
+        for (int i = 0; i < names.count(); ++i) {
+            // Skip the first project if it is the current open project:
+            if (names.at(i) == currentProjectName())
+                continue;
+
+            if (names.at(i).isEmpty())
+                continue;
+
+            QAction* prev_action = new QAction(paths.at(i),this);
+            prev_action->setToolTip(paths.at(i));
+            prev_action->setObjectName(paths.at(i));
+
+            foreach (QMenu* menu, d->recentProjectsMenus)
+                menu->addAction(prev_action);
+
+            connect(prev_action,SIGNAL(triggered()),SLOT(handleRecentProjectActionTriggered()));
+            ++recent_count;
+            continue;
+        }
+    }
+
+    if (recent_count > 0) {
+        QAction* clear_recent_action = new QAction(tr("Clear List"),0);
+        connect(clear_recent_action,SIGNAL(triggered()),SLOT(clearRecentProjects()));
+        QAction* remove_non_existing_recent_action = new QAction(tr("Remove Non-Existing"),0);
+        connect(remove_non_existing_recent_action,SIGNAL(triggered()),SLOT(removeNonExistingRecentProjects()));
+
+        foreach (QMenu* menu, d->recentProjectsMenus) {
+            menu->addSeparator();
+            menu->addAction(clear_recent_action);
+            menu->addAction(remove_non_existing_recent_action);
+            menu->setEnabled(true);
+        }
+    } else {
+        foreach (QMenu* menu, d->recentProjectsMenus)
+            menu->setEnabled(false);
+    }
+}
+
+void ProjectManagement::ProjectManager::handleRecentProjectActionTriggered() {
+    QAction* action = qobject_cast<QAction*> (sender());
+    if (action) {
+        // Check if this file exists:
+        QFileInfo fi(action->objectName());
+        if (!fi.exists()) {
+            QMessageBox msgBox;
+            msgBox.setWindowTitle(tr("Cannot Find Previous Project File"));
+            msgBox.setIcon(QMessageBox::Warning);
+            msgBox.setText(tr("The recent project you are trying to open does not exist."));
+            msgBox.setInformativeText(QString(tr("%1<br><br>This project will be removed from your list of previous projects.")).arg(action->objectName()));
+            msgBox.exec();
+            removeRecentProject(action->objectName());
+            refreshRecentProjects();
+        } else {
+            // The path to open is the object name:
+            openProject(action->objectName());
+        }
+    }
+}
+
 void Qtilities::ProjectManagement::ProjectManager::addRecentProject(IProject* project) {
     if (!project)
         return;
@@ -949,3 +1325,4 @@ void ProjectManagement::ProjectManager::clearCustomProjectsPaths() {
             removeCustomProjectsPath(key);
     }
 }
+

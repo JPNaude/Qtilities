@@ -27,6 +27,31 @@ Qtilities v1.3 Changes
     ============================
     [*] Fixed AbstractTreeItem::getIcon() and AbstractTreeItem::hasIcon() which checked the wrong property on the object.
 
+    ============================
+    QtilitiesExtensionSystem:
+    ============================
+
+    ============================
+    QtilitiesProjectManagement:
+    ============================
+    [#] Most of the functionality that was previously part of the ProjectManagementPlugin is now part of the ProjectManager. This
+        includes convenience actions that can be retrieved to do common tasks. See ProjectManager::actionNewProject(),
+        ProjectManager::actionOpenProject(), ProjectManager::actionSaveProject(), ProjectManager::actionSaveAsProject() and ProjectManager::actionCloseProject().
+        The recent projects functionality was also moved, see ProjectManager::recentProjectsMenuContainer().
+        The project management plugin continues to function in exactly the same was as always, but the project manager is doing all the work
+        now. This change provides users with much more flexibility in terms of where those actions end up etc. by placing them manually
+        and not using the ProjectManagementPlugin.
+    [+] Added ProjectManager::projectCreationStarted() and ProjectManager::projectCreationFinished().
+
+    ============================
+    QtilitiesTesting:
+    ============================
+
+    ============================
+    Plugins:
+    ============================
+    [*] Help Plugin: Fixed widget which is shown before adding it to a proper layout in the help plugin.
+
 ================================
 Qtilities v1.2 Changes
 ================================

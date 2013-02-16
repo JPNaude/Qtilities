@@ -362,6 +362,14 @@ namespace Qtilities {
             // About menu and actions
             const char * const qti_action_ABOUT                            = "&About";
             const char * const qti_action_ABOUT_QTILITIES                  = "About.Qtilities";
+
+            // Project actions
+            const char * const qti_action_PROJECTS_NEW                      = "Projects.New";
+            const char * const qti_action_PROJECTS_OPEN                     = "Projects.Open";
+            const char * const qti_action_PROJECTS_CLOSE                    = "Projects.Close";
+            const char * const qti_action_PROJECTS_SAVE                     = "Projects.Save";
+            const char * const qti_action_PROJECTS_SAVE_AS                  = "Projects.SaveAs";
+            const char * const qti_action_PROJECTS_RECENT                   = "Projects.Recent";
         }
     }
 }
