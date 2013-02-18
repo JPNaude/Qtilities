@@ -236,6 +236,7 @@ bool Qtilities::ProjectManagement::ProjectManager::newProject() {
         connect(d->current_project,SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
         d->current_project->setProjectItems(d->item_list,true);
         emit projectCreationFinished();
+        emit currentProjectChanged(d->current_project);
         return true;
     } else {
         if (closeProject()) {
@@ -243,6 +244,7 @@ bool Qtilities::ProjectManagement::ProjectManager::newProject() {
             connect(d->current_project,SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
             d->current_project->setProjectItems(d->item_list,true);
             emit projectCreationFinished();
+            emit currentProjectChanged(d->current_project);
             return true;
         }
     }
@@ -287,6 +289,7 @@ bool Qtilities::ProjectManagement::ProjectManager::closeProject() {
 
         delete d->current_project;
         d->current_project = 0;
+        emit currentProjectChanged(d->current_project);
 
         emit modificationStateChanged(false);
         emit projectClosingFinished(success);
@@ -397,6 +400,7 @@ bool Qtilities::ProjectManagement::ProjectManager::openProject(const QString& fi
     }
 
     addRecentProject(d->current_project);
+    emit currentProjectChanged(d->current_project);
     QApplication::restoreOverrideCursor();
     markProjectAsChangedDuringLoad(false);
 

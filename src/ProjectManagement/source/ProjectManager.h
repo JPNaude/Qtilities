@@ -527,6 +527,11 @@ namespace Qtilities {
         signals:
             void modificationStateChanged(bool is_modified) const;
 
+            //! A signal which is emitted when the active project changed.
+            /*!
+             * <i>This function was added in %Qtilities v1.3.</i>
+             */
+            void currentProjectChanged(IProject* project);
             //! A signal which is emitted when a project loading/opening process starts.
             /*!
              * <i>This function was added in %Qtilities v1.3.</i>
