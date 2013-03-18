@@ -47,8 +47,8 @@ namespace Qtilities {
         \brief Structure used by an AbstractLoggerEngine to store it's data.
           */
         struct AbstractLoggerEngineData {
-            AbstractLoggerEngineData(): is_initialized(false),
-                is_enabled(true),
+            AbstractLoggerEngineData(): is_enabled(true),
+                is_initialized(false),
                 message_contexts(Logger::AllMessageContexts),
                 is_removable(true) {}
 
@@ -75,8 +75,8 @@ namespace Qtilities {
         class LOGGING_SHARED_EXPORT AbstractLoggerEngine : public QObject
         {
             Q_OBJECT
-            Q_PROPERTY(Qtilities::Logging::Logger::MessageTypeFlags EnabledMessageTypes READ getEnabledMessageTypes WRITE setEnabledMessageTypes);
-            Q_PROPERTY(QString FormattingEngine READ formattingEngineName);
+            Q_PROPERTY(Qtilities::Logging::Logger::MessageTypeFlags EnabledMessageTypes READ getEnabledMessageTypes WRITE setEnabledMessageTypes)
+            Q_PROPERTY(QString FormattingEngine READ formattingEngineName)
 
         public:
             AbstractLoggerEngine();
