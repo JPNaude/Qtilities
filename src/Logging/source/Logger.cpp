@@ -186,6 +186,21 @@ void Qtilities::Logging::Logger::logMessage(const QString& engine_name, MessageT
     if (!msg8.isNull()) message_contents.push_back(msg8);
     if (!msg9.isNull()) message_contents.push_back(msg9);
 
+//    if (message.toString() == "QFile::seek: IODevice is not open")
+//        int i = 5;
+//    else if (message.toString().contains("Cannot send events to objects owned"))
+//        int i = 5;
+//    else if (message.toString().contains("abort()"))
+//        int i = 5;
+//    else if (message.toString().contains("Thread: Destroyed while thread is still running"))
+//        int i = 5;
+//    else if (message.toString().contains("QObject: Cannot create children for a parent that is in a different thread"))
+//        int i = 5;
+//    else if (message.toString().contains("QFSFileEngine::open: No file name specified"))
+//        int i = 5;
+//    else if (message.toString().contains("QFont::setPixelSize: Pixel size"))
+//        int i = 5;
+
     // Create the correct message context:
     MessageContextFlags context = 0;
     if (engine_name.isEmpty())
@@ -630,7 +645,7 @@ void Qtilities::Logging::Logger::installAsQtMessageHandler(bool update_stored_se
     if (update_stored_settings)
         writeSettings();
 
-    LOG_INFO("Capturing of Qt debug system messages is now enabled.");
+    LOG_DEBUG("Capturing of Qt debug system messages is now enabled.");
 }
 
 void Qtilities::Logging::Logger::uninstallAsQtMessageHandler() {   
@@ -643,7 +658,7 @@ void Qtilities::Logging::Logger::uninstallAsQtMessageHandler() {
     d->is_qt_message_handler = false;
     writeSettings();
 
-    LOG_INFO("Capturing of Qt debug system messages is now disabled.");
+    LOG_DEBUG("Capturing of Qt debug system messages is now disabled.");
 }
 
 bool Qtilities::Logging::Logger::isQtMessageHandler() const {
@@ -660,14 +675,14 @@ void Qtilities::Logging::Logger::setIsQtMessageHandler(bool toggle) {
         #else
             qInstallMessageHandler(installLoggerMessageHandler);
         #endif
-        LOG_INFO("Capturing of Qt debug system messages is now enabled.");
+        LOG_DEBUG("Capturing of Qt debug system messages is now enabled.");
     } else {
         #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
             qInstallMsgHandler(0);
         #else
             qInstallMessageHandler(0);
         #endif
-        LOG_INFO("Capturing of Qt debug system messages is now disabled.");
+        LOG_DEBUG("Capturing of Qt debug system messages is now disabled.");
     }
 }
 
@@ -677,10 +692,6 @@ void Qtilities::Logging::installLoggerMessageHandler(QtMsgType type, const char 
     static QMutex msgMutex;
     if (!msgMutex.tryLock())
         return;
-
-//    Remember, to break on these call Log->setIsQtMessageHandler(true) first.
-//    if (QString(msg) == "QFile::seek: IODevice is not open")
-//        int i = 5;
 
     switch (type)
     {
@@ -784,9 +795,23 @@ void Qtilities::Logging::Logger::toggleQtMsgEngine(bool toggle) {
         QtMsgLoggerEngine::instance()->setActive(toggle);
 }
 
+bool Qtilities::Logging::Logger::qtMsgEngineActive() const {
+    if (d->logger_engines.contains(QtMsgLoggerEngine::instance()))
+        return QtMsgLoggerEngine::instance()->isActive();
+    else
+        return false;
+}
+
 void Qtilities::Logging::Logger::toggleConsoleEngine(bool toggle) {
     if (d->logger_engines.contains(ConsoleLoggerEngine::instance()))
         ConsoleLoggerEngine::instance()->setActive(toggle);
+}
+
+bool Qtilities::Logging::Logger::consoleEngineActive() const {
+    if (d->logger_engines.contains(ConsoleLoggerEngine::instance()))
+        return ConsoleLoggerEngine::instance()->isActive();
+    else
+        return false;
 }
 
 void Qtilities::Logging::Logger::setLoggerSessionConfigPath(const QString path) {

@@ -105,7 +105,7 @@ namespace Qtilities {
                 EngineAdded,        /*!< Engine was added to the logger. */
                 EngineRemoved       /*!< Engine was removed from the logger. */
             };
-            Q_ENUMS(EngineChangeIndication);
+            Q_ENUMS(EngineChangeIndication)
 
             //! The possible message types supported by the logger.
             /*!
@@ -318,11 +318,21 @@ namespace Qtilities {
               Only one qt message engine can be created. This engine can be enabled/disabled using this function.
             */
             void toggleQtMsgEngine(bool toggle);
+            //! Convenience function to check if the QtMsgEngine is active.
+            /*!
+             * <i>This function was added in %Qtilities v1.3.</i>
+             */
+            bool qtMsgEngineActive() const;
             //! Convenience function to enable a console engine.
             /*!
               Only one console engine can be created. This engine can be enabled/disabled using this function.
             */
             void toggleConsoleEngine(bool toggle);
+            //! Convenience function to check if the ConsoleEngine is active.
+            /*!
+             * <i>This function was added in %Qtilities v1.3.</i>
+             */
+            bool consoleEngineActive() const;
             //! Attaches the new logger engine. By default the new engine will be intialized by this function. If you want to initialize the engine manually, set the initialize_engine paramater to false.
             bool attachLoggerEngine(AbstractLoggerEngine* new_logger_engine, bool initialize_engine = true);
             //! Detaches the logger engine specified.

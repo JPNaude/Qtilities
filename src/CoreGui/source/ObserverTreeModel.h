@@ -129,7 +129,7 @@ namespace Qtilities {
             //! Function to get the model index of an object in the tree. If the object does not exist, QModelIndex() is returned.
             /*!
               \param obj The object to find.
-              \param column The colum requested.
+              \param column The column requested.
               \returns The QModelIndex of the specified object. If the object was not found QModelIndex() is returned.
 
               \note This function does exactly the same as getIndex()

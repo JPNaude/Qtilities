@@ -176,6 +176,11 @@ bool MyPlugins::initializeDependencies(QStringList *error_strings) {
             void registeredFilesChanged(const QStringList& files);
             //! Signal used to forward help display requests to any help browsers connected to the help manager.
             void forwardRequestUrlDisplay(const QUrl& url, bool ensure_visible = true);
+            //! Home page changed signal.
+            /*!
+              <i>This signal was added in %Qtilities v1.3.</i>
+              */
+            void homePageChanged(const QUrl& url);
 
         private:
             //! Unregister all files.

@@ -209,7 +209,6 @@ void AddDynamicPropertyWizard::accept() {
         } else
             selected_type = propertyType(selected_available_property);
 
-
         d->constructed_property = QtilitiesProperty::constructVariant(selected_type,propertyDefaultValue(selected_available_property).toString());
         if (d->new_property_type == ObjectManager::SharedProperties) {
             SharedProperty new_shared_property(char_property_name,d->constructed_property);

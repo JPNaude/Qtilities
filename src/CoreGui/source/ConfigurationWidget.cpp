@@ -132,6 +132,7 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
     int max_height = -1;
 
     QList<IConfigPage*> uncategorized_pages;
+    QList<IConfigPage*> initialized_pages;
 
     d->config_pages.startProcessingCycle();
     if (d->categorized_display) {
@@ -153,6 +154,7 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
                 }
 
                 config_page->configPageInitialize();
+                initialized_pages << config_page;
             }
         }
 
@@ -215,7 +217,8 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
 
                 // Set the object name to the page title:
                 config_page->objectBase()->setObjectName(config_page->configPageTitle());
-                config_page->configPageInitialize();
+                if (!initialized_pages.contains(config_page))
+                    config_page->configPageInitialize();
 
                 addPageCategoryProperty(config_page);
                 addPageIconProperty(config_page);

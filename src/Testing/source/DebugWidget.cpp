@@ -412,7 +412,7 @@ bool Qtilities::Testing::DebugWidget::on_btnSavePluginConfigSet_clicked()
 
 bool Qtilities::Testing::DebugWidget::on_btnSaveNewPluginConfigSet_clicked()
 {
-    QString fileName = QFileDialog::getSaveFileName(0, tr("Save Plugin Configuration"),QString("%1%2").arg(QtilitiesApplication::applicationSessionPath()),QString(tr("Plugin Configurations (*%1)")).arg(qti_def_SUFFIX_PLUGIN_CONFIG));
+    QString fileName = QFileDialog::getSaveFileName(0, tr("Save Plugin Configuration"),QString("%1/new_plugin_configuration").arg(QtilitiesApplication::applicationSessionPath()),QString(tr("Plugin Configurations (*%1)")).arg(qti_def_SUFFIX_PLUGIN_CONFIG));
     if (!fileName.isEmpty()) {
         QStringList inactive_list = d->inactive_plugins_model.stringList();
         QStringList filter_list = d->filtered_plugins_model.stringList();

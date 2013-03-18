@@ -534,7 +534,7 @@ void Qtilities::ProjectManagement::ProjectManager::refreshPartList() {
         if (part) {
             if (!itemNames.contains(part->projectItemName())) {
                 projectItems.append(part);
-                LOG_INFO(QString(tr("Project Manager: Found project item: %1")).arg(part->projectItemName()));
+                LOG_DEBUG(QString(tr("Project Manager: Found project item: %1")).arg(part->projectItemName()));
             } else
                 LOG_ERROR(tr("The project manager found duplicate project items called: ") + part->projectItemName() + tr(", the second occurance is on object: ") + projectItemObjects.at(i)->objectName());
         } else

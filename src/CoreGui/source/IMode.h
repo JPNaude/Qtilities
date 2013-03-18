@@ -55,7 +55,7 @@ namespace Qtilities {
             class QTILITIES_CORE_GUI_SHARED_EXPORT IMode: virtual public IObjectBase, public IContext
             {
 
-            public:
+            public:               
                 IMode() : d_mode_id(-1) {
                     d_target_manager_ids << Qtilities::CoreGui::Constants::qti_def_DEFAULT_MODE_MANAGER;
                 }
@@ -140,6 +140,18 @@ namespace Qtilities {
                     d_target_manager_ids = new_target_manager_ids;
                 }
 
+                //! Returns the supported locations of extension widgets in this mode.
+                /*!
+                 * The default implementation returns 0 which is equal to no locations.
+                 *
+                 * \returns (int) QtilitiesMainWindow::ModeLayoutFlags representing the supported extension widget locations.
+                 *
+                 * <i>This function was added in %Qtilities v1.3.</i>
+                 */
+                int supportedExtensionWidgetLocations() const {
+                    return 0;
+                }
+
             private:
                 int d_mode_id;
                 QList<int> d_target_manager_ids;
@@ -148,6 +160,6 @@ namespace Qtilities {
     }
 }
 
-Q_DECLARE_INTERFACE(Qtilities::CoreGui::Interfaces::IMode,"com.Qtilities.CoreGui.IMode/1.0");
+Q_DECLARE_INTERFACE(Qtilities::CoreGui::Interfaces::IMode,"com.Qtilities.CoreGui.IMode/1.0")
 
 #endif // IMODE_H

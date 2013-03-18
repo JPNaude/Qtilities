@@ -122,6 +122,7 @@ namespace Qtilities {
                 QWidget* modeWidget();
                 void initializeMode();
                 QIcon modeIcon() const;
+                bool setModeIcon(QIcon icon);
                 QString modeName() const;
                 QString contextString() const { return CONTEXT_HELP_MODE; }
                 QString contextHelpId() const { return QString(); }
@@ -136,6 +137,8 @@ namespace Qtilities {
                 void handleUrl(const QUrl& url);
                 //! Handle requests from the help manager to display the url.
                 void handleUrlRequest(const QUrl& url, bool ensure_visible);
+                //! Handle home page changed.
+                void handleHomePageChanged(const QUrl& url);
 
             private:
                 HelpModeData* d;

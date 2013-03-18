@@ -104,6 +104,9 @@ bool Qtilities::Logging::FileLoggerEngine::initialize() {
 void Qtilities::Logging::FileLoggerEngine::finalize() {
     if (abstractLoggerEngineData->is_initialized) {
         QFile file(file_name);
+        if (!file.exists())
+            return;
+
         if (!file.open(QIODevice::Append | QIODevice::Text))
             return;
 

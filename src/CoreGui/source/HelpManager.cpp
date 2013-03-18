@@ -135,7 +135,10 @@ void HelpManager::initialize() {
 }
 
 void HelpManager::setHomePage(const QUrl& home_page) {
-    d->home_page = home_page;
+    if (d->home_page != home_page) {
+        d->home_page = home_page;
+        emit homePageChanged(home_page);
+    }
 }
 
 QUrl HelpManager::homePage() const {

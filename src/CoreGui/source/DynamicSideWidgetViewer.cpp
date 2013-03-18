@@ -50,6 +50,7 @@ struct Qtilities::CoreGui::DynamicSideWidgetViewerPrivateData {
     QList<DynamicSideWidgetWrapper*> active_wrappers;
     int mode_destination;
     bool is_exclusive;
+    QStringList hidden_widgets;
 };
 
 Qtilities::CoreGui::DynamicSideWidgetViewer::DynamicSideWidgetViewer(int mode_destination, QWidget *parent) :
@@ -75,8 +76,7 @@ Qtilities::CoreGui::DynamicSideWidgetViewer::DynamicSideWidgetViewer(int mode_de
     d->mode_destination = mode_destination;
 }
 
-Qtilities::CoreGui::DynamicSideWidgetViewer::~DynamicSideWidgetViewer()
-{
+Qtilities::CoreGui::DynamicSideWidgetViewer::~DynamicSideWidgetViewer() {
     delete ui;
 }
 
@@ -150,6 +150,28 @@ QList<QWidget *> Qtilities::CoreGui::DynamicSideWidgetViewer::sideViewerWidgets(
     return widgets;
 }
 
+void Qtilities::CoreGui::DynamicSideWidgetViewer::setHiddenSideWidgets(const QStringList &widget_names) {
+    if (d->hidden_widgets == widget_names)
+        return;
+
+    d->hidden_widgets = widget_names;
+
+    // Hide needed wrappers:
+    for (int i = 0; i < d->active_wrappers.count(); ++i) {
+        DynamicSideWidgetWrapper* wrapper = d->active_wrappers.at(i);
+        if (d->hidden_widgets.contains(wrapper->currentText()))
+            wrapper->setVisible(false);
+        else
+            wrapper->setVisible(true);
+    }
+
+    updateWrapperComboBoxes();
+}
+
+QStringList Qtilities::CoreGui::DynamicSideWidgetViewer::hiddenSideWidgets() const {
+    return d->hidden_widgets;
+}
+
 void Qtilities::CoreGui::DynamicSideWidgetViewer::handleSideWidgetDestroyed(QWidget* widget) {
     DynamicSideWidgetWrapper* wrapper = qobject_cast<DynamicSideWidgetWrapper*> (widget);
     QString wrapper_test = wrapper->currentText();
@@ -214,9 +236,16 @@ void Qtilities::CoreGui::DynamicSideWidgetViewer::updateWrapperComboBoxes(const 
 
         // Now build up a new map with unconstructed widgets:
         QMap<QString, ISideViewerWidget*> available_widgets;
-        for (int i = 0; i < d->text_iface_map.count(); ++i) {
-            if (!wrapper_labels.contains(d->text_iface_map.keys().at(i)))
-                available_widgets[d->text_iface_map.keys().at(i)] = d->text_iface_map.values().at(i);
+        QStringList available_widgets_keys = d->text_iface_map.keys();
+        QList<ISideViewerWidget*> available_widgets_values = d->text_iface_map.values();
+        for (int i = 0; i < available_widgets_keys.count(); ++i) {
+            QString label = available_widgets_keys.at(i);
+            if (d->hidden_widgets.contains(label))
+                continue;
+
+            if (!wrapper_labels.contains(label)) {
+                available_widgets[label] = available_widgets_values.at(i);
+            }
         }
 
         // Lastly set the new available list in all active wrappers:

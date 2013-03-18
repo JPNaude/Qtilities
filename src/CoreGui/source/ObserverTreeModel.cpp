@@ -787,7 +787,7 @@ Qt::ItemFlags Qtilities::CoreGui::ObserverTreeModel::flags(const QModelIndex &in
 
 QVariant Qtilities::CoreGui::ObserverTreeModel::headerData(int section, Qt::Orientation orientation, int role) const {
     if ((section == columnPosition(ColumnName)) && (orientation == Qt::Horizontal) && (role == Qt::DisplayRole)) {
-        if (d->type_grouping_name.isEmpty())
+        if (d->type_grouping_name.isEmpty() && observerContext())
             return observerContext()->observerName();
         else
             return d->type_grouping_name;
@@ -1492,9 +1492,8 @@ QModelIndex Qtilities::CoreGui::ObserverTreeModel::findObject(const QModelIndex&
         // Check this index:
         ObserverTreeItem* item = getItem(current_index);
         if (item) {
-            if (item->getObject() == obj) {
+            if (item->getObject() == obj)
                 return current_index;
-            }
 
             if (column == -1)
                 column = columnPosition(ObserverTreeModel::ColumnName);

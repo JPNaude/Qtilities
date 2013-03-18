@@ -178,7 +178,6 @@ FORMS += source/ObserverWidget.ui \
     source/TaskSummaryWidget.ui \
     source/GroupedConfigPage.ui
 
-
 # --------------------------
 # Files only included when Qtilities help is defined to be present.
 # --------------------------

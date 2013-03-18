@@ -153,6 +153,7 @@ ModeListWidget()->setStyleSheet(stylesheet);
             //! Gets access to the QListWidget which is used to represent the modes.
             QListWidget* modeListWidget();
 
+
             // ----------------------------------
             // Functions related to adding/removing modes
             // ----------------------------------
