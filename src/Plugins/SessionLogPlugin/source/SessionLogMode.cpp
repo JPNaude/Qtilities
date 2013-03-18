@@ -57,7 +57,6 @@ Qtilities::Plugins::SessionLog::SessionLogMode::SessionLogMode(QObject* parent) 
     d->session_mode_widget = new QMainWindow;
     d->mode_icon = QIcon(qti_icon_SESSION_LOG_MODE_48x48);
 
-
     QString log_widget_name = tr("Session Log");
     QWidget* session_logger_widget = LoggerGui::createLogWidget(&log_widget_name,
                                                                 WidgetLoggerEngine::AllMessagesPlainTextEdit |

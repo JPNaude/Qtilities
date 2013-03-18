@@ -99,6 +99,20 @@ namespace Qtilities {
              */
             QList<QWidget*> sideViewerWidgets() const;
 
+            //! Specifies side widgets which should be hidden.
+            /*!
+             * Calling this function will hide the specified widgets and also remove it from all combo boxes. All
+             * widgets not part of this list will be handled as normal.
+             *
+             * <i>This function  was added in %Qtilities v1.3.</i>
+             */
+            void setHiddenSideWidgets(const QStringList& widget_names);
+            //! Gets the side widgets which are hidden.
+            /*!
+             * <i>This function  was added in %Qtilities v1.3.</i>
+             */
+            QStringList hiddenSideWidgets() const;
+
         public slots:
             //! Handles the deletion of side widgets.
             void handleSideWidgetDestroyed(QWidget* widget);

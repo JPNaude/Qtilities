@@ -32,6 +32,7 @@
 ****************************************************************************/
 
 #include "Task.h"
+#include <LoggerEngines>
 
 using namespace Qtilities::Core::Interfaces;
 using namespace Qtilities::Core;
@@ -291,12 +292,31 @@ void Qtilities::Core::Task::logMessage(const QString& message, Logger::MessageTy
     if (d->log_context & Logger::PriorityMessages)
         Log->logPriorityMessage(QString(),type,message);
     if (d->log_context & Logger::EngineSpecificMessages) {
-        if (d->log_engine)
+        bool do_console_output_once = false;
+
+        if (d->log_engine) {
             Log->logMessage(d->log_engine->name(),type,message);
-        if (d->custom_log_engine)
+            do_console_output_once = true;
+        }
+        if (d->custom_log_engine) {
             Log->logMessage(d->custom_log_engine->name(),type,message);
-        if (parentTask())
+            do_console_output_once = true;
+        }
+        if (parentTask()) {
             parentTask()->logMessage(message,type);
+            do_console_output_once = false;
+        }
+
+        if (do_console_output_once) {
+            if (Log->qtMsgEngineActive()) {
+                // Log the message to the QtMsgEngine as well:
+                QtMsgLoggerEngine::instance()->logMessage(message,type);
+            }
+            if (Log->consoleEngineActive()) {
+                // Log the message to the ConsoleLoggerEngine as well:
+                ConsoleLoggerEngine::instance()->logMessage(message,type);
+            }
+        }
     }
 }
 
@@ -412,9 +432,7 @@ void Qtilities::Core::Task::resume() {
 
 bool Qtilities::Core::Task::startTask(int expected_subtasks, const QString& message, Logger::MessageType type) {  
     if (d->task_state == ITask::TaskBusy) {
-        Log->toggleQtMsgEngine(true);
         LOG_DEBUG("Attempting to start task which is already busy. Task name: " + d->task_name + ", Task ID: " + taskID());
-        Log->toggleQtMsgEngine(false);
         return false;
     }
 
@@ -493,9 +511,7 @@ bool Task::resumeTask(const QString &message, Logger::MessageType type) {
 
 void Qtilities::Core::Task::addCompletedSubTasks(int number_of_sub_tasks, const QString& message, Logger::MessageType type) {
     if (d->task_state != ITask::TaskBusy) {
-        Log->toggleQtMsgEngine(true);
         LOG_DEBUG("Attempting to register completed sub-tasks in a task which has not been started. Task name: " + d->task_name + ", Task ID: " + taskID());
-        Log->toggleQtMsgEngine(false);
         return;
     }
 
@@ -514,9 +530,7 @@ void Qtilities::Core::Task::addCompletedSubTasks(int number_of_sub_tasks, const 
 
 bool Qtilities::Core::Task::completeTask(ITask::TaskResult result, const QString& message, Logger::MessageType type) {
     if (d->task_state != ITask::TaskBusy) {
-        Log->toggleQtMsgEngine(true);
         LOG_DEBUG("Attempting to complete task which is not busy. Task name: " + d->task_name + ", Task ID: " + taskID());
-        Log->toggleQtMsgEngine(false);
         return false;
     }
 

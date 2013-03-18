@@ -124,20 +124,22 @@ Qtilities::ExtensionSystem::ExtensionSystemCore::~ExtensionSystemCore()
 }
 
 void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
-    QDir dir(QtilitiesApplication::applicationSessionPath() + QDir::separator() + "Plugins");
-    dir.mkpath(QtilitiesApplication::applicationSessionPath() + QDir::separator() + "Plugins");
-    d->active_configuration_file = QtilitiesApplication::applicationSessionPath() + QDir::separator() + "Plugins" + QDir::separator() +  "default" + qti_def_SUFFIX_PLUGIN_CONFIG;
+    if (d->active_configuration_file.isEmpty()) {
+        QDir dir(QtilitiesApplication::applicationSessionPath() + QDir::separator() + "Plugins");
+        dir.mkpath(QtilitiesApplication::applicationSessionPath() + QDir::separator() + "Plugins");
+        d->active_configuration_file = QtilitiesApplication::applicationSessionPath() + QDir::separator() + "Plugins" + QDir::separator() +  "default" + qti_def_SUFFIX_PLUGIN_CONFIG;
+    }
 
     // Start a processing cycle on the actions observer. Otherwise it will refresh the actions view everytime
     // an action is added in a plugin.
     OBJECT_MANAGER->objectPool()->startProcessingCycle();
 
-    // Check if isPluginActivityControlEnabled() is true and that a default plugin file exists.
-    // In that case, load the default plugin file:
-    if (isPluginActivityControlEnabled()) {
+//    // Check if isPluginActivityControlEnabled() is true and that a default plugin file exists.
+//    // In that case, load the default plugin file:
+//    if (isPluginActivityControlEnabled()) {
         // This will fail if there was no default file:
-        loadPluginConfiguration();
-    }
+    loadPluginConfiguration();
+//    }
 
     // Now go get all the plugins:
     d->pluginsDir = QDir(QCoreApplication::applicationDirPath());

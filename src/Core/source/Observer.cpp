@@ -889,7 +889,7 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach
         if (observer_list.isValid()) {
             if (observer_list.hasContext(observerData->observer_id)) {
                 QString reject_string = QString(tr("Observer (%1): Object (%2) attachment failed, object is already observed by this observer.")).arg(objectName()).arg(obj->objectName());
-                LOG_WARNING(reject_string);
+                LOG_DEBUG(reject_string);
                 if (rejectMsg)
                     *rejectMsg = reject_string;
                 return Observer::Rejected;

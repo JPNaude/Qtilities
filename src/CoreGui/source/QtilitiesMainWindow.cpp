@@ -142,14 +142,14 @@ Qtilities::CoreGui::QtilitiesMainWindow::~QtilitiesMainWindow() {
     delete d;
 }
 
-void Qtilities::CoreGui::QtilitiesMainWindow::writeSettings() {
+void Qtilities::CoreGui::QtilitiesMainWindow::writeSettings(const QString &gui_id) {
     if (!QtilitiesCoreApplication::qtilitiesSettingsEnabled())
         return;
 
     QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::IniFormat);
     settings.beginGroup("Qtilities");
     settings.beginGroup("GUI");
-    settings.beginGroup("MainWindow");
+    settings.beginGroup(gui_id);
     settings.setValue("size", size());
     settings.setValue("pos", pos());
     settings.setValue("state", saveState());
@@ -159,11 +159,11 @@ void Qtilities::CoreGui::QtilitiesMainWindow::writeSettings() {
     settings.endGroup();
 }
 
-void Qtilities::CoreGui::QtilitiesMainWindow::readSettings() {
+void Qtilities::CoreGui::QtilitiesMainWindow::readSettings(const QString &gui_id) {
     QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::IniFormat);
     settings.beginGroup("Qtilities");
     settings.beginGroup("GUI");
-    settings.beginGroup("MainWindow");
+    settings.beginGroup(gui_id);
     resize(settings.value("size", QSize(1000, 1000)).toSize());
     move(settings.value("pos", QPoint(200, 200)).toPoint());
     restoreState(settings.value("state").toByteArray());
@@ -303,15 +303,15 @@ void Qtilities::CoreGui::QtilitiesMainWindow::doLayout() {
         vertical_layout->addWidget(d->task_summary_widget);
 
         QHBoxLayout* layout = new QHBoxLayout(d->central_widget);
-        if (d->mode_layout == ModesLeft) {
-            layout->addLayout(vertical_layout);
-            layout->addWidget(d->current_widget_holder);
-        } else {
-            layout->addWidget(d->current_widget_holder);
-            layout->addLayout(vertical_layout);
-        }
-
+          if (d->mode_layout == ModesLeft) {
+              layout->addLayout(vertical_layout);
+              layout->addWidget(d->current_widget_holder);
+          } else {
+              layout->addWidget(d->current_widget_holder);
+              layout->addLayout(vertical_layout);
+          }
         layout->setMargin(0);
+
         setCentralWidget(d->central_widget);
         d->central_widget->show();
         d->mode_manager->modeListWidget()->show();

@@ -82,7 +82,7 @@ namespace Qtilities {
             //! Function to access the constructed property after the user accepted the dialog.
             /*!
              * \brief The constructed property variant can be obtained using this function. When newPropertyType() is ObjectManager::SharedProperties, this function
-             *will return the QVariant set as the value of the SharedProperty, not the SharedProperty itself.
+             * will return the QVariant set as the value of the SharedProperty, not the SharedProperty itself.
              */
             QVariant constructedProperty() const;
 
@@ -134,6 +134,15 @@ namespace Qtilities {
             //! Handles the event where the current object is destroyed.
             void handleObjectDestroyed();
 
+            //! Gets the removability for the given displayed property name.
+            bool propertyRemovable(const QString& displayed_name) const;
+            //! Gets if the property is exportable for the given displayed property name.
+            bool propertyIsExportable(const QString& displayed_name) const;
+            //! Gets the read only state for the given displayed property name.
+            bool propertyReadOnly(const QString& displayed_name) const;
+            //! Gets the default value for the given displayed property name.
+            QVariant propertyDefaultValue(const QString& displayed_name) const;
+
         private slots:
             void handleSelectedPropertyChanged(const QString& property_displayed_name);
             void handleCustomPropertyNameChanged(const QString& name);
@@ -159,14 +168,6 @@ namespace Qtilities {
             QString propertyDescription(const QString& displayed_name) const;
             //! Gets the actual property name for the given displayed property name.
             QString propertyName(const QString& displayed_name) const;
-            //! Gets the removability for the given displayed property name.
-            bool propertyRemovable(const QString& displayed_name) const;
-            //! Gets if the property is exportable for the given displayed property name.
-            bool propertyIsExportable(const QString& displayed_name) const;
-            //! Gets the read only state for the given displayed property name.
-            bool propertyReadOnly(const QString& displayed_name) const;
-            //! Gets the default value for the given displayed property name.
-            QVariant propertyDefaultValue(const QString& displayed_name) const;
             //! Indicates if the current property selection is the custom property option.
             bool isCurrentCustomProperty() const;
 

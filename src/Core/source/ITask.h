@@ -60,7 +60,7 @@ namespace Qtilities {
                 friend class Qtilities::Core::TaskManager;
 
             public:
-                //! The possible results of completed task.
+                //! The possible results of a completed task.
                 enum TaskResult {
                     TaskNoResult                            = 0,  /*!< The task does not have any result information at present. Typically the task have not been started yet. */
                     TaskSuccessful                          = 1,  /*!< The task completed successfully without any warnings and errors. */

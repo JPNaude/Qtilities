@@ -47,7 +47,9 @@ namespace Qtilities {
         \brief Structure used by an AbstractLoggerEngine to store it's data.
           */
         struct AbstractLoggerEngineData {
-            AbstractLoggerEngineData(): message_contexts(Logger::AllMessageContexts),
+            AbstractLoggerEngineData(): is_initialized(false),
+                is_enabled(true),
+                message_contexts(Logger::AllMessageContexts),
                 is_removable(true) {}
 
             //! The enabled message types for this logger engine.

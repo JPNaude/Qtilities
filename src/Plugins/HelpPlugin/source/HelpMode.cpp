@@ -138,6 +138,7 @@ struct Qtilities::Plugins::Help::HelpModeData {
     IndexWidgetFactory* index_widget;
     SearchWidgetFactory* search_widget;
     Browser* browser;
+    QIcon mode_icon;
 };
 
 HelpMode::HelpMode(QWidget *parent) :
@@ -167,6 +168,9 @@ void HelpMode::initiallize() {
     d->side_viewer_dock->setAllowedAreas(allowed_areas);
     addDockWidget(Qt::LeftDockWidgetArea,d->side_viewer_dock);
     d->side_viewer_dock->installEventFilter(this);
+
+    // Set the default mode icon:
+    d->mode_icon = QIcon(HELP_MODE_ICON_48x48);
 
     // Actions
     d->actionShowDock = new QAction(QIcon(),tr("Help Widgets"),this);
@@ -222,6 +226,7 @@ void HelpMode::initiallize() {
         d->browser->webView()->load(HELP_MANAGER->homePage());
 
     connect(HELP_MANAGER,SIGNAL(forwardRequestUrlDisplay(QUrl,bool)),SLOT(handleUrlRequest(QUrl,bool)),Qt::UniqueConnection);
+    connect(HELP_MANAGER,SIGNAL(homePageChanged(QUrl)),SLOT(handleHomePageChanged(QUrl)));
 }
 
 void HelpMode::toggleDock(bool toggle) {
@@ -259,7 +264,12 @@ void HelpMode::initializeMode() {
 }
 
 QIcon HelpMode::modeIcon() const {
-    return QIcon(HELP_MODE_ICON_48x48);
+    return d->mode_icon;
+}
+
+bool HelpMode::setModeIcon(QIcon icon) {
+    d->mode_icon = icon;
+    return true;
 }
 
 QString HelpMode::modeName() const {
@@ -299,4 +309,9 @@ void HelpMode::handleUrlRequest(const QUrl &url, bool ensure_visible) {
             }
         }
     }
+}
+
+void HelpMode::handleHomePageChanged(const QUrl &url) {
+    if (d->browser && url.isValid())
+        d->browser->webView()->load(url);
 }

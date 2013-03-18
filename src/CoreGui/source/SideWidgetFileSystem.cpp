@@ -113,6 +113,10 @@ void Qtilities::CoreGui::SideWidgetFileSystem::releasePath() {
     #endif
     d->model->setRootPath(QtilitiesApplication::applicationSessionPath());
     ui->treeView->setModel(d->model);
+    QHeaderView* header = ui->treeView->header();
+    if (header) {
+        header->setResizeMode(QHeaderView::ResizeToContents);
+    }
     ui->txtCurrentPath->setText(d->model->rootPath());
     ui->treeView->setEnabled(false);
     ui->txtCurrentPath->clear();

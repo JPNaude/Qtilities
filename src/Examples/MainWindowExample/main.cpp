@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersionString());
 
     // Create a QtilitiesMainWindow to show our different modes:
-    QtilitiesMainWindow exampleMainWindow(QtilitiesMainWindow::ModesTop);
+    QtilitiesMainWindow exampleMainWindow(QtilitiesMainWindow::ModesLeft);
     QtilitiesApplication::setMainWindow(&exampleMainWindow);
 
     // Create the configuration widget:

@@ -15,6 +15,9 @@ Qtilities v1.3 Changes
     ============================
     QtilitiesLogging:
     ============================
+    [+] Added Logger:qtMsgEngineActive() and Logger::consoleEngineActive().
+
+    [*] Fixed issues when calling Logger::newFileEngine().
 
     ============================
     QtilitiesCore:
@@ -22,18 +25,37 @@ Qtilities v1.3 Changes
     [+] Instance factory info got a new icon path parameter which can be used to specify the path of an icon to
         be associated with the type of manufacturable object.
 
+    [#] Observer will no longer log a warning when attachment fails, its now a debug message.
+    [#] Tasks will now log engine specific messages to QtMsgLoggerEngine and ConsoleLoggerEngine when they are active.
+
     ============================
     QtilitiesCoreGui:
     ============================
+    [+] Added DynamicSideViewerWidget::setHiddenSideWidgets() and DynamicSideViewerWidget::hiddenSideWidgets().
+    [+] Added HelpManager::homePageChanged().
+    [+] Added a new parameter to QtilitiesMainWindow::writeSettings() and QtilitiesMainWindow::readSettings() to specify a custom ID under which the settings of the window must be saved.
+
+    [#] ObserverWidget not longer assigns F5 QKeySequence::Refresh to the refresh action.
+    [#] Made the following functions public on AddDynamicPropertyWizard: propertyRemovable(), propertyIsExportable(), propertyReadOnly(), propertyDefaultValue().
+
     [*] Fixed AbstractTreeItem::getIcon() and AbstractTreeItem::hasIcon() which checked the wrong property on the object.
+    [*] Fixed some inconsitancies between select object functions on ObserverWidget.
+    [*] Fixed bug in QtilitiesTreeModelProxyFilter where it always sorted using the name column.
+    [*] Fixed bug in ObserverWidget where it did not calculate expanded items correctly when rootIndexDisplayHint() == ObserverHints::RootIndexHide.
+    [*] Fixed potential crash in ObserverTreeModel::headerData().
+    [*] Fixed issue where ConfigurationWidget initialized some configuration pages twice.
 
     ============================
     QtilitiesExtensionSystem:
     ============================
+    [*] Fixed issue where custom plugin configuration files were not loaded correctly.
 
     ============================
     QtilitiesProjectManagement:
     ============================
+    [+] Added ProjectManager::projectCreationStarted() and ProjectManager::projectCreationFinished().
+    [+] Added ProjectManager::currentProjectChanged().
+
     [#] Most of the functionality that was previously part of the ProjectManagementPlugin is now part of the ProjectManager. This
         includes convenience actions that can be retrieved to do common tasks. See ProjectManager::actionNewProject(),
         ProjectManager::actionOpenProject(), ProjectManager::actionSaveProject(), ProjectManager::actionSaveAsProject() and ProjectManager::actionCloseProject().
@@ -41,7 +63,7 @@ Qtilities v1.3 Changes
         The project management plugin continues to function in exactly the same was as always, but the project manager is doing all the work
         now. This change provides users with much more flexibility in terms of where those actions end up etc. by placing them manually
         and not using the ProjectManagementPlugin.
-    [+] Added ProjectManager::projectCreationStarted() and ProjectManager::projectCreationFinished().
+    [#] Project manager will no longer log "Project Manager: Found project item: " as info messages, but rather as debug messages.
 
     ============================
     QtilitiesTesting:

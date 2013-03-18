@@ -144,9 +144,11 @@ int main(int argc, char *argv[])
                 ModesNone = 0,         /*!< No mode display. */
                 ModesTop = 1,          /*!< Display modes as a horizontal list in the top of the widget. */
                 ModesRight = 2,        /*!< Display modes as a vertical list in the right of the widget. */
-                ModesBottom = 3,       /*!< Display modes as a horizontal list in the bottom of the widget. */
-                ModesLeft = 4          /*!< Display modes as a vertical list in the left of the widget. */
+                ModesBottom = 4,       /*!< Display modes as a horizontal list in the bottom of the widget. */
+                ModesLeft = 8          /*!< Display modes as a vertical list in the left of the widget. */
             };
+            Q_DECLARE_FLAGS(ModeLayoutFlags, ModeLayout)
+            Q_FLAGS(ModeLayoutFlags)
 
             QtilitiesMainWindow(ModeLayout modeLayout = ModesNone, QWidget * parent = 0, Qt::WindowFlags flags = 0);
             ~QtilitiesMainWindow();
@@ -217,9 +219,9 @@ int main(int argc, char *argv[])
             // Functions related to widget setup
             // ----------------------------------
             //! Saves the state of the main window.
-            void writeSettings();
+            void writeSettings(const QString& gui_id = "MainWindow");
             //! Restores the state of the main window.
-            void readSettings();
+            void readSettings(const QString& gui_id = "MainWindow");
             //! Returns if the main window was maximized according to the settings read in readSettings().
             /*!
              * <i>This function was added in %Qtilities v1.2.</i>

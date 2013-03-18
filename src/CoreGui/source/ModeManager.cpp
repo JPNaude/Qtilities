@@ -67,6 +67,8 @@ struct Qtilities::CoreGui::ModeManagerPrivateData {
     QMap<QShortcut*,Command*>   command_shortcut_map;
     bool                        register_shortcuts;
     QAction*                    actionSwitchToPreviousMode;
+
+
 };
 
 Qtilities::CoreGui::ModeManager::ModeManager(int manager_id, Qt::Orientation orientation, QObject *parent) :

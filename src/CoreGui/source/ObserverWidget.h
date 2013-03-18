@@ -305,7 +305,7 @@ categorized_widget->show();
               When findExpandedItems() is called it stores the results internally. Thus function accesses those results without
               recalculating them.
 
-              \sa findExpandedItems()
+              \sa findExpandedItems(), expandNodes()
 
                 <i>This function was added in %Qtilities v1.1.</i>
               */

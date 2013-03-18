@@ -92,11 +92,11 @@ Qtilities::Plugins::Help::Browser::Browser(const QUrl &url, QWidget* parent) : Q
 
     QHBoxLayout* Hlayout = new QHBoxLayout;
     Hlayout->setMargin(0);
-    Hlayout->addWidget(d->txtLocationEdit);
-    Hlayout->addWidget(d->btnSearch);
     Hlayout->addWidget(d->btnBack);
     Hlayout->addWidget(d->btnForward);
     Hlayout->addWidget(d->btnReload);
+    Hlayout->addWidget(d->btnSearch);
+    Hlayout->addWidget(d->txtLocationEdit);
     d->locationBar->setLayout(Hlayout);
     d->locationBar->setFixedHeight(25);
 
