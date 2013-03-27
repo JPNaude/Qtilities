@@ -67,15 +67,20 @@ namespace Qtilities {
             ~Logger();
             //! Initializes the logger.
             /*!
-                \sa LOG_INITIALIZE, finalize()
-                */
-            void initialize();
+             * \param configuration_file_name The file name containing the configuration which much be loaded during the loadSessionConfig() call inside initialize(). When empty, Qtilities::Logging::Constants::qti_def_PATH_LOGCONFIG_FILE will be used.
+             *
+             * \sa LOG_INITIALIZE, finalize()
+             */
+            void initialize(const QString &configuration_file_name = QString());
             //! Finalizes the engine.
             /*!
-              This saves the current session configuration.
-                \sa LOG_FINALIZE, initialize()
-              */
-            void finalize();
+             * This saves the current session configuration.
+             *
+             * \param configuration_file_name The file name containing the configuration which much be loaded during the loadSessionConfig() call inside initialize(). When empty, Qtilities::Logging::Constants::qti_def_PATH_LOGCONFIG_FILE will be used.
+             *
+             * \sa LOG_FINALIZE, initialize()
+             */
+            void finalize(const QString &configuration_file_name = QString());
 
         public slots:
             //! Delete all logger engines.
@@ -252,15 +257,17 @@ namespace Qtilities {
               For more information see \ref configuration_widget_storage_layout.
               */
             void readSettings();
-            //! Tell the logger to remember the current logging configuration the next time the appplication starts.
+            //! Tell the logger to save the current logging engine configuration when the application exits, and load remember it (load it) the next time the appplication starts.
             /*!
-              \sa rememberSessionConfig()
-              */
+             * To keep logger engine configurations between sessions, just call Log->setRememberSessionConfig(true) before LOG_INITIALIZE().
+             *
+             * \sa rememberSessionConfig()
+             */
             void setRememberSessionConfig(bool remember);
-            //! Returns true if the logger is configured to remember the current session information.
+            //! Returns true if the logger is configured to save the current logging engine configuration when the application exits, and load remember it (load it) the next time the appplication starts.
             /*!
-              \sa setRememberSessionConfig()
-              */
+             * \sa setRememberSessionConfig()
+             */
             bool rememberSessionConfig() const;
 
             // -----------------------------------------
@@ -416,19 +423,22 @@ Q_DECLARE_METATYPE(Qtilities::Logging::Logger::MessageType)
 // -----------------------------------
 //! The log macro which returns a pointer to the logger singleton instance.
 #define Log Qtilities::Logging::Logger::instance()
-//! Initializes the logger.
+//! Initializes the logger and specifies the logging engine configuration to load.
 /*!
-    The initialization will create default formatting and logger engines for you. When rememberSessionConfig() is true, the initialization will also restore your previous configuration.
-    \sa Qtilities::Logging::Logger::initialize()
+    The initialization will create default formatting and logger engines for you. When rememberSessionConfig() is true, the initialization will also
+    restore your previous configuration.
+
+    \sa Qtilities::Logging::Logger::initialize(), \sa Qtilities::Logging::Logger::rememberSessionConfig()
 
     In GUI applications, its recommended to call QtilitiesApplication::applicationSessionPath() directory before the initialization in order for
-    QtilitiesApplication to set the session path used by the logger to the correct path
+    QtilitiesApplication to set the session path used by the logger to the correct path.
     */
 #define LOG_INITIALIZE() Log->initialize()
 //! Finalizes the logger.
 /*!
     The finalization will store your logging parameters and also clean up the logger, thus it will delete all engines.
-    \sa Qtilities::Logging::Logger::finalize()
+
+    \sa Qtilities::Logging::Logger::finalize(), \sa Qtilities::Logging::Logger::rememberSessionConfig()
     */
 #define LOG_FINALIZE() Log->finalize()
 

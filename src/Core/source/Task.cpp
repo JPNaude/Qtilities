@@ -32,6 +32,8 @@
 ****************************************************************************/
 
 #include "Task.h"
+#include "QtilitiesCoreApplication.h"
+
 #include <LoggerEngines>
 
 using namespace Qtilities::Core::Interfaces;
@@ -307,7 +309,7 @@ void Qtilities::Core::Task::logMessage(const QString& message, Logger::MessageTy
             do_console_output_once = false;
         }
 
-        if (do_console_output_once) {
+        if (do_console_output_once && QtilitiesCoreApplication::taskManager()->forwardTaskMessagesToQtMsgEngine()) {
             if (Log->qtMsgEngineActive()) {
                 // Log the message to the QtMsgEngine as well:
                 QtMsgLoggerEngine::instance()->logMessage(message,type);

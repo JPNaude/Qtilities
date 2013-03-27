@@ -125,9 +125,9 @@ Qtilities::ExtensionSystem::ExtensionSystemCore::~ExtensionSystemCore()
 
 void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
     if (d->active_configuration_file.isEmpty()) {
-        QDir dir(QtilitiesApplication::applicationSessionPath() + QDir::separator() + "Plugins");
-        dir.mkpath(QtilitiesApplication::applicationSessionPath() + QDir::separator() + "Plugins");
-        d->active_configuration_file = QtilitiesApplication::applicationSessionPath() + QDir::separator() + "Plugins" + QDir::separator() +  "default" + qti_def_SUFFIX_PLUGIN_CONFIG;
+        QDir dir(QtilitiesApplication::applicationDirPath() + QDir::separator() + "Plugins");
+        dir.mkpath(QtilitiesApplication::applicationDirPath() + QDir::separator() + "Plugins");
+        d->active_configuration_file = QtilitiesApplication::applicationDirPath() + QDir::separator() + "Plugins" + QDir::separator() +  "default" + qti_def_SUFFIX_PLUGIN_CONFIG;
     }
 
     // Start a processing cycle on the actions observer. Otherwise it will refresh the actions view everytime

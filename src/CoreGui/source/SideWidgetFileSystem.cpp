@@ -140,8 +140,10 @@ void Qtilities::CoreGui::SideWidgetFileSystem::dropEvent(QDropEvent *event) {
     foreach (QUrl url, event->mimeData()->urls()) {
         // Create the source path:
         QString source_path = url.path();
+        #ifdef Q_OS_WIN
         if (source_path.startsWith("/"))
             source_path.remove(0,1);
+        #endif
 
         QFile file(source_path);
         QFileInfo file_info(source_path);

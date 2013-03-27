@@ -160,6 +160,37 @@ task_summary_widget.findCurrentTasks();
             //! Function which will clear all current tasks shown by the summary widget.
             void clear();
 
+            //! Sets a filter in order to only display tasks with IDs that match the filter.
+            /*!
+             * When empty, all tasks are displayed. This is the default.
+             *
+             * \sa displayedTasksFilter(), displayedTasksFilterAddId(), displayedTasksFilterRemoveId()
+             *
+             * <i>This function was added in %Qtilities v1.3.</i>
+             */
+            void setDisplayedTasksFilter(QList<int> displayed_task_ids);
+            //! Gets the current displayed tasks filter.
+            /*!
+             * \sa setDisplayedTasksFilter(), displayedTasksFilterAddId(), displayedTasksFilterRemoveId()
+             *
+             * <i>This function was added in %Qtilities v1.3.</i>
+             */
+            QList<int> displayedTasksFilter() const;
+            //! Adds a task ID to the displayed tasks filter.
+            /*!
+             * \sa displayedTasksFilter(), setDisplayedTasksFilter(), displayedTasksFilterRemoveId()
+             *
+             * <i>This function was added in %Qtilities v1.3.</i>
+             */
+            void displayedTasksFilterAddId(int id);
+            //! Adds a task ID to the displayed tasks filter.
+            /*!
+             * \sa displayedTasksFilter(), setDisplayedTasksFilter(), displayedTasksFilterAddId()
+             *
+             * <i>This function was added in %Qtilities v1.3.</i>
+             */
+            void displayedTasksFilterRemoveId(int id);
+
         private slots:
             //! Slot which will check if obj is a task and register it if needed.
             void addTask(QObject* obj);
@@ -169,10 +200,17 @@ task_summary_widget.findCurrentTasks();
             void handleSingleTaskWidgetDestroyed();
             //! Handles task type changes.
             void handleTaskTypeChanged();
-
-        private:
             //! Hides this widget if needed.
             void hideIfNeeded();
+
+        signals:
+            //! Signal which is emitted when the number of displayed tasks changed.
+            /*!
+             * <i>This signal was added in %Qtilities v1.3.</i>
+             */
+            void numberOfDisplayedTasksChanged(int number_of_visible_tasks);
+
+        private:
             //! Adds a single task widget to the visible single task widgets.
             void addSingleTaskWidget(SingleTaskWidget* single_task_widget);
             //! Updates the display of a single task.
