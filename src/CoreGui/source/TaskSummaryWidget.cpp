@@ -46,7 +46,8 @@ using namespace Qtilities::Core::Interfaces;
 using namespace Qtilities::Core;
 
 struct Qtilities::CoreGui::TaskSummaryWidgetPrivateData {
-    TaskSummaryWidgetPrivateData() : task_summary_enabled(true)  {}
+    TaskSummaryWidgetPrivateData() : task_summary_enabled(true),
+        last_number_of_displayed_tasks(-1) {}
 
     QMap<int,QPointer<SingleTaskWidget> >           id_widget_map;
     TaskSummaryWidget::TaskDisplayOptions           display_options;
@@ -54,6 +55,8 @@ struct Qtilities::CoreGui::TaskSummaryWidgetPrivateData {
     TaskSummaryWidget::NoActiveTaskHandling         no_active_task_handling;
     QVBoxLayout*                                    layout;
     bool                                            task_summary_enabled;
+    int                                             last_number_of_displayed_tasks;
+    QList<int>                                      displayed_filter_task_ids;
 };
 
 Qtilities::CoreGui::TaskSummaryWidget::TaskSummaryWidget(TaskRemoveOption remove_options, TaskDisplayOptions display_options, QWidget* parent) :
@@ -131,9 +134,8 @@ void Qtilities::CoreGui::TaskSummaryWidget::findCurrentTasks() {
         return;
 
     QList<QObject*> iface_list = OBJECT_MANAGER->registeredInterfaces("com.Qtilities.Core.ITask/1.0");
-    foreach (QObject* obj, iface_list) {
+    foreach (QObject* obj, iface_list)
         addTask(obj);
-    }
 
     hideIfNeeded();
 }
@@ -152,6 +154,31 @@ void Qtilities::CoreGui::TaskSummaryWidget::clear() {
     hideIfNeeded();
 }
 
+void TaskSummaryWidget::setDisplayedTasksFilter(QList<int> displayed_task_ids) {
+    if (d->displayed_filter_task_ids != displayed_task_ids) {
+        d->displayed_filter_task_ids = displayed_task_ids;
+        hideIfNeeded();
+    }
+}
+
+QList<int> TaskSummaryWidget::displayedTasksFilter() const {
+    return d->displayed_filter_task_ids;
+}
+
+void TaskSummaryWidget::displayedTasksFilterAddId(int id) {
+    if (!d->displayed_filter_task_ids.contains(id)) {
+        d->displayed_filter_task_ids.append(id);
+        hideIfNeeded();
+    }
+}
+
+void TaskSummaryWidget::displayedTasksFilterRemoveId(int id) {
+    if (d->displayed_filter_task_ids.contains(id)) {
+        d->displayed_filter_task_ids.removeOne(id);
+        hideIfNeeded();
+    }
+}
+
 void Qtilities::CoreGui::TaskSummaryWidget::addTask(QObject* obj) {
     if (!d->task_summary_enabled)
         return;
@@ -168,7 +195,7 @@ void Qtilities::CoreGui::TaskSummaryWidget::addTask(QObject* obj) {
         connect(task->objectBase(),SIGNAL(taskResumed()),SLOT(handleTaskStateChanged()));
         connect(task->objectBase(),SIGNAL(taskStopped()),SLOT(handleTaskStateChanged()));
 
-        if (task->taskType() == ITask::TaskGlobal) {
+        if (task->taskType() == ITask::TaskGlobal || (task->taskType() == ITask::TaskLocal && d->displayed_filter_task_ids.contains(task->taskID()))) {
             SingleTaskWidget* task_widget = TaskManagerGui::instance()->singleTaskWidget(task->taskID());
             task_widget->setPauseButtonVisible(false);
             task_widget->setStopButtonVisible(true);
@@ -182,9 +209,9 @@ void Qtilities::CoreGui::TaskSummaryWidget::addTask(QObject* obj) {
 void Qtilities::CoreGui::TaskSummaryWidget::addSingleTaskWidget(SingleTaskWidget* single_task_widget) {
     if (single_task_widget) {
         d->layout->insertWidget(0,single_task_widget);
-        updateTaskWidget(single_task_widget->task());
+        connect(single_task_widget,SIGNAL(hiddenByStopButton()),SLOT(hideIfNeeded()),Qt::UniqueConnection);
+        updateTaskWidget(single_task_widget->task()); // hideIfNeeded() called in here
         connect(single_task_widget->task()->objectBase(),SIGNAL(taskTypeChanged(ITask::TaskType)),SLOT(handleTaskTypeChanged()),Qt::UniqueConnection);
-        show();
     }
 }
 
@@ -238,9 +265,9 @@ void Qtilities::CoreGui::TaskSummaryWidget::updateTaskWidget(ITask* task) {
         if (!task_widget)
             return;
 
-        if (task->taskType() == ITask::TaskLocal) {
+        if (task->taskType() == ITask::TaskLocal && !d->displayed_filter_task_ids.contains(task->taskID())) {
             task_widget->hide();
-        } else if (task->taskType() == ITask::TaskGlobal) {
+        } else if (task->taskType() == ITask::TaskGlobal || (d->displayed_filter_task_ids.contains(task->taskID()) && task->taskType() == ITask::TaskLocal)) {
             if (task->state() == ITask::TaskCompleted) {
                 if (d->display_options == DisplayOnlyBusyTasks) {
                     if (task->result() == ITask::TaskSuccessful) {
@@ -280,16 +307,35 @@ void Qtilities::CoreGui::TaskSummaryWidget::updateTaskWidget(ITask* task) {
 }
 
 void Qtilities::CoreGui::TaskSummaryWidget::hideIfNeeded() {
-    if (d->no_active_task_handling == HideSummaryWidget) {
-        for (int i = 0; i < d->id_widget_map.count(); ++i) {
-            if (d->id_widget_map.values().at(i)) {
-                if (d->id_widget_map.values().at(i)->isVisible()) {
-                    show();
-                    return;
+    int num_displayed_tasks = 0;
+    QList<QPointer<SingleTaskWidget> > id_widget_map_values = d->id_widget_map.values();
+    for (int i = 0; i < d->id_widget_map.count(); ++i) {
+        QPointer<SingleTaskWidget> task_widget = id_widget_map_values.at(i);
+        if (task_widget) {
+            if (task_widget->isVisibleTo(this)) {
+                if (d->displayed_filter_task_ids.isEmpty()) {
+                    task_widget->setMaximumWidth(this->width());
+                    ++num_displayed_tasks;
+                } else {
+                    if (task_widget->task()) {
+                        //qDebug() << Q_FUNC_INFO << d->displayed_filter_task_ids << task_widget->task()->taskID() << task_widget->task()->taskName();
+                        if (d->displayed_filter_task_ids.contains(task_widget->task()->taskID())) {
+                            task_widget->setMaximumWidth(this->width());
+                            ++num_displayed_tasks;
+                        } else
+                            task_widget->hide();
+                    } else
+                        task_widget->hide();
                 }
             }
         }
-
-        hide();
     }
+
+    if (d->no_active_task_handling == HideSummaryWidget)
+        setVisible(num_displayed_tasks > 0);
+
+    if (d->last_number_of_displayed_tasks != num_displayed_tasks)
+        emit numberOfDisplayedTasksChanged(num_displayed_tasks);
+
+    d->last_number_of_displayed_tasks = num_displayed_tasks;
 }

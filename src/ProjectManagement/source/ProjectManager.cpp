@@ -57,7 +57,6 @@ using namespace Qtilities::ProjectManagement::Constants;
 struct Qtilities::ProjectManagement::ProjectManagerPrivateData  {
     ProjectManagerPrivateData() : current_project(0),
         current_project_busy_count(0),
-        recent_projects_size(10),
         open_last_project(false),
         use_project_file_locks(true),
         default_custom_project_paths_category( QObject::tr("Default")),
@@ -73,7 +72,8 @@ struct Qtilities::ProjectManagement::ProjectManagerPrivateData  {
         actionProjectOpen(0),
         actionProjectClose(0),
         actionProjectSave(0),
-        actionProjectSaveAs(0) {}
+        actionProjectSaveAs(0),
+        recent_projects_size(10) {}
 
     QPointer<Project>                       current_project;
     int                                     current_project_busy_count;

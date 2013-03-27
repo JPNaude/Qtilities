@@ -259,18 +259,26 @@ void Qtilities::CoreGui::SingleTaskWidget::on_btnStop_clicked() {
         d->task->stop();
         QApplication::restoreOverrideCursor();
         if (d->task_base) {
-            if (d->task->taskStopAction() == ITask::TaskDeleteWhenStopped)
-                d->task->objectBase()->deleteLater();
-            else if (d->task->taskStopAction() == ITask::TaskHideWhenStopped)
+            emit hiddenByStopButton();
+            if (d->task->taskStopAction() == ITask::TaskDeleteWhenStopped) {
                 setVisible(false);
-
+                emit hiddenByStopButton();
+                d->task->objectBase()->deleteLater();
+            } else if (d->task->taskStopAction() == ITask::TaskHideWhenStopped) {
+                setVisible(false);
+                emit hiddenByStopButton();
+            }
             // ITask::TaskDoNothingWhenStopped does not need to do anything.
         }
     } else {
-        if (d->task->taskRemoveAction() == ITask::TaskDeleteWhenRemoved)
-            d->task->objectBase()->deleteLater();
-        else if (d->task->taskRemoveAction() == ITask::TaskHideWhenRemoved)
+        if (d->task->taskRemoveAction() == ITask::TaskDeleteWhenRemoved) {
             setVisible(false);
+            emit hiddenByStopButton();
+            d->task->objectBase()->deleteLater();
+        } else if (d->task->taskRemoveAction() == ITask::TaskHideWhenRemoved) {
+            setVisible(false);
+            emit hiddenByStopButton();
+        }
     }
 }
 

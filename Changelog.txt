@@ -17,6 +17,9 @@ Qtilities v1.3 Changes
     ============================
     [+] Added Logger:qtMsgEngineActive() and Logger::consoleEngineActive().
 
+    [#] Logger::initialize() and Logger::finalize() got new parameters to provide the log configuration file that must be used.
+    [#] The logger will no longer remember its previous log configuration by default. To keep log configurations between sessions, just call Log->setRememberSessionConfig(true) before LOG_INITIALIZE().
+
     [*] Fixed issues when calling Logger::newFileEngine().
 
     ============================
@@ -24,9 +27,11 @@ Qtilities v1.3 Changes
     ============================
     [+] Instance factory info got a new icon path parameter which can be used to specify the path of an icon to
         be associated with the type of manufacturable object.
+    [+] Added FileUtils::makeLocalCopyOfResource().
 
     [#] Observer will no longer log a warning when attachment fails, its now a debug message.
-    [#] Tasks will now log engine specific messages to QtMsgLoggerEngine and ConsoleLoggerEngine when they are active.
+    [#] Tasks will now log engine specific messages to QtMsgLoggerEngine and ConsoleLoggerEngine when they are active and this is enabled using new functions
+        on TaskManager to enable it. See TaskManager::forwardTaskMessagesToQtMsgEngine() and TaskManager::setForwardTaskMessagesToQtMsgEngine().
 
     ============================
     QtilitiesCoreGui:
@@ -34,6 +39,9 @@ Qtilities v1.3 Changes
     [+] Added DynamicSideViewerWidget::setHiddenSideWidgets() and DynamicSideViewerWidget::hiddenSideWidgets().
     [+] Added HelpManager::homePageChanged().
     [+] Added a new parameter to QtilitiesMainWindow::writeSettings() and QtilitiesMainWindow::readSettings() to specify a custom ID under which the settings of the window must be saved.
+    [+] Added TaskSummaryWidget::numberOfDisplayedTasksChanged() signal.
+    [+] Added TaskSummaryWidget::setDisplayedTasksFilter() and TaskSummaryWidget::displayedTasksFilter().
+    [+] Added SingleTaskWidget::hiddenByStopButton().
 
     [#] ObserverWidget not longer assigns F5 QKeySequence::Refresh to the refresh action.
     [#] Made the following functions public on AddDynamicPropertyWizard: propertyRemovable(), propertyIsExportable(), propertyReadOnly(), propertyDefaultValue().
@@ -49,6 +57,7 @@ Qtilities v1.3 Changes
     QtilitiesExtensionSystem:
     ============================
     [*] Fixed issue where custom plugin configuration files were not loaded correctly.
+    [*] Fixed issue where the extension system set its default plugin configuration to be loaded from the application's session path, instead of the applications dir path.
 
     ============================
     QtilitiesProjectManagement:
@@ -73,6 +82,7 @@ Qtilities v1.3 Changes
     Plugins:
     ============================
     [*] Help Plugin: Fixed widget which is shown before adding it to a proper layout in the help plugin.
+    [*] Help Plugin: The Help mode now implements setModeIcon().
 
 ================================
 Qtilities v1.2 Changes

@@ -100,6 +100,21 @@ namespace Qtilities {
               */
             QString taskName(const int task_id, bool* ok = 0) const;
 
+            //! Sets if tasks should forward messages logged to them to the qtMsgEngineActive() on the Logger.
+            /*!
+             * Disabled by default.
+             *
+             * <i>This function was added in %Qtilities v1.3.</i>
+             */
+            void setForwardTaskMessagesToQtMsgEngine(bool is_enabled);
+            //! Gets if tasks should forward messages logged to them to the qtMsgEngineActive() on the Logger.
+            /*!
+             * Disabled by default.
+             *
+             * <i>This function was added in %Qtilities v1.3.</i>
+             */
+            bool forwardTaskMessagesToQtMsgEngine() const;
+
         public slots:
             //! Removes the task specified by task_id if it exists.
             void removeTask(const int task_id);

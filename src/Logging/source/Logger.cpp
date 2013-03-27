@@ -94,7 +94,7 @@ Qtilities::Logging::Logger::~Logger() {
     delete d;
 }
 
-void Qtilities::Logging::Logger::initialize() {
+void Qtilities::Logging::Logger::initialize(const QString& configuration_file_name) {
     if (d->initialized)
         return;
 
@@ -129,17 +129,16 @@ void Qtilities::Logging::Logger::initialize() {
     readSettings();
 
     // Now load the logger config if neccesarry.
-    if (d->remember_session_config) {
-        loadSessionConfig();
-    }
+    if (d->remember_session_config)
+        loadSessionConfig(configuration_file_name);
 
     d->initialized = true;
     // qDebug() << tr("Qtilities Logging Framework, initialization finished successfully...");
 }
 
-void Qtilities::Logging::Logger::finalize() {
+void Qtilities::Logging::Logger::finalize(const QString &configuration_file_name) {
     if (d->remember_session_config) {
-        saveSessionConfig();
+        saveSessionConfig(configuration_file_name);
     }
 
     clear();
@@ -594,7 +593,6 @@ void Qtilities::Logging::Logger::writeSettings() const {
     settings.beginGroup("General");
     settings.setValue("global_log_level", QVariant(d->global_log_level));
     settings.setValue("is_qt_message_handler", d->is_qt_message_handler);
-    settings.setValue("remember_session_config", d->remember_session_config);
     settings.endGroup();
     settings.endGroup();
     settings.endGroup();
@@ -613,10 +611,6 @@ void Qtilities::Logging::Logger::readSettings() {
     d->global_log_level = (MessageType) log_level.toInt();
     if (settings.value("is_qt_message_handler", false).toBool())
         installAsQtMessageHandler(false);
-    if (settings.value("remember_session_config", true).toBool())
-        d->remember_session_config = true;
-    else
-        d->remember_session_config = false;
     settings.endGroup();
     settings.endGroup();
     settings.endGroup();

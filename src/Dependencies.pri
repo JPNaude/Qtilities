@@ -47,7 +47,7 @@ contains(DEFINES, QTILITIES_PROPERTY_BROWSER) {
     else {
         win32::win32-g++:LIBS += $$PROPERTY_EDITOR_BASE/lib/libQtSolutions_PropertyBrowser-head.a
         win32::win32-msvc*:LIBS += $$PROPERTY_EDITOR_BASE/lib/QtSolutions_PropertyBrowser-head.lib
-        unix::LIBS += -L$$PROPERTY_EDITOR_BASE/lib lQtSolutions_PropertyBrowser-head
+        unix::LIBS += -L$$PROPERTY_EDITOR_BASE/lib -lQtSolutions_PropertyBrowser-head
     }
 }
 

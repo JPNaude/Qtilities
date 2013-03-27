@@ -334,5 +334,36 @@ QString FileUtils::toNativeSeparators(QString path) {
     return new_path;
     #else
     return QDir::toNativeSeparators(path);
-    #endif
+#endif
+}
+
+bool FileUtils::makeLocalCopyOfResource(const QString &resource_path, const QString &local_path, QString *errorMsg, QFile::Permissions local_permissions) {
+    QFile resource_file(resource_path);
+    if (!resource_file.exists()) {
+        if (errorMsg)
+            *errorMsg = QString(tr("Resource file does not exist at path: %1. It will not be copied.")).arg(local_path);
+        return false;
+    }
+
+    QFile local_file(local_path);
+    if (local_file.exists()) {
+        if (!local_file.remove()) {
+            if (errorMsg)
+                *errorMsg = QString(tr("Failed to remove existing local file at: %1. Resource file will not be copied.")).arg(local_path);
+            return false;
+        }
+    }
+    if (!resource_file.copy(local_path)) {
+        if (errorMsg)
+            *errorMsg = QString(tr("Failed to create a copy of resource file: %1.")).arg(resource_path);
+        return false;
+    } else {
+        if (!QFile::setPermissions(local_path, local_permissions)) {
+            if (errorMsg)
+                *errorMsg = QString(tr("Failed to set file permissions on copied resource file at path: %1.")).arg(local_path);
+            return false;
+        }
+    }
+
+    return true;
 }

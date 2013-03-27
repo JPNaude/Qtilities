@@ -168,6 +168,13 @@ SingleTaskWidget* task_widget = TaskManagerGui::instance()->singleTaskWidget(tas
             //! Sets the displayed name of the task and elides it if needed.
             void setDisplayedName(const QString& name);
 
+        signals:
+            //! Signal which is emitted when this single task widget is hidden or destroyed due to the user closing it using the stop button.
+            /*!
+              <i>This function was added in %Qtilities v1.3.</i>
+              */
+            void hiddenByStopButton();
+
         private:
             Ui::SingleTaskWidget *ui;
             SingleTaskWidgetPrivateData* d;

@@ -48,11 +48,13 @@ using namespace Qtilities::Core::Interfaces;
 
 struct Qtilities::Core::TaskManagerPrivateData {
     TaskManagerPrivateData() : task_observer(qti_def_GLOBAL_OBJECT_POOL),
-        id_counter(-1) { }
+        id_counter(-1),
+        forward_task_messages_to_qt_msg_engine(false) { }
 
     Observer            task_observer;
     QMap<int,QString>   task_id_name_map;
     int                 id_counter;
+    bool                forward_task_messages_to_qt_msg_engine;
 };
 
 Qtilities::Core::TaskManager::TaskManager(QObject* parent) : QObject(parent) {
@@ -124,6 +126,14 @@ QString Qtilities::Core::TaskManager::taskName(const int task_id, bool* ok) cons
             *ok = false;
         return QString();
     }
+}
+
+void TaskManager::setForwardTaskMessagesToQtMsgEngine(bool is_enabled) {
+    d->forward_task_messages_to_qt_msg_engine = is_enabled;
+}
+
+bool TaskManager::forwardTaskMessagesToQtMsgEngine() const {
+    return d->forward_task_messages_to_qt_msg_engine;
 }
 
 void Qtilities::Core::TaskManager::removeTask(const int task_id) {

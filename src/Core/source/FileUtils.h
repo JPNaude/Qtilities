@@ -180,6 +180,21 @@ QFileInfoList files = fu.findFilesUnderDir("c:/my_path");
               <i>This function was added in %Qtilities v1.2.</i>
               */
             static QString toNativeSeparators(QString path);
+            //! Makes a local copy of the specified resource file.
+            /*!
+              This function will create a local copy of a resource file.
+
+              \param resource_path The resource to make a copy of.
+              \param local_path The target local path for the resource.
+              \param errorMsg When specified, will be populated by any error messages when the function returns false.
+              \param local_permissions The permissions to set on the local file after the copy process has been completed.
+
+              <i>This function was added in %Qtilities v1.3.</i>
+              */
+            static bool makeLocalCopyOfResource(const QString& resource_path,
+                                                const QString& local_path,
+                                                QString* errorMsg,
+                                                QFile::Permissions local_permissions = QFile::ReadOwner | QFile::WriteOwner);
 
         private:
             FileUtilsPrivateData* d;
