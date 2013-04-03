@@ -114,6 +114,19 @@ namespace Qtilities {
              * <i>This function was added in %Qtilities v1.3.</i>
              */
             bool forwardTaskMessagesToQtMsgEngine() const;
+            //! Function which can be used to assign an ID to a new task.
+            /*!
+             * New tasks does not have a unique ID by default. The standard way to assign tasks IDs are to register them
+             * in the global object pool (using OBJECT_MANAGER->registerObject()).
+             *
+             * However, in cases where the task is local and you don't want to register it in the global object pool, but
+             * you still need an ID, you can assign an ID to the task manually using this function.
+             *
+             * <i>This function was added in %Qtilities v1.3.</i>
+             *
+             * \return True if successfull, false otherwise. If a task already has an ID assigned (thus, taskID() != -1), this function will fail.
+             */
+            bool assignIdToTask(ITask* task);
 
         public slots:
             //! Removes the task specified by task_id if it exists.

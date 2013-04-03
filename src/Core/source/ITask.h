@@ -119,6 +119,7 @@ namespace Qtilities {
                     qRegisterMetaType<Logger::MessageContextFlags>("Logger::MessageContextFlags");
                     d_elapsed_time_notifications_enabled = false;
                     d_widget_logger_engine_message_display_flags = 0;
+                    d_task_id = -1;
                 }
                 virtual ~ITask() {}
 

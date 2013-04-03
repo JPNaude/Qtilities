@@ -100,8 +100,8 @@ namespace Qtilities {
                 LifeTimeDestroyWhenStopped                  = 8,  /*!< The task will destroy itself when stopped. */
                 LifeTimeDestroyWhenFailed                   = 16  /*!< The task will destroy itself when it failed. */
             };
-            Q_DECLARE_FLAGS(TaskLifeTimeFlags, TaskLifeTime);
-            Q_FLAGS(TaskLifeTimeFlags);
+            Q_DECLARE_FLAGS(TaskLifeTimeFlags, TaskLifeTime)
+            Q_FLAGS(TaskLifeTimeFlags)
             Q_ENUMS(TaskLifeTime)
 
             //! Default constructor

@@ -136,6 +136,19 @@ bool TaskManager::forwardTaskMessagesToQtMsgEngine() const {
     return d->forward_task_messages_to_qt_msg_engine;
 }
 
+bool TaskManager::assignIdToTask(ITask *task) {
+    if (!task)
+        return false;
+
+    if (task->taskID() != -1)
+        return false;
+
+    ++d->id_counter;
+    task->setTaskID(d->id_counter);
+    d->task_id_name_map[d->id_counter] = task->taskName();
+    return true;
+}
+
 void Qtilities::Core::TaskManager::removeTask(const int task_id) {
     ITask* task = hasTask(task_id);
     if (task) {
@@ -155,16 +168,26 @@ void Qtilities::Core::TaskManager::removeTask(QObject* obj) {
 bool Qtilities::Core::TaskManager::addTask(QObject* obj) {
     ITask* task = qobject_cast<ITask*> (obj);
     if (task) {
-        ++d->id_counter;
-        if (obj->objectName().isEmpty())
-            obj->setObjectName("Task with ID: " + QString::number(d->id_counter) + ", Name: " + task->taskName());
-        if (d->task_observer.attachSubject(obj,Observer::ManualOwnership))  {
-            task->setTaskID(d->id_counter);
-            d->task_id_name_map[d->id_counter] = task->taskName();
-            LOG_DEBUG(QString("Task Manager: Registering new task with ID \"%1\" and name \"%2\"").arg(d->id_counter).arg(task->taskName()));
-            return true;
-        } else
-            return false;
+        if (task->taskID() == -1) {
+            ++d->id_counter;
+            if (obj->objectName().isEmpty())
+                obj->setObjectName("Task with ID: " + QString::number(d->id_counter) + ", Name: " + task->taskName());
+            if (d->task_observer.attachSubject(obj,Observer::ManualOwnership))  {
+                task->setTaskID(d->id_counter);
+                d->task_id_name_map[d->id_counter] = task->taskName();
+                LOG_DEBUG(QString("Task Manager: Registering new task with ID \"%1\" and name \"%2\"").arg(d->id_counter).arg(task->taskName()));
+                return true;
+            } else
+                return false;
+        } else {
+            if (obj->objectName().isEmpty())
+                obj->setObjectName("Task with ID: " + QString::number(task->taskID()) + ", Name: " + task->taskName());
+            if (d->task_observer.attachSubject(obj,Observer::ManualOwnership))  {
+                LOG_DEBUG(QString("Task Manager: Registering new task with ID \"%1\" and name \"%2\"").arg(task->taskID()).arg(task->taskName()));
+                return true;
+            } else
+                return false;
+        }
     } else
         return false;
 }

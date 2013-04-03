@@ -73,14 +73,10 @@ void Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageInitialize() {
     // Put the widget in the center of the screen:
     QRect qrect = QApplication::desktop()->availableGeometry(this);
     move(qrect.center() - rect().center());
-
-    if (EXTENSION_SYSTEM->pluginPaths().count() == 1)
-        ui->labelPluginPaths->setText(QString(tr("Plugins loaded from %1 path.")).arg(EXTENSION_SYSTEM->pluginPaths().count()));
-    else
-        ui->labelPluginPaths->setText(QString(tr("Plugins loaded from %1 paths.")).arg(EXTENSION_SYSTEM->pluginPaths().count()));
-    ui->listPluginPaths->addItems(EXTENSION_SYSTEM->pluginPaths());
-
     connect(ui->btnPluginDetails,SIGNAL(clicked()),SLOT(handleBtnDetailsClicked()));
+
+    connect(EXTENSION_SYSTEM,SIGNAL(pluginPathsChanged(QStringList)),SLOT(updatePluginPaths()));
+    updatePluginPaths();
 
     initialized = true;
 }
@@ -152,4 +148,13 @@ void Qtilities::ExtensionSystem::ExtensionSystemConfig::handleSelectionDoubleCli
 
 void Qtilities::ExtensionSystem::ExtensionSystemConfig::setStatusMessage(const QString& status_message) {
     ui->lblStatusMessage->setText(status_message);
+}
+
+void Qtilities::ExtensionSystem::ExtensionSystemConfig::updatePluginPaths() {
+    ui->listPluginPaths->clear();
+    if (EXTENSION_SYSTEM->pluginPaths().count() == 1)
+        ui->labelPluginPaths->setText(QString(tr("Plugins loaded from %1 path.")).arg(EXTENSION_SYSTEM->pluginPaths().count()));
+    else
+        ui->labelPluginPaths->setText(QString(tr("Plugins loaded from %1 paths.")).arg(EXTENSION_SYSTEM->pluginPaths().count()));
+    ui->listPluginPaths->addItems(EXTENSION_SYSTEM->pluginPaths());
 }

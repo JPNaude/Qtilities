@@ -108,12 +108,12 @@ namespace Qtilities {
 
               \note Add all the needed paths before calling loadPlugins().
 
-              \sa pluginPaths()
+              \sa pluginPaths(), pluginPathsChanged()
               */
             void addPluginPath(const QString& path);
             //! Function to get the paths from where plugins are loaded.
             /*!
-              \sa addPluginPath()
+              \sa addPluginPath(), pluginPathsChanged()
               */
             QStringList pluginPaths() const;
 
@@ -263,18 +263,19 @@ if (!core_plugins_ok) {
             void newProgressMessage(const QString& message);
             //! Signal which is emitted when the plugin loading started.
             /*!
-             * \brief pluginLoadingStarted
-             *
              * <i>This class was added in %Qtilities v1.1.</i>
              */
             void pluginLoadingStarted();
             //! Signal which is emitted when the plugin loading completed.
             /*!
-             * \brief pluginLoadingCompleted
-             *
              * <i>This class was added in %Qtilities v1.1.</i>
              */
             void pluginLoadingCompleted();
+            //! Signal which is emitted when the plugin paths changed.
+            /*!
+             * <i>This class was added in %Qtilities v1.3.</i>
+             */
+            void pluginPathsChanged(const QStringList& plugin_paths);
 
         public slots:
             //! Handle plugin configuration changes.
