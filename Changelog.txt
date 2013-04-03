@@ -18,7 +18,8 @@ Qtilities v1.3 Changes
     [+] Added Logger:qtMsgEngineActive() and Logger::consoleEngineActive().
 
     [#] Logger::initialize() and Logger::finalize() got new parameters to provide the log configuration file that must be used.
-    [#] The logger will no longer remember its previous log configuration by default. To keep log configurations between sessions, just call Log->setRememberSessionConfig(true) before LOG_INITIALIZE().
+    [#] The logger will no longer remember its previous log configuration by default. To keep log configurations between
+        sessions, just call Log->setRememberSessionConfig(true) before LOG_INITIALIZE().
 
     [*] Fixed issues when calling Logger::newFileEngine().
 
@@ -28,36 +29,51 @@ Qtilities v1.3 Changes
     [+] Instance factory info got a new icon path parameter which can be used to specify the path of an icon to
         be associated with the type of manufacturable object.
     [+] Added FileUtils::makeLocalCopyOfResource().
+    [+] Added TaskManager::assignIdToTask() to allow manual task ID assignment. Previously the only way to assign
+        an unique ID to a task was to register it in the global object pool. The Task class which is the standard
+        implementation of the ITask interface now does the manual assignment in its constructor, thus Task
+        objects will always have valid, unique tasks now.
 
     [#] Observer will no longer log a warning when attachment fails, its now a debug message.
-    [#] Tasks will now log engine specific messages to QtMsgLoggerEngine and ConsoleLoggerEngine when they are active and this is enabled using new functions
-        on TaskManager to enable it. See TaskManager::forwardTaskMessagesToQtMsgEngine() and TaskManager::setForwardTaskMessagesToQtMsgEngine().
+    [#] Tasks will now log engine specific messages to QtMsgLoggerEngine and ConsoleLoggerEngine when they are
+        active and this is enabled using new functions on TaskManager to enable it. See
+        TaskManager::forwardTaskMessagesToQtMsgEngine() and TaskManager::setForwardTaskMessagesToQtMsgEngine().
 
     ============================
     QtilitiesCoreGui:
     ============================
     [+] Added DynamicSideViewerWidget::setHiddenSideWidgets() and DynamicSideViewerWidget::hiddenSideWidgets().
     [+] Added HelpManager::homePageChanged().
-    [+] Added a new parameter to QtilitiesMainWindow::writeSettings() and QtilitiesMainWindow::readSettings() to specify a custom ID under which the settings of the window must be saved.
+    [+] Added a new parameter to QtilitiesMainWindow::writeSettings() and QtilitiesMainWindow::readSettings() to
+        specify a custom ID under which the settings of the window must be saved.
     [+] Added TaskSummaryWidget::numberOfDisplayedTasksChanged() signal.
     [+] Added TaskSummaryWidget::setDisplayedTasksFilter() and TaskSummaryWidget::displayedTasksFilter().
     [+] Added SingleTaskWidget::hiddenByStopButton().
 
     [#] ObserverWidget not longer assigns F5 QKeySequence::Refresh to the refresh action.
-    [#] Made the following functions public on AddDynamicPropertyWizard: propertyRemovable(), propertyIsExportable(), propertyReadOnly(), propertyDefaultValue().
+    [#] Made the following functions public on AddDynamicPropertyWizard: propertyRemovable(),
+        propertyIsExportable(), propertyReadOnly(), propertyDefaultValue().
 
     [*] Fixed AbstractTreeItem::getIcon() and AbstractTreeItem::hasIcon() which checked the wrong property on the object.
     [*] Fixed some inconsitancies between select object functions on ObserverWidget.
     [*] Fixed bug in QtilitiesTreeModelProxyFilter where it always sorted using the name column.
-    [*] Fixed bug in ObserverWidget where it did not calculate expanded items correctly when rootIndexDisplayHint() == ObserverHints::RootIndexHide.
+    [*] Fixed bug in ObserverWidget where it did not calculate expanded items correctly when
+        rootIndexDisplayHint() == ObserverHints::RootIndexHide.
     [*] Fixed potential crash in ObserverTreeModel::headerData().
     [*] Fixed issue where ConfigurationWidget initialized some configuration pages twice.
+    [*] Fixed potential crashes in SingleTaskWidget.
 
     ============================
     QtilitiesExtensionSystem:
     ============================
+    [+] Added ExtensionSystem::pluginPathsChanged() signal.
+
+    [#] The path where the default plugin configuration is searched is now /plugins, not /Plugins anymore.
+
     [*] Fixed issue where custom plugin configuration files were not loaded correctly.
-    [*] Fixed issue where the extension system set its default plugin configuration to be loaded from the application's session path, instead of the applications dir path.
+    [*] Fixed issue where the extension system set its default plugin configuration to be loaded
+        from the application's session path, instead of the applications dir path.
+    [*] Fixed issue where the About Plugins dialog sometimes showed that plugins were loaded from 0 paths.
 
     ============================
     QtilitiesProjectManagement:
@@ -65,14 +81,16 @@ Qtilities v1.3 Changes
     [+] Added ProjectManager::projectCreationStarted() and ProjectManager::projectCreationFinished().
     [+] Added ProjectManager::currentProjectChanged().
 
-    [#] Most of the functionality that was previously part of the ProjectManagementPlugin is now part of the ProjectManager. This
-        includes convenience actions that can be retrieved to do common tasks. See ProjectManager::actionNewProject(),
-        ProjectManager::actionOpenProject(), ProjectManager::actionSaveProject(), ProjectManager::actionSaveAsProject() and ProjectManager::actionCloseProject().
+    [#] Most of the functionality that was previously part of the ProjectManagementPlugin is now part of the ProjectManager.
+        This includes convenience actions that can be retrieved to do common tasks. See ProjectManager::actionNewProject(),
+        ProjectManager::actionOpenProject(), ProjectManager::actionSaveProject(), ProjectManager::actionSaveAsProject()
+        and ProjectManager::actionCloseProject().
         The recent projects functionality was also moved, see ProjectManager::recentProjectsMenuContainer().
-        The project management plugin continues to function in exactly the same was as always, but the project manager is doing all the work
-        now. This change provides users with much more flexibility in terms of where those actions end up etc. by placing them manually
-        and not using the ProjectManagementPlugin.
-    [#] Project manager will no longer log "Project Manager: Found project item: " as info messages, but rather as debug messages.
+        The project management plugin continues to function in exactly the same was as always, but the project manager
+        is doing all the work now. This change provides users with much more flexibility in terms of where those
+        actions end up etc. by placing them manually and not using the ProjectManagementPlugin.
+    [#] Project manager will no longer log "Project Manager: Found project item: " as info messages, but
+        rather as debug messages.
 
     ============================
     QtilitiesTesting:

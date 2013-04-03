@@ -95,6 +95,8 @@ Qtilities::Core::Task::Task(const QString& task_name, bool enable_logging, QObje
 
     d->elapsed_time_notification_timer.setInterval(1000);
     connect(&d->elapsed_time_notification_timer,SIGNAL(timeout()),SLOT(broadcastElapsedTimeChanged()));
+
+    QtilitiesCoreApplication::taskManager()->assignIdToTask(this);
 }
 
 Qtilities::Core::Task::~Task() {

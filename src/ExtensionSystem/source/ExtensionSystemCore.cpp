@@ -125,9 +125,9 @@ Qtilities::ExtensionSystem::ExtensionSystemCore::~ExtensionSystemCore()
 
 void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
     if (d->active_configuration_file.isEmpty()) {
-        QDir dir(QtilitiesApplication::applicationDirPath() + QDir::separator() + "Plugins");
-        dir.mkpath(QtilitiesApplication::applicationDirPath() + QDir::separator() + "Plugins");
-        d->active_configuration_file = QtilitiesApplication::applicationDirPath() + QDir::separator() + "Plugins" + QDir::separator() +  "default" + qti_def_SUFFIX_PLUGIN_CONFIG;
+        QDir dir(QtilitiesApplication::applicationDirPath() + QDir::separator() + "plugins");
+        dir.mkpath(QtilitiesApplication::applicationDirPath() + QDir::separator() + "plugins");
+        d->active_configuration_file = QtilitiesApplication::applicationDirPath() + QDir::separator() + "plugins" + QDir::separator() +  "default" + qti_def_SUFFIX_PLUGIN_CONFIG;
     }
 
     // Start a processing cycle on the actions observer. Otherwise it will refresh the actions view everytime
@@ -436,12 +436,11 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::addPluginPath(const QStrin
             return;
     }
 
-    if (d->customPluginPaths.contains(path))
-        return;
-
     QDir dir(path);
-    if (dir.exists())
+    if (dir.exists()) {
         d->customPluginPaths << path;
+        emit pluginPathsChanged(d->customPluginPaths);
+    }
 }
 
 QStringList Qtilities::ExtensionSystem::ExtensionSystemCore::pluginPaths() const {

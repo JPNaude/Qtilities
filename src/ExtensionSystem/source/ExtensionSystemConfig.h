@@ -98,6 +98,7 @@ OBJECT_MANAGER->registerObject(EXTENSION_SYSTEM->configWidget());
             void handleSelectionChanged(QList<QObject*> selection);
             void handleSelectionDoubleClicked(QObject* selection);
             void setStatusMessage(const QString& status_message);
+            void updatePluginPaths();
 
         protected:
             void changeEvent(QEvent *e);

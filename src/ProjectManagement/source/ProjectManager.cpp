@@ -367,7 +367,7 @@ bool Qtilities::ProjectManagement::ProjectManager::openProject(const QString& fi
                 }
             } else if (PROJECT_MANAGER->executionStyle() == ProjectManager::ExecSilent) {
                 // In this case we say the project was locked and abort.
-                LOG_TASK_ERROR("Project file is locked, cannot open it in silent execution mode: " + file_name,task_ref);
+                LOG_TASK_ERROR(tr("Project file is locked, cannot open it in silent execution mode: ") + file_name,task_ref);
                 if (task_ref)
                     task_ref->completeTask(ITask::TaskFailed);
                 return false;

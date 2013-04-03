@@ -143,8 +143,10 @@ void Qtilities::CoreGui::SingleTaskWidget::setPauseButtonVisible(bool is_visible
         ui->btnPause->setToolTip("Pause Task");
     } else {
         ui->btnPause->setIcon(QIcon());
-        if (!d->task->canStop())
-            ui->widgetRightButtonsHolder->setVisible(false);
+        if (d->task && d->task_base) {
+            if (!d->task->canStop())
+                ui->widgetRightButtonsHolder->setVisible(false);
+        }
     }
 }
 
@@ -162,8 +164,10 @@ void Qtilities::CoreGui::SingleTaskWidget::setStopButtonVisible(bool is_visible)
     if (is_visible) {
         ui->widgetRightButtonsHolder->setVisible(is_visible);
     } else {
-        if (!d->task->canPause())
-            ui->widgetRightButtonsHolder->setVisible(false);
+        if (d->task && d->task_base) {
+            if (!d->task->canPause())
+                ui->widgetRightButtonsHolder->setVisible(false);
+        }
     }
 }
 
@@ -209,7 +213,7 @@ QProgressBar* Qtilities::CoreGui::SingleTaskWidget::progressBar() {
 }
 
 void Qtilities::CoreGui::SingleTaskWidget::on_btnShowLog_clicked() {
-    if (!d->task)
+    if (!d->task || !d->task_base)
         return;
 
     // Check if the task has a log widget:
@@ -241,7 +245,7 @@ void Qtilities::CoreGui::SingleTaskWidget::setDisplayedName(const QString& name)
 }
 
 void Qtilities::CoreGui::SingleTaskWidget::on_btnPause_clicked() {
-    if (!d->task)
+    if (!d->task || !d->task_base)
         return;
 
     if (d->task->state() == ITask::TaskBusy)
@@ -251,7 +255,7 @@ void Qtilities::CoreGui::SingleTaskWidget::on_btnPause_clicked() {
 }
 
 void Qtilities::CoreGui::SingleTaskWidget::on_btnStop_clicked() {
-    if (!d->task)
+    if (!d->task || !d->task_base)
         return;
 
     if (d->task->state() == ITask::TaskBusy) {
@@ -288,14 +292,14 @@ void Qtilities::CoreGui::SingleTaskWidget::handleTaskDeleted() {
 }
 
 void Qtilities::CoreGui::SingleTaskWidget::on_btnStart_clicked() {
-    if (!d->task)
+    if (!d->task || !d->task_base)
         return;
 
     d->task->start();
 }
 
 void Qtilities::CoreGui::SingleTaskWidget::updateBusyState(ITask::TaskBusyState busy_state) {
-    if (!d->task)
+    if (!d->task || !d->task_base)
         return;
 
     if (d->task->state() == ITask::TaskBusy) {
@@ -322,7 +326,7 @@ void Qtilities::CoreGui::SingleTaskWidget::resizeEvent(QResizeEvent * event) {
 }
 
 void Qtilities::CoreGui::SingleTaskWidget::update() {  
-    if (!d->task)
+    if (!d->task || !d->task_base)
         return;
 
     bool show_progress = TaskManagerGui::instance()->taskProgressUpdatingEnabled();
