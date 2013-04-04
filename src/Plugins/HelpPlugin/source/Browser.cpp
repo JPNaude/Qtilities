@@ -148,14 +148,23 @@ void Qtilities::Plugins::Help::Browser::handle_loadUrl( ){
     QUrl new_url(d->txtLocationEdit->text());
 
     if (new_url.scheme() == "https") {
+        #ifdef Q_OS_WIN
         if (!QSslSocket::supportsSsl()) {
             QMessageBox msgBox;
-            msgBox.setWindowTitle(tr("Failed To Load Webpage"));
-            msgBox.setText(tr("Your system and/or Qt installation does not support websites using SSL (thus https://).\n\nThe page you are trying to load uses SSL and cannot be loaded:\n") + d->web_view->url().toString());
+            msgBox.setWindowTitle("Failed To Load Webpage");
+            msgBox.setText("Your system and/or Qt installation does not support websites using SSL (thus https://).\n\nThe page you are trying to load uses SSL and therefore cannot be loaded:\n" + d->web_view->url().toString());
             msgBox.exec();
-            LOG_ERROR(tr("Error while loading secure page at ") + d->web_view->url().toString() + tr(". SSL is not supported."));
+            LOG_ERROR("Error while loading secure page at " + d->web_view->url().toString() + ". SSL is not supported.");
             return;
         }
+        #else
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Failed To Load Webpage");
+        msgBox.setText("Your system and/or Qt installation does not seem to support websites using SSL (thus https://).\n\nThe page you are trying to load uses SSL and therefore cannot be loaded:\n" + d->web_view->url().toString());
+        msgBox.exec();
+        LOG_ERROR("Error while loading secure page at " + d->web_view->url().toString() + ". SSL is not supported.");
+        return;
+        #endif
     }
 
     emit newUrlEntered(new_url);
