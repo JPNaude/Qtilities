@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2013, Jaco Naude
+** Copyright (c) 2009-2013, Floware Computing (Pty) Ltd
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -102,7 +102,7 @@ Qtilities::Core::VersionInformation Qtilities::Plugins::Help::HelpPlugin::plugin
 }
 
 QString Qtilities::Plugins::Help::HelpPlugin::pluginPublisher() const {
-    return "Jaco Naude";
+    return "Floware Computing (Pty) Ltd";
 }
 
 QString Qtilities::Plugins::Help::HelpPlugin::pluginPublisherWebsite() const {
@@ -118,7 +118,7 @@ QString Qtilities::Plugins::Help::HelpPlugin::pluginDescription() const {
 }
 
 QString Qtilities::Plugins::Help::HelpPlugin::pluginCopyright() const {
-    return QString(tr("Copyright") + " 2009-2013, Jaco Naude");
+    return QString(tr("Copyright") + " 2009-2013, Floware Computing (Pty) Ltd");
 }
 
 QString Qtilities::Plugins::Help::HelpPlugin::pluginLicense() const {

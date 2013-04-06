@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2013, Jaco Naude
+** Copyright (c) 2009-2013, Floware Computing (Pty) Ltd
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -102,7 +102,7 @@ Qtilities::Core::VersionInformation Qtilities::Plugins::SessionLog::SessionLogPl
 }
 
 QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginPublisher() const {
-    return "Jaco Naude";
+    return "Floware Computing (Pty) Ltd";
 }
 
 QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginPublisherWebsite() const {
@@ -118,7 +118,7 @@ QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginDescription() co
 }
 
 QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginCopyright() const {
-    return QString(tr("Copyright") + " 2009-2013, Jaco Naude");
+    return QString(tr("Copyright") + " 2009-2013, Floware Computing (Pty) Ltd");
 }
 
 QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginLicense() const {

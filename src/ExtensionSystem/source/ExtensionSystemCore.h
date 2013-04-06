@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2013, Jaco Naude
+** Copyright (c) 2009-2013, Floware Computing (Pty) Ltd
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -256,7 +256,11 @@ if (!core_plugins_ok) {
 
                 \sa loadPluginConfiguration()
               */
-            bool savePluginConfiguration(QString file_name = QString(), QStringList* inactive_plugins = 0, QStringList* filtered_plugins = 0, Qtilities::ExportVersion version = Qtilities::Qtilities_Latest) const;
+            bool savePluginConfiguration(QString file_name = QString(),
+                                         QStringList* inactive_plugins = 0,
+                                         QStringList* filtered_plugins = 0,
+                                         Qtilities::ExportVersion version = Qtilities::Qtilities_Latest,
+                                         QString* errorMsg = 0) const;
 
         signals:
             //! Progress messages submitted during application startup.

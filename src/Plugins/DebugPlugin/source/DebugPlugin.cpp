@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2013, Jaco Naude
+** Copyright (c) 2009-2013, Floware Computing (Pty) Ltd
 **
 ** This file is part of the Qtilities Debug Plugin.
 ** See Dependencies.pri for the licensing requirements of the Debug plugin.
@@ -75,7 +75,7 @@ Qtilities::Core::VersionInformation Qtilities::Plugins::Debug::DebugPlugin::plug
 }
 
 QString Qtilities::Plugins::Debug::DebugPlugin::pluginPublisher() const {
-    return "Jaco Naude";
+    return "Floware Computing (Pty) Ltd";
 }
 
 QString Qtilities::Plugins::Debug::DebugPlugin::pluginPublisherWebsite() const {
@@ -91,7 +91,7 @@ QString Qtilities::Plugins::Debug::DebugPlugin::pluginDescription() const {
 }
 
 QString Qtilities::Plugins::Debug::DebugPlugin::pluginCopyright() const {
-    return QString(tr("Copyright") + " 2009-2013, Jaco Naude");
+    return QString(tr("Copyright") + " 2009-2013, Floware Computing (Pty) Ltd");
 }
 
 QString Qtilities::Plugins::Debug::DebugPlugin::pluginLicense() const  {

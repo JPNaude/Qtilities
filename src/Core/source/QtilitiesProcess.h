@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2013, Jaco Naude
+** Copyright (c) 2009-2013, Floware Computing (Pty) Ltd
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -77,9 +77,16 @@ namespace Qtilities {
 
             //! Starts the process, similar to QProcess::start().
             /*!
-                \returns True when the task was started successfully (thus waitForStarted() returned true), false otherwise.
+              \param program The program to start.
+              \param arguments The arguments to send to the QProcess.
+              \param mode The OpenMode of the QProcess.
+              \param wait_for_started_msecs The wait for started time in milli seconds to be passed to the waitForStarted() call on the QProcess().
+              \returns True when the task was started successfully (thus waitForStarted() returned true), false otherwise.
               */
-            virtual bool startProcess(const QString& program, const QStringList& arguments, QProcess::OpenMode mode = QProcess::ReadWrite);
+            virtual bool startProcess(const QString& program,
+                                      const QStringList& arguments,
+                                      QProcess::OpenMode mode = QProcess::ReadWrite,
+                                      int wait_for_started_msecs = 30000);
 
             //! Access to the QProcess instance contained and used within this object.
             QProcess* process();

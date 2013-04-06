@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2013, Jaco Naude
+** Copyright (c) 2009-2013, Floware Computing (Pty) Ltd
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -63,7 +63,7 @@ namespace Qtilities {
 
 \code
 QtilitiesApplication a(argc, argv);
-QtilitiesApplication::setOrganizationName("Jaco Naude");
+QtilitiesApplication::setOrganizationName("Floware Computing (Pty) Ltd");
 QtilitiesApplication::setOrganizationDomain("Qtilities");
 QtilitiesApplication::setApplicationName("Example");
 QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersionString());
