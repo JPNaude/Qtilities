@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2013, Jaco Naude
+** Copyright (c) 2009-2013, Floware Computing (Pty) Ltd
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -479,13 +479,20 @@ QStringList Qtilities::ExtensionSystem::ExtensionSystemCore::filteredPluginsCurr
     return d->set_filtered_plugins;
 }
 
-bool Qtilities::ExtensionSystem::ExtensionSystemCore::savePluginConfiguration(QString file_name, QStringList* inactive_plugins, QStringList* filtered_plugins, Qtilities::ExportVersion version) const {  
+bool Qtilities::ExtensionSystem::ExtensionSystemCore::savePluginConfiguration(QString file_name,
+                                                                              QStringList* inactive_plugins,
+                                                                              QStringList* filtered_plugins,
+                                                                              Qtilities::ExportVersion version,
+                                                                              QString* errorMsg) const {
     if (file_name.isEmpty())
         file_name = d->active_configuration_file;
 
     QFile file(file_name);
-    if(!file.open(QFile::WriteOnly))
+    if (!file.open(QFile::WriteOnly)) {
+        if (errorMsg)
+            *errorMsg = QString(tr("Failed to open target plugin configuration file in write mode:<br>%1")).arg(file_name);
         return false;
+    }
 
     // Determine which set of plugins must be used:
     QStringList final_inactive;
@@ -739,17 +746,21 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::handlePluginConfigurationC
     if (new_inactive_plugins != d->set_inactive_plugins) {
         // Now write the settings to the default configuration file, unless a config file was loaded, in that
         // case ask the user if they want to save it.
-        if (savePluginConfiguration(d->active_configuration_file,&new_inactive_plugins,&d->set_filtered_plugins)) {
+        QString errorMsg;
+        if (savePluginConfiguration(d->active_configuration_file,
+                                    &new_inactive_plugins,
+                                    &d->set_filtered_plugins,
+                                    Qtilities::Qtilities_Latest,
+                                    &errorMsg)) {
             // If there is a config widget, we update its status message:
             if (d->extension_system_config_widget)
-                d->extension_system_config_widget->setStatusMessage("<font color=\"red\">Application Restart Required</font>");
+                d->extension_system_config_widget->setStatusMessage(tr("<font color=\"red\">Application Restart Required</font>"));
         } else {
             // If there is a config widget, we update its status message:
             if (d->extension_system_config_widget)
-                d->extension_system_config_widget->setStatusMessage("<font color='red'>Failed to save new configuration</font>");
+                d->extension_system_config_widget->setStatusMessage(QString(tr("<font color='red'>Failed to save new configuration.<br>%1</font>")).arg(errorMsg));
         }
     }
-
 }
 
 void Qtilities::ExtensionSystem::ExtensionSystemCore::enablePluginActivityDisplay() {

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2013, Jaco Naude
+** Copyright (c) 2009-2013, Floware Computing (Pty) Ltd
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -111,8 +111,10 @@ bool FileSetInfo::addFile(const QString &file_path) {
 
     QtilitiesFileInfo fi(file_path);
     if (!d->files.contains(fi)) {
-        if (d->file_watching_enabled)
-            d->watcher.addPath(fi.actualFilePath());
+        if (d->file_watching_enabled) {
+            if (fi.exists())
+                d->watcher.addPath(fi.actualFilePath());
+        }
         d->files << fi;
         emit setChanged();
         return true;
@@ -123,8 +125,10 @@ bool FileSetInfo::addFile(const QString &file_path) {
 
 bool FileSetInfo::addFile(QtilitiesFileInfo file_info) {
     if (!d->files.contains(file_info)) {
-        if (d->file_watching_enabled)
-            d->watcher.addPath(file_info.actualFilePath());
+        if (d->file_watching_enabled) {
+            if (file_info.exists())
+                d->watcher.addPath(file_info.actualFilePath());
+        }
         d->files << file_info;
         emit setChanged();
         return true;
@@ -194,7 +198,7 @@ void FileSetInfo::updateRelativeToPaths(const QString &search_string, const QStr
         QString actual_file_path = local_list.at(i).actualFilePath();
 
         bool do_replacement = false;
-        if (FileUtils::toNativeSeparators(QDir::cleanPath(replace_string)).startsWith(FileUtils::toNativeSeparators(QDir::cleanPath(search_string)))) {
+        if (FileUtils::toNativeSeparators(QDir::cleanPath(replace_string)).startsWith(FileUtils::toNativeSeparators(QDir::cleanPath(search_string)),Qt::CaseInsensitive)) {
             // Do check 1:
             do_replacement = (actual_file_path.startsWith(search_string,Qt::CaseInsensitive) && !actual_file_path.startsWith(replace_string,Qt::CaseInsensitive));
         } else {

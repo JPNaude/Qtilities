@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2013, Jaco Naude
+** Copyright (c) 2009-2013, Floware Computing (Pty) Ltd
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -90,7 +90,10 @@ QStringList Qtilities::Core::QtilitiesProcess::lineBreakStrings() {
     return d->line_break_strings;
 }
 
-bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program, const QStringList& arguments, QProcess::OpenMode mode) {
+bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program,
+                                                     const QStringList& arguments,
+                                                     QProcess::OpenMode mode,
+                                                     int wait_for_started_msecs) {
     if (state() == ITask::TaskPaused)
         return false;
 
@@ -106,12 +109,12 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program, con
             // Check if program.bat exists:
             QFileInfo fi3(program + ".bat");
             if (!fi3.exists() && fi3.isAbsolute())
-                logWarning("Failed to find application \"" + program + "\". An attempt to launch it will still be made.");
+                logWarning(QString(tr("Failed to find application \"%1\". An attempt to launch it will still be made.")).arg(program));
         }
     }
 
     QString native_program = FileUtils::toNativeSeparators(program);
-    logMessage("Executing Process: " + native_program + " " + arguments.join(" "));
+    logMessage(tr("Executing Process: ") + native_program + " " + arguments.join(" "));
     if (d->process->workingDirectory().isEmpty())
         logMessage("> working directory of process: " + QDir::current().path());
     else
@@ -123,7 +126,7 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program, con
     logMessage("");
     d->process->start(native_program, arguments, mode);
 
-    if (!d->process->waitForStarted()) {
+    if (!d->process->waitForStarted(wait_for_started_msecs)) {
         logMessage("Failed to start " + native_program + ". Make sure the executable is visible in your system's paths.", Logger::Error);
         completeTask(ITask::TaskFailed);
 

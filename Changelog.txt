@@ -33,6 +33,8 @@ Qtilities v1.3 Changes
         an unique ID to a task was to register it in the global object pool. The Task class which is the standard
         implementation of the ITask interface now does the manual assignment in its constructor, thus Task
         objects will always have valid, unique tasks now.
+    [+] QtilitiesProcess::start() got a new parameter to specify how long the function must wait during
+        its QProcess::waitForStarted() call after the process was started.
 
     [#] Observer will no longer log a warning when attachment fails, its now a debug message.
     [#] Tasks will now log engine specific messages to QtMsgLoggerEngine and ConsoleLoggerEngine when they are
@@ -54,7 +56,8 @@ Qtilities v1.3 Changes
     [#] Made the following functions public on AddDynamicPropertyWizard: propertyRemovable(),
         propertyIsExportable(), propertyReadOnly(), propertyDefaultValue().
 
-    [*] Fixed AbstractTreeItem::getIcon() and AbstractTreeItem::hasIcon() which checked the wrong property on the object.
+    [*] Fixed AbstractTreeItem::getIcon() and AbstractTreeItem::hasIcon() which checked the wrong property
+        on the object.
     [*] Fixed some inconsitancies between select object functions on ObserverWidget.
     [*] Fixed bug in QtilitiesTreeModelProxyFilter where it always sorted using the name column.
     [*] Fixed bug in ObserverWidget where it did not calculate expanded items correctly when
@@ -67,6 +70,8 @@ Qtilities v1.3 Changes
     QtilitiesExtensionSystem:
     ============================
     [+] Added ExtensionSystem::pluginPathsChanged() signal.
+    [+] Added errorMsg parameter to ExtensionSystemCore::savePluginConfiguration(). The ExtensionSystemConfig
+        window will now show what error occured when changes made to the active plugin configuration could not be saved.
 
     [#] The path where the default plugin configuration is searched is now /plugins, not /Plugins anymore.
 

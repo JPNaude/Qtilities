@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2013, Jaco Naude
+** Copyright (c) 2009-2013, Floware Computing (Pty) Ltd
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -77,7 +77,7 @@ namespace Qtilities {
 int main(int argc, char *argv[])
 {
     QtilitiesApplication a(argc, argv);
-    QtilitiesApplication::setOrganizationName("Jaco Naude");
+    QtilitiesApplication::setOrganizationName("Floware Computing (Pty) Ltd");
     QtilitiesApplication::setApplicationName("Main Window Example");
 
     // Create a QtilitiesMainWindow to show our different modes:
@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
 int main(int argc, char *argv[])
 {
     QtilitiesApplication a(argc, argv);
-    QtilitiesApplication::setOrganizationName("Jaco Naude");
+    QtilitiesApplication::setOrganizationName("Floware Computing (Pty) Ltd");
     QtilitiesApplication::setApplicationName("Main Window Example");
 
     // Create a QtilitiesMainWindow with modes at the top:
