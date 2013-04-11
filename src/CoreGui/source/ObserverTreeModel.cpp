@@ -366,7 +366,6 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
 
             QVariant subject_activity = QVariant();
             Observer* local_selection_parent = parentOfIndex(index);
-
             if (local_selection_parent) {
                 // Once we have the local parent, we can check if it must display activity and if so, we return
                 // the activity of obj in that context.
@@ -1407,7 +1406,7 @@ Qtilities::Core::Observer* Qtilities::CoreGui::ObserverTreeModel::parentOfIndex(
 
     if (activeHints()->rootIndexDisplayHint() == ObserverHints::RootIndexHide) {
         if (item_parent == d->rootItem)
-            return 0;
+            return observerContext();
     }
 
     if (item_parent->getObject())

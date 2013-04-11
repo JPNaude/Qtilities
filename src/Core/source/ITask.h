@@ -101,6 +101,12 @@ namespace Qtilities {
                     TaskDoNothingWhenStopped        = 2   /*!< Do nothing when it is stopped. This will give the user the chance to review the task log. */
                 };
 
+                //! Indicates if an confirmation message is required when an user stops the task in a Qtilities::CoreGui::SingleTaskWidget.
+                enum TaskStopConfirmation {
+                    TaskStopConfirmationNone        = 0,  /*!< Stop the task immediately without any confirmation. */
+                    TaskStopConfirmationMsgBox      = 1   /*!< Display a message box asking the user if they are sure that they want to stop the task. */
+                };
+
                 //! Indicates what should happen to the task when the user click's on the "Remove Task" button in a Qtilities::CoreGui::SingleTaskWidget. The "Stop Task" becomes the "Remove Task" button when the task was stopped or completed.
                 enum TaskRemoveAction {
                     TaskDeleteWhenRemoved            = 0,  /*!< Delete the task when the "Remove Task" button is pressed. */
@@ -255,7 +261,7 @@ namespace Qtilities {
                 virtual TaskType taskType() const {
                     return TaskGlobal;
                 }
-                //! Indicates what should happen to the task when the user click's on the "Cancel Task" button in a Qtilities::CoreGui::SingleTaskWidget
+                //! Indicates what should happen to the task when the user click's on the "Stop Task" button in a Qtilities::CoreGui::SingleTaskWidget
                 /*!
                     Default is TaskDoNothingWhenStopped.
                 */
@@ -275,6 +281,25 @@ namespace Qtilities {
                 virtual void setTaskStopAction(TaskStopAction task_stop_action) = 0;
                 //! Sets the task's remove action.
                 virtual void setTaskRemoveAction(TaskRemoveAction task_remove_action) = 0;
+
+                //! Indicates what should happen to the task when the user click's on the "Stop Task" button in a Qtilities::CoreGui::SingleTaskWidget.
+                /*!
+                 * Default is TaskStopConfirmationMsgBox.
+                 *
+                 * \sa  setTaskStopConfirmation()
+                 *
+                 * <i>This function was added in %Qtilities v1.3.</i>
+                 */
+                virtual TaskStopConfirmation taskStopConfirmation() const {
+                    return TaskStopConfirmationMsgBox;
+                }
+                //! Sets the task's stop configuration action.
+                /*!
+                 * \sa taskStopConfirmation()
+                 *
+                 * <i>This function was added in %Qtilities v1.3.</i>
+                 */
+                virtual void setTaskStopConfirmation(TaskStopConfirmation task_stop_confirmation) = 0;
 
                 //! Gets what performance measures are used for sub tasks.
                 /*!

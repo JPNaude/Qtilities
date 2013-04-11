@@ -20,16 +20,7 @@
    <property name="spacing">
     <number>2</number>
    </property>
-   <property name="leftMargin">
-    <number>0</number>
-   </property>
-   <property name="topMargin">
-    <number>0</number>
-   </property>
-   <property name="rightMargin">
-    <number>0</number>
-   </property>
-   <property name="bottomMargin">
+   <property name="margin">
     <number>0</number>
    </property>
    <item>
@@ -53,20 +44,17 @@
       <property name="spacing">
        <number>2</number>
       </property>
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
+      <property name="margin">
        <number>0</number>
       </property>
       <item>
        <widget class="QToolButton" name="btnStart">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
           <width>20</width>
@@ -75,16 +63,19 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>20</width>
+          <width>16777215</width>
           <height>20</height>
          </size>
         </property>
         <property name="text">
-         <string>...</string>
+         <string/>
         </property>
         <property name="icon">
          <iconset>
           <normaloff>:/icons/task_stop_22x22.png</normaloff>:/icons/task_stop_22x22.png</iconset>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextBesideIcon</enum>
         </property>
         <property name="autoRaise">
          <bool>true</bool>
@@ -93,6 +84,12 @@
       </item>
       <item>
        <widget class="QToolButton" name="btnShowLog">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
           <width>20</width>
@@ -101,16 +98,19 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>20</width>
+          <width>16777215</width>
           <height>20</height>
          </size>
         </property>
         <property name="text">
-         <string>...</string>
+         <string/>
         </property>
         <property name="icon">
          <iconset>
           <normaloff>:/icons/delete_red_16x16.png</normaloff>:/icons/delete_red_16x16.png</iconset>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextBesideIcon</enum>
         </property>
         <property name="autoRaise">
          <bool>true</bool>
@@ -161,7 +161,7 @@
    <item>
     <widget class="QProgressBar" name="progressBar">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+      <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -201,7 +201,7 @@
      </property>
      <property name="maximumSize">
       <size>
-       <width>42</width>
+       <width>16777215</width>
        <height>16777215</height>
       </size>
      </property>
@@ -209,20 +209,17 @@
       <property name="spacing">
        <number>2</number>
       </property>
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
+      <property name="margin">
        <number>0</number>
       </property>
       <item>
        <widget class="QToolButton" name="btnPause">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
           <width>20</width>
@@ -231,7 +228,7 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>20</width>
+          <width>16777215</width>
           <height>20</height>
          </size>
         </property>
@@ -241,6 +238,9 @@
         <property name="text">
          <string/>
         </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextBesideIcon</enum>
+        </property>
         <property name="autoRaise">
          <bool>true</bool>
         </property>
@@ -248,6 +248,12 @@
       </item>
       <item>
        <widget class="QToolButton" name="btnStop">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
           <width>20</width>
@@ -256,16 +262,19 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>20</width>
+          <width>16777215</width>
           <height>20</height>
          </size>
         </property>
         <property name="text">
-         <string>...</string>
+         <string/>
         </property>
         <property name="icon">
          <iconset>
           <normaloff>:/icons/delete_red_16x16.png</normaloff>:/icons/delete_red_16x16.png</iconset>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextBesideIcon</enum>
         </property>
         <property name="autoRaise">
          <bool>true</bool>

@@ -151,6 +151,9 @@ namespace Qtilities {
             SubTaskPerformanceIndication subTaskPerformanceIndication() const;
             void setSubTaskPerformanceIndication(SubTaskPerformanceIndication performance_indication);
 
+            TaskStopConfirmation taskStopConfirmation() const;
+            void setTaskStopConfirmation(TaskStopConfirmation task_stop_confirmation);
+
             ITask* parentTask() const;
             /*!
              The lifetime of the parent task will be tracked. Thus, if your parent task is deleted this task will stop to log messages to it.

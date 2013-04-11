@@ -21,7 +21,9 @@ Qtilities v1.3 Changes
     [#] The logger will no longer remember its previous log configuration by default. To keep log configurations between
         sessions, just call Log->setRememberSessionConfig(true) before LOG_INITIALIZE().
 
-    [*] Fixed issues when calling Logger::newFileEngine().
+    [*] Fixed issues when calling Logger::newFileEngine(). The new file engine was never initialized.
+    [*] Fixed issue in FileLoggerEngine::initialize() where it failed if the folder in which the log file
+        was located did not exist. The folder will now be created before attempting to open the file.
 
     ============================
     QtilitiesCore:
@@ -35,6 +37,7 @@ Qtilities v1.3 Changes
         objects will always have valid, unique tasks now.
     [+] QtilitiesProcess::start() got a new parameter to specify how long the function must wait during
         its QProcess::waitForStarted() call after the process was started.
+    [+] Added ITask::taskStopConfirmation() and ITask::setTaskStopConfirmation().
 
     [#] Observer will no longer log a warning when attachment fails, its now a debug message.
     [#] Tasks will now log engine specific messages to QtMsgLoggerEngine and ConsoleLoggerEngine when they are
@@ -44,17 +47,20 @@ Qtilities v1.3 Changes
     ============================
     QtilitiesCoreGui:
     ============================
-    [+] Added DynamicSideViewerWidget::setHiddenSideWidgets() and DynamicSideViewerWidget::hiddenSideWidgets().
+    [+] Added DynamicSideWidgetViewer::setHiddenSideWidgets() and DynamicSideWidgetViewer::hiddenSideWidgets().
     [+] Added HelpManager::homePageChanged().
     [+] Added a new parameter to QtilitiesMainWindow::writeSettings() and QtilitiesMainWindow::readSettings() to
         specify a custom ID under which the settings of the window must be saved.
     [+] Added TaskSummaryWidget::numberOfDisplayedTasksChanged() signal.
     [+] Added TaskSummaryWidget::setDisplayedTasksFilter() and TaskSummaryWidget::displayedTasksFilter().
     [+] Added SingleTaskWidget::hiddenByStopButton().
+    [+] Added access functions for the buttons in SingleTaskWidget in order to allow more customization.
 
-    [#] ObserverWidget not longer assigns F5 QKeySequence::Refresh to the refresh action.
+    [#] ObserverWidget now longer assigns F5 QKeySequence::Refresh to the refresh action.
     [#] Made the following functions public on AddDynamicPropertyWizard: propertyRemovable(),
         propertyIsExportable(), propertyReadOnly(), propertyDefaultValue().
+    [#] The refresh_list parameter on ModeManager::setActiveMode() is now false by default.
+    [#] Renamed ModeManager::isValidModeID() to ModeManager::containsModeId() where it now returns the opposite of what it always returned.
 
     [*] Fixed AbstractTreeItem::getIcon() and AbstractTreeItem::hasIcon() which checked the wrong property
         on the object.
@@ -65,13 +71,16 @@ Qtilities v1.3 Changes
     [*] Fixed potential crash in ObserverTreeModel::headerData().
     [*] Fixed issue where ConfigurationWidget initialized some configuration pages twice.
     [*] Fixed potential crashes in SingleTaskWidget.
+    [*] Fixed bug where activity controls were not shown for the top level nodes in a tree when the parent
+        observer used the RootIndexHide RootIndexDisplayHint. This is the default in for all trees since Qtilities v1.2.
+    [*] Fixed issue where previous modes were not stored correctly when calling ModeManager::setActiveMode().
 
     ============================
     QtilitiesExtensionSystem:
     ============================
     [+] Added ExtensionSystem::pluginPathsChanged() signal.
     [+] Added errorMsg parameter to ExtensionSystemCore::savePluginConfiguration(). The ExtensionSystemConfig
-        window will now show what error occured when changes made to the active plugin configuration could not be saved.
+        window will now show what error occurred when changes made to the active plugin configuration could not be saved.
 
     [#] The path where the default plugin configuration is searched is now /plugins, not /Plugins anymore.
 
@@ -794,7 +803,7 @@ Qtilities v1.0 Changes
     - Fixed possible crash in CommandEditor.
     - Fixed bug in ObjectScopeWidget where it created duplicate connections on the monitored object.
     - Fixed bug in ObserverWidget::toggleUseObserverHints() where it did not toggle this on the models used as well.
-    - Fixed numerous bugs in Observer models which occured if an Observer with no hints was displayed.
+    - Fixed numerous bugs in Observer models which occurred if an Observer with no hints was displayed.
     - Fixed serious bug in ObserverWidget where it incorrectly reset observer hints in some cases.
     - Fixed bug in ObserverWidget where actions toolbars were not always updated correctly.
     - Fixed bug in DynamicSideWidgetWrapper where it produced some widgets twice.

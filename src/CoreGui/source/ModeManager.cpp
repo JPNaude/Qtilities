@@ -177,10 +177,10 @@ void Qtilities::CoreGui::ModeManager::addMode(IMode* mode, bool initialize_mode,
         if (!mode->contextString().isEmpty())
             CONTEXT_MANAGER->registerContext(mode->contextString());
 
-        if (isValidModeID(mode->modeID())) {
+        if (!containsModeId(mode->modeID())) {
             // Check if the mode needs to be assigned a mode ID:
             if (mode->modeID() == -1) {
-                while (!isValidModeID(d->mode_id_counter)) {
+                while (containsModeId(d->mode_id_counter)) {
                     ++d->mode_id_counter;
                 }
                 mode->setModeID(d->mode_id_counter);
@@ -604,8 +604,8 @@ void CoreGui::ModeManager::updateSwitchToPreviousModeAction() {
     }
 }
 
-bool Qtilities::CoreGui::ModeManager::isValidModeID(int mode_id) const {
-    return !(d->id_iface_map.contains(mode_id));
+bool Qtilities::CoreGui::ModeManager::containsModeId(int mode_id) const {
+    return d->id_iface_map.contains(mode_id);
 }
 
 bool CoreGui::ModeManager::registerModeShortcuts() const {
@@ -637,8 +637,15 @@ void Qtilities::CoreGui::ModeManager::handleModeListCurrentItemChanged(QListWidg
     // Update previous modes storage:
     if (d->previous_active_modes_populate) {
         if (old_id != -1) {
-            d->previous_active_modes.push_front(old_id);
-            updateSwitchToPreviousModeAction();
+            if (d->previous_active_modes.isEmpty()) {
+                d->previous_active_modes.push_front(old_id);
+                updateSwitchToPreviousModeAction();
+            } else {
+                if (d->previous_active_modes.front() != old_id) {
+                    d->previous_active_modes.push_front(old_id);
+                    updateSwitchToPreviousModeAction();
+                }
+            }
         }
     }
 
@@ -717,7 +724,7 @@ void Qtilities::CoreGui::ModeManager::setActiveMode(int mode_id, bool refresh_li
     if (refresh_list) {
         refreshList();
     } else {
-        if (isValidModeID(d->active_mode))
+        if (containsModeId(d->active_mode))
             d->mode_list_widget->setCurrentItem(listWidgetItemForID(d->active_mode));
     }
 }
@@ -738,7 +745,7 @@ void Qtilities::CoreGui::ModeManager::setActiveMode(const QString& mode_name, bo
     if (refresh_list) {
         refreshList();
     } else {
-        if (isValidModeID(d->active_mode))
+        if (containsModeId(d->active_mode))
             d->mode_list_widget->setCurrentItem(listWidgetItemForID(d->active_mode));
     }
 }
@@ -759,7 +766,7 @@ void Qtilities::CoreGui::ModeManager::setActiveMode(IMode* mode_iface, bool refr
     if (refresh_list) {
         refreshList();
     } else {
-        if (isValidModeID(d->active_mode))
+        if (containsModeId(d->active_mode))
             d->mode_list_widget->setCurrentItem(listWidgetItemForID(d->active_mode));
     }
 }

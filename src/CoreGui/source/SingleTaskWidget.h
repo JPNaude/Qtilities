@@ -40,6 +40,7 @@
 
 #include <QWidget>
 #include <QProgressBar>
+#include <QToolButton>
 
 namespace Ui
 {
@@ -116,6 +117,26 @@ SingleTaskWidget* task_widget = TaskManagerGui::instance()->singleTaskWidget(tas
 
             //! Access to the progress bar shown.
             QProgressBar* progressBar();
+            //! Returns the stop button for customization purposes.
+            /*!
+              <i>This function was added in %Qtilities v1.3.</i>
+              */
+            QToolButton* stopButton() const;
+            //! Returns the pause button for customization purposes.
+            /*!
+              <i>This function was added in %Qtilities v1.3.</i>
+              */
+            QToolButton* pauseButton() const;
+            //! Returns the start button for customization purposes.
+            /*!
+              <i>This function was added in %Qtilities v1.3.</i>
+              */
+            QToolButton* startButton() const;
+            //! Returns the show log button for customization purposes.
+            /*!
+              <i>This function was added in %Qtilities v1.3.</i>
+              */
+            QToolButton* showLogButton() const;
 
         public slots:
             //! Sets if the pause task button is enabled.

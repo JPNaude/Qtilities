@@ -250,7 +250,7 @@ ModeListWidget()->setStyleSheet(stylesheet);
 
               \note If \p mode_id appears in the list of disabled modes, this function does nothing.
               */
-            void setActiveMode(int mode_id, bool refresh_list = true);
+            void setActiveMode(int mode_id, bool refresh_list = false);
             //! Slot through which a new mode can be set by specifying the mode name.
             /*!
               \param mode_name The name of the mode. \sa IMode::text().
@@ -258,13 +258,13 @@ ModeListWidget()->setStyleSheet(stylesheet);
 
               \note If \p mode_id appears in the list of disabled modes, this function does nothing.
               */
-            void setActiveMode(const QString& mode_name, bool refresh_list = true);
+            void setActiveMode(const QString& mode_name, bool refresh_list = false);
             //! Slot through which a new mode can be set by specifying the mode interface.
             /*!
               \note If \p mode_id appears in the list of disabled modes, this function does nothing.
               \param refresh_list When true, the mode list widget will be refreshed.
               */
-            void setActiveMode(IMode* mode_iface, bool refresh_list = true);
+            void setActiveMode(IMode* mode_iface, bool refresh_list = false);
 
             // ----------------------------------
             // Functions related to preferred mode order
@@ -356,8 +356,8 @@ ModeListWidget()->setStyleSheet(stylesheet);
               \sa setDisabledModes()
               */
             QList<int> disabledModeIDs() const;
-            //! Checks if a mode is valid, that is it a mode with the same ID is not yet registered in the mode manager.
-            bool isValidModeID(int mode_id) const;
+            //! Checks if a mode is registered in the mode manager.
+            bool containsModeId(int mode_id) const;
             //! Gets if the mode manager registers application wide shortcuts for the modes shown.
             /*!
               True by default.
