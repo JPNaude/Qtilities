@@ -252,6 +252,12 @@ int main(int argc, char *argv[])
               */
             QLabel* priorityMessageLabel() const;
 
+            //! Function which is called when the user selects to force close the application.
+            /*!
+             * By default, this function just calls qApp->quit();
+             */
+            virtual void forceCloseApplication();
+
         public slots:
             //! Slot which received incomming priority messages from the %Qtilities logger.
             void processPriorityMessage(Logger::MessageType message_type, const QString& message);

@@ -140,6 +140,7 @@ int main(int argc, char *argv[])
     // Parent Tracking Activity
     // ----------------------------------
     TreeNode* rootNodeParentTracking = new TreeNode("Root");
+    rootNodeParentTracking->displayHints()->setRootIndexDisplayHint(ObserverHints::RootIndexDisplayDecorated);
     rootNodeParentTracking->displayHints()->setDisplayFlagsHint(ObserverHints::ItemView | ObserverHints::ActionToolBar);
     rootNodeParentTracking->displayHints()->setActionHints(ObserverHints::ActionSwitchView
                                                            | ObserverHints::ActionPushDown

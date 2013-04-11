@@ -140,7 +140,7 @@ void Qtilities::CoreGui::SingleTaskWidget::setPauseButtonVisible(bool is_visible
     if (is_visible) {
         ui->widgetRightButtonsHolder->setVisible(is_visible);
         ui->btnPause->setIcon(QIcon(qti_icon_TASK_PAUSE_22x22));
-        ui->btnPause->setToolTip("Pause Task");
+        ui->btnPause->setToolTip(tr("Pause Task"));
     } else {
         ui->btnPause->setIcon(QIcon());
         if (d->task && d->task_base) {
@@ -160,7 +160,7 @@ bool Qtilities::CoreGui::SingleTaskWidget::pauseButtonVisible() const {
 
 void Qtilities::CoreGui::SingleTaskWidget::setStopButtonVisible(bool is_visible) {
     d->stop_button_visible = is_visible;
-            ui->btnStop->setVisible(is_visible);
+    ui->btnStop->setVisible(is_visible);
     if (is_visible) {
         ui->widgetRightButtonsHolder->setVisible(is_visible);
     } else {
@@ -174,7 +174,7 @@ void Qtilities::CoreGui::SingleTaskWidget::setStopButtonVisible(bool is_visible)
 void Qtilities::CoreGui::SingleTaskWidget::setStopButtonEnabled(bool enabled) {
     ui->btnStop->setEnabled(enabled);
     if (enabled)
-        ui->btnStop->setToolTip("Cancel Task");
+        ui->btnStop->setToolTip(tr("Cancel Task"));
     else
         ui->btnStop->setToolTip(tr("This Task Can't Be Stopped Manually Right Now"));
 }
@@ -210,6 +210,22 @@ bool Qtilities::CoreGui::SingleTaskWidget::showLogButtonVisible() const {
 
 QProgressBar* Qtilities::CoreGui::SingleTaskWidget::progressBar() {
     return ui->progressBar;
+}
+
+QToolButton *Qtilities::CoreGui::SingleTaskWidget::stopButton() const {
+    return ui->btnStop;
+}
+
+QToolButton *Qtilities::CoreGui::SingleTaskWidget::pauseButton() const {
+    return ui->btnPause;
+}
+
+QToolButton *Qtilities::CoreGui::SingleTaskWidget::startButton() const {
+    return ui->btnStart;
+}
+
+QToolButton *Qtilities::CoreGui::SingleTaskWidget::showLogButton() const {
+    return ui->btnShowLog;
 }
 
 void Qtilities::CoreGui::SingleTaskWidget::on_btnShowLog_clicked() {
@@ -259,6 +275,26 @@ void Qtilities::CoreGui::SingleTaskWidget::on_btnStop_clicked() {
         return;
 
     if (d->task->state() == ITask::TaskBusy) {
+        if (d->task->taskStopConfirmation() == ITask::TaskStopConfirmationMsgBox) {
+            QMessageBox msgBox;
+            msgBox.setIcon(QMessageBox::Question);
+            msgBox.setWindowTitle(QString(tr("Stop %1?")).arg(d->task->taskName()));
+            msgBox.setText(QString(tr("Are you sure you want to stop %1?")).arg(d->task->taskName()));
+            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+            msgBox.setDefaultButton(QMessageBox::Cancel);
+            int ret = msgBox.exec();
+
+            switch (ret) {
+              case QMessageBox::Yes:
+                  break;
+              case QMessageBox::Cancel:
+                  return;
+                  break;
+              default:
+                  break;
+            }
+        }
+
         QApplication::setOverrideCursor(Qt::WaitCursor);
         d->task->stop();
         QApplication::restoreOverrideCursor();
@@ -355,10 +391,13 @@ void Qtilities::CoreGui::SingleTaskWidget::update() {
         ui->btnShowLog->setVisible(d->show_log_button_visible);
 
         setPauseButtonVisible(d->task->canPause());
+        // TODO: When busy the widgetRightButtonsHolder widget is shown empty for some tasks...
+//        bool show_right_buttons = d->stop_button_visible || d->pause_button_visible;
+//        ui->widgetRightButtonsHolder->setVisible(show_right_buttons);
 
         if (d->task->canStop()) {
             ui->btnStop->setEnabled(true);
-            ui->btnStop->setToolTip("Cancel Task");
+            ui->btnStop->setToolTip(tr("Cancel Task"));
         } else {
             ui->btnStop->setEnabled(false);
             ui->btnStop->setToolTip(tr("This Task Can't Be Stopped Manually Right Now"));
@@ -375,11 +414,11 @@ void Qtilities::CoreGui::SingleTaskWidget::update() {
         }
 
         ui->btnStop->setEnabled(false);
-        ui->btnStop->setToolTip("Cancel Task");
+        ui->btnStop->setToolTip(tr("Cancel Task)"));
         ui->btnShowLog->setIcon(QIcon(qti_icon_TASK_NOT_STARTED_22x22));
         ui->btnShowLog->setToolTip(tr("Task Has Not Been Started. Click to view the task log"));
 
-        ui->btnStart->setToolTip("Task Not Started. Click to start it again");
+        ui->btnStart->setToolTip(tr("Task Not Started. Click to start it again"));
         ui->btnStart->setVisible(d->task->canStart());
         ui->btnShowLog->setVisible(!d->task->canStart() && d->show_log_button_visible);
 
@@ -405,7 +444,7 @@ void Qtilities::CoreGui::SingleTaskWidget::update() {
         ui->btnPause->setEnabled(false);
 
         ui->btnStop->setEnabled(true);
-        ui->btnStop->setToolTip("Remove Task");
+        ui->btnStop->setToolTip(tr("Remove Task"));
         ui->btnStart->setVisible(d->task->canStart());
     } else if (d->task->state() == ITask::TaskCompleted) {
         if (show_progress) {
@@ -429,9 +468,11 @@ void Qtilities::CoreGui::SingleTaskWidget::update() {
         ui->btnPause->setEnabled(false);
 
         ui->btnStop->setEnabled(true);
-        ui->btnStop->setToolTip("Remove Task");
+        ui->btnStop->setToolTip(tr("Remove Task"));
         ui->btnStart->setVisible(d->task->canStart());
-        ui->widgetRightButtonsHolder->setVisible(true);
+
+        bool show_right_buttons = d->stop_button_visible || d->pause_button_visible;
+        ui->widgetRightButtonsHolder->setVisible(show_right_buttons);
 
         if (d->task->result() == ITask::TaskFailed) {
             ui->btnShowLog->setIcon(QIcon(qti_icon_TASK_FAILED_22x22));

@@ -171,6 +171,10 @@ void Qtilities::Core::ContextManager::setNewContext(int context, bool notify) {
         emit finishedSetNewContext(context);
         emit contextChanged(activeContexts());
     }
+
+//    qDebug() << "setNewContext";
+//    foreach (int id, activeContexts())
+//        qDebug() << id << contextName(id);
 }
 
 void Qtilities::Core::ContextManager::appendContext(int context, bool notify) {
@@ -204,6 +208,10 @@ void Qtilities::Core::ContextManager::appendContext(int context, bool notify) {
     } else {
         LOG_ERROR(tr("Attempting to append unregistered context in function appendContext with ID: ") + context);
     }
+
+//    qDebug() << "appendContext";
+//    foreach (int id, activeContexts())
+//        qDebug() << id << contextName(id);
 }
 
 void Qtilities::Core::ContextManager::removeContext(int context, bool notify) {

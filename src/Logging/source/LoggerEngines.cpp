@@ -87,6 +87,12 @@ bool Qtilities::Logging::FileLoggerEngine::initialize() {
         }
     }
 
+    QFileInfo fi(file_name);
+    QDir dir(fi.path());
+    if (!dir.exists()) {
+        dir.mkpath(fi.path());
+    }
+
     QFile file(file_name);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         LOG_ERROR(QString(tr("Failed to initialize file logger engine (%1): Can't open the specified file (%2) for writing...")).arg(objectName()).arg(file_name));

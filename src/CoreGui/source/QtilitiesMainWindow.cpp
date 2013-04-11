@@ -189,6 +189,10 @@ QLabel *Qtilities::CoreGui::QtilitiesMainWindow::priorityMessageLabel() const {
     return &d->priority_messages_text;
 }
 
+void Qtilities::CoreGui::QtilitiesMainWindow::forceCloseApplication() {
+    qApp->quit();
+}
+
 Qtilities::CoreGui::ModeManager* Qtilities::CoreGui::QtilitiesMainWindow::modeManager() {
     return d->mode_manager;
 }
@@ -436,16 +440,18 @@ bool Qtilities::CoreGui::QtilitiesMainWindow::eventFilter(QObject *object, QEven
                 int ret = msgBox.exec();
                 switch (ret) {
                   case QMessageBox::Yes:
-                      break;
+                        event->accept();
+                        forceCloseApplication();
+                        break;
                   case QMessageBox::No:
-                    {
-                        event->ignore();
-                        return true;
-                    }
-                      break;
+                        {
+                            event->ignore();
+                            return true;
+                        }
+                        break;
                   default:
-                      // should never be reached
-                      break;
+                          // should never be reached
+                          break;
                 }
             }
         }

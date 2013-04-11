@@ -230,12 +230,13 @@ void Qtilities::Core::QtilitiesProcess::logProgressOutput() {
     } else {
         // We loop through the string and replace all known break strings with &{_BREAKSTRING and then split
         // it using &{_:
+        d->line_break_strings.append("\r");
         foreach (const QString& break_string, d->line_break_strings)
             d->buffer_std_out.replace(break_string,"&{_" + break_string);
 
         split_list = d->buffer_std_out.split("&{_",QString::SkipEmptyParts);
         while (split_list.count() > 1) {
-            QString msg = split_list.front();
+            QString msg = split_list.front().simplified();
             if (msg.startsWith("&{_"))
                 msg = msg.remove(0,3);
 
@@ -276,12 +277,13 @@ void Qtilities::Core::QtilitiesProcess::logProgressError() {
     } else { 
         // We loop through the string and replace all known break strings with &{_BREAKSTRING and then split
         // it using &{_:
+        d->line_break_strings.append("\r");
         foreach (const QString& break_string, d->line_break_strings)
             d->buffer_std_error.replace(break_string,"&{_" + break_string);
 
         split_list = d->buffer_std_error.split("&{_",QString::SkipEmptyParts);
         while (split_list.count() > 1) {
-            QString msg = split_list.front();
+            QString msg = split_list.front().simplified();
             if (msg.startsWith("&{_"))
                 msg = msg.remove(0,3);
 

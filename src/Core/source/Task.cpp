@@ -48,6 +48,7 @@ struct Qtilities::Core::TaskPrivateData {
         task_stop_action(ITask::TaskDoNothingWhenStopped),
         task_remove_action(ITask::TaskHideWhenRemoved),
         sub_task_performance_indication(ITask::SubTaskTimeFromTaskStart),
+        task_stop_confirmation(ITask::TaskStopConfirmationMsgBox),
         number_of_sub_tasks(-1),
         current_progress(0),
         can_start(false),
@@ -69,6 +70,7 @@ struct Qtilities::Core::TaskPrivateData {
     ITask::TaskStopAction           task_stop_action;
     ITask::TaskRemoveAction         task_remove_action;
     ITask::SubTaskPerformanceIndication sub_task_performance_indication;
+    ITask::TaskStopConfirmation     task_stop_confirmation;
     int                             number_of_sub_tasks;
     int                             current_progress;
     bool                            can_start;
@@ -195,6 +197,14 @@ ITask::SubTaskPerformanceIndication Task::subTaskPerformanceIndication() const {
 
 void Task::setSubTaskPerformanceIndication(ITask::SubTaskPerformanceIndication performance_indication) {
     d->sub_task_performance_indication = performance_indication;
+}
+
+ITask::TaskStopConfirmation Task::taskStopConfirmation() const {
+    return d->task_stop_confirmation;
+}
+
+void Task::setTaskStopConfirmation(ITask::TaskStopConfirmation task_stop_confirmation) {
+    d->task_stop_confirmation = task_stop_confirmation;
 }
 
 ITask* Qtilities::Core::Task::parentTask() const {

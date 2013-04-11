@@ -2,7 +2,7 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 PROJECT_NAME           = "Qtilities"
-PROJECT_NUMBER         = "v1.2"
+PROJECT_NUMBER         = "v1.3"
 DOXYFILE_ENCODING      = UTF-8
 OUTPUT_DIRECTORY       = output
 CREATE_SUBDIRS         = NO
