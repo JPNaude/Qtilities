@@ -280,14 +280,14 @@ void Qtilities::CoreGui::SingleTaskWidget::on_btnStop_clicked() {
             msgBox.setIcon(QMessageBox::Question);
             msgBox.setWindowTitle(QString(tr("Stop %1?")).arg(d->task->taskName()));
             msgBox.setText(QString(tr("Are you sure you want to stop %1?")).arg(d->task->taskName()));
-            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
-            msgBox.setDefaultButton(QMessageBox::Cancel);
+            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            msgBox.setDefaultButton(QMessageBox::No);
             int ret = msgBox.exec();
 
             switch (ret) {
               case QMessageBox::Yes:
                   break;
-              case QMessageBox::Cancel:
+              case QMessageBox::No:
                   return;
                   break;
               default:
