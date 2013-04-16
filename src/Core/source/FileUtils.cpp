@@ -322,10 +322,22 @@ bool FileUtils::comparePaths(const QString &path1, const QString &path2) {
         QString cleaned_1 = QDir::cleanPath(path1);
         QString cleaned_2 = QDir::cleanPath(path2);
         if (cleaned_1.size() == cleaned_2.size()) {
+            #ifdef Q_OS_WIN
             return (FileUtils::toNativeSeparators(cleaned_1).compare(FileUtils::toNativeSeparators(cleaned_2),Qt::CaseInsensitive) == 0);
+            #else
+            return (FileUtils::toNativeSeparators(cleaned_1).compare(FileUtils::toNativeSeparators(cleaned_2),Qt::CaseSensitive) == 0);
+            #endif
         } else
             return false;
     }
+}
+
+bool FileUtils::pathStartsWith(const QString &child_path, const QString &parent_path) {
+    #ifdef Q_OS_WIN
+    return toNativeSeparators(QDir::cleanPath(child_path)).startsWith(toNativeSeparators(QDir::cleanPath(parent_path)),Qt::CaseInsensitive);
+    #else
+    return toNativeSeparators(QDir::cleanPath(child_path)).startsWith(toNativeSeparators(QDir::cleanPath(parent_path)),Qt::CaseSensitive);
+    #endif
 }
 
 QString FileUtils::toNativeSeparators(QString path) {
@@ -334,7 +346,7 @@ QString FileUtils::toNativeSeparators(QString path) {
     return new_path;
     #else
     return QDir::toNativeSeparators(path);
-#endif
+    #endif
 }
 
 bool FileUtils::makeLocalCopyOfResource(const QString &resource_path, const QString &local_path, QString *errorMsg, QFile::Permissions local_permissions) {
