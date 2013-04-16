@@ -198,12 +198,12 @@ void FileSetInfo::updateRelativeToPaths(const QString &search_string, const QStr
         QString actual_file_path = local_list.at(i).actualFilePath();
 
         bool do_replacement = false;
-        if (FileUtils::toNativeSeparators(QDir::cleanPath(replace_string)).startsWith(FileUtils::toNativeSeparators(QDir::cleanPath(search_string)),Qt::CaseInsensitive)) {
+        if (FileUtils::pathStartsWith(replace_string,search_string)) {
             // Do check 1:
-            do_replacement = (actual_file_path.startsWith(search_string,Qt::CaseInsensitive) && !actual_file_path.startsWith(replace_string,Qt::CaseInsensitive));
+            do_replacement = (FileUtils::pathStartsWith(actual_file_path,search_string) && !FileUtils::pathStartsWith(actual_file_path,replace_string));
         } else {
             // Do check 2:
-            do_replacement = (actual_file_path.startsWith(search_string,Qt::CaseInsensitive));
+            do_replacement = (FileUtils::pathStartsWith(actual_file_path,search_string));
         }
 
         if (do_replacement) {

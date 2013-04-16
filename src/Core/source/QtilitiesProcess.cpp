@@ -210,6 +210,8 @@ void Qtilities::Core::QtilitiesProcess::procStateChanged(QProcess::ProcessState 
 }
 
 void Qtilities::Core::QtilitiesProcess::logProgressOutput() {
+    QCoreApplication::processEvents();
+
     QString new_output = d->process->readAllStandardOutput();
     emit newStandardOutputMessage(new_output);
     d->buffer_std_out.append(new_output);
@@ -219,9 +221,9 @@ void Qtilities::Core::QtilitiesProcess::logProgressOutput() {
         // We search for \r and split messages up:
         split_list = d->buffer_std_out.split("\r",QString::SkipEmptyParts);
         while (split_list.count() > 1) {
-            if (split_list.front().trimmed().startsWith("WARNING",Qt::CaseInsensitive))
+            if (split_list.front().trimmed().startsWith("WARNING:",Qt::CaseSensitive))
                 logWarning(split_list.front());
-            else if (split_list.front().trimmed().startsWith("ERROR",Qt::CaseInsensitive))
+            else if (split_list.front().trimmed().startsWith("ERROR:",Qt::CaseSensitive))
                 logError(split_list.front());
             else
                 logMessage(split_list.front());
@@ -240,9 +242,9 @@ void Qtilities::Core::QtilitiesProcess::logProgressOutput() {
             if (msg.startsWith("&{_"))
                 msg = msg.remove(0,3);
 
-            if (msg.startsWith("WARNING",Qt::CaseInsensitive))
+            if (msg.startsWith("WARNING:",Qt::CaseSensitive))
                 logWarning(msg);
-            else if (msg.startsWith("ERROR",Qt::CaseInsensitive))
+            else if (msg.startsWith("ERROR:",Qt::CaseSensitive))
                 logError(msg);
             else
                 logMessage(msg);
@@ -257,6 +259,8 @@ void Qtilities::Core::QtilitiesProcess::logProgressOutput() {
 }
 
 void Qtilities::Core::QtilitiesProcess::logProgressError() {   
+    QCoreApplication::processEvents();
+
     QString new_output = d->process->readAllStandardError();
     emit newStandardErrorMessage(new_output);
     d->buffer_std_error.append(new_output);
@@ -266,9 +270,9 @@ void Qtilities::Core::QtilitiesProcess::logProgressError() {
         // We search for \r and split messages up:
         split_list = d->buffer_std_error.split("\r",QString::SkipEmptyParts);
         while (split_list.count() > 1) {
-            if (split_list.front().trimmed().startsWith("WARNING:",Qt::CaseInsensitive))
+            if (split_list.front().trimmed().startsWith("WARNING:",Qt::CaseSensitive))
                 logWarning(split_list.front());
-            else if (split_list.front().trimmed().startsWith("INFO:",Qt::CaseInsensitive))
+            else if (split_list.front().trimmed().startsWith("INFO:",Qt::CaseSensitive))
                 logMessage(split_list.front());
             else
                 logError(split_list.front());
@@ -287,9 +291,9 @@ void Qtilities::Core::QtilitiesProcess::logProgressError() {
             if (msg.startsWith("&{_"))
                 msg = msg.remove(0,3);
 
-            if (msg.startsWith("WARNING:",Qt::CaseInsensitive))
+            if (msg.startsWith("WARNING:",Qt::CaseSensitive))
                 logWarning(msg);
-            else if (msg.startsWith("INFO:",Qt::CaseInsensitive))
+            else if (msg.startsWith("INFO:",Qt::CaseSensitive))
                 logMessage(msg);
             else
                 logError(msg);

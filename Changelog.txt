@@ -38,6 +38,7 @@ Qtilities v1.3 Changes
     [+] QtilitiesProcess::start() got a new parameter to specify how long the function must wait during
         its QProcess::waitForStarted() call after the process was started.
     [+] Added ITask::taskStopConfirmation() and ITask::setTaskStopConfirmation().
+    [+] Added FileUtils::pathStartsWith().
 
     [#] Observer will no longer log a warning when attachment fails, its now a debug message.
     [#] Tasks will now log engine specific messages to QtMsgLoggerEngine and ConsoleLoggerEngine when they are

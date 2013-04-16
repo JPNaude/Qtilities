@@ -164,6 +164,9 @@ QFileInfoList files = fu.findFilesUnderDir("c:/my_path");
             //! Compares two paths in a system independant way.
             /*!
               This function takes two paths and checks if they are the same. The function does the following:
+              - If both paths exists, QFileInfo's == operator overload is used.
+
+              If both files does not exist, the following check is done:
               - Does a case insensitive check.
               - Removes any unwanted things in the path through QDir::cleanPath().
               - Does an environment independent check by converting both paths to the native characters of the OS on which this function is called.
@@ -173,6 +176,13 @@ QFileInfoList files = fu.findFilesUnderDir("c:/my_path");
               <i>This function was added in %Qtilities v1.1.</i>
               */
             static bool comparePaths(const QString& path1, const QString& path2);
+            //! Check if one path starts with another path (does it checks if the one path is a parent of another path).
+            /*!
+              \return True when child_path starts with parent_path.
+
+              <i>This function was added in %Qtilities v1.2.</i>
+              */
+            static bool pathStartsWith(const QString& child_path, const QString& parent_path);
             //! Converts a path to the native format of the underlying OS.
             /*!
               This function is similar to QDir::toNativeSeparators(), but it supports linux as well.
