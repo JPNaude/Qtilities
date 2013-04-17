@@ -53,6 +53,13 @@ Qtilities::Core::Interfaces::ITaskContainer::ITaskContainer() {
 }
 
 Qtilities::Core::Interfaces::ITaskContainer::~ITaskContainer() {
+    // We must delete all tasks:
+    QMapIterator<QPointer<Task>, bool> task_itr(container_data->task_id_activity_map);
+    while (task_itr.hasNext()) {
+        task_itr.next();
+        if (task_itr.key())
+            delete task_itr.key();
+    }
     delete container_data;
 }
 

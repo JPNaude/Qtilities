@@ -45,6 +45,8 @@ Qtilities v1.3 Changes
         active and this is enabled using new functions on TaskManager to enable it. See
         TaskManager::forwardTaskMessagesToQtMsgEngine() and TaskManager::setForwardTaskMessagesToQtMsgEngine().
 
+    [*] Fixed memory leak in destructor of ITaskContainer.
+
     ============================
     QtilitiesCoreGui:
     ============================
@@ -62,6 +64,7 @@ Qtilities v1.3 Changes
         propertyIsExportable(), propertyReadOnly(), propertyDefaultValue().
     [#] The refresh_list parameter on ModeManager::setActiveMode() is now false by default.
     [#] Renamed ModeManager::isValidModeID() to ModeManager::containsModeId() where it now returns the opposite of what it always returned.
+    [#] Changed the stop icon for tasks to a red square, makes more sense than a red cross.
 
     [*] Fixed AbstractTreeItem::getIcon() and AbstractTreeItem::hasIcon() which checked the wrong property
         on the object.

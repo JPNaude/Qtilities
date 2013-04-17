@@ -63,6 +63,8 @@ int task_id = d->file_utils.findTaskID(d->file_utils.taskNameToString(FileUtils:
 
             See the \ref page_tasking article for more information on tasking.
 
+            \note ITaskContainer will delete all tasks registered in it during destruction.
+
             <i>This class was added in %Qtilities v1.0.</i>
               */
             class QTILIITES_CORE_SHARED_EXPORT ITaskContainer : virtual public IObjectBase {
