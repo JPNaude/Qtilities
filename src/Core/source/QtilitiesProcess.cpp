@@ -218,8 +218,8 @@ void Qtilities::Core::QtilitiesProcess::logProgressOutput() {
 
     QStringList split_list;
     if (d->line_break_strings.isEmpty()) {
-        // We search for \r and split messages up:
-        split_list = d->buffer_std_out.split("\r",QString::SkipEmptyParts);
+        // We search for \n and split messages up:
+        split_list = d->buffer_std_out.split("\n",QString::SkipEmptyParts);
         while (split_list.count() > 1) {
             if (split_list.front().trimmed().startsWith("WARNING:",Qt::CaseSensitive))
                 logWarning(split_list.front());
@@ -232,7 +232,7 @@ void Qtilities::Core::QtilitiesProcess::logProgressOutput() {
     } else {
         // We loop through the string and replace all known break strings with &{_BREAKSTRING and then split
         // it using &{_:
-        d->line_break_strings.append("\r");
+        d->line_break_strings.append("\n");
         foreach (const QString& break_string, d->line_break_strings)
             d->buffer_std_out.replace(break_string,"&{_" + break_string);
 
@@ -267,8 +267,8 @@ void Qtilities::Core::QtilitiesProcess::logProgressError() {
 
     QStringList split_list;
     if (d->line_break_strings.isEmpty()) {
-        // We search for \r and split messages up:
-        split_list = d->buffer_std_error.split("\r",QString::SkipEmptyParts);
+        // We search for \n and split messages up:
+        split_list = d->buffer_std_error.split("\n",QString::SkipEmptyParts);
         while (split_list.count() > 1) {
             if (split_list.front().trimmed().startsWith("WARNING:",Qt::CaseSensitive))
                 logWarning(split_list.front());
@@ -281,7 +281,7 @@ void Qtilities::Core::QtilitiesProcess::logProgressError() {
     } else { 
         // We loop through the string and replace all known break strings with &{_BREAKSTRING and then split
         // it using &{_:
-        d->line_break_strings.append("\r");
+        d->line_break_strings.append("\n");
         foreach (const QString& break_string, d->line_break_strings)
             d->buffer_std_error.replace(break_string,"&{_" + break_string);
 

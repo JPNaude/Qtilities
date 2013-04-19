@@ -115,8 +115,8 @@ namespace Qtilities {
             void procFinished(int exit_code, QProcess::ExitStatus exit_status);
             void procError(QProcess::ProcessError error);
             void procStateChanged(QProcess::ProcessState newState);
-            void logProgressOutput();
-            void logProgressError();
+            virtual void logProgressOutput();
+            virtual void logProgressError();
 
         public slots:
             //! Stops the process.
