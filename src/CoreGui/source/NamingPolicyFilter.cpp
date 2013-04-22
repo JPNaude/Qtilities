@@ -275,7 +275,7 @@ Qtilities::CoreGui::NamingPolicyFilter::NameValidity Qtilities::CoreGui::NamingP
     else if (!observer->isProcessingCycleActive() && !(d->validation_check_flags & Uniqueness))
         do_uniqueness_test = false;
 
-    if (do_uniqueness_test && d->uniqueness_policy == ProhibitDuplicateNames) {
+    if (do_uniqueness_test && (d->uniqueness_policy == ProhibitDuplicateNames || d->uniqueness_policy == ProhibitDuplicateNamesCaseSensitive)) {
         Qt::CaseSensitivity case_sensitivity;
         if (d->uniqueness_policy == ProhibitDuplicateNames)
             case_sensitivity = Qt::CaseInsensitive;
@@ -360,7 +360,7 @@ Qtilities::CoreGui::AbstractSubjectFilter::EvaluationResult Qtilities::CoreGui::
             return AbstractSubjectFilter::Conditional;
     }
 
-    if (d->uniqueness_policy & ProhibitDuplicateNames) {
+    if (d->uniqueness_policy == ProhibitDuplicateNames || d->uniqueness_resolution_policy == ProhibitDuplicateNamesCaseSensitive) {
         if ((validity_result & Duplicate) && d->uniqueness_resolution_policy == Reject) {
             if (rejectMsg)
                 *rejectMsg = QString(tr("Naming Policy Filter: Subject name \"%1\" is not unique in this context.")).arg(obj->objectName());

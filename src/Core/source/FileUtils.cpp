@@ -313,17 +313,23 @@ bool Qtilities::Core::FileUtils::compareFiles(const QString& file1, const QStrin
     return (original == readback);
 }
 
-bool FileUtils::comparePaths(const QString &path1, const QString &path2) {
+bool FileUtils::comparePaths(const QString &path1, const QString &path2, Qt::CaseSensitivity cs) {
     QFileInfo fi1(path1);
     QFileInfo fi2(path2);
-    if (fi1.exists() && fi2.exists())
+    bool do_easy_compare = true;
+    #ifdef Q_OS_WIN
+    if (cs == Qt::CaseSensitive)
+        do_easy_compare = false;
+    #endif
+
+    if (fi1.exists() && fi2.exists() && do_easy_compare)
         return fi1 == fi2;
     else {
         QString cleaned_1 = QDir::cleanPath(path1);
         QString cleaned_2 = QDir::cleanPath(path2);
         if (cleaned_1.size() == cleaned_2.size()) {
             #ifdef Q_OS_WIN
-            return (FileUtils::toNativeSeparators(cleaned_1).compare(FileUtils::toNativeSeparators(cleaned_2),Qt::CaseInsensitive) == 0);
+            return (FileUtils::toNativeSeparators(cleaned_1).compare(FileUtils::toNativeSeparators(cleaned_2),cs) == 0);
             #else
             return (FileUtils::toNativeSeparators(cleaned_1).compare(FileUtils::toNativeSeparators(cleaned_2),Qt::CaseSensitive) == 0);
             #endif
@@ -332,9 +338,9 @@ bool FileUtils::comparePaths(const QString &path1, const QString &path2) {
     }
 }
 
-bool FileUtils::pathStartsWith(const QString &child_path, const QString &parent_path) {
+bool FileUtils::pathStartsWith(const QString &child_path, const QString &parent_path, Qt::CaseSensitivity cs) {
     #ifdef Q_OS_WIN
-    return toNativeSeparators(QDir::cleanPath(child_path)).startsWith(toNativeSeparators(QDir::cleanPath(parent_path)),Qt::CaseInsensitive);
+    return toNativeSeparators(QDir::cleanPath(child_path)).startsWith(toNativeSeparators(QDir::cleanPath(parent_path)),cs);
     #else
     return toNativeSeparators(QDir::cleanPath(child_path)).startsWith(toNativeSeparators(QDir::cleanPath(parent_path)),Qt::CaseSensitive);
     #endif
