@@ -1,7 +1,51 @@
-This change log uses the following legend to list items.
+This change log uses the following legend to list items:
 [+] New feature added
 [*] Bug Fix
 [#] Change/Improvement to old code
+
+================================
+Qtilities v1.4 Changes
+================================
+    To see all closed issues in the issue tracker linked to this milestone, see the following page:
+    https://github.com/JPNaude/Qtilities/issues/milestones
+
+    General:
+    ============================
+
+    ============================
+    QtilitiesLogging:
+    ============================
+
+    ============================
+    QtilitiesCore:
+    ============================
+    [#] FileUtils::comparePaths() and FileUtils::pathStartsWith() got new case sensitivity parameters which can be used on Windows.
+    [#] QtilitiesProcess::logProgressOutput() and QtilitiesProcess::logProgressError() are now virtual.
+
+    [*] Fixed bugs in processing of messages by QtilitiesProcess which in some cases resulted in application hangs.
+
+    ============================
+    QtilitiesCoreGui:
+    ============================
+    [*] Fixed issue with TreeFileItem::setFilePath() where it did not allow the case of a file to be changed.
+    [*] Fixed NamingPolicyFilter::ProhibitDuplicateNamesCaseSensitive not always handled correctly in NamingPolicyFilter::Evaluate.
+
+    ============================
+    QtilitiesExtensionSystem:
+    ============================
+
+    ============================
+    QtilitiesProjectManagement:
+    ============================
+
+    ============================
+    QtilitiesTesting:
+    ============================
+
+    ============================
+    Plugins:
+    ============================
+
 
 ================================
 Qtilities v1.3 Changes

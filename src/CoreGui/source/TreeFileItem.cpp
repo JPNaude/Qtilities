@@ -266,7 +266,7 @@ QString Qtilities::CoreGui::TreeFileItem::filePath() const {
 }
 
 void Qtilities::CoreGui::TreeFileItem::setFilePath(const QString& new_file_path) {
-    if (!FileUtils::comparePaths(filePath(),new_file_path)) {
+    if (!FileUtils::comparePaths(filePath(),new_file_path,Qt::CaseSensitive)) {
         QString tmp_string = new_file_path;
         if (tmp_string.startsWith("\\"))
             tmp_string = tmp_string.remove(0,1);

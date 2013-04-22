@@ -171,18 +171,26 @@ QFileInfoList files = fu.findFilesUnderDir("c:/my_path");
               - Removes any unwanted things in the path through QDir::cleanPath().
               - Does an environment independent check by converting both paths to the native characters of the OS on which this function is called.
 
+              \param path1 The first path to check.
+              \param path2 The second path to check against path1.
+              \param cs The case sensitivity of the check. This only applies to Windows. Only Unix based systems Qt::CaseSensitive is always used.
+
               \return True when the paths are the same, false otherwise.
 
               <i>This function was added in %Qtilities v1.1.</i>
               */
-            static bool comparePaths(const QString& path1, const QString& path2);
+            static bool comparePaths(const QString& path1, const QString& path2, Qt::CaseSensitivity cs = Qt::CaseInsensitive);
             //! Check if one path starts with another path (does it checks if the one path is a parent of another path).
             /*!
+              \param child_path The child path.
+              \param parent_path The parent path.
+              \param cs The case sensitivity of the check. This only applies to Windows. Only Unix based systems Qt::CaseSensitive is always used.
+
               \return True when child_path starts with parent_path.
 
               <i>This function was added in %Qtilities v1.2.</i>
               */
-            static bool pathStartsWith(const QString& child_path, const QString& parent_path);
+            static bool pathStartsWith(const QString& child_path, const QString& parent_path, Qt::CaseSensitivity cs = Qt::CaseInsensitive);
             //! Converts a path to the native format of the underlying OS.
             /*!
               This function is similar to QDir::toNativeSeparators(), but it supports linux as well.
