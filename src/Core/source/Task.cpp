@@ -40,7 +40,8 @@ using namespace Qtilities::Core::Interfaces;
 using namespace Qtilities::Core;
 
 struct Qtilities::Core::TaskPrivateData {
-    TaskPrivateData() : task_state(ITask::TaskNotStarted),
+    TaskPrivateData() : last_error_messages_count(10),
+        task_state(ITask::TaskNotStarted),
         task_busy_state(ITask::TaskBusyClean),
         task_result(ITask::TaskNoResult),
         task_type(ITask::TaskGlobal),
@@ -62,6 +63,8 @@ struct Qtilities::Core::TaskPrivateData {
 
     QString                         task_name;
     QString                         task_display_name;
+    QVector<QString>                last_error_messages;
+    int                             last_error_messages_count;
     ITask::TaskState                task_state;
     ITask::TaskBusyState            task_busy_state;
     ITask::TaskResult               task_result;
@@ -245,6 +248,34 @@ void Qtilities::Core::Task::setTaskLifeTimeFlags(TaskLifeTimeFlags task_lifetime
 // --------------------------------------------------
 // Logging Functionality
 // --------------------------------------------------
+QStringList Task::lastErrorMessages(int count) const {
+    QStringList returned_messages;
+    if (count == -1)
+        count = d->last_error_messages.count();
+
+    for (int i = 0; i < count; i++) {
+        if (d->last_error_messages.count() < i+1)
+            break;
+
+        if (!d->last_error_messages.at(i).isEmpty())
+            returned_messages.append(d->last_error_messages.at(i));
+    }
+
+    return returned_messages;
+}
+
+void Task::setLastErrorMessagesStackSize(int size) {
+    if (size < 0)
+        return;
+
+    if (d->last_error_messages_count != size)
+        d->last_error_messages.resize(size);
+}
+
+int Task::lastErrorMessagesStackSize() const {
+    return d->last_error_messages_count;
+}
+
 void Qtilities::Core::Task::setLogContext(Logger::MessageContextFlags log_context) {
     d->log_context = log_context;
 }
@@ -300,6 +331,14 @@ void Qtilities::Core::Task::logMessage(const QString& message, Logger::MessageTy
 
     if (d->task_state == ITask::TaskBusy || d->task_state == ITask::TaskPaused)
         updateBusyState(type);
+
+    if (d->task_state == ITask::TaskBusy) {
+        if (type == Logger::Error) {
+            if (d->last_error_messages.count() == d->last_error_messages_count)
+                d->last_error_messages.pop_back();
+            d->last_error_messages.push_front(message);
+        }
+    }
 
     if (d->log_context & Logger::SystemWideMessages)
         Log->logMessage(QString(),type,message);

@@ -346,6 +346,43 @@ namespace Qtilities {
                 // --------------------------------------------------
                 // Logging Functionality
                 // --------------------------------------------------
+                //! Returns the last error logged in the task while it was busy.
+                /*!
+                 * \param count The number of messages to return. Note that the maximum returnable number
+                 * of messages are defined by errorMessageStackSize(). Also, if the number of error
+                 * messages that were logged at the time this function is called is less than the count
+                 * specified, only the number of currently logged messages will be returned. When -1 (default)
+                 * all messages in the stack are returned.
+                 *
+                 * \returns A QStringList with the most recent message logged being the first item in the list,
+                 * and the last message being the first message logged.
+                 *
+                 * \note Only errors logged while this task is busy are taken into account.
+                 * \note Logging must be enabled in order for this function to work. See loggingEnabled().
+                 *
+                 * <i>This function was added in %Qtilities v1.3.</i>
+                 */
+                virtual QStringList lastErrorMessages(int count = -1) const = 0;
+                //! Sets the last error logged stack size.
+                /*!
+                 * \param size The new size of the last error messages stack.
+                 *
+                 * \sa lastErrorMessagesStackSize(), lastErrorMessages()
+                 *
+                 * <i>This function was added in %Qtilities v1.3.</i>
+                 */
+                virtual void setLastErrorMessagesStackSize(int size) = 0;
+                //! Gets the last error logged stack size.
+                /*!
+                 * The default is 10.
+                 *
+                 * \returns The size of the last error messages stack.
+                 *
+                 * \sa lastErrorMessagesStackSize(), lastErrorMessages()
+                 *
+                 * <i>This function was added in %Qtilities v1.3.</i>
+                 */
+                virtual int lastErrorMessagesStackSize() const = 0;
                 //! Sets the default message logging context flags of this task.
                 /*!
                   Default is Logger::EngineSpecificMessages.
