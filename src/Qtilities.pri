@@ -75,6 +75,15 @@ CONFIG              += ordered qt
 CONFIG              += exceptions rtti
 
 #****************************************************************************
+# Compiler directives
+#****************************************************************************
+# Turns on the parallellised build switch for msvc:
+# See https://github.com/JPNaude/Qtilities/issues/91 for more details.
+win32-msvc* {
+    CONFIG += msvc_mp
+}
+
+#****************************************************************************
 # Library includes
 #****************************************************************************
 
