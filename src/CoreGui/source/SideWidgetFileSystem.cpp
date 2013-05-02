@@ -115,7 +115,11 @@ void Qtilities::CoreGui::SideWidgetFileSystem::releasePath() {
     ui->treeView->setModel(d->model);
     QHeaderView* header = ui->treeView->header();
     if (header) {
+        #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
         header->setResizeMode(QHeaderView::ResizeToContents);
+        #else
+        header->setSectionResizeMode(QHeaderView::ResizeToContents);
+        #endif
     }
     ui->txtCurrentPath->setText(d->model->rootPath());
     ui->treeView->setEnabled(false);
