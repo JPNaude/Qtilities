@@ -131,7 +131,7 @@ namespace Qtilities {
             public slots:
                 //! Toggles the visibility of the dynamic help dock widget.
                 void toggleDock(bool toggle);
-                //! Handles a new help widget. This function makes the neccessary connections.
+                //! Handles a new help widget. This function makes the necessary connections.
                 void handleNewHelpWidget(QWidget* widget);
                 //! Display the page at \p url.
                 void handleUrl(const QUrl& url);
