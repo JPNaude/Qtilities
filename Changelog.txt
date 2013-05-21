@@ -11,6 +11,7 @@ Qtilities v1.4 Changes
 
     General:
     ============================
+    [*] Fixed issues which caused compilation on Mac to fail.
 
     ============================
     QtilitiesLogging:
@@ -31,7 +32,7 @@ Qtilities v1.4 Changes
     ============================
     [*] Fixed issue with TreeFileItem::setFilePath() where it did not allow the case of a file to be changed.
     [*] Fixed NamingPolicyFilter::ProhibitDuplicateNamesCaseSensitive not always handled correctly in NamingPolicyFilter::Evaluate.
-	[*] Improved and fixed issues in SingleTaskWidget.
+    [*] Improved and fixed issues in SingleTaskWidget.
 
     ============================
     QtilitiesExtensionSystem:
@@ -40,6 +41,8 @@ Qtilities v1.4 Changes
     ============================
     QtilitiesProjectManagement:
     ============================
+    [*] Fixed issue where duplicates of recent projects appeared in the recent projects menu.
+    [*] Fixed issue where clearing the recent projects list did not refresh the recent projects menu.
 
     ============================
     QtilitiesTesting:
