@@ -73,9 +73,6 @@ bool FileLocker::lockFile(const QString &file_path, QString *errorMsg) {
 
     QString host_name = QObject::tr("Unknown Host");
     // Get the host name:
-    #ifdef Q_OS_LINUX
-    char* host_name_char = getenv("HOST");
-    #endif
     #ifdef Q_OS_WIN
     #ifndef Q_CC_MSVC
     char* host_name_char = getenv("COMPUTERNAME");
@@ -86,6 +83,8 @@ bool FileLocker::lockFile(const QString &file_path, QString *errorMsg) {
     if ( err )
         qDebug() << "Can't find environment variable COMPUTERNAME";
     #endif
+    #else
+    char* host_name_char = getenv("HOST");
     #endif
     if (host_name_char)
         host_name = host_name_char;
