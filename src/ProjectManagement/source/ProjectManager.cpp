@@ -596,6 +596,7 @@ void Qtilities::ProjectManagement::ProjectManager::clearRecentProjects() {
     d->recent_project_names.clear();
     d->recent_project_stack.clear();
     emit recentProjectsChanged(recentProjectNames(),recentProjectPaths());
+    refreshRecentProjects();
     LOG_INFO(tr("Successfully cleared recent project list."));
 }
 
@@ -1216,25 +1217,24 @@ void ProjectManagement::ProjectManager::refreshRecentProjects() {
 
     int recent_count = 0;
     for (int i = 0; i < paths.count(); ++i) {
-        for (int i = 0; i < names.count(); ++i) {
-            // Skip the first project if it is the current open project:
-            if (names.at(i) == currentProjectName())
-                continue;
-
-            if (names.at(i).isEmpty())
-                continue;
-
-            QAction* prev_action = new QAction(paths.at(i),this);
-            prev_action->setToolTip(paths.at(i));
-            prev_action->setObjectName(paths.at(i));
-
-            foreach (QMenu* menu, d->recentProjectsMenus)
-                menu->addAction(prev_action);
-
-            connect(prev_action,SIGNAL(triggered()),SLOT(handleRecentProjectActionTriggered()));
-            ++recent_count;
+        QString name = names.at(i);
+        // Skip the first project if it is the current open project:
+        if (name == currentProjectName())
             continue;
-        }
+
+        if (name.isEmpty())
+            continue;
+
+        QAction* prev_action = new QAction(paths.at(i),this);
+        prev_action->setToolTip(paths.at(i));
+        prev_action->setObjectName(paths.at(i));
+
+        foreach (QMenu* menu, d->recentProjectsMenus)
+            menu->addAction(prev_action);
+
+        connect(prev_action,SIGNAL(triggered()),SLOT(handleRecentProjectActionTriggered()));
+        ++recent_count;
+        continue;
     }
 
     if (recent_count > 0) {
