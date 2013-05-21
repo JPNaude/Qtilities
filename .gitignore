@@ -7,12 +7,6 @@
 *.o
 *.so
 *.a
-*.exp
-*.lib
-*.ilk
-*.*manifest*
-*.pdb
-*.bak
 
 # Packages #
 ############
@@ -53,7 +47,4 @@ Makefile
 *.pro.user*
 *.vsd
 gitKey*
-
-# Compiled documentation #
-######################
-*.qch
+child/
