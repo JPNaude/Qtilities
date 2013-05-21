@@ -117,7 +117,7 @@ namespace Qtilities {
                 return *this;
             }
 
-            //! Returns true if this object contains the neccessary information to be used during object construction.
+            //! Returns true if this object contains the necessary information to be used during object construction.
             bool isValid();
 
             // -------------------------------------------------------------------------------------------------

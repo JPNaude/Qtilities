@@ -104,11 +104,11 @@ ObserverWidget observerWidget(observerA);
 observerWidget.show();
 \endcode
 
-        %Observer widgets are very powerfull and observers can specify display hints to views that display their contents using the Qtilities::Core::ObserverHints class. This interaction is a topic on its own and the \ref page_observer_widgets page discusses this in detail. Observer widgets supports both Table and Tree views and the Qtilities::CoreGui::TreeNode class is a subclass of observer that makes building of trees using observer easier. The next section describes such trees in more detail.
+        %Observer widgets are very powerful and observers can specify display hints to views that display their contents using the Qtilities::Core::ObserverHints class. This interaction is a topic on its own and the \ref page_observer_widgets page discusses this in detail. Observer widgets supports both Table and Tree views and the Qtilities::CoreGui::TreeNode class is a subclass of observer that makes building of trees using observer easier. The next section describes such trees in more detail.
 
         \section observer_trees Observer Trees
 
-        Since an observer is able to manage any QObject based class, it is also capable of observing other observers. This feature allows us to build complex hierarhcical tree data structures very easily with the only requirements that leaf nodes in our trees must inherit QObject. Using observer widgets you can easily display and tree data structure that you have created and you can even make dot graphs of your tree structures using ObserverDotWriter.
+        Since an observer is able to manage any QObject based class, it is also capable of observing other observers. This feature allows us to build complex hierarchical tree data structures very easily with the only requirements that leaf nodes in our trees must inherit QObject. Using observer widgets you can easily display and tree data structure that you have created and you can even make dot graphs of your tree structures using ObserverDotWriter.
 
         Lets look at a simple observer tree structure and the functions provided by observer:
 
@@ -132,7 +132,7 @@ observerWidget.show();
 
         Observer by itself is not thread-safe.
 
-        \section observer_under_the_hoold Under The Hood: How observers work behind the scenes.
+        \section observer_under_the_hood Under The Hood: How observers work behind the scenes.
 
         From a user perspective the observer API attempts to hide the complexities of how object management is done. Behind the scenes there is a lot that is happening and lots of complex features that allows you to customize the way you use observers. The \ref page_observers article is a good place to start exploring these details.
         */
@@ -389,7 +389,7 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
               \sa setAccessMode(), accessMode()
               */
             enum AccessMode {
-                FullAccess = 0,             /*!< All observer operations are available to the user (Attachment, Detachement etc.). */
+                FullAccess = 0,             /*!< All observer operations are available to the user (Attachment, Detachment etc.). */
                 ReadOnlyAccess = 1,         /*!< The observer is read only to the user. */
                 LockedAccess = 2,           /*!< The observer is read only and locked. Item views presenting this observer to the user will respect the LockedAccess mode and will not display the contents of the observer to the user. */
                 InvalidAccess = 3           /*!< An invalid access mode. This access mode is returned in functions where the access mode is requested for a category that does not exist, for example categoryAccessMode(). */
@@ -400,7 +400,7 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
             static AccessMode stringToAccessMode(const QString& access_mode_string);
             //! The possible deletion methods that Observer can use when deleting objects attached to it.
             /*!
-              By default DeleteLater is used, thus it is safe when deleting objects living in threads other than the observer itself. One drawback of using DeleteLater is that the ObserverWidgets viewing your Observer will only be updated when your object is actually deleted. This can cause your views to take a while to be updated. If you are sure that your objects live in the same thread as the observer you should use DeleteImmediately to avoid this behavior.
+              By default DeleteLater is used, thus it is safe when deleting objects living in threads other than the observer itself. One drawback of using DeleteLater is that the ObserverWidgets viewing your Observer will only be updated when your object is actually deleted. This can cause your views to take a while to be updated. If you are sure that your objects live in the same thread as the observer you should use DeleteImmediately to avoid this behaviour.
 
               \sa setObjectDeletionPolicy(), objectDeletionPolicy()
               */
@@ -435,9 +435,9 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
             Observer(const Observer &other);
             //! Observer destructor.
             /*!
-             * The destructor will delete neccesarry objects, thus it will check the ownership of each subject and delete it when
+             * The destructor will delete necesarry objects, thus it will check the ownership of each subject and delete it when
              * it has SpecificObserverOwnership set to this Observer, or when it has ObserverScopeOwnership and this
-             * is the last obserer that it is attached to. Note that the deletion method used depends on the
+             * is the last observer that it is attached to. Note that the deletion method used depends on the
              * objectDeletionPolicy() of this observer.
              */
             virtual ~Observer();
@@ -455,7 +455,7 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
             bool eventFilter(QObject *object, QEvent *event);
             //! This function toggles event filtering on objects.
             /*!
-              It is recommended to always keep event filtering enabled. However in some cases, like object reconstruction in ObjectManager::constructRelationships() it is neccesarry to manually edit read only properties (like ownership etc.). Another example is when you want to attach objects in threads other than the observer's thread to it. In such cases you can disable subject event filtering on objects attached to your subjects.
+              It is recommended to always keep event filtering enabled. However in some cases, like object reconstruction in ObjectManager::constructRelationships() it is necessary to manually edit read only properties (like ownership etc.). Another example is when you want to attach objects in threads other than the observer's thread to it. In such cases you can disable subject event filtering on objects attached to your subjects.
 
               \param toggle True is event filtering is enabled, thus property changes are monitored by the observer. False otherwise.
 
@@ -554,7 +554,7 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
             // --------------------------------
             //! Sets if a subject's modification state must be monitored.
             /*!
-             *\return True when the needed property was set succcesfully on the subject. False otherwise, or when the subject is not attached to this context.
+             *\return True when the needed property was set succesfully on the subject. False otherwise, or when the subject is not attached to this context.
              *
              *\sa monitorSubjectModificationState()
              *
@@ -583,9 +583,9 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
             void modificationStateChanged(bool is_modified) const;
 
         protected:
-            //! Sets the factory data which is neccesarry to reconstruct this observer.
+            //! Sets the factory data which is necessary to reconstruct this observer.
             /*!
-              When subclassing from Observer, it might be neccesarry to set use different factory data settings from the default
+              When sub classing from Observer, it might be necessary to set use different factory data settings from the default
               data used for a normal observer. Call this function in your subclass constructor to change your object's factory data.
               */
             void setFactoryData(InstanceFactoryInfo factory_data);
@@ -629,7 +629,7 @@ obs.startProcessingCycle(); // Internal count = 1;
 obs.startProcessingCycle(); // Internal count = 2;
 
 // Some function gets the observer without any knowledge of previous start/end processing cycle calls:
-// It is not neccessarry to do the following:
+// It is not necessary to do the following:
 {
     bool is_cycle_active = obs.isProcessingCycleActive();
     obs.startProcessingCycle(); // Internal count = 3;
@@ -673,7 +673,7 @@ obs.endProcessingCycle(); // Internal count = 0;
             virtual void endProcessingCycle(bool broadcast = true);
             //! Function which returns the number of times processing cycles has been started.
             int processingCycleCount() const;
-            //! Function which resets the proccesing cycle count on the observer.
+            //! Function which resets the processing cycle count on the observer.
             void resetProcessingCycleCount(bool broadcast = true);
             //! Indicates if a processing cycle is active.
             /*!
@@ -682,7 +682,7 @@ obs.endProcessingCycle(); // Internal count = 0;
             bool isProcessingCycleActive() const;
             //! Starts a processing cycle.
             /*!
-              Same behavior as startProcessingCyle(), but starts a processing cycle on the complete tree underneath the observer. Thus, processing cycles are started on all observers attached
+              Same behaviour as startProcessingCyle(), but starts a processing cycle on the complete tree underneath the observer. Thus, processing cycles are started on all observers attached
               to this observer and those attached to that observer etc. It is important to node that you should use endTreeProcessingCycle() when using this function.
 
               \sa endTreeProcessingCycle(), endProcessingCycle(), subjectEventFilteringEnabled(), toggleSubjectEventFiltering(), isProcessingCycleActive(), processingCycleStarted()
@@ -690,7 +690,7 @@ obs.endProcessingCycle(); // Internal count = 0;
             virtual void startTreeProcessingCycle();
             //! Starts a processing cycle.
             /*!
-              Same behavior as startProcessingCyle(), but starts a processing cycle on the complete tree underneath the observer. Thus, processing cycles are started on all observers attached
+              Same behaviour as startProcessingCyle(), but starts a processing cycle on the complete tree underneath the observer. Thus, processing cycles are started on all observers attached
               to this observer and those attached to that observer etc. It is important to node that you should use endTreeProcessingCycle() when using this function.
 
               \sa startTreeProcessingCycle(), endProcessingCycle(), subjectEventFilteringEnabled(), toggleSubjectEventFiltering(), isProcessingCycleActive(), processingCycleStarted()
@@ -707,10 +707,10 @@ obs.endProcessingCycle(); // Internal count = 0;
               \param obj The object to be attached.
               \param ownership The ownership that the observer should use to manage the object. The default is Observer::ManualOwnership.
               \param rejectMsg When this function fails and rejectMsg will be populated with an rejection message when valid.
-              \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases. False by default.
-              \returns True is succesfull, false otherwise.
+              \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not necessary to validate the context in such cases. False by default.
+              \returns True is succesful, false otherwise.
 
-              \note When subjectEventFilteringEnabled() is true, the observer will be installed as an event filter on \p obj. If you do not want this to happen you can turn it off using toggleSubjectEventFiltering(). See the toggleSubjectEventFiltering() function docmentation for more information on this.
+              \note When subjectEventFilteringEnabled() is true, the observer will be installed as an event filter on \p obj. If you do not want this to happen you can turn it off using toggleSubjectEventFiltering(). See the toggleSubjectEventFiltering() function documentation for more information on this.
               \note When obj lives in a different thread than this observer an attempt won't be made to install this observer as an event filter.
               \note When obj->objectName() is empty, this function will set the object name to the className() of the object.
 
@@ -723,9 +723,9 @@ obs.endProcessingCycle(); // Internal count = 0;
 
               \param objects A list of objects which must be attached.
               \param ownership The ownership that the observer should use to manage the object. The default is Observer::ManualOwnership.
-              \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases. False by default.
+              \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not necessary to validate the context in such cases. False by default.
               \param rejectMsg When this function fails and rejectMsg will be populated with an rejection message when valid.
-              \returns A list of objects that was successfully added. Thus if the list has the same amount of items in \p objects, the operation was succesfull on all objects.
+              \returns A list of objects that was successfully added. Thus if the list has the same amount of items in \p objects, the operation was succesful on all objects.
 
               \sa attachSubject(), startProcessingCycle(), endProcessingCycle()
               */
@@ -737,8 +737,8 @@ obs.endProcessingCycle(); // Internal count = 0;
               \param obj The object to be attached.
               \param ownership The ownership that the observer should use to manage the object. The default is Observer::ManualOwnership.
               \param rejectMsg When this function fails and rejectMsg will be populated with an rejection message when valid.
-              \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases. False by default.
-              \returns A list of objects which was successfully added. Thus if the list has the same amount of items in \p objects, the operation was succesfull on all objects.
+              \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not necessary to validate the context in such cases. False by default.
+              \returns A list of objects which was successfully added. Thus if the list has the same amount of items in \p objects, the operation was succesful on all objects.
 
               \sa attachSubject(), startProcessingCycle(), endProcessingCycle()
               */
@@ -755,10 +755,10 @@ obs.endProcessingCycle(); // Internal count = 0;
             /*!
               \param mime_data_object The mime data object to test attachment of.
               \param rejectMsg Rejection message. If the attachment cannot be done, thus it returns Observer::Rejected, you can get the reason through this error message.
-              \param silent When true the function checks if the attachment can be done without using any dialog boxes. This is usefull when you need to attach subjects in an event filter where showing a dialog is a problem. An example of this is drag/drop operations in ObserverWidgets.
+              \param silent When true the function checks if the attachment can be done without using any dialog boxes. This is useful when you need to attach subjects in an event filter where showing a dialog is a problem. An example of this is drag/drop operations in ObserverWidgets.
               */
             Observer::EvaluationResult canAttach(ObserverMimeData* mime_data_object, QString* rejectMsg = 0, bool silent = false) const;
-            //! A function which checks if the object can be dettached from the observer. This function also validates the detachment operation inside all installed subject filters. Note that this function does not detach it.
+            //! A function which checks if the object can be detached from the observer. This function also validates the detachment operation inside all installed subject filters. Note that this function does not detach it.
             /*!
              * \param obj The object to test detachment of.
              * \param rejectMsg Rejection message. If the attachment cannot be done, thus it returns Observer::Rejected, you can get the reason through this error message.
@@ -768,9 +768,9 @@ obs.endProcessingCycle(); // Internal count = 0;
         public slots:
             //! Will attempt to detach the specified object from the observer.
             /*!
-             * This function will delete obj if neccesarry, thus it will check its ownership and delete it when
+             * This function will delete obj if necessary, thus it will check its ownership and delete it when
              * it has SpecificObserverOwnership set to this Observer, or when it has ObserverScopeOwnership and this
-             * is the last obserer that it is attached to. Note that the deletion method used depends on the
+             * is the last observer that it is attached to. Note that the deletion method used depends on the
              * objectDeletionPolicy() of this observer.
              *
               \param obj The object to be detached.
@@ -780,9 +780,9 @@ obs.endProcessingCycle(); // Internal count = 0;
             virtual bool detachSubject(QObject* obj, QString* rejectMsg = 0);
             //! Will attempt to detach the specified object objects in the list from the observer.
             /*!
-             * This function will delete neccesarry objects, thus it will check the ownership of each subject and delete it when
+             * This function will delete necessary objects, thus it will check the ownership of each subject and delete it when
              * it has SpecificObserverOwnership set to this Observer, or when it has ObserverScopeOwnership and this
-             * is the last obserer that it is attached to. Note that the deletion method used depends on the
+             * is the last observer that it is attached to. Note that the deletion method used depends on the
              * objectDeletionPolicy() of this observer.
              *
               \param objects A list of objects which must be detached.
@@ -792,9 +792,9 @@ obs.endProcessingCycle(); // Internal count = 0;
             virtual QList<QPointer<QObject> > detachSubjects(QList<QObject*> objects, QString* rejectMsg = 0);
             //! Function to detach all currently observed subjects.
             /*!
-             * This function will delete neccesarry objects, thus it will check the ownership of each subject and delete it when
+             * This function will delete necessary objects, thus it will check the ownership of each subject and delete it when
              * it has SpecificObserverOwnership set to this Observer, or when it has ObserverScopeOwnership and this
-             * is the last obserer that it is attached to. Note that the deletion method used depends on the
+             * is the last observer that it is attached to. Note that the deletion method used depends on the
              * objectDeletionPolicy() of this observer.
              */
             virtual void detachAll();
@@ -809,7 +809,7 @@ obs.endProcessingCycle(); // Internal count = 0;
             //! Will handle an object which has been deleted somewhere else in the application.
             void handle_deletedSubject(QObject* obj);
         signals:
-            //! Will be emmitted when a subject is deleted.
+            //! Will be emitted when a subject is deleted.
             void subjectDeleted(QObject* obj);
 
             // --------------------------------
@@ -820,14 +820,14 @@ obs.endProcessingCycle(); // Internal count = 0;
             /*!
               If the property_name does not refer to a shared property, the observer context of the observer on which this function
               is called will be used to define the observer context for which this function will get the property's value.
-              If the \p property_name reffers to a shared property, the shared property's value will be returned.
+              If the \p property_name refers to a shared property, the shared property's value will be returned.
               */
             QVariant getMultiContextPropertyValue(const QObject* obj, const char* property_name) const;
             //! Convenience function which will set the value of a MultiContextProperty based dynamic property, and not the observer property itself.
             /*!
               If the property_name does not refer to a shared property, the observer context of the observer on which this function
               is called will be used to define the observer context for which this function will set the property's value.
-              If the \p property_name reffers to a shared property, the shared property's value will be returned.
+              If the \p property_name refers to a shared property, the shared property's value will be returned.
               */
             bool setMultiContextPropertyValue(QObject* obj, const char* property_name, const QVariant& new_value) const;
 
@@ -846,7 +846,7 @@ obs.endProcessingCycle(); // Internal count = 0;
               \sa parentCount()
               */
             static QList<Observer*> parentReferences(const QObject* obj);
-            //! Function to check if a meta_type is supprted by an observer. Note that an observer must have a subject type filter which knows about the type in order for the function to return true.
+            //! Function to check if a meta_type is supported by an observer. Note that an observer must have a subject type filter which knows about the type in order for the function to return true.
             /*!
               \sa Qtilities::Core::SubjectTypeInfo
               */
@@ -860,7 +860,7 @@ obs.endProcessingCycle(); // Internal count = 0;
             // --------------------------------
             // General functions providing information about this observer's state and observed subjects
             // --------------------------------
-            //! This function will check if obj_to_check is a parent of observer in the parent hierachy of observer. Use this function to avoid circular dependancies.
+            //! This function will check if obj_to_check is a parent of observer in the parent hierarchy of observer. Use this function to avoid circular dependencies.
             static bool isParentInHierarchy(const Observer* obj_to_check, const Observer* observer);
             //! This function will validate changes to the observer, or to a specific observer category if specified.
             bool isConst(const QtilitiesCategory& access_mode = QtilitiesCategory()) const;
@@ -913,7 +913,7 @@ obs.endProcessingCycle(); // Internal count = 0;
             /*!
               The displayed name is found using the following sequence, returning the first match:
               - Check if the object has the qti_prop_DISPLAYED_ALIAS_MAP property
-              - Check if the object has the qti_prop_ALIAS_MAP propery
+              - Check if the object has the qti_prop_ALIAS_MAP property
               - Lastly, just return the objectName()
 
               \param obj The object for which the name must be fetched.
@@ -1143,7 +1143,7 @@ QVERIFY(items_verify.count() == 5);
             //! This function returns a QStringList with the names of all the reserved properties inside this observer context.
             /*!
               Reserved properties are internal properties that cannot be changed. The observer will filter any attempted changes to
-              these properties. To check if a property is reserved, see the \p Permisson attribute in the property documentation.
+              these properties. To check if a property is reserved, see the \p Permission attribute in the property documentation.
               All %Qtilities properties are defined in the Qtilities::Core::Properties namespace.
 
               \note The list of reserved properties includes reserved properties of any installed subject filters.
@@ -1198,7 +1198,7 @@ QVERIFY(items_verify.count() == 5);
 
               Thus, for table views this is enough, for tree views use layoutChanged().
 
-              \param change_indication Slots can use this indicator to know what change occured.
+              \param change_indication Slots can use this indicator to know what change occurred.
               \param objects A list of objects which was added/removed. When the list contains null items, these objects were deleted and the observer picked it up and removed them. When this signal is emitted in endProcessingCycle() this list will be empty.
 
               \note Whenever it is needed to emit this signal, Observer will first set the modification state of the Observer to true and then emit the signal.
@@ -1243,7 +1243,7 @@ QVERIFY(items_verify.count() == 5);
             void processingCycleEnded();
 
         private:
-            //! Peforms a delete on an object in a thread-safe way.
+            //! Performs a delete on an object in a thread-safe way.
             void deleteObject(QObject* object);
 
         protected:
