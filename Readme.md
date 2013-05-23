@@ -1,7 +1,9 @@
 Introduction
 ------------
 
-Qtilities is a set of Qt C++ libraries which provides building blocks for Qt applications, allowing rapid application development. The project consists of different modules which provide features which are common to a wide range of Qt applications, with the main goal of making common things easier to do.
+Qt is a cross-platform application and UI framework for developers using C++ or QML, a CSS & JavaScript like language. It is an exciting piece of technology, supporting all major desktop operating systems as well as an increasing range of mobile operating system.
+
+Qtilities is a suite of well documented and mature Qt libraries which provides building blocks for Qt applications, allowing rapid application development. The project consists of different modules which provide features which are common to a wide range of Qt applications, with the main goal of making common things easier to do.
 
 Building & Getting Started
 --------------------------
@@ -20,10 +22,7 @@ The best place to get updates and general information about the project is to fo
 
 For any questions or comments, please use any of the resources below:
 
-* Email: support@qtilities.org
-* Website: http://www.qtilities.org
 * Source Repo & Bug Tracker: http://github.com/JPNaude/Qtilities
-* Blog: http://qtilities.blogspot.com
 * Discussions & Mailing List: http://groups.google.com/group/qtilities?hl=en?hl=en
 
 Licensing
