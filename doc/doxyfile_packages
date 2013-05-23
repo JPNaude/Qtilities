@@ -2,7 +2,7 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 PROJECT_NAME           = "Qtilities"
-PROJECT_NUMBER         = "v1.3"
+PROJECT_NUMBER         = "v1.4"
 DOXYFILE_ENCODING      = UTF-8
 OUTPUT_DIRECTORY       = output
 CREATE_SUBDIRS         = NO
@@ -170,9 +170,9 @@ CHM_INDEX_ENCODING     =
 BINARY_TOC             = NO
 TOC_EXPAND             = NO
 GENERATE_QHP           = YES
-QCH_FILE               = Qtilities_v1_2.qch
-QHP_NAMESPACE          = Qtilities_v1_2
-QHP_VIRTUAL_FOLDER     = "Qtilities Documentation v1.2"
+QCH_FILE               = Qtilities_v1_4.qch
+QHP_NAMESPACE          = Qtilities_v1_4
+QHP_VIRTUAL_FOLDER     = "Qtilities Documentation v1.4"
 DISABLE_INDEX          = NO
 ENUM_VALUES_PER_LINE   = 4
 GENERATE_TREEVIEW      = NONE

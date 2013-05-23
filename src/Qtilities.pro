@@ -27,6 +27,7 @@ OTHER_FILES += ../doc/sources/Whats_New_v1_0.html
 OTHER_FILES += ../doc/sources/Whats_New_v1_1.html
 OTHER_FILES += ../doc/sources/Whats_New_v1_2.html
 OTHER_FILES += ../doc/sources/Whats_New_v1_3.html
+OTHER_FILES += ../doc/sources/Whats_New_v1_4.html
 OTHER_FILES += ../doc/sources/Documentation_Overview.html
 OTHER_FILES += ../doc/sources/Examples_And_Plugins.html
 OTHER_FILES += ../doc/sources/Extension_System.html
