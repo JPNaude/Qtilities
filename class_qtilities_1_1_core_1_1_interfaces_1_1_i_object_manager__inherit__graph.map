@@ -1,0 +1,5 @@
+<map id="G" name="G">
+<area shape="rect" id="node7" href="$class_qtilities_1_1_core_1_1_object_manager.html" title="The ObjectManager provides object management features to the developer." alt="" coords="5,293,203,323"/>
+<area shape="rect" id="node2" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_factory_provider.html" title="Objects managing instances of factories can implement this interface if they want to expose these fac..." alt="" coords="21,102,187,149"/>
+<area shape="rect" id="node4" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_object_base.html" title="Interface through which QObjects implementing interfaces can be accessed." alt="" coords="21,6,187,53"/>
+</map>

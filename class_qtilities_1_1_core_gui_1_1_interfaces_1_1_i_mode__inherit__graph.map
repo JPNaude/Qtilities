@@ -1,0 +1,10 @@
+<map id="G" name="G">
+<area shape="rect" id="node8" href="$class_qtilities_1_1_examples_1_1_main_window_1_1_example_mode.html" title="An example mode widget which demonstrates the dynamic side widget architecture." alt="" coords="617,5,812,51"/>
+<area shape="rect" id="node10" href="$class_qtilities_1_1_examples_1_1_object_management_1_1_object_management_mode.html" title="A mode which allows you to manage the objects in an observer." alt="" coords="629,75,800,139"/>
+<area shape="rect" id="node12" href="$class_qtilities_1_1_examples_1_1_tasks_example_1_1_example_mode.html" title="An example mode which allows the user to create tasks." alt="" coords="612,162,817,209"/>
+<area shape="rect" id="node14" href="$class_qtilities_1_1_plugins_1_1_help_1_1_help_mode.html" title="An implementation of Qtilities::CoreGui::Interfaces::IMode which make a GUI frontend for the HELP_MAN..." alt="" coords="653,231,776,278"/>
+<area shape="rect" id="node16" href="$class_qtilities_1_1_plugins_1_1_session_log_1_1_session_log_mode.html" title="The session log mode is used to display output from the Qtilities Logging module as a mode in the Qti..." alt="" coords="612,301,817,347"/>
+<area shape="rect" id="node18" href="$class_qtilities_1_1_testing_1_1_debug_widget.html" title="A widget providing debug information about a Qtilities application." alt="" coords="657,370,772,417"/>
+<area shape="rect" id="node2" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_object_base.html" title="Interface through which QObjects implementing interfaces can be accessed." alt="" coords="5,197,171,243"/>
+<area shape="rect" id="node4" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_context.html" title="Objects implementing this interface will have a context associated with them." alt="" coords="219,226,384,273"/>
+</map>

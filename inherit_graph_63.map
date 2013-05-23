@@ -1,0 +1,8 @@
+<map id="G" name="G">
+<area shape="rect" id="node1" href="$class_qtilities_1_1_logging_1_1_abstract_formatting_engine.html" title="The base class of all formatting engines." alt="" coords="5,153,187,199"/>
+<area shape="rect" id="node3" href="$class_qtilities_1_1_logging_1_1_formatting_engine___default.html" title="Default formatting engine which basically parses the QVariant messages into a single QString message..." alt="" coords="255,5,433,51"/>
+<area shape="rect" id="node5" href="$class_qtilities_1_1_logging_1_1_formatting_engine___h_t_m_l.html" title="HTML Formatting Engine." alt="" coords="257,74,431,121"/>
+<area shape="rect" id="node7" href="$class_qtilities_1_1_logging_1_1_formatting_engine___qt_msg_engine_format.html" title="A formatting engine used to format messages for the QtMsgLoggerEngine." alt="" coords="235,144,453,208"/>
+<area shape="rect" id="node9" href="$class_qtilities_1_1_logging_1_1_formatting_engine___rich___text.html" title="Rich Text Formatting Engine." alt="" coords="245,231,443,278"/>
+<area shape="rect" id="node11" href="$class_qtilities_1_1_logging_1_1_formatting_engine___x_m_l.html" title="XML Formatting Engine." alt="" coords="263,301,425,347"/>
+</map>

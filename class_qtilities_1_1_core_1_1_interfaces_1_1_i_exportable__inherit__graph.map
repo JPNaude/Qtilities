@@ -1,0 +1,28 @@
+<map id="G" name="G">
+<area shape="rect" id="node5" href="$class_qtilities_1_1_core_1_1_abstract_subject_filter.html" title="The AbstractSubjectFilter class provides the abstract interface for observer subject filters..." alt="" coords="449,121,607,167"/>
+<area shape="rect" id="node15" href="$class_qtilities_1_1_core_1_1_category_level.html" title="The CategoryLevel class contains information for a single category level." alt="" coords="448,190,608,237"/>
+<area shape="rect" id="node17" href="$class_qtilities_1_1_core_1_1_file_set_info.html" title="The FileSetInfo class provides information about a set of files." alt="" coords="443,260,613,289"/>
+<area shape="rect" id="node19" href="$class_qtilities_1_1_core_1_1_observer.html" title="The observer class is an extended implementation of an observer in the subject&#45;observer pattern..." alt="" coords="448,313,608,343"/>
+<area shape="rect" id="node23" href="$class_qtilities_1_1_core_1_1_observer_data.html" title="The ObserverData class contains data which is shared by different references of the same observer..." alt="" coords="435,367,621,396"/>
+<area shape="rect" id="node25" href="$class_qtilities_1_1_core_1_1_observer_hints.html" title="The ObserverHints class contains display hints for an Observer class." alt="" coords="448,419,608,466"/>
+<area shape="rect" id="node27" href="$class_qtilities_1_1_core_1_1_observer_relational_table.html" title="The ObserverRelationalTable class is a data structure which stores relational data about an observer ..." alt="" coords="448,489,608,535"/>
+<area shape="rect" id="node29" href="$class_qtilities_1_1_core_1_1_qtilities_category.html" title="A QtilitiesCategory object represents a category in Qtilities." alt="" coords="452,558,604,605"/>
+<area shape="rect" id="node31" href="$class_qtilities_1_1_core_1_1_qtilities_property.html" title="The base class of all the different Qtilities property types." alt="" coords="452,627,604,674"/>
+<area shape="rect" id="node37" href="$class_qtilities_1_1_core_1_1_relational_table_entry.html" title="The RelationalTableEntry class represents a single entry in an observer relational table..." alt="" coords="445,697,611,743"/>
+<area shape="rect" id="node39" href="$class_qtilities_1_1_core_gui_1_1_tree_item_base.html" title="The TreeItemBase class is the base class for all tree items, that is items which can be attached to T..." alt="" coords="468,766,588,813"/>
+<area shape="rect" id="node45" href="$class_qtilities_1_1_examples_1_1_exporting_example_1_1_version_details.html" title="The VersionDetails class is an example implementation of Qtilities::Core::Interfaces::IExportable." alt="" coords="459,836,597,900"/>
+<area shape="rect" id="node47" href="$class_qtilities_1_1_project_management_1_1_interfaces_1_1_i_project_item.html" title="Interface through which objects can be exposed as project parts." alt="" coords="433,923,623,970"/>
+<area shape="rect" id="node53" href="$class_qtilities_1_1_project_management_1_1_project.html" title="The Project class provides a ready to use implementation of the IProject plugin." alt="" coords="433,993,623,1039"/>
+<area shape="rect" id="node2" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_object_base.html" title="Interface through which QObjects implementing interfaces can be accessed." alt="" coords="5,523,171,570"/>
+<area shape="rect" id="node7" href="$class_qtilities_1_1_core_1_1_activity_policy_filter.html" title="The ActivityPolicyFilter class is an implementation of AbstractSubjectFilter which allows control ove..." alt="" coords="703,5,852,51"/>
+<area shape="rect" id="node9" href="$class_qtilities_1_1_core_1_1_subject_filter_template.html" title="A template subject filter." alt="" coords="701,74,853,121"/>
+<area shape="rect" id="node11" href="$class_qtilities_1_1_core_1_1_subject_type_filter.html" title="A subject filter which only allows attachement of specific object types." alt="" coords="701,143,853,190"/>
+<area shape="rect" id="node13" href="$class_qtilities_1_1_core_gui_1_1_naming_policy_filter.html" title="The NamingPolicyFilter class is an implementation of AbstractSubjectFilter which allows control over ..." alt="" coords="708,213,847,259"/>
+<area shape="rect" id="node21" href="$class_qtilities_1_1_core_gui_1_1_tree_node.html" title="The TreeNode class is a node in a tree which can have items attached to it and can also be attached t..." alt="" coords="717,305,837,351"/>
+<area shape="rect" id="node33" href="$class_qtilities_1_1_core_1_1_multi_context_property.html" title="A MultiContextProperty provides a property which has different values in different contexts..." alt="" coords="687,597,868,643"/>
+<area shape="rect" id="node35" href="$class_qtilities_1_1_core_1_1_shared_property.html" title="A SharedProperty is a basic implementation of QtilitiesProperty." alt="" coords="679,667,876,696"/>
+<area shape="rect" id="node41" href="$class_qtilities_1_1_core_gui_1_1_tree_file_item.html" title="The TreeFileItem class is an item in a tree which can be used to easily represent files..." alt="" coords="717,743,837,790"/>
+<area shape="rect" id="node43" href="$class_qtilities_1_1_core_gui_1_1_tree_item.html" title="The TreeItem class is an item in a tree. It can be attached to a TreeNode." alt="" coords="717,813,837,859"/>
+<area shape="rect" id="node49" href="$class_qtilities_1_1_project_management_1_1_code_editor_project_item_wrapper.html" title="This class wraps Qtilities::CoreGui::CodeEditorWidget as a project item." alt="" coords="673,891,881,938"/>
+<area shape="rect" id="node51" href="$class_qtilities_1_1_project_management_1_1_observer_project_item_wrapper.html" title="This class wraps Qtilities::Core::Observer as a project item." alt="" coords="680,961,875,1007"/>
+</map>

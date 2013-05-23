@@ -1,0 +1,5 @@
+<map id="G" name="G">
+<area shape="rect" id="node1" href="$class_qtilities_1_1_core_gui_1_1_action_container.html" title="A class which represents an action container." alt="" coords="5,39,128,86"/>
+<area shape="rect" id="node3" href="$class_qtilities_1_1_core_gui_1_1_menu_bar_container.html" title="A class which represents an implementation of ActionContainer in the form of a menubar." alt="" coords="177,5,313,51"/>
+<area shape="rect" id="node5" href="$class_qtilities_1_1_core_gui_1_1_menu_container.html" title="A class which represents an implementation of ActionContainer in the form of a menu." alt="" coords="185,74,305,121"/>
+</map>

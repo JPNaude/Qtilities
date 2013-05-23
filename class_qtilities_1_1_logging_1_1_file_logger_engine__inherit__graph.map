@@ -1,0 +1,4 @@
+<map id="G" name="G">
+<area shape="rect" id="node2" href="$class_qtilities_1_1_logging_1_1_abstract_logger_engine.html" title="The base class of all logger engines." alt="" coords="27,5,184,51"/>
+<area shape="rect" id="node4" href="$class_qtilities_1_1_logging_1_1_interfaces_1_1_i_logger_exportable.html" title="Logger engines can implement this interface if they are able to export and reconstruct themselves..." alt="" coords="7,74,204,121"/>
+</map>

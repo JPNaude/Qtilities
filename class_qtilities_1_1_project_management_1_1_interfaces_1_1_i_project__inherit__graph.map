@@ -1,0 +1,5 @@
+<map id="G" name="G">
+<area shape="rect" id="node7" href="$class_qtilities_1_1_project_management_1_1_project.html" title="The Project class provides a ready to use implementation of the IProject plugin." alt="" coords="5,294,195,341"/>
+<area shape="rect" id="node2" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_modification_notifier.html" title="Interface which allows objects to broadcast changes made to them." alt="" coords="17,102,183,149"/>
+<area shape="rect" id="node4" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_object_base.html" title="Interface through which QObjects implementing interfaces can be accessed." alt="" coords="17,6,183,53"/>
+</map>

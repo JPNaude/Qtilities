@@ -1,0 +1,8 @@
+<map id="G" name="G">
+<area shape="rect" id="node5" href="$class_qtilities_1_1_plugins_1_1_debug_1_1_debug_plugin.html" title="A debug plugin which helps to debug Qtilities applications." alt="" coords="477,5,624,51"/>
+<area shape="rect" id="node7" href="$class_qtilities_1_1_plugins_1_1_help_1_1_help_plugin.html" title="A help plugin for a Qtilities application." alt="" coords="488,74,613,121"/>
+<area shape="rect" id="node9" href="$class_qtilities_1_1_plugins_1_1_project_management_1_1_project_management_plugin.html" title="A plugin which adds project management capabilities to the application." alt="" coords="460,144,641,208"/>
+<area shape="rect" id="node12" href="$class_qtilities_1_1_plugins_1_1_session_log_1_1_session_log_plugin.html" title="A plugin which provides a session log mode to the application." alt="" coords="445,231,656,278"/>
+<area shape="rect" id="node14" href="$class_qtilities_1_1_plugins_1_1_template_1_1_plugin_template.html" title="A template which can is a starting point to creating plugins to be used with the Qtilities extension ..." alt="" coords="461,301,640,347"/>
+<area shape="rect" id="node2" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_object_base.html" title="Interface through which QObjects implementing interfaces can be accessed." alt="" coords="5,153,171,199"/>
+</map>

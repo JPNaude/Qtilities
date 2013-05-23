@@ -1,0 +1,11 @@
+<map id="G" name="G">
+<area shape="rect" id="node5" href="$class_qtilities_1_1_core_gui_1_1_code_editor_widget_config.html" title="A config page for text editors." alt="" coords="440,5,611,51"/>
+<area shape="rect" id="node7" href="$class_qtilities_1_1_core_gui_1_1_command_editor.html" title="A widget which allows the user to edit command shortcuts for actions registered in the action manager..." alt="" coords="464,74,587,121"/>
+<area shape="rect" id="node9" href="$class_qtilities_1_1_core_gui_1_1_grouped_config_page.html" title="A config page which groups other IConfigPage pages using tabs." alt="" coords="453,143,597,190"/>
+<area shape="rect" id="node11" href="$class_qtilities_1_1_core_gui_1_1_logger_config_widget.html" title="The LoggerConfigWidget class provides a widget allowing the user to control the logger through a visu..." alt="" coords="452,213,599,259"/>
+<area shape="rect" id="node13" href="$class_qtilities_1_1_examples_1_1_clipboard_1_1_observer_widget_config.html" title="The ObserverWidgetConfig widget is used in the Clipboard Example to demonstrate the settings update r..." alt="" coords="433,283,617,347"/>
+<area shape="rect" id="node15" href="$class_qtilities_1_1_extension_system_1_1_extension_system_config.html" title="The ExtensionSystemConfig class provides a ready to use configuration widget for the extension system..." alt="" coords="437,370,613,417"/>
+<area shape="rect" id="node17" href="$class_qtilities_1_1_plugins_1_1_help_1_1_help_plugin_config.html" title="The HelpPluginConfig class provides a ready to use configuration widget for the help plugin..." alt="" coords="444,439,607,486"/>
+<area shape="rect" id="node19" href="$class_qtilities_1_1_project_management_1_1_project_management_config.html" title="The ProjectManagementConfig class provides a ready to use configuration widget for the project manage..." alt="" coords="431,509,620,555"/>
+<area shape="rect" id="node2" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_object_base.html" title="Interface through which QObjects implementing interfaces can be accessed." alt="" coords="5,253,171,299"/>
+</map>

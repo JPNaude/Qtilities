@@ -1,0 +1,18 @@
+<map id="G" name="G">
+<area shape="rect" id="node5" href="$class_qtilities_1_1_testing_1_1_benchmark_tests.html" title="Contains some bencmarking code to benchmark parts of Qtilities." alt="" coords="447,5,575,51"/>
+<area shape="rect" id="node7" href="$class_qtilities_1_1_testing_1_1_test_abstract_tree_item.html" title="Allows testing of Qtilities::Core::AbstractTreeItem." alt="" coords="433,74,588,121"/>
+<area shape="rect" id="node9" href="$class_qtilities_1_1_testing_1_1_test_activity_policy_filter.html" title="Allows testing of Qtilities::Core::ActivityPolicyFilter." alt="" coords="429,143,592,190"/>
+<area shape="rect" id="node11" href="$class_qtilities_1_1_testing_1_1_test_exporting.html" title="Allows testing of the exporting capabilities of Qtilities classes." alt="" coords="453,213,568,259"/>
+<area shape="rect" id="node13" href="$class_qtilities_1_1_testing_1_1_test_file_set_info.html" title="Allows testing of Qtilities::Core::FileSetInfo." alt="" coords="453,282,568,329"/>
+<area shape="rect" id="node15" href="$class_qtilities_1_1_testing_1_1_test_naming_policy_filter.html" title="Allows testing of Qtilities::CoreGui::NamingPolicyFilter." alt="" coords="429,351,592,398"/>
+<area shape="rect" id="node17" href="$class_qtilities_1_1_testing_1_1_test_object_manager.html" title="Allows testing of Qtilities::Core::ObjectManager." alt="" coords="440,421,581,467"/>
+<area shape="rect" id="node19" href="$class_qtilities_1_1_testing_1_1_test_observer.html" title="Allows testing of Qtilities::Core::Observer." alt="" coords="453,490,568,537"/>
+<area shape="rect" id="node21" href="$class_qtilities_1_1_testing_1_1_test_observer_relational_table.html" title="Allows testing of Qtilities::Core::ObserverRelationalTable." alt="" coords="413,559,608,606"/>
+<area shape="rect" id="node23" href="$class_qtilities_1_1_testing_1_1_test_subject_iterator.html" title="Allows testing of Qtilities::Core::SubjectIterator." alt="" coords="441,629,580,675"/>
+<area shape="rect" id="node25" href="$class_qtilities_1_1_testing_1_1_test_subject_type_filter.html" title="Allows testing of Qtilities::Core::SubjectTypeFilter." alt="" coords="433,698,588,745"/>
+<area shape="rect" id="node27" href="$class_qtilities_1_1_testing_1_1_test_task.html" title="Allows testing of Qtilities::Core::Task." alt="" coords="453,767,568,814"/>
+<area shape="rect" id="node29" href="$class_qtilities_1_1_testing_1_1_test_tree_file_item.html" title="Allows testing of Qtilities::CoreGui::TreeFileItem." alt="" coords="448,837,573,883"/>
+<area shape="rect" id="node31" href="$class_qtilities_1_1_testing_1_1_test_tree_iterator.html" title="Allows testing of Qtilities::Core::TreeIterator." alt="" coords="451,906,571,953"/>
+<area shape="rect" id="node33" href="$class_qtilities_1_1_testing_1_1_test_version_number.html" title="Allows testing of Qtilities::Core::VersionNumber." alt="" coords="439,975,583,1022"/>
+<area shape="rect" id="node2" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_object_base.html" title="Interface through which QObjects implementing interfaces can be accessed." alt="" coords="5,490,171,537"/>
+</map>

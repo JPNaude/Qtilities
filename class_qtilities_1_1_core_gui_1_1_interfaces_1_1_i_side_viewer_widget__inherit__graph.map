@@ -1,0 +1,7 @@
+<map id="G" name="G">
+<area shape="rect" id="node5" href="$class_qtilities_1_1_core_gui_1_1_side_viewer_widget_factory.html" title="The SideViewerWidgetFactory class is intended to act as a factory for side viewer widgets..." alt="" coords="477,5,656,51"/>
+<area shape="rect" id="node7" href="$class_qtilities_1_1_plugins_1_1_help_1_1_content_widget_factory.html" title="The ContentWidgetFactory class makes a QHelpContentWidget widget for the HELP_MANAGER available as a ..." alt="" coords="469,74,664,121"/>
+<area shape="rect" id="node9" href="$class_qtilities_1_1_plugins_1_1_help_1_1_index_widget_factory.html" title="The IndexWidgetFactory class makes a QHelpIndexWidget widget for the HELP_MANAGER available as a side..." alt="" coords="477,143,656,190"/>
+<area shape="rect" id="node11" href="$class_qtilities_1_1_plugins_1_1_help_1_1_search_widget_factory.html" title="The SearchWidgetFactory class makes a QHelpSearchQueryWidget and QHelpSearchResultsWidget available f..." alt="" coords="472,213,661,259"/>
+<area shape="rect" id="node2" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_object_base.html" title="Interface through which QObjects implementing interfaces can be accessed." alt="" coords="5,109,171,155"/>
+</map>

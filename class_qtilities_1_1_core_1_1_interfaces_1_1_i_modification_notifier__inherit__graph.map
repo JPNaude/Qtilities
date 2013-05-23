@@ -1,0 +1,20 @@
+<map id="G" name="G">
+<area shape="rect" id="node5" href="$class_qtilities_1_1_core_1_1_activity_policy_filter.html" title="The ActivityPolicyFilter class is an implementation of AbstractSubjectFilter which allows control ove..." alt="" coords="453,5,603,51"/>
+<area shape="rect" id="node7" href="$class_qtilities_1_1_core_1_1_observer.html" title="The observer class is an extended implementation of an observer in the subject&#45;observer pattern..." alt="" coords="448,75,608,104"/>
+<area shape="rect" id="node11" href="$class_qtilities_1_1_core_1_1_observer_hints.html" title="The ObserverHints class contains display hints for an Observer class." alt="" coords="448,127,608,174"/>
+<area shape="rect" id="node13" href="$class_qtilities_1_1_core_1_1_subject_filter_template.html" title="A template subject filter." alt="" coords="452,197,604,243"/>
+<area shape="rect" id="node15" href="$class_qtilities_1_1_core_1_1_subject_type_filter.html" title="A subject filter which only allows attachement of specific object types." alt="" coords="452,266,604,313"/>
+<area shape="rect" id="node17" href="$class_qtilities_1_1_core_gui_1_1_code_editor_widget.html" title="A code editor widget which contains a CodeEditor." alt="" coords="461,335,595,382"/>
+<area shape="rect" id="node19" href="$class_qtilities_1_1_core_gui_1_1_naming_policy_filter.html" title="The NamingPolicyFilter class is an implementation of AbstractSubjectFilter which allows control over ..." alt="" coords="459,405,597,451"/>
+<area shape="rect" id="node21" href="$class_qtilities_1_1_core_gui_1_1_tree_item_base.html" title="The TreeItemBase class is the base class for all tree items, that is items which can be attached to T..." alt="" coords="468,474,588,521"/>
+<area shape="rect" id="node27" href="$class_qtilities_1_1_project_management_1_1_interfaces_1_1_i_project.html" title="Interface through which the project manager communicates with projects." alt="" coords="433,543,623,590"/>
+<area shape="rect" id="node31" href="$class_qtilities_1_1_project_management_1_1_interfaces_1_1_i_project_item.html" title="Interface through which objects can be exposed as project parts." alt="" coords="433,613,623,659"/>
+<area shape="rect" id="node37" href="$class_qtilities_1_1_project_management_1_1_project_manager.html" title="The ProjectManager class." alt="" coords="433,682,623,729"/>
+<area shape="rect" id="node2" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_object_base.html" title="Interface through which QObjects implementing interfaces can be accessed." alt="" coords="5,335,171,382"/>
+<area shape="rect" id="node9" href="$class_qtilities_1_1_core_gui_1_1_tree_node.html" title="The TreeNode class is a node in a tree which can have items attached to it and can also be attached t..." alt="" coords="717,66,837,113"/>
+<area shape="rect" id="node23" href="$class_qtilities_1_1_core_gui_1_1_tree_file_item.html" title="The TreeFileItem class is an item in a tree which can be used to easily represent files..." alt="" coords="717,405,837,451"/>
+<area shape="rect" id="node25" href="$class_qtilities_1_1_core_gui_1_1_tree_item.html" title="The TreeItem class is an item in a tree. It can be attached to a TreeNode." alt="" coords="717,474,837,521"/>
+<area shape="rect" id="node29" href="$class_qtilities_1_1_project_management_1_1_project.html" title="The Project class provides a ready to use implementation of the IProject plugin." alt="" coords="683,543,872,590"/>
+<area shape="rect" id="node33" href="$class_qtilities_1_1_project_management_1_1_code_editor_project_item_wrapper.html" title="This class wraps Qtilities::CoreGui::CodeEditorWidget as a project item." alt="" coords="673,613,881,659"/>
+<area shape="rect" id="node35" href="$class_qtilities_1_1_project_management_1_1_observer_project_item_wrapper.html" title="This class wraps Qtilities::Core::Observer as a project item." alt="" coords="680,682,875,729"/>
+</map>

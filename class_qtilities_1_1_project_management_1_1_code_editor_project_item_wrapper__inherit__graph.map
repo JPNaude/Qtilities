@@ -1,0 +1,6 @@
+<map id="G" name="G">
+<area shape="rect" id="node2" href="$class_qtilities_1_1_project_management_1_1_interfaces_1_1_i_project_item.html" title="Interface through which objects can be exposed as project parts." alt="" coords="433,39,623,86"/>
+<area shape="rect" id="node4" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_modification_notifier.html" title="Interface which allows objects to broadcast changes made to them." alt="" coords="219,5,384,51"/>
+<area shape="rect" id="node6" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_object_base.html" title="Interface through which QObjects implementing interfaces can be accessed." alt="" coords="5,39,171,86"/>
+<area shape="rect" id="node8" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_exportable.html" title="Objects can implement this interface if they are able to export and reconstruct themselves." alt="" coords="219,74,384,121"/>
+</map>

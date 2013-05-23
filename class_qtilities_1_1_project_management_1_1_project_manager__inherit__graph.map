@@ -1,0 +1,5 @@
+<map id="G" name="G">
+<area shape="rect" id="node2" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_modification_notifier.html" title="Interface which allows objects to broadcast changes made to them." alt="" coords="219,5,384,51"/>
+<area shape="rect" id="node4" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_object_base.html" title="Interface through which QObjects implementing interfaces can be accessed." alt="" coords="5,39,171,86"/>
+<area shape="rect" id="node6" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_task_container.html" title="Generic interface which provides a way for objects to expose tasks that they can perform." alt="" coords="219,74,384,121"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="G" name="G">
+<area shape="rect" id="node2" href="$class_qtilities_1_1_core_gui_1_1_interfaces_1_1_i_mode.html" title="Used by the ModeManager to communicate with child modes." alt="" coords="39,198,167,245"/>
+<area shape="rect" id="node4" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_object_base.html" title="Interface through which QObjects implementing interfaces can be accessed." alt="" coords="20,6,185,53"/>
+<area shape="rect" id="node6" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_context.html" title="Objects implementing this interface will have a context associated with them." alt="" coords="80,102,245,149"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="G" name="G">
+<area shape="rect" id="node1" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_iterator.html" title="Qtilities::Core::Interfaces\l::IIterator\&lt; QObject \&gt;" alt="" coords="5,5,171,51"/>
+<area shape="rect" id="node3" href="$class_qtilities_1_1_core_1_1_tree_iterator.html" title="An iterator which iterates through an Observer tree (thus also Qtilities::CoreGui::TreeNode)." alt="" coords="220,13,393,43"/>
+</map>

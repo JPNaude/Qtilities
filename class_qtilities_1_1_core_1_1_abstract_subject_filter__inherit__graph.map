@@ -1,0 +1,8 @@
+<map id="G" name="G">
+<area shape="rect" id="node7" href="$class_qtilities_1_1_core_1_1_activity_policy_filter.html" title="The ActivityPolicyFilter class is an implementation of AbstractSubjectFilter which allows control ove..." alt="" coords="643,5,792,51"/>
+<area shape="rect" id="node9" href="$class_qtilities_1_1_core_1_1_subject_filter_template.html" title="A template subject filter." alt="" coords="641,74,793,121"/>
+<area shape="rect" id="node11" href="$class_qtilities_1_1_core_1_1_subject_type_filter.html" title="A subject filter which only allows attachement of specific object types." alt="" coords="641,143,793,190"/>
+<area shape="rect" id="node13" href="$class_qtilities_1_1_core_gui_1_1_naming_policy_filter.html" title="The NamingPolicyFilter class is an implementation of AbstractSubjectFilter which allows control over ..." alt="" coords="648,213,787,259"/>
+<area shape="rect" id="node2" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_exportable.html" title="Objects can implement this interface if they are able to export and reconstruct themselves." alt="" coords="219,109,384,155"/>
+<area shape="rect" id="node4" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_object_base.html" title="Interface through which QObjects implementing interfaces can be accessed." alt="" coords="5,109,171,155"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="G" name="G">
+<area shape="rect" id="node1" href="$class_qtilities_1_1_core_1_1_factory_interface.html" title="Factory interface which is used by factories to create instances of registered class types..." alt="" coords="7,5,164,51"/>
+<area shape="rect" id="node3" href="$class_qtilities_1_1_core_1_1_factory_item.html" title="Factory item class which is used inside classes which can register themselves as items in factories..." alt="" coords="215,5,425,51"/>
+</map>

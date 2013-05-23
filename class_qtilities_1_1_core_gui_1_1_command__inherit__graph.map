@@ -1,0 +1,4 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$class_qtilities_1_1_core_gui_1_1_proxy_action.html" title="A class which represents a proxy action which triggers different actions for different contexts..." alt="" coords="5,102,125,149"/>
+<area shape="rect" id="node5" href="$class_qtilities_1_1_core_gui_1_1_shortcut_command.html" title="A class which represents a shortcut which is enabled depending on the active context(s)." alt="" coords="149,102,288,149"/>
+</map>

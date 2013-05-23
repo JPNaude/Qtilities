@@ -1,0 +1,7 @@
+<map id="G" name="G">
+<area shape="rect" id="node2" href="$class_qtilities_1_1_core_gui_1_1_tree_item_base.html" title="The TreeItemBase class is the base class for all tree items, that is items which can be attached to T..." alt="" coords="433,74,553,121"/>
+<area shape="rect" id="node4" href="$class_qtilities_1_1_core_gui_1_1_abstract_tree_item.html" title="The AbstractTreeItem is an abstract base class which can be used to build tree items." alt="" coords="237,5,365,51"/>
+<area shape="rect" id="node6" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_modification_notifier.html" title="Interface which allows objects to broadcast changes made to them." alt="" coords="219,74,384,121"/>
+<area shape="rect" id="node8" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_object_base.html" title="Interface through which QObjects implementing interfaces can be accessed." alt="" coords="5,109,171,155"/>
+<area shape="rect" id="node10" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_exportable.html" title="Objects can implement this interface if they are able to export and reconstruct themselves." alt="" coords="219,143,384,190"/>
+</map>

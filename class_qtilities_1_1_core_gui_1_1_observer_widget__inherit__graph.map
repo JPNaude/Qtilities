@@ -1,0 +1,5 @@
+<map id="G" name="G">
+<area shape="rect" id="node2" href="$class_qtilities_1_1_core_1_1_observer_aware_base.html" title="The ObserverAwareBase class provides everything that is needed to make an object aware of an observer..." alt="" coords="5,102,165,149"/>
+<area shape="rect" id="node4" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_context.html" title="Objects implementing this interface will have a context associated with them." alt="" coords="189,102,355,149"/>
+<area shape="rect" id="node6" href="$class_qtilities_1_1_core_1_1_interfaces_1_1_i_object_base.html" title="Interface through which QObjects implementing interfaces can be accessed." alt="" coords="189,6,355,53"/>
+</map>

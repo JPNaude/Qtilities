@@ -1,0 +1,5 @@
+<map id="G" name="G">
+<area shape="rect" id="node7" href="$class_qtilities_1_1_examples_1_1_clipboard_1_1_extended_observer_table_model.html" title="The ExtendedObserverTableModel class is an example of how Qtilities::CoreGui::ObserverTableModel can ..." alt="" coords="5,293,203,357"/>
+<area shape="rect" id="node2" href="$class_qtilities_1_1_core_gui_1_1_abstract_observer_item_model.html" title="The AbstractObserverItemModel is an abstract base class which is used by all the different observer m..." alt="" coords="9,102,199,149"/>
+<area shape="rect" id="node4" href="$class_qtilities_1_1_core_1_1_observer_aware_base.html" title="The ObserverAwareBase class provides everything that is needed to make an object aware of an observer..." alt="" coords="24,6,184,53"/>
+</map>

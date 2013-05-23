@@ -1,0 +1,10 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$class_qtilities_1_1_core_1_1_observer_hints.html" title="The ObserverHints class contains display hints for an Observer class." alt="" coords="229,5,389,51"/>
+<area shape="rect" id="node5" href="$class_qtilities_1_1_core_gui_1_1_abstract_observer_item_model.html" title="The AbstractObserverItemModel is an abstract base class which is used by all the different observer m..." alt="" coords="215,74,404,121"/>
+<area shape="rect" id="node17" href="$class_qtilities_1_1_core_gui_1_1_observer_widget.html" title="The ObserverWidget class provides a ready&#45;to&#45;use widget to display information about a specific obser..." alt="" coords="248,143,371,190"/>
+<area shape="rect" id="node7" href="$class_qtilities_1_1_core_gui_1_1_observer_table_model.html" title="The ObserverTableModel class provides an ready&#45;to&#45;use model that can be used to show the contents of ..." alt="" coords="453,35,600,82"/>
+<area shape="rect" id="node11" href="$class_qtilities_1_1_core_gui_1_1_observer_tree_model.html" title="The ObserverTreeModel class provides an ready&#45;to&#45;use model that can be used to show the children of a..." alt="" coords="456,114,597,161"/>
+<area shape="rect" id="node9" href="$class_qtilities_1_1_examples_1_1_clipboard_1_1_extended_observer_table_model.html" title="The ExtendedObserverTableModel class is an example of how Qtilities::CoreGui::ObserverTableModel can ..." alt="" coords="649,17,847,81"/>
+<area shape="rect" id="node13" href="$class_qtilities_1_1_examples_1_1_clipboard_1_1_extended_observer_tree_model.html" title="The ExtendedObserverTreeModel class is an example of how Qtilities::CoreGui::ObserverTableModel can b..." alt="" coords="649,105,847,169"/>
+<area shape="rect" id="node15" href="$class_qtilities_1_1_extension_system_1_1_plugin_tree_model.html" title="The PluginTreeModel class is an extension of ObserverTreeModel used to display plugin information..." alt="" coords="660,193,836,239"/>
+</map>
