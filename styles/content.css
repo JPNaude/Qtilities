@@ -1,0 +1,132 @@
+html,body{
+	margin:0;padding:0; 
+	min-height: 100%; 
+    height:100%; 
+}
+body{
+ 	margin: 0px;
+ 	padding:0px;
+	font-size:12px;
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	height: 100%;
+}
+h1{
+	font-size: 18px;
+	font-weight: bold;
+	line-height: 20px;
+	color: #0066A4;
+	margin:0px 0px 0px 0px;   
+}
+h2{
+	font-size: 16px;
+	font-weight: bold;
+	line-height: 14px;
+	color: #0066A4;
+	margin:5px 0px 0px 0px;   
+}
+p{
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	font-size: 12px;
+	font-weight: normal;
+	line-height: 18px;
+	margin:0px 0px 10px 0px;
+	text-align:left;
+	color: #000000;
+}
+a{
+	text-decoration: none;
+	border: 0px;
+	font-size: 12px;
+	font-weight: normal;
+	color:#0066A4
+}
+ul{
+	font-size: 12px;
+	font-weight: normal;
+	line-height: 16px;
+	color: #FFFFFF;
+	margin:0px 0px 10px 0px;
+	text-align:justify;
+	padding:0px 0px 0px 15px
+}
+
+/*
+ * Div Specific Overloads:
+ */
+div#content ul{
+	color: #000000;	
+}
+div#content_split ul{
+	color: #000000;	
+}
+div#right_content a{
+	color: #FFFFFF;	
+	font-size: 12px;
+}
+div#container{
+	height: 100%;
+	min-height: 100%;
+}
+div#clear{
+	clear:both;
+}
+
+/*
+ * Define colors of color boxes:
+ */
+div#round_box_green_dark{
+	background-color: #5DA04B;
+	color: #FFFFFF;
+}
+div#round_box_green_light{
+	background-color: #89CB77;
+	color: #000000;
+}
+div#round_box_yellow_dark{
+	background-color: #D1B91A;
+	color: #FFFFFF;
+}
+div#round_box_yellow_light{
+	background-color: #E9DB71;
+	color: #000000;	
+}
+div#round_box_red_dark{
+	background-color: #A9412F;
+	color: #FFFFFF;	
+}
+div#round_box_red_light{
+	background-color: #D87E6F;
+	color: #000000;
+}
+
+/*
+ * Make links in color boxes white:
+ */
+div#round_box_green_light a{
+	color: #FFFFFF;
+}
+div#round_box_yellow_light a{
+	color: #FFFFFF;
+}
+div#round_box_red_light a{
+	color: #FFFFFF;
+}
+/*
+ * Make lists in color boxes white:
+ */
+/*
+div#round_box_red_light ul{
+	color: #FFFFFF;
+}
+div#round_box_green_light ul{
+	color: #FFFFFF;
+}
+div#round_box_yellow_light ul{
+	color: #FFFFFF;
+}
+*/
+
+
+
+.rounded_top{border:hidden  5px #000000;-moz-border-radius-topleft: 24px; -moz-border-radius-topright:24px; -moz-border-radius-bottomleft:5px; -moz-border-radius-bottomright:5px; -webkit-border-top-left-radius:24px; -webkit-border-top-right-radius:24px; -webkit-border-bottom-left-radius:5px;-webkit-border-bottom-right-radius:5px;border-top-left-radius:24px; border-top-right-radius:24px; border-bottom-left-radius:5px;border-bottom-right-radius:5px;}
+.rounded_all{border:hidden  5px #000000;-moz-border-radius-topleft: 24px; -moz-border-radius-topright:24px; -moz-border-radius-bottomleft:24px; -moz-border-radius-bottomright:24px; -webkit-border-top-left-radius:24px; -webkit-border-top-right-radius:24px; -webkit-border-bottom-left-radius:24px;-webkit-border-bottom-right-radius:24px;border-top-left-radius:24px; border-top-right-radius:24px; border-bottom-left-radius:24px;border-bottom-right-radius:24px;}
