@@ -4,6 +4,7 @@ var searchData=
   ['what_27s_20new_20in_20_25qtilities_20v1_2e1',['What&apos;s New In %Qtilities v1.1',['../page_whats_new_v1_1.html',1,'']]],
   ['what_27s_20new_20in_20_25qtilities_20v1_2e2',['What&apos;s New In %Qtilities v1.2',['../page_whats_new_v1_2.html',1,'']]],
   ['what_27s_20new_20in_20_25qtilities_20v1_2e3',['What&apos;s New In %Qtilities v1.3',['../page_whats_new_v1_3.html',1,'']]],
+  ['what_27s_20new_20in_20_25qtilities_20v1_2e4',['What&apos;s New In %Qtilities v1.4',['../page_whats_new_v1_4.html',1,'']]],
   ['widget_20set',['Widget Set',['../page_widget_set.html',1,'']]],
   ['warnaboutduplicatewarnings',['warnAboutDuplicateWarnings',['../class_qtilities_1_1_core_gui_1_1_add_dynamic_property_wizard.html#a418c4e1b22346942585e1c918033fd4d',1,'Qtilities::CoreGui::AddDynamicPropertyWizard']]],
   ['warning',['Warning',['../class_qtilities_1_1_logging_1_1_logger.html#a8b70575b2f63d92a8aaab10498558ee0a6f4962c783e4127fdc1548284a9dd9f4',1,'Qtilities::Logging::Logger']]],
