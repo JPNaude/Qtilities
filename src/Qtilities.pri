@@ -1,5 +1,5 @@
 # ***************************************************************************
-# Copyright (c) 2009-2013, Floware Computing (Pty) Ltd
+# Copyright (c) 2009-2013, Jaco Naudé
 #
 # See http://www.qtilities.org/licensing.html for licensing details.
 #
@@ -23,7 +23,7 @@ QTILITIES_BIN           = $$QTILITIES_BASE/bin
 # Version Definitions
 #****************************************************************************
 QTILITIES_VERSION_MAJOR    = 1
-QTILITIES_VERSION_MINOR    = 3
+QTILITIES_VERSION_MINOR    = 4
 QTILITIES_VERSION_REVISION = 0
 DEFINES                += "QTILITIES_VERSION_MAJOR=$$QTILITIES_VERSION_MAJOR"
 DEFINES                += "QTILITIES_VERSION_MINOR=$$QTILITIES_VERSION_MINOR"

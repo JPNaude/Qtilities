@@ -29,5 +29,5 @@ Licensing
 ---------
 See http://www.qtilities.org/licensing.html for licensing details.
 
-Copyright (c) 2009-2013, Floware Computing (Pty) Ltd
+Copyright (c) 2009-2013, Jaco Naudé
 

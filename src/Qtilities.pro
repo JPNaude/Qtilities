@@ -1,5 +1,5 @@
 # ***************************************************************************
-# Copyright (c) 2009-2013, Floware Computing (Pty) Ltd
+# Copyright (c) 2009-2013, Jaco Naudé
 #
 # See http://www.qtilities.org/licensing.html for licensing details.
 #
@@ -35,7 +35,6 @@ OTHER_FILES += ../doc/sources/Factories.html
 OTHER_FILES += ../doc/sources/Footer.html
 OTHER_FILES += ../doc/sources/Header.html
 OTHER_FILES += ../doc/sources/FooterWithTracking.html
-OTHER_FILES += ../doc/sources/Getting_Started.html
 OTHER_FILES += ../doc/sources/Logging.html
 OTHER_FILES += ../doc/sources/Modules_Overview.html
 OTHER_FILES += ../doc/sources/Object_Management.html
@@ -45,6 +44,7 @@ OTHER_FILES += ../doc/sources/Project_Management.html
 OTHER_FILES += ../doc/sources/The_Basics.html
 OTHER_FILES += ../doc/sources/Tree_Structures.html
 OTHER_FILES += ../doc/sources/Widget_Set.html
+OTHER_FILES += ../doc/sources/Licensing.html
 OTHER_FILES += ../doc/sources/Serializing_Overview.html
 OTHER_FILES += ../doc/sources/Serializing_Types_1_0.html
 OTHER_FILES += ../doc/sources/Serializing_Types_1_1.html

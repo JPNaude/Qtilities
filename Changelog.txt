@@ -11,7 +11,10 @@ Qtilities v1.4 Changes
 
     General:
     ============================
-    [*] Fixed issues which caused compilation on Mac to fail.
+    [+] Qtilities is now also available under LGPL v2.1.
+
+    [*] Fixed some issues which caused compilation on Mac to fail.
+    [*] Fixed compilation issue with Qt5. See http://github.com/JPNaude/Qtilities/issues/92 for more details.
 
     ============================
     QtilitiesLogging:

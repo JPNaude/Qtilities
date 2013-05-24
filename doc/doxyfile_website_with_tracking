@@ -4,7 +4,7 @@
 PROJECT_NAME           = "Qtilities"
 PROJECT_NUMBER         = "v1.4"
 DOXYFILE_ENCODING      = UTF-8
-OUTPUT_DIRECTORY       = output
+OUTPUT_DIRECTORY       = ../child
 CREATE_SUBDIRS         = NO
 MARKDOWN_SUPPORT       = NO
 OUTPUT_LANGUAGE        = English
@@ -152,7 +152,7 @@ IGNORE_PREFIX          =
 # configuration options related to the HTML output
 #---------------------------------------------------------------------------
 GENERATE_HTML          = YES
-HTML_OUTPUT            = html_website_with_tracking
+HTML_OUTPUT            = .
 HTML_FILE_EXTENSION    = .html
 HTML_HEADER            = "sources/Header.html"
 HTML_FOOTER            = "sources/footerwithtracking.html"

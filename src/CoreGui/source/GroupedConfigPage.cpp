@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright 2009-2013, Floware Computing (Pty) Ltd
+** Copyright 2009-2013, Jaco Naudé
 **
 ** This library is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2013, Floware Computing (Pty) Ltd
+** Copyright (c) 2009-2013, Jaco Naudé
 **
 ** This file is part of the Qtilities Debug Plugin.
 ** See Dependencies.pri for the licensing requirements of the Debug plugin.

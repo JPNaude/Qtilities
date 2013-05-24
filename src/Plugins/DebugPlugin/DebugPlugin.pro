@@ -1,5 +1,5 @@
 # ***************************************************************************
-# Copyright (c) 2009-2013, Floware Computing (Pty) Ltd
+# Copyright (c) 2009-2013, Jaco Naudé
 #
 # See Dependencies.pri for the licensing requirements of the Debug plugin.
 #
