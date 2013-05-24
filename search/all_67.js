@@ -49,6 +49,5 @@ var searchData=
   ['groupedconfigpage',['GroupedConfigPage',['../class_qtilities_1_1_core_gui_1_1_grouped_config_page.html',1,'Qtilities::CoreGui']]],
   ['groupedconfigpagedata',['GroupedConfigPageData',['../struct_qtilities_1_1_core_gui_1_1_grouped_config_page_data.html',1,'Qtilities::CoreGui']]],
   ['groupedconfigpageicon',['groupedConfigPageIcon',['../class_qtilities_1_1_core_gui_1_1_interfaces_1_1_i_grouped_config_page_info_provider.html#a583664a741abb9fc9c36beb797bcccc2',1,'Qtilities::CoreGui::Interfaces::IGroupedConfigPageInfoProvider']]],
-  ['groupname',['groupName',['../class_qtilities_1_1_core_1_1_subject_type_filter.html#ada517e0fb6823ce1775f35196b757a49',1,'Qtilities::Core::SubjectTypeFilter']]],
-  ['getting_20started',['Getting Started',['../page_getting_started.html',1,'']]]
+  ['groupname',['groupName',['../class_qtilities_1_1_core_1_1_subject_type_filter.html#ada517e0fb6823ce1775f35196b757a49',1,'Qtilities::Core::SubjectTypeFilter']]]
 ];
