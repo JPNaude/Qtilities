@@ -49,5 +49,6 @@ var searchData=
   ['logprioritymessage',['logPriorityMessage',['../class_qtilities_1_1_logging_1_1_logger.html#a7e90a0f4f877c82d37d4de8e3ffe4837',1,'Qtilities::Logging::Logger']]],
   ['logprioritymessagetotask',['logPriorityMessageToTask',['../class_qtilities_1_1_core_1_1_interfaces_1_1_i_task.html#aa5813590f4172ae3bdc36240998c19c7',1,'Qtilities::Core::Interfaces::ITask']]],
   ['logwarning',['logWarning',['../class_qtilities_1_1_core_1_1_interfaces_1_1_i_task.html#abfcf37c8f3cd3e7a372c9465b67c957e',1,'Qtilities::Core::Interfaces::ITask::logWarning()'],['../class_qtilities_1_1_core_1_1_task.html#a64768cc14f3a838218fa201efc656139',1,'Qtilities::Core::Task::logWarning()']]],
+  ['licensing',['Licensing',['../page_licensing.html',1,'']]],
   ['logging',['Logging',['../page_logging.html',1,'']]]
 ];
