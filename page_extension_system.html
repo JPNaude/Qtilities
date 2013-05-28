@@ -210,7 +210,7 @@ Goal 1: Define how plugins interface with an application</h1>
 <div class="line">}</div>
 <div class="line"></div>
 <div class="line">QString PluginTemplate::pluginPublisher()<span class="keyword"> const </span>{</div>
-<div class="line">    <span class="keywordflow">return</span> <span class="stringliteral">&quot;Floware Computing (Pty) Ltd&quot;</span>;</div>
+<div class="line">    <span class="keywordflow">return</span> <span class="stringliteral">&quot;Jaco Naudé&quot;</span>;</div>
 <div class="line">}</div>
 <div class="line"></div>
 <div class="line">QString PluginTemplate::pluginPublisherWebsite()<span class="keyword"> const </span>{</div>
@@ -226,7 +226,7 @@ Goal 1: Define how plugins interface with an application</h1>
 <div class="line">}</div>
 <div class="line"></div>
 <div class="line">QString PluginTemplate::pluginCopyright()<span class="keyword"> const </span>{</div>
-<div class="line">    <span class="keywordflow">return</span> QString(tr(<span class="stringliteral">&quot;Copyright&quot;</span>) + <span class="stringliteral">&quot; 2010, Floware Computing (Pty) Ltd&quot;</span>);</div>
+<div class="line">    <span class="keywordflow">return</span> QString(tr(<span class="stringliteral">&quot;Copyright&quot;</span>) + <span class="stringliteral">&quot; 2010, Jaco Naudé&quot;</span>);</div>
 <div class="line">}</div>
 <div class="line"></div>
 <div class="line">QString PluginTemplate::pluginLicense()<span class="keyword"> const </span>{</div>
@@ -253,7 +253,7 @@ Loading plugins</h2>
 <div class="line">  QtilitiesApplication a(argc, argv);</div>
 <div class="line"></div>
 <div class="line">  <span class="comment">// We must specify the following if we want the logger to remember its settings:</span></div>
-<div class="line">  QtilitiesApplication::setOrganizationName(<span class="stringliteral">&quot;Floware Computing (Pty) Ltd&quot;</span>);</div>
+<div class="line">  QtilitiesApplication::setOrganizationName(<span class="stringliteral">&quot;Jaco Naudé&quot;</span>);</div>
 <div class="line">  QtilitiesApplication::setOrganizationDomain(<span class="stringliteral">&quot;Qtilities&quot;</span>);</div>
 <div class="line">  QtilitiesApplication::setApplicationName(<span class="stringliteral">&quot;Extension System Example&quot;</span>);</div>
 <div class="line">  QtilitiesApplication::setApplicationVersion(<span class="stringliteral">&quot;0.1&quot;</span>);    </div>
@@ -393,4 +393,25 @@ Allowing Users Control Over Sets</h2>
 Plugin Configuration Set Display</div></div>
 <p> When the user is given control over plugin configuration sets, changing the current set will automatically save the new configuration to the file name of the loaded set. By default this is <code>App_Path/session/default.pconfig</code>. However if a valid plugin configuration has been loaded using the <a class="el" href="class_qtilities_1_1_extension_system_1_1_extension_system_core.html#a78c03d64c35f7b14269afd58a0d3eda8" title="Function which loads a plugin configuration file.">Qtilities::ExtensionSystem::ExtensionSystemCore::loadPluginConfiguration()</a> function, this loaded configuration file will be updated to reflect the changes the user made. The <a class="el" href="class_qtilities_1_1_extension_system_1_1_extension_system_core.html#a44b18a6e23befd43968f57e1cfb056f0" title="Sets the name of the current plugin configuration set&#39;s file.">Qtilities::ExtensionSystem::ExtensionSystemCore::setActivePluginConfigurationFile()</a> function can be specified. It is important to note that the extension system's <code>initialize()</code> function loads the active plugin configuration file automatically if it exists. Thus is does not make sense to load the configuration before calling <code>initialize()</code> unless you want to modify it. </p>
 </div></div><!-- contents -->
-<br><table style="table-layout:auto;	margin: auto; 	border-width:0px 0px 0px 0px; 	border-color:#7F7F7F; 	width:99%;	border-style:solid" CELLPADDING=5 RULES=ROWS FRAME=HSIDES><tr><td style="align: left;width:45%"><a href="http://github.com/JPNaude/Qtilities" title="Qtilities Repository">Qtilities</a> : <a href="index.html" title="Go back to index">Reference Documentation</a></td><td style="align: center;width:10%"><a href="#top" title="Back to top">Back to top</a> </td><td style="text-align: right;width:45%">Copyright &copy; 2009-2013, Jaco Naude</tr></table><br><script type="text/javascript">  var _gaq = _gaq || [];  _gaq.push(['_setAccount', 'UA-17785825-1']);  _gaq.push(['_trackPageview']);  (function() {    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);  })();</script>
+<br><br>
+<table style="table-layout:auto; margin: auto; border-width:0px 0px 0px 0px; border-color:#7F7F7F; width:99%; border-style:solid" CELLPADDING=5 RULES=ROWS FRAME=HSIDES>
+<tr>
+<td style="vertical-align:text-top;align:left;width:45%">
+<a href="https://github.com/JPNaude/Qtilities" title="Qtilities Repository">Qtilities</a> : <a href="index.html" title="Go back to index">Reference Documentation</a>
+</td>
+<td align="center" style="vertical-align:text-top;align:center;width10%">
+<a href="#top" title="Back to top">Back to top</a>
+</td>
+<td style="vertical-align:text-top;text-align:right;width:45%">
+Copyright &copy; 2009-2013, Jaco Naudé
+<br><br>
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="VJCCMP7GUHDVA">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>
+</td>
+</table>
+<br>
+<script type="text/javascript">  var _gaq = _gaq || [];  _gaq.push(['_setAccount', 'UA-17785825-1']);  _gaq.push(['_trackPageview']);  (function() {    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);  })();</script>

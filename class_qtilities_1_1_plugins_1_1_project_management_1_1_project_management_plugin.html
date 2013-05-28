@@ -162,10 +162,10 @@ QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <tr class="memitem:a341c66aacf33b8bc63cb47e958b06bce"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a341c66aacf33b8bc63cb47e958b06bce"></a>
 QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_qtilities_1_1_plugins_1_1_project_management_1_1_project_management_plugin.html#a341c66aacf33b8bc63cb47e958b06bce">pluginPublisherWebsite</a> () const </td></tr>
 <tr class="memdesc:a341c66aacf33b8bc63cb47e958b06bce"><td class="mdescLeft">&#160;</td><td class="mdescRight">The website of the plugin's publisher. <br/></td></tr>
-<tr class="memitem:a302eae87c2053aed4bd44b0184d5c484"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_qtilities_1_1_core_1_1_version_information.html">VersionInformation</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_qtilities_1_1_plugins_1_1_project_management_1_1_project_management_plugin.html#a302eae87c2053aed4bd44b0184d5c484">pluginVersionInformation</a> () const </td></tr>
-<tr class="memdesc:a302eae87c2053aed4bd44b0184d5c484"><td class="mdescLeft">&#160;</td><td class="mdescRight">The version information of the plugin.  <a href="#a302eae87c2053aed4bd44b0184d5c484"></a><br/></td></tr>
 <tr class="memitem:a0552a5e340dd6139dd03cc9804b9f580"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_qtilities_1_1_core_1_1_version_information.html">VersionInformation</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_qtilities_1_1_plugins_1_1_project_management_1_1_project_management_plugin.html#a0552a5e340dd6139dd03cc9804b9f580">pluginVersionInformation</a> () const </td></tr>
 <tr class="memdesc:a0552a5e340dd6139dd03cc9804b9f580"><td class="mdescLeft">&#160;</td><td class="mdescRight">The version information of the plugin.  <a href="#a0552a5e340dd6139dd03cc9804b9f580"></a><br/></td></tr>
+<tr class="memitem:a302eae87c2053aed4bd44b0184d5c484"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_qtilities_1_1_core_1_1_version_information.html">VersionInformation</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_qtilities_1_1_plugins_1_1_project_management_1_1_project_management_plugin.html#a302eae87c2053aed4bd44b0184d5c484">pluginVersionInformation</a> () const </td></tr>
+<tr class="memdesc:a302eae87c2053aed4bd44b0184d5c484"><td class="mdescLeft">&#160;</td><td class="mdescRight">The version information of the plugin.  <a href="#a302eae87c2053aed4bd44b0184d5c484"></a><br/></td></tr>
 <tr class="inherit_header pub_methods_class_qtilities_1_1_extension_system_1_1_interfaces_1_1_i_plugin"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_qtilities_1_1_extension_system_1_1_interfaces_1_1_i_plugin')"><img src="closed.png" alt="-"/>&nbsp;Public Member Functions inherited from <a class="el" href="class_qtilities_1_1_extension_system_1_1_interfaces_1_1_i_plugin.html">Qtilities::ExtensionSystem::Interfaces::IPlugin</a></td></tr>
 <tr class="memitem:a35df2b19cba16a5757a8bb399ae771b6 inherit pub_methods_class_qtilities_1_1_extension_system_1_1_interfaces_1_1_i_plugin"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a35df2b19cba16a5757a8bb399ae771b6"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_qtilities_1_1_extension_system_1_1_interfaces_1_1_i_plugin.html#a35df2b19cba16a5757a8bb399ae771b6">addErrorMessage</a> (const QString &amp;error_string)</td></tr>
@@ -491,45 +491,6 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a302eae87c2053aed4bd44b0184d5c484"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="class_qtilities_1_1_core_1_1_version_information.html">VersionInformation</a> Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginVersionInformation </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>The version information of the plugin. </p>
-<p>If your plugin does not depend on the application it is used in, you can return an empty list of supported versions (this is the default) to let the extension system know not to check the compatibility of your plugin.</p>
-<p>Here is an example implementation of this function:</p>
-<div class="fragment"><div class="line"><span class="comment">// Create a version information object with the version of the plugin:</span></div>
-<div class="line">VersionInformation version_info(1,0,1);</div>
-<div class="line"></div>
-<div class="line"><span class="comment">// Next add a compatible application version:</span></div>
-<div class="line">VersionNumber compatible_version(1,0,0);</div>
-<div class="line"><span class="comment">// Add it as a compatible version to our version information for this plugin:</span></div>
-<div class="line">version_info &lt;&lt; compatible_version;</div>
-<div class="line"></div>
-<div class="line"><span class="comment">// Return the version information object:</span></div>
-<div class="line"><span class="keywordflow">return</span> version_info;</div>
-</div><!-- fragment --> 
-<p>Implements <a class="el" href="class_qtilities_1_1_extension_system_1_1_interfaces_1_1_i_plugin.html#ae262ac8d276af9d8974652a84b88a6cb">Qtilities::ExtensionSystem::Interfaces::IPlugin</a>.</p>
-
-</div>
-</div>
 <a class="anchor" id="a0552a5e340dd6139dd03cc9804b9f580"></a>
 <div class="memitem">
 <div class="memproto">
@@ -569,5 +530,65 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a302eae87c2053aed4bd44b0184d5c484"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_qtilities_1_1_core_1_1_version_information.html">VersionInformation</a> Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginVersionInformation </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The version information of the plugin. </p>
+<p>If your plugin does not depend on the application it is used in, you can return an empty list of supported versions (this is the default) to let the extension system know not to check the compatibility of your plugin.</p>
+<p>Here is an example implementation of this function:</p>
+<div class="fragment"><div class="line"><span class="comment">// Create a version information object with the version of the plugin:</span></div>
+<div class="line">VersionInformation version_info(1,0,1);</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// Next add a compatible application version:</span></div>
+<div class="line">VersionNumber compatible_version(1,0,0);</div>
+<div class="line"><span class="comment">// Add it as a compatible version to our version information for this plugin:</span></div>
+<div class="line">version_info &lt;&lt; compatible_version;</div>
+<div class="line"></div>
+<div class="line"><span class="comment">// Return the version information object:</span></div>
+<div class="line"><span class="keywordflow">return</span> version_info;</div>
+</div><!-- fragment --> 
+<p>Implements <a class="el" href="class_qtilities_1_1_extension_system_1_1_interfaces_1_1_i_plugin.html#ae262ac8d276af9d8974652a84b88a6cb">Qtilities::ExtensionSystem::Interfaces::IPlugin</a>.</p>
+
+</div>
+</div>
 </div><!-- contents -->
-<br><table style="table-layout:auto;	margin: auto; 	border-width:0px 0px 0px 0px; 	border-color:#7F7F7F; 	width:99%;	border-style:solid" CELLPADDING=5 RULES=ROWS FRAME=HSIDES><tr><td style="align: left;width:45%"><a href="http://github.com/JPNaude/Qtilities" title="Qtilities Repository">Qtilities</a> : <a href="index.html" title="Go back to index">Reference Documentation</a></td><td style="align: center;width:10%"><a href="#top" title="Back to top">Back to top</a> </td><td style="text-align: right;width:45%">Copyright &copy; 2009-2013, Jaco Naude</tr></table><br><script type="text/javascript">  var _gaq = _gaq || [];  _gaq.push(['_setAccount', 'UA-17785825-1']);  _gaq.push(['_trackPageview']);  (function() {    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);  })();</script>
+<br><br>
+<table style="table-layout:auto; margin: auto; border-width:0px 0px 0px 0px; border-color:#7F7F7F; width:99%; border-style:solid" CELLPADDING=5 RULES=ROWS FRAME=HSIDES>
+<tr>
+<td style="vertical-align:text-top;align:left;width:45%">
+<a href="https://github.com/JPNaude/Qtilities" title="Qtilities Repository">Qtilities</a> : <a href="index.html" title="Go back to index">Reference Documentation</a>
+</td>
+<td align="center" style="vertical-align:text-top;align:center;width10%">
+<a href="#top" title="Back to top">Back to top</a>
+</td>
+<td style="vertical-align:text-top;text-align:right;width:45%">
+Copyright &copy; 2009-2013, Jaco Naudé
+<br><br>
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="VJCCMP7GUHDVA">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>
+</td>
+</table>
+<br>
+<script type="text/javascript">  var _gaq = _gaq || [];  _gaq.push(['_setAccount', 'UA-17785825-1']);  _gaq.push(['_trackPageview']);  (function() {    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);  })();</script>
