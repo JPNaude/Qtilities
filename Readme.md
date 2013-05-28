@@ -15,13 +15,14 @@ To get started, check out the [Getting Started](http://github.com/JPNaude/Qtilit
 More Information
 ----------------
 
-The best place to get updates and general information about the project is to follow Qtilities on twitter: http://twitter.com/#!/qtilities
-
 For any questions or comments, please use any of the resources below:
 
 * Website & Documentation: http://jpnaude.github.io/Qtilities/
-* Source Repo & Bug Tracker: http://github.com/JPNaude/Qtilities
+* Wiki: http://github.com/JPNaude/Qtilities/wiki
+* Bug Tracker: http://github.com/JPNaude/Qtilities/issues
 * Discussions & Mailing List: http://groups.google.com/group/qtilities?hl=en?hl=en
+
+A good place to get updates and general information about the project is to follow Qtilities on twitter: http://twitter.com/#!/qtilities
 
 Licensing
 ---------

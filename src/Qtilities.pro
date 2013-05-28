@@ -45,6 +45,7 @@ OTHER_FILES += ../doc/sources/The_Basics.html
 OTHER_FILES += ../doc/sources/Tree_Structures.html
 OTHER_FILES += ../doc/sources/Widget_Set.html
 OTHER_FILES += ../doc/sources/Licensing.html
+OTHER_FILES += ../doc/sources/Contribute.html
 OTHER_FILES += ../doc/sources/Serializing_Overview.html
 OTHER_FILES += ../doc/sources/Serializing_Types_1_0.html
 OTHER_FILES += ../doc/sources/Serializing_Types_1_1.html
