@@ -338,7 +338,7 @@ namespace Qtilities {
                  * \note Only errors logged while this task is busy are taken into account.
                  * \note Logging must be enabled in order for this function to work. See loggingEnabled().
                  *
-                 * <i>This function was added in %Qtilities v1.3.</i>
+                 * <i>This function was added in %Qtilities v1.4.</i>
                  */
                 virtual QStringList lastErrorMessages(int count = -1) const = 0;
                 //! Sets the last error logged stack size.
@@ -347,7 +347,7 @@ namespace Qtilities {
                  *
                  * \sa lastErrorMessagesStackSize(), lastErrorMessages()
                  *
-                 * <i>This function was added in %Qtilities v1.3.</i>
+                 * <i>This function was added in %Qtilities v1.4.</i>
                  */
                 virtual void setLastErrorMessagesStackSize(int size) = 0;
                 //! Gets the last error logged stack size.
@@ -358,7 +358,7 @@ namespace Qtilities {
                  *
                  * \sa lastErrorMessagesStackSize(), lastErrorMessages()
                  *
-                 * <i>This function was added in %Qtilities v1.3.</i>
+                 * <i>This function was added in %Qtilities v1.4.</i>
                  */
                 virtual int lastErrorMessagesStackSize() const = 0;
                 //! Sets the default message logging context flags of this task.

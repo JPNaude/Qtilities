@@ -1,17 +1,22 @@
 /**
 \page page_whats_new_v1_4 What's New In %Qtilities v1.4
 
-This page and overview of new classes, and functions added to existing classes in the v1.4 release.
+This page and overview of new classes, and functions added to existing classes in the v1.4 release. This release contains a handfull of code changes, and the main reason for the release
+is to add LGPL v2.1 to the list of licenses under which %Qtilities is available. The project also underwent some additional changes, described below.
 
-A detailed overview of changes and bug fixes can be found in the <a href="http://raw.github.com/JPNaude/Qtilities/v1.4/Changelog.txt">detailed change log</a>. The change log uses
-the following legend to list items.
-- [+] New feature added
-- [*] Bug fix
-- [#] Change/improvement to old code
+A detailed overview of changes and bug fixes can be found in the <a href="http://raw.github.com/JPNaude/Qtilities/v1.4/Changelog.txt">detailed change log</a>.
 
 For comment, queries or bug reports please get in touch.
 - Support & Mailing List: http://groups.google.com/group/qtilities?hl=en?hl=en/
 - Issue List: https://github.com/JPNaude/Qtilities/issues
+
+\section whats_new_v1_4_general General Changes
+
+- %Qtilities is now also available under LGPL v2.1.
+- Added a new wiki for the %Qtilities project at https://github.com/JPNaude/Qtilities/wiki.
+- The %Qtilities website moved from http://www.qtilities.org to http://jpnaude.github.io/Qtilities/.
+- support@qtilities.org is no longer available, please use the mailing list for support from here on.
+- The %Qtilities blog is no longer available.
 
 \section whats_new_v1_4_classes New Classes & Structs
 
@@ -19,42 +24,10 @@ For comment, queries or bug reports please get in touch.
 
 \section whats_new_v1_4_functions New Functions
 
-\subsection Qtilities::Logging
-
-- Qtilities::Logging::Logger::qtMsgEngineActive()
-- Qtilities::Logging::Logger::consoleEngineActive()
-
 \subsection Qtilities::Core
 
-- Qtilities::Core::FileUtils::makeLocalCopyOfResource()
-- Qtilities::Core::FileUtils::pathStartsWith()
-- Qtilities::Core::TaskManager::assignIdToTask()
-- Qtilities::Core::Interfaces::ITask::taskStopConfirmation()
-- Qtilities::Core::Interfaces::ITask::setTaskStopConfirmation()
-
-\subsection Qtilities::CoreGui
-
-- Qtilities::CoreGui::DynamicSideWidgetViewer::setHiddenSideWidgets()
-- Qtilities::CoreGui::DynamicSideWidgetViewer::hiddenSideWidgets()
-- Qtilities::CoreGui::DynamicSideWidgetViewer::hiddenSideWidgets()
-- Qtilities::CoreGui::TaskSummaryWidget::numberOfDisplayedTasksChanged()
-- Qtilities::CoreGui::TaskSummaryWidget::setDisplayedTasksFilter()
-- Qtilities::CoreGui::TaskSummaryWidget::displayedTasksFilter()
-- Qtilities::CoreGui::SingleTaskWidget::hiddenByStopButton()
-- Qtilities::CoreGui::SingleTaskWidget::stopButton()
-- Qtilities::CoreGui::SingleTaskWidget::pauseButton()
-- Qtilities::CoreGui::SingleTaskWidget::startButton()
-- Qtilities::CoreGui::SingleTaskWidget::showLogButton()
-- Qtilities::CoreGui::HelpManager::homePageChanged()
-
-\subsection Qtilities::ExtensionSystem
-
-- Qtilities::ExtensionSystem::ExtensionSystemCore::pluginPathsChanged()
-
-\subsection Qtilities::ProjectManagement
-
-- Qtilities::ProjectManagement::ProjectManager::projectCreationStarted()
-- Qtilities::ProjectManagement::ProjectManager::projectCreationFinished()
-- Qtilities::ProjectManagement::ProjectManager::currentProjectChanged()
+- Qtilities::Core::Interfaces::ITask::lastErrorMessages()
+- Qtilities::Core::Interfaces::ITask::setLastErrorMessagesStackSize()
+- Qtilities::Core::Interfaces::ITask::lastErrorMessagesStackSize()
 
 */

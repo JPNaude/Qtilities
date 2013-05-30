@@ -1,5 +1,6 @@
 This change log uses the following legend to list items:
 [+] New feature added
+[-] Existing feature removed
 [*] Bug Fix
 [#] Change/Improvement to old code
 
@@ -12,6 +13,12 @@ Qtilities v1.4 Changes
     General:
     ============================
     [+] Qtilities is now also available under LGPL v2.1.
+    [+] Added a new wiki for the Qtilities project at https://github.com/JPNaude/Qtilities/wiki.
+
+    [#] The Qtilities website moved from http://www.qtilities.org to http://jpnaude.github.io/Qtilities/.
+
+    [-] support@qtilities.org is no longer available, please use the mailing list for support from here on.
+    [-] The Qtilities blog is no longer available.
 
     [*] Fixed some issues which caused compilation on Mac to fail.
     [*] Fixed compilation issue with Qt5. See http://github.com/JPNaude/Qtilities/issues/92 for more details.
