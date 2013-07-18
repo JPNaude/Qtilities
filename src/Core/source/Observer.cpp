@@ -988,9 +988,7 @@ void Qtilities::Core::Observer::handle_deletedSubject(QObject* obj) {
     // Emit neccesarry signals
     setModificationState(true);
     if (!observerData->process_cycle_active) {
-        QList<QPointer<QObject> > objects;
-        objects << obj;
-        emit numberOfSubjectsChanged(SubjectRemoved, objects);
+        emit numberOfSubjectsChanged(SubjectRemoved, QList<QPointer<QObject> >());
         emit layoutChanged(QList<QPointer<QObject> >());
     }
 
