@@ -140,14 +140,14 @@ AbstractLoggerEngine* TaskManagerGui::assignLoggerEngineToTask(ITask* task, Widg
     log_engine->setRemovable(false);
     log_engine->setMessageContexts(Logger::EngineSpecificMessages);
     task->setLoggerEngine(log_engine);
-    LOG_DEBUG("Assigning logger engine to task: " + task->taskName());
+    LOG_TRACE("Assigning logger engine to task: " + task->taskName());
     return log_engine;
 }
 
 void TaskManagerGui::assignLazyLoggerEngineToTask() {
     ITask* task = qobject_cast<ITask*> (sender());
     if (task) {
-        LOG_DEBUG("Assigning lazy logger engine to task: " + task->taskName());
+        LOG_TRACE("Assigning lazy logger engine to task: " + task->taskName());
         assignLoggerEngineToTask(task);
     }
 }
