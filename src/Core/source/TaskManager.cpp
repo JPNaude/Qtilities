@@ -153,7 +153,7 @@ bool Qtilities::Core::TaskManager::addTask(QObject* obj) {
             if (d->task_observer.attachSubject(obj,Observer::ManualOwnership))  {
                 task->setTaskID(d->id_counter);
                 d->task_id_name_map[d->id_counter] = task->taskName();
-                LOG_DEBUG(QString("Task Manager: Registering new task with ID \"%1\" and name \"%2\"").arg(d->id_counter).arg(task->taskName()));
+                LOG_TRACE(QString("Task Manager: Registering new task with ID \"%1\" and name \"%2\"").arg(d->id_counter).arg(task->taskName()));
                 return true;
             } else
                 return false;
@@ -161,7 +161,7 @@ bool Qtilities::Core::TaskManager::addTask(QObject* obj) {
             if (obj->objectName().isEmpty())
                 obj->setObjectName("Task with ID: " + QString::number(task->taskID()) + ", Name: " + task->taskName());
             if (d->task_observer.attachSubject(obj,Observer::ManualOwnership))  {
-                LOG_DEBUG(QString("Task Manager: Registering new task with ID \"%1\" and name \"%2\"").arg(task->taskID()).arg(task->taskName()));
+                LOG_TRACE(QString("Task Manager: Registering new task with ID \"%1\" and name \"%2\"").arg(task->taskID()).arg(task->taskName()));
                 return true;
             } else
                 return false;
