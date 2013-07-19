@@ -149,7 +149,8 @@ void Qtilities::Core::QtilitiesProcess::procFinished(int exit_code, QProcess::Ex
 //        current_active = loggerEngine()->isActive();
 //        loggerEngine()->setActive(false);
 //    }
-    completeTask();
+    if (state() == ITask::TaskBusy || state() == ITask::TaskPaused)
+        completeTask();
 //    if (loggerEngine())
 //        loggerEngine()->setActive(current_active);
     Q_UNUSED(exit_status)
