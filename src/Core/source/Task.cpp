@@ -463,7 +463,7 @@ void Qtilities::Core::Task::resume() {
 
 bool Qtilities::Core::Task::startTask(int expected_subtasks, const QString& message, Logger::MessageType type) {  
     if (d->task_state == ITask::TaskBusy) {
-        LOG_DEBUG("Attempting to start task which is already busy. Task name: " + d->task_name + ", Task ID: " + taskID());
+        LOG_DEBUG("Attempting to start task which is already busy. Task name: " + d->task_name + ", Task ID: " + QString::number(taskID()));
         return false;
     }
 
@@ -542,7 +542,7 @@ bool Task::resumeTask(const QString &message, Logger::MessageType type) {
 
 void Qtilities::Core::Task::addCompletedSubTasks(int number_of_sub_tasks, const QString& message, Logger::MessageType type) {
     if (d->task_state != ITask::TaskBusy) {
-        LOG_DEBUG("Attempting to register completed sub-tasks in a task which has not been started. Task name: " + d->task_name + ", Task ID: " + taskID());
+        LOG_DEBUG("Attempting to register completed sub-tasks in a task which has not been started. Task name: " + d->task_name + ", Task ID: " + QString::number(taskID()));
         return;
     }
 
@@ -561,7 +561,7 @@ void Qtilities::Core::Task::addCompletedSubTasks(int number_of_sub_tasks, const 
 
 bool Qtilities::Core::Task::completeTask(ITask::TaskResult result, const QString& message, Logger::MessageType type) {
     if (d->task_state != ITask::TaskBusy) {
-        LOG_DEBUG("Attempting to complete task which is not busy. Task name: " + d->task_name + ", Task ID: " + taskID());
+        LOG_DEBUG("Attempting to complete task which is not busy. Task name: " + d->task_name + ", Task ID: " + QString::number(taskID()));
         return false;
     }
 
