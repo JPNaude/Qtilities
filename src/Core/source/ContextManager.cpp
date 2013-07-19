@@ -52,9 +52,9 @@ int Qtilities::Core::ContextManager::registerContext(const QString& context, con
         d->contexts.push_front(id);
         d->string_help_id_map[context] = context_help_id;
         if (context_help_id.isEmpty())
-            LOG_DEBUG("Context Manager: Registering new context: " + context + " with ID " + QString::number(id) + ".");
+            LOG_TRACE("Context Manager: Registering new context: " + context + " with ID " + QString::number(id) + ".");
         else
-            LOG_DEBUG("Context Manager: Registering new context: " + context + " with ID " + QString::number(id) + " and Help ID: " + context_help_id);
+            LOG_TRACE("Context Manager: Registering new context: " + context + " with ID " + QString::number(id) + " and Help ID: " + context_help_id);
         return id;
     } else
         return id;
