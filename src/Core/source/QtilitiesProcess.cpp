@@ -106,7 +106,8 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program,
 
     if (!d->process->waitForStarted(wait_for_started_msecs)) {
         logMessage("Failed to start " + native_program + ". Make sure the executable is visible in your system's paths.", Logger::Error);
-        completeTask(ITask::TaskFailed);
+        if (state() == ITask::TaskBusy)
+            completeTask();
 
         d->process->waitForFinished();
         return false;
@@ -189,7 +190,7 @@ void Qtilities::Core::QtilitiesProcess::procStateChanged(QProcess::ProcessState 
 }
 
 void Qtilities::Core::QtilitiesProcess::logProgressOutput() {
-    QCoreApplication::processEvents();
+    //QCoreApplication::processEvents();
 
     QString new_output = d->process->readAllStandardOutput();
     emit newStandardOutputMessage(new_output);
@@ -238,7 +239,7 @@ void Qtilities::Core::QtilitiesProcess::logProgressOutput() {
 }
 
 void Qtilities::Core::QtilitiesProcess::logProgressError() {   
-    QCoreApplication::processEvents();
+    //QCoreApplication::processEvents();
 
     QString new_output = d->process->readAllStandardError();
     emit newStandardErrorMessage(new_output);
