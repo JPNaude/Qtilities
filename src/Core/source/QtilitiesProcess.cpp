@@ -25,11 +25,13 @@ struct Qtilities::Core::QtilitiesProcessPrivateData {
     QString buffer_std_out;
     QString buffer_std_error;
     QStringList line_break_strings;
+    QString default_qprocess_error_string;
 };
 
 Qtilities::Core::QtilitiesProcess::QtilitiesProcess(const QString& task_name, bool enable_logging, bool read_process_buffers, QObject* parent) : Task(task_name,enable_logging,parent) {
     d = new QtilitiesProcessPrivateData;
     d->process = new QProcess;
+    d->default_qprocess_error_string = d->process->errorString();
 
     connect(d->process, SIGNAL(started()), this, SLOT(procStarted()));
     connect(this, SIGNAL(stopTaskRequest()), this, SLOT(stopProcess()));
@@ -186,7 +188,7 @@ void Qtilities::Core::QtilitiesProcess::procError(QProcess::ProcessError error) 
 void Qtilities::Core::QtilitiesProcess::procStateChanged(QProcess::ProcessState newState) {
     if (newState == QProcess::NotRunning && (state() == ITask::TaskBusy || state() == ITask::TaskPaused)) {
         QString error_string = d->process->errorString();
-        if (!error_string.isEmpty())
+        if (error_string != d->default_qprocess_error_string)
             logError(error_string);
         completeTask();
     }
