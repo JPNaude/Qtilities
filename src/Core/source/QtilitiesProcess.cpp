@@ -185,6 +185,9 @@ void Qtilities::Core::QtilitiesProcess::procError(QProcess::ProcessError error) 
 
 void Qtilities::Core::QtilitiesProcess::procStateChanged(QProcess::ProcessState newState) {
     if (newState == QProcess::NotRunning && (state() == ITask::TaskBusy || state() == ITask::TaskPaused)) {
+        QString error_string = d->process->errorString();
+        if (!error_string.isEmpty())
+            logError(error_string);
         completeTask();
     }
 }
