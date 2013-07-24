@@ -168,6 +168,15 @@ task_summary_widget.findCurrentTasks();
              * <i>This function was added in %Qtilities v1.3.</i>
              */
             void displayedTasksFilterRemoveId(int id);
+            //! Function to access the SingleTaskWidget contained in the summary widget for a specific task.
+            /*!
+             * \returns The SingleTaskWidget if such a widget exists for the specified task at the time when this
+             * function is called. Null if no such widget exists for the specified task at the time when this function is
+             * called.
+             *
+             * <i>This function was added in %Qtilities v1.5.</i>
+             */
+            QPointer<SingleTaskWidget> getSingleTaskWidgetForTask(int task_id);
 
         private slots:
             //! Slot which will check if obj is a task and register it if needed.
