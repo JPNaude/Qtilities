@@ -13,6 +13,7 @@
 
 #include <QCoreApplication>
 #include <FileUtils>
+#include <QRegExp>
 
 #include <Logger>
 
@@ -26,6 +27,10 @@ struct Qtilities::Core::QtilitiesProcessPrivateData {
     QString buffer_std_error;
     QStringList line_break_strings;
     QString default_qprocess_error_string;
+    QList<ProcessBufferMessageTypeHint> buffer_message_type_hints;
+
+    QMutex buffer_mutex_std_out;
+    QMutex buffer_mutex_std_err;
 };
 
 Qtilities::Core::QtilitiesProcess::QtilitiesProcess(const QString& task_name, bool enable_logging, bool read_process_buffers, QObject* parent) : Task(task_name,enable_logging,parent) {
@@ -51,7 +56,7 @@ Qtilities::Core::QtilitiesProcess::QtilitiesProcess(const QString& task_name, bo
 Qtilities::Core::QtilitiesProcess::~QtilitiesProcess() {
     if (d->process) {
         if (state() == ITask::TaskBusy)
-            completeTask();
+            completeTaskExt();
         d->process->kill();
         delete d->process;
     }
@@ -68,6 +73,11 @@ void Qtilities::Core::QtilitiesProcess::setLineBreakStrings(const QStringList &l
 
 QStringList Qtilities::Core::QtilitiesProcess::lineBreakStrings() {
     return d->line_break_strings;
+}
+
+void Qtilities::Core::QtilitiesProcess::addProcessBufferMessageTypeHint(ProcessBufferMessageTypeHint hint)
+{
+    d->buffer_message_type_hints.append(hint);
 }
 
 bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program,
@@ -109,7 +119,7 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program,
     if (!d->process->waitForStarted(wait_for_started_msecs)) {
         logMessage("Failed to start " + native_program + ". Make sure the executable is visible in your system's paths.", Logger::Error);
         if (state() == ITask::TaskBusy)
-            completeTask();
+            completeTaskExt();
 
         d->process->waitForFinished();
         return false;
@@ -125,7 +135,7 @@ void Qtilities::Core::QtilitiesProcess::stopProcess() {
     d->process->waitForFinished(3000);
 
     if (state() == ITask::TaskBusy)
-        completeTask();
+        completeTaskExt();
 }
 
 void Qtilities::Core::QtilitiesProcess::procStarted() {
@@ -153,7 +163,7 @@ void Qtilities::Core::QtilitiesProcess::procFinished(int exit_code, QProcess::Ex
 //        loggerEngine()->setActive(false);
 //    }
     if (state() == ITask::TaskBusy || state() == ITask::TaskPaused)
-        completeTask();
+        completeTaskExt();
 //    if (loggerEngine())
 //        loggerEngine()->setActive(current_active);
     Q_UNUSED(exit_status)
@@ -190,28 +200,32 @@ void Qtilities::Core::QtilitiesProcess::procStateChanged(QProcess::ProcessState 
         QString error_string = d->process->errorString();
         if (error_string != d->default_qprocess_error_string)
             logError(error_string);
-        completeTask();
+        completeTaskExt();
     }
 }
 
 void Qtilities::Core::QtilitiesProcess::logProgressOutput() {
-    //QCoreApplication::processEvents();
-
     QString new_output = d->process->readAllStandardOutput();
+    if (new_output.isEmpty())
+        return;
+
+    d->buffer_mutex_std_out.lock();
+
+    //qDebug() << Q_FUNC_INFO << new_output;
     emit newStandardOutputMessage(new_output);
     d->buffer_std_out.append(new_output);
+
+    if (d->buffer_std_out.isEmpty()) {
+        d->buffer_mutex_std_out.unlock();
+        return;
+    }
 
     QStringList split_list;
     if (d->line_break_strings.isEmpty()) {
         // We search for \n and split messages up:
-        split_list = d->buffer_std_out.split("\n",QString::SkipEmptyParts);
+        split_list = d->buffer_std_out.split("\n");
         while (split_list.count() > 1) {
-            if (split_list.front().trimmed().startsWith("WARNING:",Qt::CaseSensitive))
-                logWarning(split_list.front());
-            else if (split_list.front().trimmed().startsWith("ERROR:",Qt::CaseSensitive))
-                logError(split_list.front());
-            else
-                logMessage(split_list.front());
+            processSingleBufferMessage(split_list.front().simplified());
             split_list.pop_front();
         }
     } else {
@@ -221,18 +235,13 @@ void Qtilities::Core::QtilitiesProcess::logProgressOutput() {
         foreach (const QString& break_string, d->line_break_strings)
             d->buffer_std_out.replace(break_string,"&{_" + break_string);
 
-        split_list = d->buffer_std_out.split("&{_",QString::SkipEmptyParts);
+        split_list = d->buffer_std_out.split("&{_");
         while (split_list.count() > 1) {
             QString msg = split_list.front().simplified();
             if (msg.startsWith("&{_"))
                 msg = msg.remove(0,3);
 
-            if (msg.startsWith("WARNING:",Qt::CaseSensitive))
-                logWarning(msg);
-            else if (msg.startsWith("ERROR:",Qt::CaseSensitive))
-                logError(msg);
-            else
-                logMessage(msg);
+            processSingleBufferMessage(msg);
             split_list.pop_front();
         }
     }
@@ -241,28 +250,34 @@ void Qtilities::Core::QtilitiesProcess::logProgressOutput() {
         d->buffer_std_out.clear();
     else
         d->buffer_std_out = split_list.front();
+
+    d->buffer_mutex_std_out.unlock();
 }
 
 void Qtilities::Core::QtilitiesProcess::logProgressError() {   
-    //QCoreApplication::processEvents();
-
     QString new_output = d->process->readAllStandardError();
+    if (new_output.isEmpty())
+        return;
+
+    d->buffer_mutex_std_err.lock();
+
+    //qDebug() << Q_FUNC_INFO << new_output;
     emit newStandardErrorMessage(new_output);
     d->buffer_std_error.append(new_output);
+
+    if (d->buffer_std_error.isEmpty()) {
+        d->buffer_mutex_std_err.unlock();
+        return;
+    }
 
     QStringList split_list;
     if (d->line_break_strings.isEmpty()) {
         // We search for \n and split messages up:
-        split_list = d->buffer_std_error.split("\n",QString::SkipEmptyParts);
+        split_list = d->buffer_std_error.split("\n");
         while (split_list.count() > 1) {
-            if (split_list.front().trimmed().startsWith("WARNING:",Qt::CaseSensitive))
-                logWarning(split_list.front());
-            else if (split_list.front().trimmed().startsWith("INFO:",Qt::CaseSensitive))
-                logMessage(split_list.front());
-            else
-                logError(split_list.front());
+            processSingleBufferMessage(split_list.front().simplified());
             split_list.pop_front();
-        }   
+        }
     } else { 
         // We loop through the string and replace all known break strings with &{_BREAKSTRING and then split
         // it using &{_:
@@ -270,18 +285,13 @@ void Qtilities::Core::QtilitiesProcess::logProgressError() {
         foreach (const QString& break_string, d->line_break_strings)
             d->buffer_std_error.replace(break_string,"&{_" + break_string);
 
-        split_list = d->buffer_std_error.split("&{_",QString::SkipEmptyParts);
+        split_list = d->buffer_std_error.split("&{_");
         while (split_list.count() > 1) {
             QString msg = split_list.front().simplified();
             if (msg.startsWith("&{_"))
                 msg = msg.remove(0,3);
 
-            if (msg.startsWith("WARNING:",Qt::CaseSensitive))
-                logWarning(msg);
-            else if (msg.startsWith("INFO:",Qt::CaseSensitive))
-                logMessage(msg);
-            else
-                logError(msg);
+            processSingleBufferMessage(msg);
             split_list.pop_front();
         }
     }
@@ -290,4 +300,35 @@ void Qtilities::Core::QtilitiesProcess::logProgressError() {
         d->buffer_std_error.clear();
     else
         d->buffer_std_error = split_list.front();
+
+    d->buffer_mutex_std_err.unlock();
+}
+
+void Qtilities::Core::QtilitiesProcess::processSingleBufferMessage(const QString &buffer_message) {
+    bool found_match = false;
+
+    QListIterator<ProcessBufferMessageTypeHint> itr(d->buffer_message_type_hints);
+    while (itr.hasNext()) {
+        ProcessBufferMessageTypeHint hint = itr.next();
+        if (hint.d_regexp.exactMatch(buffer_message)) {
+            found_match = true;
+            logMessage(buffer_message,hint.d_message_type);
+        }
+    }
+
+    if (!found_match)
+        logMessage(buffer_message);
+}
+
+void Qtilities::Core::QtilitiesProcess::completeTaskExt() {
+    // We need to make sure the process buffer is clean:
+    d->buffer_std_out.append("\n");
+    logProgressOutput();
+    d->buffer_std_error.append("\n");
+    logProgressError();
+
+    // Now we can complete the task.
+    completeTask();
+
+
 }
