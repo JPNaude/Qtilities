@@ -44,7 +44,14 @@ namespace Qtilities {
             Q_INTERFACES(Qtilities::Core::Interfaces::IContext)
 
         public:
-            MessagesPlainTextEditTab(QWidget *parent = 0);
+            //! Constructor for MessagesPlainTextEditTab
+            /*!
+             * \param parent The parent widget.
+             * \param toolbar_area The toolbar area to use for action toolbars. If no toolbars should be displayed
+             * use Qt::NoToolBarArea.
+             */
+            MessagesPlainTextEditTab(QWidget *parent = 0,
+                                     Qt::ToolBarArea toolbar_area = Qt::TopToolBarArea);
             ~MessagesPlainTextEditTab();
             bool eventFilter(QObject *object, QEvent *event);
 
@@ -121,7 +128,16 @@ namespace Qtilities {
             Q_OBJECT
 
         public:
-            WidgetLoggerEngineFrontend(WidgetLoggerEngine::MessageDisplaysFlag message_displays_flag, QWidget *parent = 0);
+            //! Constructor for WidgetLoggerEngineFrontend
+            /*!
+             * \param message_displays_flag The tabs to be shown in the log widget.
+             * \param toolbar_area The toolbar area to use for action toolbars in the specified tabs.
+             * If no toolbars should be displayed, use Qt::NoToolBarArea.
+             * \param parent The parent widget.
+             */
+            WidgetLoggerEngineFrontend(WidgetLoggerEngine::MessageDisplaysFlag message_displays_flag,
+                                       Qt::ToolBarArea toolbar_area = Qt::TopToolBarArea,
+                                       QWidget *parent = 0);
             ~WidgetLoggerEngineFrontend();
 
             // --------------------------------

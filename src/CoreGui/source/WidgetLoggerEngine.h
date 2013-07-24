@@ -77,7 +77,14 @@ namespace Qtilities {
             Q_DECLARE_FLAGS(MessageDisplaysFlag, MessageDisplays)
             Q_FLAGS(MessageDisplaysFlag)
 
-            WidgetLoggerEngine(MessageDisplaysFlag message_displays_flag = (MessageDisplaysFlag) (DefaultDisplays));
+            //! Constructor for WidgetLoggerEngine
+            /*!
+             * \param message_displays_flag The tabs to be shown in the log widget.
+             * \param toolbar_area The toolbar area to use for action toolbars in the specified tabs.
+             * If no toolbars should be displayed, use Qt::NoToolBarArea.
+             */
+            WidgetLoggerEngine(MessageDisplaysFlag message_displays_flag = (MessageDisplaysFlag) (DefaultDisplays),
+                               Qt::ToolBarArea toolbar_area = Qt::TopToolBarArea);
             ~WidgetLoggerEngine();
 
             //! Sets the window title used for this logger engine.

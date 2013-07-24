@@ -77,7 +77,8 @@ struct Qtilities::CoreGui::MessagesPlainTextEditTabPrivateData {
     QWidget* central_widget;
 };
 
-Qtilities::CoreGui::MessagesPlainTextEditTab::MessagesPlainTextEditTab(QWidget *parent) : QMainWindow(parent)
+Qtilities::CoreGui::MessagesPlainTextEditTab::MessagesPlainTextEditTab(QWidget *parent,
+                                                                       Qt::ToolBarArea toolbar_area) : QMainWindow(parent)
 {
     d = new MessagesPlainTextEditTabPrivateData;
     d->action_provider = new ActionProvider(this);
@@ -132,14 +133,17 @@ Qtilities::CoreGui::MessagesPlainTextEditTab::MessagesPlainTextEditTab(QWidget *
     setObjectName(context_string);
 
     // Construct actions only after global meta type was set.
-    constructActions();
-    QList<QtilitiesCategory> categories = d->action_provider->actionCategories();
-    for (int i = 0; i < categories.count(); ++i) {
-        QList<QAction*> action_list = d->action_provider->actions(IActionProvider::FilterHidden,categories.at(i));
-        if (action_list.count() > 0) {
-            QToolBar* new_toolbar = addToolBar(categories.at(i).toString());
-            d->action_toolbars << new_toolbar;
-            new_toolbar->addActions(action_list);
+    if (toolbar_area != Qt::NoToolBarArea) {
+        constructActions();
+        QList<QtilitiesCategory> categories = d->action_provider->actionCategories();
+        for (int i = 0; i < categories.count(); ++i) {
+            QList<QAction*> action_list = d->action_provider->actions(IActionProvider::FilterHidden,categories.at(i));
+            if (action_list.count() > 0) {
+                QToolBar* new_toolbar = new QToolBar(categories.at(i).toString());
+                addToolBar(toolbar_area,new_toolbar);
+                d->action_toolbars << new_toolbar;
+                new_toolbar->addActions(action_list);
+            }
         }
     }
 
@@ -427,7 +431,9 @@ struct Qtilities::CoreGui::WidgetLoggerEngineFrontendPrivateData {
     QMap<WidgetLoggerEngine::MessageDisplaysFlag,QDockWidget*>      message_display_docks;
 };
 
-Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(WidgetLoggerEngine::MessageDisplaysFlag message_displays_flag, QWidget *parent) : QMainWindow(parent)
+Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(WidgetLoggerEngine::MessageDisplaysFlag message_displays_flag,
+                                                                           Qt::ToolBarArea toolbar_area,
+                                                                           QWidget *parent) : QMainWindow(parent)
 {
     d = new WidgetLoggerEngineFrontendPrivateData;
     d->message_displays_flag = message_displays_flag;
@@ -438,7 +444,7 @@ Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(Widge
             message_displays_flag == WidgetLoggerEngine::WarningsPlainTextEdit ||
             message_displays_flag == WidgetLoggerEngine::ErrorsPlainTextEdit) {
 
-        MessagesPlainTextEditTab* new_tab = new MessagesPlainTextEditTab;
+        MessagesPlainTextEditTab* new_tab = new MessagesPlainTextEditTab(0,toolbar_area);
         d->message_displays[message_displays_flag] = new_tab;
         setCentralWidget(new_tab);
     } else {
@@ -449,7 +455,7 @@ Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(Widge
 
         // Create needed tabs:
         if (d->message_displays_flag & WidgetLoggerEngine::AllMessagesPlainTextEdit) {
-            MessagesPlainTextEditTab* new_tab = new MessagesPlainTextEditTab;
+            MessagesPlainTextEditTab* new_tab = new MessagesPlainTextEditTab(0,toolbar_area);
             d->message_displays[WidgetLoggerEngine::AllMessagesPlainTextEdit] = new_tab;
             QDockWidget* new_dock = new QDockWidget("Messages");
 
@@ -469,7 +475,7 @@ Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(Widge
         }
 
         if (d->message_displays_flag & WidgetLoggerEngine::IssuesPlainTextEdit) {
-            MessagesPlainTextEditTab* new_tab = new MessagesPlainTextEditTab;
+            MessagesPlainTextEditTab* new_tab = new MessagesPlainTextEditTab(0,toolbar_area);
             d->message_displays[WidgetLoggerEngine::IssuesPlainTextEdit] = new_tab;
             QDockWidget* new_dock = new QDockWidget("Issues");
 
@@ -492,7 +498,7 @@ Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(Widge
         }
 
         if (d->message_displays_flag & WidgetLoggerEngine::WarningsPlainTextEdit) {
-            MessagesPlainTextEditTab* new_tab = new MessagesPlainTextEditTab;
+            MessagesPlainTextEditTab* new_tab = new MessagesPlainTextEditTab(0,toolbar_area);
             d->message_displays[WidgetLoggerEngine::WarningsPlainTextEdit] = new_tab;
             QDockWidget* new_dock = new QDockWidget("Warnings");
 
@@ -517,7 +523,7 @@ Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(Widge
         }
 
         if (d->message_displays_flag & WidgetLoggerEngine::ErrorsPlainTextEdit) {
-            MessagesPlainTextEditTab* new_tab = new MessagesPlainTextEditTab;
+            MessagesPlainTextEditTab* new_tab = new MessagesPlainTextEditTab(0,toolbar_area);
             d->message_displays[WidgetLoggerEngine::ErrorsPlainTextEdit] = new_tab;
             QDockWidget* new_dock = new QDockWidget("Errors");
 

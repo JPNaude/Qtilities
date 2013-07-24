@@ -66,6 +66,7 @@ AbstractLoggerEngine* engine = Log->loggerEngineReference(*engine_name);
                 \param window_title The created window's title. By default an empty string is passed which will result in the engine_name being used.
                 \param is_active Indicates if the engine must be active after it was created.
                 \param message_types The message types which must be logged in this log widget.
+                \param toolbar_area The toolbar area to use for action toolbars in the specified tabs. If no toolbars should be displayed, use Qt::NoToolBarArea.
 
                 For example:
 
@@ -89,7 +90,8 @@ log_engine->setMessageContexts(Logger::EngineSpecificMessages);
                                             WidgetLoggerEngine::MessageDisplaysFlag message_displays_flag = WidgetLoggerEngine::DefaultDisplays,
                                             const QString& window_title = QString(),
                                             bool is_active = true,
-                                            Logger::MessageTypeFlags message_types = Logger::AllLogLevels) {
+                                            Logger::MessageTypeFlags message_types = Logger::AllLogLevels,
+                                            Qt::ToolBarArea toolbar_area = Qt::TopToolBarArea) {
                 if (!engine_name)
                     return 0;
 
@@ -104,7 +106,8 @@ log_engine->setMessageContexts(Logger::EngineSpecificMessages);
                 }
 
                 // Create a new logger widget engine and add it to the logger.
-                WidgetLoggerEngine* new_widget_engine = new WidgetLoggerEngine(message_displays_flag);
+                WidgetLoggerEngine* new_widget_engine = new WidgetLoggerEngine(message_displays_flag,
+                                                                               toolbar_area);
 
                 // Install a formatting engine for the new logger engine
                 QString formatter = qti_def_FORMATTING_ENGINE_RICH_TEXT;
@@ -148,7 +151,8 @@ log_engine->setMessageContexts(Logger::EngineSpecificMessages);
                 \param message_displays_flag The message display flags indicating which message tabs should be shown in the logger widget.
                 \param window_title The created window's title. By default an empty string is passed which will result in the engine_name being used.
                 \param message_types The message types which must be logged in this log widget.
-                \param size The size of the widget
+                \param size The size of the widget.
+                \param toolbar_area The toolbar area to use for action toolbars in the specified tabs. If no toolbars should be displayed, use Qt::NoToolBarArea.
 
                 \note The user must manage the new widget instance.
 
@@ -158,8 +162,14 @@ log_engine->setMessageContexts(Logger::EngineSpecificMessages);
                                                 WidgetLoggerEngine::MessageDisplaysFlag message_displays_flag = WidgetLoggerEngine::DefaultDisplays,
                                                 const QString& window_title = QString(),
                                                 Logger::MessageTypeFlags message_types = Logger::AllLogLevels,
-                                                const QSize& size = QSize(1000,600)) {
-                QWidget* new_widget = createLogWidget(engine_name,message_displays_flag,window_title,true,message_types);
+                                                const QSize& size = QSize(1000,600),
+                                                Qt::ToolBarArea toolbar_area = Qt::TopToolBarArea) {
+                QWidget* new_widget = createLogWidget(engine_name,
+                                                      message_displays_flag,
+                                                      window_title,
+                                                      true,
+                                                      message_types,
+                                                      toolbar_area);
                 if (new_widget) {
                     // Resize:
                     new_widget->resize(size);
@@ -184,6 +194,7 @@ log_engine->setMessageContexts(Logger::EngineSpecificMessages);
                 \param window_title The created window's title. By default an empty string is passed which will result in the engine_name being used.
                 \param is_active Indicates if the engine must be active after it was created.
                 \param message_types The message types which must be logged in this log widget.
+                \param toolbar_area The toolbar area to use for action toolbars in the specified tabs. If no toolbars should be displayed, use Qt::NoToolBarArea.
 
                 \note The user must manage the new widget instance.
 
@@ -193,7 +204,8 @@ log_engine->setMessageContexts(Logger::EngineSpecificMessages);
                                                     WidgetLoggerEngine::MessageDisplaysFlag message_displays_flag = WidgetLoggerEngine::DefaultDisplays,
                                                     const QString& window_title = QString(),
                                                     bool is_active = true,
-                                                    Logger::MessageTypeFlags message_types = Logger::AllLogLevels) {
+                                                    Logger::MessageTypeFlags message_types = Logger::AllLogLevels,
+                                                    Qt::ToolBarArea toolbar_area = Qt::TopToolBarArea) {
                 if (!engine_name)
                     return 0;
 
@@ -202,7 +214,12 @@ log_engine->setMessageContexts(Logger::EngineSpecificMessages);
                     dock_name = *engine_name;
 
                 QDockWidget* log_dock_widget = new QDockWidget(dock_name);
-                QWidget* log_widget = createLogWidget(engine_name,message_displays_flag,window_title,is_active,message_types);
+                QWidget* log_widget = createLogWidget(engine_name,
+                                                      message_displays_flag,
+                                                      window_title,
+                                                      is_active,
+                                                      message_types,
+                                                      toolbar_area);
                 if (log_widget) {
                     log_dock_widget->setWidget(log_widget);
                     QObject::connect(log_widget,SIGNAL(destroyed()),log_dock_widget,SLOT(deleteLater()));

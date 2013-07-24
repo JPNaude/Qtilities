@@ -26,13 +26,16 @@
 struct Qtilities::CoreGui::WidgetLoggerEnginePrivateData { 
     QPointer<WidgetLoggerEngineFrontend>            widget;
     WidgetLoggerEngine::MessageDisplaysFlag         message_displays_flag;
+    Qt::ToolBarArea                                 toolbar_area;
 };
 
-Qtilities::CoreGui::WidgetLoggerEngine::WidgetLoggerEngine(MessageDisplaysFlag message_displays_flag) : AbstractLoggerEngine()
+Qtilities::CoreGui::WidgetLoggerEngine::WidgetLoggerEngine(MessageDisplaysFlag message_displays_flag,
+                                                           Qt::ToolBarArea toolbar_area) : AbstractLoggerEngine()
 {
     d = new WidgetLoggerEnginePrivateData;
     setName(QObject::tr("Widget Logger Engine"));
     d->message_displays_flag = message_displays_flag;
+    d->toolbar_area = toolbar_area;
 }
 
 Qtilities::CoreGui::WidgetLoggerEngine::~WidgetLoggerEngine()
@@ -57,7 +60,8 @@ QString Qtilities::CoreGui::WidgetLoggerEngine::windowTitle() const {
 bool Qtilities::CoreGui::WidgetLoggerEngine::initialize() {
     // During initialization we build a map with possible widgets
     abstractLoggerEngineData->is_initialized = true;
-    d->widget = new WidgetLoggerEngineFrontend(d->message_displays_flag);
+    d->widget = new WidgetLoggerEngineFrontend(d->message_displays_flag,
+                                               d->toolbar_area);
     connect(d->widget,SIGNAL(destroyed(QObject*)),SLOT(deleteLater()));
 
     if (d->widget) {
