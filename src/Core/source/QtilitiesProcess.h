@@ -25,23 +25,32 @@ namespace Qtilities {
         /*!
           \struct ProcessBufferMessageTypeHint
           \brief The ProcessBufferMessageTypeHint structure is used to define custom hints for process buffer message processing in QtilitiesProcess.
+
+          A ProcessBufferMessageTypeHint contains the following information:
+          - The regular expression matched to the single message line after processing has been done by QtilitiesProcess (see \ref qtilities_process_buffering).
+          - The message type to assign to matched messages.
+          - A priority for the match. If multiple hints match a message, the hint with the highest priority wil be used to log the message. If multiple hints match which have the same priority, the message will be linked using multiple times (where each logged message will be logged using the type specified by the applicable matching hint).
          */
         struct ProcessBufferMessageTypeHint {
         public:
             ProcessBufferMessageTypeHint(const QRegExp& regexp,
-                                         Logger::MessageType message_type) {
+                                         Logger::MessageType message_type,
+                                         int priority = 0) {
                 d_regexp = regexp;
                 d_message_type = message_type;
+                d_priority = priority;
             }
             ProcessBufferMessageTypeHint(const ProcessBufferMessageTypeHint& ref) {
                 d_message_type = ref.d_message_type;
                 d_regexp = ref.d_regexp;
+                d_priority = ref.d_priority;
             }
             ProcessBufferMessageTypeHint& operator=(const ProcessBufferMessageTypeHint& ref) {
                 if (this==&ref) return *this;
 
                 d_message_type = ref.d_message_type;
                 d_regexp = ref.d_regexp;
+                d_priority = ref.d_priority;
 
                 return *this;
             }
@@ -49,6 +58,8 @@ namespace Qtilities {
                 if (d_message_type != ref.d_message_type)
                     return false;
                 if (d_regexp != ref.d_regexp)
+                    return false;
+                if (d_priority != ref.d_priority)
                     return false;
 
                 return true;
@@ -59,6 +70,7 @@ namespace Qtilities {
 
             QRegExp                     d_regexp;
             Logger::MessageType         d_message_type;
+            int                         d_priority;
         };
 
         /*!

@@ -307,10 +307,25 @@ void Qtilities::Core::QtilitiesProcess::logProgressError() {
 void Qtilities::Core::QtilitiesProcess::processSingleBufferMessage(const QString &buffer_message) {
     bool found_match = false;
 
+    // Get all hints that match the message:
     QListIterator<ProcessBufferMessageTypeHint> itr(d->buffer_message_type_hints);
+    int highest_matching_hint_priority = -1;
+    QList<ProcessBufferMessageTypeHint> matching_hints;
     while (itr.hasNext()) {
         ProcessBufferMessageTypeHint hint = itr.next();
         if (hint.d_regexp.exactMatch(buffer_message)) {
+            if (hint.d_priority > highest_matching_hint_priority) {
+                highest_matching_hint_priority = hint.d_priority;
+                matching_hints << hint;
+            }
+        }
+    }
+
+    // Next, log the message using all hints that match the highest_matching_hint_priority:
+    QListIterator<ProcessBufferMessageTypeHint> itr_log(matching_hints);
+    while (itr_log.hasNext()) {
+        ProcessBufferMessageTypeHint hint = itr_log.next();
+        if (hint.d_priority == highest_matching_hint_priority) {
             found_match = true;
             logMessage(buffer_message,hint.d_message_type);
         }
