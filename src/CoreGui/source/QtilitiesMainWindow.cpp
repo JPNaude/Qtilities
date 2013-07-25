@@ -169,6 +169,7 @@ QLabel *Qtilities::CoreGui::QtilitiesMainWindow::priorityMessageLabel() const {
 
 void Qtilities::CoreGui::QtilitiesMainWindow::forceCloseApplication() {
     qApp->quit();
+    exit(-1);
 }
 
 Qtilities::CoreGui::ModeManager* Qtilities::CoreGui::QtilitiesMainWindow::modeManager() {
