@@ -122,7 +122,7 @@ namespace Qtilities {
 
               \sa setApplicationSessionPath(), Qtilities::CoreGui::QtilitiesApplication::applicationSessionPath()
               */
-            static inline QString applicationSessionPath();
+            static QString applicationSessionPath();
             //! Sets the session path to be used in your application.
             /*!
               \note This function will automatically update the session path used by the Logger as well by calling Qtilities::Logging::Logger::setLoggerSessionConfigPath().
