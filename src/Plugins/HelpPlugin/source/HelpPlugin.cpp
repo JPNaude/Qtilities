@@ -27,10 +27,10 @@ using namespace Qtilities::Core;
 using namespace Qtilities::CoreGui;
 
 struct Qtilities::Plugins::Help::HelpPluginData {
-    HelpPluginData() : help_mode(0) {}
+    HelpPluginData() {}
 
     HelpPluginConfig    help_plugin_config;
-    HelpMode*           help_mode;
+    QPointer<HelpMode>  help_mode;
 };
 
 Qtilities::Plugins::Help::HelpPlugin::HelpPlugin(QObject* parent) : QObject(parent) {
@@ -39,6 +39,8 @@ Qtilities::Plugins::Help::HelpPlugin::HelpPlugin(QObject* parent) : QObject(pare
 }
 
 Qtilities::Plugins::Help::HelpPlugin::~HelpPlugin() {
+    if (d->help_mode)
+        delete d->help_mode;
     delete d;
 }
 
