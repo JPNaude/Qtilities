@@ -152,7 +152,7 @@ if (rich_text_engine) {
               \return True when successfull, false otherwise.
 
               \note If the color formatting hint has an invalid regular expression, this function will do nothing.
-              \note A regular expression can only be used to specify a hint once. While it duplicates will still be added to the list, the first matching expression
+              \note A regular expression can only be used to specify a hint once. While duplicates can still be added to the list, the first matching expression
                     in the list will always be used.
 
               <i>This function was added in %Qtilities v1.1.</i>

@@ -48,8 +48,11 @@ namespace Qtilities {
               The default is TaskLogLazyInitialization.
               */
             enum TaskLogInitialization {
-                TaskLogLazyInitialization                 = 1, /*!< Assign task logger engines only when the task is started the first time, not when the task is registered in the global object pool. */
-                TaskLogActiveInitialization               = 2  /*!< Assign task logger engines only when the task is registered in the global object pool. */
+                TaskLogLazyInitialization    = 1, /*!< Assign task logger engines only when the task is started the first time, not when the task is registered in the global object pool. */
+                TaskLogActiveInitialization  = 2, /*!< Assign task logger engines only when the task is registered in the global object pool. */
+                TaskLogNoInitialization      = 3  /*!< Do not assign a logger engine to the task. In this case messages logged will still be
+                                                       handled by Qtilities::Core::Task::logMessage(), the engine itself however won't have
+                                                       a WidgetLoggerEngine assigned to it. Usefull in console applications. */
             };
             Q_ENUMS(TaskLogInitialization)
             //! Gets the task log initialization used by TaskManagerGui.

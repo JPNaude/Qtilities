@@ -5,6 +5,59 @@ This change log uses the following legend to list items:
 [#] Change/Improvement to old code
 
 ================================
+Qtilities v1.5 Changes
+================================
+To see all closed issues in the issue tracker linked to this milestone, see the following page:
+https://github.com/JPNaude/Qtilities/issues/milestones
+
+    General:
+    ============================
+
+    ============================
+    QtilitiesLogging:
+    ============================
+
+    ============================
+    QtilitiesCore:
+    ============================
+    [+] Added QtilitiesProcess::setProcessBufferMessageTypeHint(). Also, added new
+        class ProcessBufferMessageTypeHint used in this function.
+
+    [#] QtilitiesProcess::logProgressOutput() and QtilitiesProcess::logProgressError() are now protected slots, allowing
+        subclasses to reimplement its functionality. Also, bunch of improvements internally in QtilitiesProcess and
+        detailed documentation how messages from the backend process are buffered was added.
+
+    [*] Fixed bug in Observer::handle_deletedSubject() where application can sometimes
+        crash with "Detected QWeakPointer creation in a QObject being deleted".
+
+    ============================
+    QtilitiesCoreGui:
+    ============================
+    [+] Added TaskSummaryWidget::getSingleTaskWidgetForTask().
+    [+] WidgetLoggerFrontends now has the option to specify where and if toolbars with actions related to the
+        displayed log should be shown.
+    [+] Added TaskLogNoInitialization to the TaskLogInitialization enumeration in TaskManagerGui. This allows tasks to be used more efficiently in console applications.
+
+    [#] Slightly improved layout in SingleTaskWidget.
+
+    ============================
+    QtilitiesExtensionSystem:
+    ============================
+
+    ============================
+    QtilitiesProjectManagement:
+    ============================
+
+    ============================
+    QtilitiesTesting:
+    ============================
+
+    ============================
+    Plugins:
+    ============================
+
+
+================================
 Qtilities v1.4 Changes
 ================================
     To see all closed issues in the issue tracker linked to this milestone, see the following page:

@@ -262,7 +262,7 @@ namespace Qtilities {
             TaskPrivateData* d;
         };
 
-        Q_DECLARE_OPERATORS_FOR_FLAGS(Task::TaskLifeTimeFlags);
+        Q_DECLARE_OPERATORS_FOR_FLAGS(Task::TaskLifeTimeFlags)
     }
 }
 

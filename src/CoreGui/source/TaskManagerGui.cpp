@@ -67,9 +67,11 @@ void TaskManagerGui::handleObjectPoolAddition(QObject *obj) {
 
     if (d->log_initialization == TaskLogActiveInitialization)
         assignLoggerEngineToTask(task);
-    else
+    else if (d->log_initialization == TaskLogLazyInitialization)
         connect(task->objectBase(),SIGNAL(taskAboutToStart()),SLOT(assignLazyLoggerEngineToTask()));
-
+    else if (d->log_initialization == TaskLogNoInitialization) {
+        // Nothing to do here. The task will not get its own WidgetLoggerEngine.
+    }
 }
 
 TaskManagerGui::~TaskManagerGui() {
