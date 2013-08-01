@@ -130,6 +130,14 @@ QListWidget* Qtilities::CoreGui::ModeManager::modeListWidget() {
 }
 
 void CoreGui::ModeManager::refreshModeList() {
+    // Disconnect from all existing modes in the list:
+    QMapIterator<int, IMode*> i(d->id_iface_map);
+    while (i.hasNext()) {
+        i.next();
+        if (i.value())
+            i.value()->objectBase()->disconnect(this);
+    }
+
     d->id_iface_map.clear();
     QList<QObject*> modes = OBJECT_MANAGER->registeredInterfaces("com.Qtilities.CoreGui.IMode/1.0");
     LOG_DEBUG(QString("Mode manager \"%1\" found %2 mode(s) during initialization.").arg(objectName()).arg(modes.count()));
@@ -164,6 +172,13 @@ void Qtilities::CoreGui::ModeManager::addMode(IMode* mode, bool initialize_mode,
                 mode->setModeID(d->mode_id_counter);
                 LOG_DEBUG(QString("Mode Manager: Auto-assigning mode ID %1 found for mode \"%2\".").arg(d->mode_id_counter).arg(mode->modeName()));
                 ++d->mode_id_counter;
+            }
+
+            // Connect to the modeIconChanged() signal:
+            if (mode->objectBase()) {
+                int signal_index = mode->objectBase()->metaObject()->indexOfSignal("modeIconChanged()");
+                if (signal_index != -1)
+                    connect(mode->objectBase(),SIGNAL(modeIconChanged()),SLOT(handleModeIconChanged()));
             }
 
             // Add the mode to our ID IFace map:
@@ -241,6 +256,10 @@ QString Qtilities::CoreGui::ModeManager::activeModeName() const {
         return d->id_iface_map[d->active_mode]->modeName();
     else
         return QString();
+}
+
+void CoreGui::ModeManager::handleModeIconChanged() {
+    refreshList();
 }
 
 void Qtilities::CoreGui::ModeManager::setPreferredModeOrder(const QStringList& preferred_order, bool refresh_list) {

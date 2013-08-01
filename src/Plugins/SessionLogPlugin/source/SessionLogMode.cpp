@@ -80,6 +80,7 @@ QIcon Qtilities::Plugins::SessionLog::SessionLogMode::modeIcon() const {
 
 bool Qtilities::Plugins::SessionLog::SessionLogMode::setModeIcon(QIcon icon) {
     d->mode_icon = icon;
+    emit modeIconChanged();
     return true;
 }
 

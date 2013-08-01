@@ -57,11 +57,22 @@ namespace Qtilities {
                 /*!
                   The expected mode icon size is 48x48.
 
+                  \note When implementing this function, also implement modeIconChanged() as a signal and emit it in the function implementation.
+
                   \sa modeIcon()
                   */
                 virtual bool setModeIcon(QIcon icon) { Q_UNUSED(icon) return false; }
                 //! The name of the mode which is the text used to represent it.
                 virtual QString modeName() const = 0;
+                //! Function which can be implemented as a signal in subclasses of IMode to notify the mode manager(s) in which the mode is present that the modeIcon() changed.
+                /*!
+                 * By default this function does nothing.
+                 *
+                 * \note To make use of this function in a mode implementation, reimplement it as a signal.
+                 *
+                 * <i>This function was added in %Qtilities v1.5.</i>
+                 */
+                virtual void modeIconChanged() {}
                 //! Returns a context string for the context associated with this mode.
                 /*!
                   By default no context will be associated with a mode.

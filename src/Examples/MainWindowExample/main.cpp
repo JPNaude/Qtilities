@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersionString());
 
     // Create a QtilitiesMainWindow to show our different modes:
-    QtilitiesMainWindow exampleMainWindow(QtilitiesMainWindow::ModesLeft);
+    QtilitiesMainWindow exampleMainWindow(QtilitiesMainWindow::ModesBottom);
     QtilitiesApplication::setMainWindow(&exampleMainWindow);
 
     // Create the configuration widget:
@@ -113,17 +113,6 @@ int main(int argc, char *argv[])
     Command* command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_FILE_SETTINGS,QObject::tr("Settings"),QKeySequence(),std_context);
     QObject::connect(command->action(),SIGNAL(triggered()),&config_widget,SLOT(show()));
     file_menu->addAction(command);
-    file_menu->addSeperator();
-    command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_FILE_EXIT,QObject::tr("Exit"),QKeySequence(QKeySequence::Close),std_context);
-    QObject::connect(command->action(),SIGNAL(triggered()),QCoreApplication::instance(),SLOT(quit()));
-    file_menu->addAction(command);
-    // About Menu
-    command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_ABOUT_QTILITIES,QObject::tr("About Qtilities"),QKeySequence(),std_context);
-    QObject::connect(command->action(),SIGNAL(triggered()),QtilitiesApplication::instance(),SLOT(aboutQtilities()));
-    about_menu->addAction(command);
-    command = ACTION_MANAGER->registerActionPlaceHolder("General.AboutQt","About Qt",QKeySequence(),std_context);
-    about_menu->addAction(command);
-    QObject::connect(command->action(),SIGNAL(triggered()),QApplication::instance(),SLOT(aboutQt()));
 
     // Edit Menu
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_UNDO,QObject::tr("Undo"),QKeySequence(QKeySequence::Undo));
@@ -159,7 +148,24 @@ int main(int argc, char *argv[])
 
     // Create the Example before plugin loading since it registers a project items:
     ExampleMode* example_mode = new ExampleMode;
+    file_menu->addSeperator();
+    command = ACTION_MANAGER->registerActionPlaceHolder("File.ToggleModeIcon",QObject::tr("Toggle Mode Icon"),QKeySequence(),std_context);
+    QObject::connect(command->action(),SIGNAL(triggered()),example_mode,SLOT(toggleModeIcon()));
+    file_menu->addAction(command);
     OBJECT_MANAGER->registerObject(example_mode);
+
+    file_menu->addSeperator();
+    command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_FILE_EXIT,QObject::tr("Exit"),QKeySequence(QKeySequence::Close),std_context);
+    QObject::connect(command->action(),SIGNAL(triggered()),QCoreApplication::instance(),SLOT(quit()));
+    file_menu->addAction(command);
+    // About Menu
+    command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_ABOUT_QTILITIES,QObject::tr("About Qtilities"),QKeySequence(),std_context);
+    QObject::connect(command->action(),SIGNAL(triggered()),QtilitiesApplication::instance(),SLOT(aboutQtilities()));
+    about_menu->addAction(command);
+    command = ACTION_MANAGER->registerActionPlaceHolder("General.AboutQt","About Qt",QKeySequence(),std_context);
+    about_menu->addAction(command);
+    QObject::connect(command->action(),SIGNAL(triggered()),QApplication::instance(),SLOT(aboutQt()));
+
 
     // Load plugins using the extension system:
     Log->toggleQtMsgEngine(true);

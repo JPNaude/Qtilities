@@ -103,9 +103,13 @@ namespace Qtilities {
                 void initializeMode();
                 QIcon modeIcon() const;
                 QString modeName() const;
+                bool setModeIcon(QIcon icon);
                 QString contextString() const { return CONTEXT_EXAMPLE_MODE; }
                 QString contextHelpId() const { return QString(); }
                 int modeID() const { return MODE_EXAMPLE_ID; }
+
+            signals:
+                void modeIconChanged();
 
             public slots:
                 void toggleDock(bool toggle);
@@ -113,6 +117,8 @@ namespace Qtilities {
                 void loadFile(const QString& file_name);
                 //! Slot which handles new side widget file system instances being produced.
                 void handleNewFileSystemWidget(QWidget* widget);
+                //! Toggles the mode icon of the example mode in order to demonstrate dynamic mode icon changes.
+                void toggleModeIcon();
 
             protected:
                 void changeEvent(QEvent *e);

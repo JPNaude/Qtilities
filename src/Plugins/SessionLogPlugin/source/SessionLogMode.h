@@ -59,6 +59,9 @@ namespace Qtilities {
                     QString modeName() const;
                     QString contextString() const { return CONTEXT_SESSION_LOG_MODE; }
 
+                signals:
+                    void modeIconChanged();
+
                 public slots:
                     void handle_dockVisibilityChanged(bool visible);
 

@@ -41,12 +41,13 @@ using namespace QtilitiesProjectManagement;
 
 struct Qtilities::Examples::MainWindow::ExampleModePrivateData {
     ExampleModePrivateData() : initialized(false),
-    side_viewer_dock(0),
-    side_viewer_widget(0),
-    main_splitter(0),
-    actionShowDock(0),
-    code_editor_widget(0),
-    project_item(0) {}
+        side_viewer_dock(0),
+        side_viewer_widget(0),
+        main_splitter(0),
+        actionShowDock(0),
+        code_editor_widget(0),
+        project_item(0),
+        mode_icon_toggle(false) {}
 
     bool                            initialized;
     QDockWidget*                    side_viewer_dock;
@@ -55,6 +56,8 @@ struct Qtilities::Examples::MainWindow::ExampleModePrivateData {
     QAction*                        actionShowDock;
     CodeEditorWidget*               code_editor_widget;
     CodeEditorProjectItemWrapper*   project_item;
+    QIcon                           mode_icon;
+    bool                            mode_icon_toggle;
 };
 
 Qtilities::Examples::MainWindow::ExampleMode::ExampleMode(QWidget *parent) :
@@ -63,6 +66,7 @@ Qtilities::Examples::MainWindow::ExampleMode::ExampleMode(QWidget *parent) :
 {
     ui->setupUi(this);
     d = new ExampleModePrivateData;
+    d->mode_icon = QIcon(qti_icon_QTILITIES_SYMBOL_64x64);
 
     // Create and dock the dynamic side widget viewer:
     d->side_viewer_dock = new QDockWidget(tr("Dynamic Widgets"));
@@ -169,11 +173,17 @@ void Qtilities::Examples::MainWindow::ExampleMode::initializeMode() {
 }
 
 QIcon Qtilities::Examples::MainWindow::ExampleMode::modeIcon() const {
-    return QIcon(qti_icon_QTILITIES_SYMBOL_64x64);
+    return d->mode_icon;
 }
 
 QString Qtilities::Examples::MainWindow::ExampleMode::modeName() const {
     return tr("Example Mode");
+}
+
+bool Examples::MainWindow::ExampleMode::setModeIcon(QIcon icon) {
+    d->mode_icon = icon;
+    emit modeIconChanged();
+    return true;
 }
 
 void Qtilities::Examples::MainWindow::ExampleMode::handleNewFileSystemWidget(QWidget* widget) {
@@ -183,6 +193,13 @@ void Qtilities::Examples::MainWindow::ExampleMode::handleNewFileSystemWidget(QWi
         file_system_widget->toggleDoubleClickFileOpen(false);
         connect(file_system_widget,SIGNAL(requestEditor(QString)),SLOT(loadFile(QString)));
     }
+}
+
+void Examples::MainWindow::ExampleMode::toggleModeIcon() {
+    if (d->mode_icon_toggle)
+        setModeIcon(QIcon(qti_icon_QTILITIES_SYMBOL_64x64));
+    else
+        setModeIcon(QIcon(qti_icon_QTILITIES_SYMBOL_WHITE_64x64));
 }
 
 void Qtilities::Examples::MainWindow::ExampleMode::changeEvent(QEvent *e)

@@ -220,7 +220,13 @@ ModeListWidget()->setStyleSheet(stylesheet);
             int activeModeID() const;
             //! Returns the active mode name.
             QString activeModeName() const;
+
         public slots:
+            //! Slot which gets notified when a mode's icon changed.
+            /*!
+             * <i>This function was added in %Qtilities v1.5.</i>
+             */
+            void handleModeIconChanged();
             //! Slot through which a new mode can be set by specifying the mode ID.
             /*!
               \param mode_id The mode ID of the mode. \sa IMode::modeID().
