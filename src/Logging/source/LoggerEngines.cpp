@@ -251,6 +251,15 @@ Qtilities::Logging::ConsoleLoggerEngine* Qtilities::Logging::ConsoleLoggerEngine
 
 Qtilities::Logging::ConsoleLoggerEngine::ConsoleLoggerEngine() : AbstractLoggerEngine() {
     setName(QObject::tr("Console Logger Engine"));
+    color_formatting_enabled = true;
+}
+
+void ConsoleLoggerEngine::setConsoleFormattingEnabled(bool is_enabled) {
+    color_formatting_enabled = is_enabled;
+}
+
+bool ConsoleLoggerEngine::consoleFormattingEnabled() const {
+    return color_formatting_enabled;
 }
 
 Qtilities::Logging::ConsoleLoggerEngine::~ConsoleLoggerEngine() {
@@ -282,6 +291,29 @@ QString Qtilities::Logging::ConsoleLoggerEngine::status() const {
 }
 
 void Qtilities::Logging::ConsoleLoggerEngine::logMessage(const QString& message, Logger::MessageType message_type) {
-    Q_UNUSED(message_type)
-    fprintf(stdout, "%s\n", qPrintable(message));
+#ifdef Q_OS_WIN
+    if (message_type == Logger::Error || message_type == Logger::Fatal) {
+        fprintf(stderr, "%s\n", qPrintable(message));
+    } else {
+        fprintf(stdout, "%s\n", qPrintable(message));
+    }
+#else
+    if (color_formatting_enabled) {
+        // For more info see: //http://en.wikipedia.org/wiki/ANSI_escape_code
+        if (message_type == Logger::Info) {
+            fprintf(stdout, "%s\n", qPrintable(message));
+        } else if (message_type == Logger::Warning) {
+            for (int i = 0; i < message.length(); i++)
+                fprintf(stdout, CONSOLE_BLUE "%s" CONSOLE_RESET, qPrintable(message));
+            fprintf(stdout, "\n");
+        } else if (message_type == Logger::Error || message_type == Logger::Fatal) {
+            for (int i = 0; i < message.length(); i++)
+                fprintf(stderr, CONSOLE_RED "%s" CONSOLE_RESET, qPrintable(message));
+            fprintf(stderr, "\n");
+        } else {
+            fprintf(stdout, "%s\n", qPrintable(message));
+        }
+    } else
+        fprintf(stdout, "%s\n", qPrintable(message));
+#endif
 }

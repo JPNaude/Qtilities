@@ -21,6 +21,24 @@
 #include <QList>
 #include <QVariant>
 
+#define CONSOLE_RESET   "\033[0m"
+#define CONSOLE_BLACK   "\033[30m"      /* Black */
+#define CONSOLE_RED     "\033[31m"      /* Red */
+#define CONSOLE_GREEN   "\033[32m"      /* Green */
+#define CONSOLE_YELLOW  "\033[33m"      /* Yellow */
+#define CONSOLE_BLUE    "\033[34m"      /* Blue */
+#define CONSOLE_MAGENTA "\033[35m"      /* Magenta */
+#define CONSOLE_CYAN    "\033[36m"      /* Cyan */
+#define CONSOLE_WHITE   "\033[37m"      /* White */
+#define CONSOLE_BOLDBLACK   "\033[1m\033[30m"      /* Bold Black */
+#define CONSOLE_BOLDRED     "\033[1m\033[31m"      /* Bold Red */
+#define CONSOLE_BOLDGREEN   "\033[1m\033[32m"      /* Bold Green */
+#define CONSOLE_BOLDYELLOW  "\033[1m\033[33m"      /* Bold Yellow */
+#define CONSOLE_BOLDBLUE    "\033[1m\033[34m"      /* Bold Blue */
+#define CONSOLE_BOLDMAGENTA "\033[1m\033[35m"      /* Bold Magenta */
+#define CONSOLE_BOLDCYAN    "\033[1m\033[36m"      /* Bold Cyan */
+#define CONSOLE_BOLDWHITE   "\033[1m\033[37m"      /* Bold White */
+
 namespace Qtilities {
     namespace Logging {
         using namespace Qtilities::Logging::Interfaces;
@@ -149,6 +167,29 @@ namespace Qtilities {
             ConsoleLoggerEngine();
 
         public:
+            //! Sets if ANSI escape codes are enabled, in order to color messages appearing in the console according to their types.
+            /*!
+             * For more information on these escape codes, including OS support etc, see http://en.wikipedia.org/wiki/ANSI_escape_code.
+             *
+             * \note Enabled by default and does not work on Windows.
+             *
+             * \sa consoleFormattingEnabled()
+             *
+             * <i>This function was added in %Qtilities v1.5.</i>
+             */
+            void setConsoleFormattingEnabled(bool is_enabled);
+            //! Gets if ANSI escape codes are enabled, in order to color messages appearing in the console according to their types.
+            /*!
+             * For more information on these escape codes, including OS support etc, see http://en.wikipedia.org/wiki/ANSI_escape_code.
+             *
+             * \note Enabled by default and does not work on Windows.
+             *
+             * \sa setConsoleFormattingEnabled()
+             *
+             * <i>This function was added in %Qtilities v1.5.</i>
+             */
+            bool consoleFormattingEnabled() const;
+
             // AbstractLoggerEngine implementation
             bool initialize();
             void finalize();
@@ -162,6 +203,8 @@ namespace Qtilities {
 
         private:
             static ConsoleLoggerEngine* m_Instance;
+            bool color_formatting_enabled;
+            QMap<Logger::MessageType,QString> message_colors;
         };
     }
 }
