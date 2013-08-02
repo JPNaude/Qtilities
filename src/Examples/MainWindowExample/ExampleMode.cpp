@@ -200,6 +200,7 @@ void Examples::MainWindow::ExampleMode::toggleModeIcon() {
         setModeIcon(QIcon(qti_icon_QTILITIES_SYMBOL_64x64));
     else
         setModeIcon(QIcon(qti_icon_QTILITIES_SYMBOL_WHITE_64x64));
+    d->mode_icon_toggle = !d->mode_icon_toggle;
 }
 
 void Qtilities::Examples::MainWindow::ExampleMode::changeEvent(QEvent *e)
