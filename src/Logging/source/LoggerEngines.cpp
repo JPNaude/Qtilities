@@ -252,6 +252,10 @@ Qtilities::Logging::ConsoleLoggerEngine* Qtilities::Logging::ConsoleLoggerEngine
 Qtilities::Logging::ConsoleLoggerEngine::ConsoleLoggerEngine() : AbstractLoggerEngine() {
     setName(QObject::tr("Console Logger Engine"));
     color_formatting_enabled = true;
+
+    message_colors[Logger::Warning] = QString(CONSOLE_BLUE);
+    message_colors[Logger::Error] = QString(CONSOLE_RED);
+    message_colors[Logger::Fatal] = QString(CONSOLE_RED);
 }
 
 void ConsoleLoggerEngine::setConsoleFormattingEnabled(bool is_enabled) {
@@ -260,6 +264,10 @@ void ConsoleLoggerEngine::setConsoleFormattingEnabled(bool is_enabled) {
 
 bool ConsoleLoggerEngine::consoleFormattingEnabled() const {
     return color_formatting_enabled;
+}
+
+void ConsoleLoggerEngine::setConsoleFormattingHint(Logger::MessageType message_type, QString hint_color) {
+    message_colors[message_type] = hint_color;
 }
 
 Qtilities::Logging::ConsoleLoggerEngine::~ConsoleLoggerEngine() {
@@ -301,15 +309,16 @@ void Qtilities::Logging::ConsoleLoggerEngine::logMessage(const QString& message,
     if (color_formatting_enabled) {
         // For more info see: //http://en.wikipedia.org/wiki/ANSI_escape_code
         if (message_type == Logger::Info) {
-            fprintf(stdout, "%s\n", qPrintable(message));
+            if (message_colors.contains(Logger::Info))
+                fprintf(stdout, message_colors[Logger::Info].toUtf8().data() + "%s\n" CONSOLE_RESET, qPrintable(message));
+            else
+                fprintf(stdout, "%s\n", qPrintable(message));
         } else if (message_type == Logger::Warning) {
-            for (int i = 0; i < message.length(); i++)
-                fprintf(stdout, CONSOLE_BLUE "%s" CONSOLE_RESET, qPrintable(message));
-            fprintf(stdout, "\n");
-        } else if (message_type == Logger::Error || message_type == Logger::Fatal) {
-            for (int i = 0; i < message.length(); i++)
-                fprintf(stderr, CONSOLE_RED "%s" CONSOLE_RESET, qPrintable(message));
-            fprintf(stderr, "\n");
+            fprintf(stdout, message_colors[Logger::Warning].toUtf8().data() + "%s\n" CONSOLE_RESET, qPrintable(message));
+        } else if (message_type == Logger::Error) {
+            fprintf(stderr, message_colors[Logger::Error].toUtf8().data() + "%s\n" CONSOLE_RESET, qPrintable(message));
+        } else if (message_type == Logger::Fatal) {
+            fprintf(stderr, message_colors[Logger::Fatal].toUtf8().data() + "%s\n" CONSOLE_RESET, qPrintable(message));
         } else {
             fprintf(stdout, "%s\n", qPrintable(message));
         }

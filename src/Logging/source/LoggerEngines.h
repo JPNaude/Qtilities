@@ -173,7 +173,7 @@ namespace Qtilities {
              *
              * \note Enabled by default and does not work on Windows.
              *
-             * \sa consoleFormattingEnabled()
+             * \sa consoleFormattingEnabled(), setConsoleFormattingHint()
              *
              * <i>This function was added in %Qtilities v1.5.</i>
              */
@@ -184,11 +184,29 @@ namespace Qtilities {
              *
              * \note Enabled by default and does not work on Windows.
              *
-             * \sa setConsoleFormattingEnabled()
+             * \sa setConsoleFormattingEnabled(), setConsoleFormattingHint()
              *
              * <i>This function was added in %Qtilities v1.5.</i>
              */
             bool consoleFormattingEnabled() const;
+            //! Sets the formatting hint to use for console messages when consoleFormattingEnabled() is true.
+            /*!
+             * A set of codes to use are defined in %Qtilities, for example CONSOLE_RED, CONSOLE_BLUE etc.
+             *
+             * Default colors are:
+             * Info - White
+             * Warning - Blue
+             * Error & Fatal - Red
+             *
+             * For more information on these escape codes, including OS support etc, see http://en.wikipedia.org/wiki/ANSI_escape_code.
+             *
+             * \note Enabled by default and does not work on Windows.
+             *
+             * \sa consoleFormattingEnabled(), setConsoleFormattingEnabled()
+             *
+             * <i>This function was added in %Qtilities v1.5.</i>
+             */
+            void setConsoleFormattingHint(Logger::MessageType message_type, QString hint_color);
 
             // AbstractLoggerEngine implementation
             bool initialize();
