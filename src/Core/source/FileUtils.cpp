@@ -368,8 +368,8 @@ QString FileUtils::toUnixPath(const QString &path) {
     #ifdef Q_OS_WIN
     return QDir::fromNativeSeparators(QDir::cleanPath(path));
     #else
-    return QDir::toNativeSeparators(QDir::cleanPath(credfilepath_path);
-        #endif
+    return QDir::toNativeSeparators(QDir::cleanPath(credfilepath_path));
+    #endif
 }
 
 bool FileUtils::writeStringToFile(const QString &file_path, const QString &file_contents, QString *errorMsg) {
