@@ -368,7 +368,7 @@ QString FileUtils::toUnixPath(const QString &path) {
     #ifdef Q_OS_WIN
     return QDir::fromNativeSeparators(QDir::cleanPath(path));
     #else
-    return QDir::toNativeSeparators(QDir::cleanPath(credfilepath_path));
+    return QDir::toNativeSeparators(QDir::cleanPath(path));
     #endif
 }
 
