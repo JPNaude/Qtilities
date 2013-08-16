@@ -363,3 +363,30 @@ bool FileUtils::makeLocalCopyOfResource(const QString &resource_path, const QStr
 
     return true;
 }
+
+QString FileUtils::toUnixPath(const QString &path) {
+    #ifdef Q_OS_WIN
+    return QDir::fromNativeSeparators(QDir::cleanPath(path));
+    #else
+    return QDir::toNativeSeparators(QDir::cleanPath(credfilepath_path);
+        #endif
+}
+
+bool FileUtils::writeStringToFile(const QString &file_path, const QString &file_contents, QString *errorMsg) {
+    QFile file(file_path);
+    if (!file.open(QFile::WriteOnly)) {
+        if (errorMsg)
+            *errorMsg = QObject::tr("Failed to open output file for writing at: %1").arg(file.fileName());
+        return false;
+    }
+
+    if (file.write(file_contents.toUtf8()) == (qint64) -1) {
+        if (errorMsg)
+            *errorMsg = QObject::tr("Failed to write to file at: %1").arg(file.fileName());
+        file.close();
+        file.remove();
+        return false;
+    }
+    file.close();
+    return true;
+}

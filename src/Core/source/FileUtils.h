@@ -191,6 +191,34 @@ QFileInfoList files = fu.findFilesUnderDir("c:/my_path");
                                                 const QString& local_path,
                                                 QString* errorMsg,
                                                 QFile::Permissions local_permissions = QFile::ReadOwner | QFile::WriteOwner);
+            //! Convenience function that returns the given path as an Unix formatted path.
+            /*!
+              Returns the give path as an Unix formatted path, that is, the path will be cleaned and all separators will be in Linux format.
+
+              \param path The path to convert.
+              \returns The unix version of the given path.
+
+              <i>This function was added in %Qtilities v1.5.</i>
+              */
+            static QString toUnixPath(const QString& path);
+            //! Convenience function that writes the given byte array to the file at the given file path.
+            /*!
+              This function is a convenience function to write file_contents to the file at file_path. If
+              the file does not exist it will be created. If it does exist, it will be overwritten.
+
+              If for any reason the operation cannot be completed, it will return false and set errorMsg with
+              the reason why it failed.
+
+              \param file_path The path of the file.
+              \param file_contents The contents that should be written to the file
+              \param errorMsg When the function fails, errorMsg will contain a reason why it failed.
+              \returns True when successfull, false otherwise.
+
+              <i>This function was added in %Qtilities v1.5.</i>
+              */
+            static bool writeStringToFile(const QString& file_path,
+                                          const QString &file_contents,
+                                          QString* errorMsg);
 
         private:
             FileUtilsPrivateData* d;

@@ -61,7 +61,7 @@ bool FileLocker::lockFile(const QString &file_path, QString *errorMsg) {
         qDebug() << "Can't find environment variable COMPUTERNAME";
     #endif
     #else
-    char* host_name_char = getenv("HOST");
+    char* host_name_char = getenv("HOSTNAME");
     #endif
     if (host_name_char)
         host_name = host_name_char;
