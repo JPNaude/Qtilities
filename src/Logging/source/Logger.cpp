@@ -260,6 +260,11 @@ Qtilities::Logging::AbstractFormattingEngine* Qtilities::Logging::Logger::format
     return 0;
 }
 
+void Qtilities::Logging::Logger::registerFormattingEngine(Qtilities::Logging::AbstractFormattingEngine *formatting_engine) {
+    if (formatting_engine)
+        d->formatting_engines << formatting_engine;
+}
+
 Qtilities::Logging::AbstractFormattingEngine* Qtilities::Logging::Logger::formattingEngineReferenceFromExtension(const QString& file_extension) {
     for (int i = 0; i < d->formatting_engines.count(); ++i) {
         if (file_extension == d->formatting_engines.at(i)->fileExtension())

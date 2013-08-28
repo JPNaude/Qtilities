@@ -42,14 +42,14 @@ QString Qtilities::Logging::FormattingEngine_Default::formatMessage(Logger::Mess
 }
 
 QString Qtilities::Logging::FormattingEngine_Default::finalizeString() const {
-    return QString(tr("\nEnd of session log.\n%1")).arg(QDateTime::currentDateTime().toString());
+    return tr("\nEnd of session log.\n%1").arg(QDateTime::currentDateTime().toString());
 }
 
 // -----------------------------------
 // Rich Text Formatting Engine
 // -----------------------------------
  QString Qtilities::Logging::FormattingEngine_Rich_Text::initializeString() const {
-    return QString(tr("%1 Session Log:<br>Date: %2<br>")).arg(QCoreApplication::applicationName()).arg(QDateTime::currentDateTime().toString());
+    return tr("%1 Session Log:<br>Date: %2<br>").arg(QCoreApplication::applicationName()).arg(QDateTime::currentDateTime().toString());
  }
 
 QString Qtilities::Logging::FormattingEngine_Rich_Text::formatMessage(Logger::MessageType message_type, const QList<QVariant>& messages) const {

@@ -22,6 +22,7 @@ https://github.com/JPNaude/Qtilities/issues/milestones
         and ConsoleLoggerEngine::setConsoleFormattingHint().
         Also, a bunch of known colors and escape related characters were added to LoggerEngines.h.
         Note that this does not work on Windows.
+    [+] Added Logger::registerFormattingEngine().
 
     ============================
     QtilitiesCore:

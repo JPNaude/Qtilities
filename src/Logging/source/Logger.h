@@ -183,6 +183,17 @@ namespace Qtilities {
             QStringList availableFormattingEnginesInFactory() const;
             //! Returns a reference to the formatting engine specified by the name given.
             AbstractFormattingEngine* formattingEngineReference(const QString& name);
+            //! Function which allows custom formatting engines to be registered inside the logger.
+            /*!
+             * If custom formatting engines were registered, their names can be used in functions
+             * such as newFileEngine() etc. to specify the engine to be used. Internally, the logger
+             * will store the engine using a QPointer, thus it will use it as long as its valid. It is
+             * recommended to use singletons for formatting engines to ensure they are available for the
+             * complete session.
+             *
+             * <i>This function was added in %Qtilities v1.5.</i>
+             */
+            void registerFormattingEngine(AbstractFormattingEngine* formatting_engine);
             //! Returns a reference to the formatting engine which provides the given file extension.
             /*!
               If multiple engines with the same file extension exists, the first one found will be used.
