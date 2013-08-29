@@ -201,7 +201,7 @@ QFileInfoList files = fu.findFilesUnderDir("c:/my_path");
               <i>This function was added in %Qtilities v1.5.</i>
               */
             static QString toUnixPath(const QString& path);
-            //! Convenience function that writes the given byte array to the file at the given file path.
+            //! Convenience function that writes the given string to the file at the given file path.
             /*!
               This function is a convenience function to write file_contents to the file at file_path. If
               the file does not exist it will be created. If it does exist, it will be overwritten.
@@ -210,15 +210,35 @@ QFileInfoList files = fu.findFilesUnderDir("c:/my_path");
               the reason why it failed.
 
               \param file_path The path of the file.
-              \param file_contents The contents that should be written to the file
+              \param file_contents The contents that should be written to the file.
               \param errorMsg When the function fails, errorMsg will contain a reason why it failed.
               \returns True when successfull, false otherwise.
 
+              \sa readTextFile()
+
               <i>This function was added in %Qtilities v1.5.</i>
               */
-            static bool writeStringToFile(const QString& file_path,
-                                          const QString &file_contents,
-                                          QString* errorMsg);
+            static bool writeTextFile(const QString& file_path,
+                                      const QString &file_contents,
+                                      QString* errorMsg = 0);
+            //! Convenience function that reads the contents of a text file.
+            /*!
+              This function is a convenience function to read the contents of a text file at file_path. If
+              the file cannot be opened as a text file, the function will fail and errorMsg will be set
+              with an appropriate error message.
+
+              \param file_path The path of the file.
+              \param ok Will be set to false if the function failed.
+              \param errorMsg When the function fails, errorMsg will contain a reason why it failed.
+              \returns The contents of the file when the function completed successfully, an empty string otherwise.
+
+              \sa writeTextFile()
+
+              <i>This function was added in %Qtilities v1.5.</i>
+              */
+            static QString readTextFile(const QString& file_path,
+                                        bool *ok = 0,
+                                        QString* errorMsg = 0);
 
         private:
             FileUtilsPrivateData* d;

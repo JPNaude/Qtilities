@@ -30,7 +30,8 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     [+] Added QtilitiesProcess::setProcessBufferMessageTypeHint(). Also, added new
         class ProcessBufferMessageTypeHint used in this function.
     [+] Added FileUtils::toUnixPath().
-    [+] Added FileUtils::writeStringToFile().
+    [+] Added FileUtils::writeTextFile().
+    [+] Added FileUtils::readTextFile().
 
     [#] QtilitiesProcess::logProgressOutput() and QtilitiesProcess::logProgressError() are now protected slots, allowing
         subclasses to reimplement its functionality. Also, bunch of improvements internally in QtilitiesProcess and

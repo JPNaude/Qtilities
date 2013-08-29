@@ -372,7 +372,7 @@ QString FileUtils::toUnixPath(const QString &path) {
     #endif
 }
 
-bool FileUtils::writeStringToFile(const QString &file_path, const QString &file_contents, QString *errorMsg) {
+bool FileUtils::writeTextFile(const QString &file_path, const QString &file_contents, QString *errorMsg) {
     QFile file(file_path);
     if (!file.open(QFile::WriteOnly)) {
         if (errorMsg)
@@ -389,4 +389,32 @@ bool FileUtils::writeStringToFile(const QString &file_path, const QString &file_
     }
     file.close();
     return true;
+}
+
+QString FileUtils::readTextFile(const QString &file_path, bool *ok, QString *errorMsg) {
+    QFileInfo fi(file_path);
+    if (!fi.exists()) {
+        if (errorMsg)
+            *errorMsg = tr("File does not exist. Expected at: %1").arg(file_path);
+        if (ok)
+            *ok = false;
+        return QString();
+    }
+
+    QFile file(file_path);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        if (errorMsg)
+            *errorMsg = tr("File cannot be opened as a text file. File path: %1").arg(file_path);
+        if (ok)
+            *ok = false;
+        return QString();
+    }
+
+    QString contents = QString(file.readAll());
+    file.close();
+
+    if (ok)
+        *ok = true;
+    return contents;
+
 }
