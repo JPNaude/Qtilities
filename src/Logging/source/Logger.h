@@ -438,12 +438,20 @@ Q_DECLARE_METATYPE(Qtilities::Logging::Logger::MessageType)
 /*!
     \note Trace messages are not part of release mode builds.
   */
+#ifndef QT_NO_DEBUG
 #define LOG_TRACE(Msg) Log->logMessage(QString(),Qtilities::Logging::Logger::Trace, Msg)
+#else
+#define LOG_TRACE(Msg) ((void)0)
+#endif
 //! Logs a debug message to all active engines.
 /*!
     \note Debug messages are not part of release mode builds.
   */
+#ifndef QT_NO_DEBUG
 #define LOG_DEBUG(Msg) Log->logMessage(QString(),Qtilities::Logging::Logger::Debug, Msg)
+#else
+#define LOG_DEBUG(Msg) ((void)0)
+#endif
 //! Logs an error message to all active engines.
 #define LOG_ERROR(Msg) Log->logMessage(QString(),Qtilities::Logging::Logger::Error, Msg)
 //! Logs a warning message to all active engines.
@@ -460,12 +468,20 @@ Q_DECLARE_METATYPE(Qtilities::Logging::Logger::MessageType)
 /*!
     \note Trace messages are not part of release mode builds.
   */
+#ifndef QT_NO_DEBUG
 #define LOG_TRACE_P(Msg) Log->logPriorityMessage(QString(),Qtilities::Logging::Logger::Trace, Msg)
+#else
+#define LOG_TRACE_P(Msg) ((void)0)
+#endif
 //! Logs a priority debug message to all active engines.
 /*!
     \note Debug messages are not part of release mode builds.
   */
+#ifndef QT_NO_DEBUG
 #define LOG_DEBUG_P(Msg) Log->logPriorityMessage(QString(),Qtilities::Logging::Logger::Debug, Msg)
+#else
+#define LOG_DEBUG_P(Msg) ((void)0)
+#endif
 //! Logs a priority error message to all active engines.
 #define LOG_ERROR_P(Msg) Log->logPriorityMessage(QString(),Qtilities::Logging::Logger::Error, Msg)
 //! Logs a priority warning message to all active engines.
@@ -479,9 +495,17 @@ Q_DECLARE_METATYPE(Qtilities::Logging::Logger::MessageType)
 // Engine Specific Logging
 // -----------------------------------
 //! Logs a trace message to the engine specified. Note that the engine must be active for the message to be logger.
+#ifndef QT_NO_DEBUG
 #define LOG_TRACE_E(Engine_Name, Msg) Log->logMessage(Engine_Name,Qtilities::Logging::Logger::Trace, Msg)
+#else
+#define LOG_TRACE_E(Engine_Name, Msg) ((void)0)
+#endif
 //! Logs a debug message to the engine specified. Note that the engine must be active for the message to be logger.
+#ifndef QT_NO_DEBUG//!
 #define LOG_DEBUG_E(Engine_Name, Msg) Log->logMessage(Engine_Name,Qtilities::Logging::Logger::Debug, Msg)
+#else
+#define LOG_DEBUG_E(Engine_Name, Msg) ((void)0)
+#endif
 //! Logs an error message to the engine specified. Note that the engine must be active for the message to be logger.
 #define LOG_ERROR_E(Engine_Name, Msg) Log->logMessage(Engine_Name,Qtilities::Logging::Logger::Error, Msg)
 //! Logs a warning message to the engine specified. Note that the engine must be active for the message to be logger.
