@@ -24,6 +24,9 @@ https://github.com/JPNaude/Qtilities/issues/milestones
         Note that this does not work on Windows.
     [+] Added Logger::registerFormattingEngine().
 
+    [#] All debug and trace logging macros (LOG_DEBUG, LOG_DEBUG_P etc.) are now defined as noop's ((void)0) in release mode.
+    [#] Formatting engine change detected messages are now debug messages, not normal log messages anymore.
+
     ============================
     QtilitiesCore:
     ============================
@@ -50,6 +53,8 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     [+] Add ability to refresh icons in Mode Manager dynamically at runtime. See issue #96.
 
     [#] Slightly improved layout in SingleTaskWidget.
+
+    [*] Fixed compilation issues against Qt5 when property browser is enable using DEFINES += QTILITIES_PROPERTY_BROWSER
 
     ============================
     QtilitiesExtensionSystem:

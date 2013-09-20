@@ -13,7 +13,7 @@
 #define ObjectDynamicPropertyBrowser_H
 
 #ifdef QTILITIES_PROPERTY_BROWSER
-#include <QtGui/QMainWindow>
+#include <QMainWindow>
 
 #include "QtilitiesCoreGui_global.h"
 #include <Factory>

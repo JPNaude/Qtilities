@@ -13,7 +13,7 @@
 #define OBJECTPROPERTYBROWSER_H
 
 #ifdef QTILITIES_PROPERTY_BROWSER
-#include <QtGui/QWidget>
+#include <QWidget>
 
 #include "QtilitiesCoreGui_global.h"
 #include <Factory>
