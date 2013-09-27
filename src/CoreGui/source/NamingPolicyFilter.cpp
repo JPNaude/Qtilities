@@ -338,7 +338,7 @@ Qtilities::CoreGui::AbstractSubjectFilter::EvaluationResult Qtilities::CoreGui::
             return AbstractSubjectFilter::Conditional;
     }
 
-    if (d->uniqueness_policy == ProhibitDuplicateNames || d->uniqueness_resolution_policy == ProhibitDuplicateNamesCaseSensitive) {
+    if (d->uniqueness_policy == ProhibitDuplicateNames || d->uniqueness_policy == ProhibitDuplicateNamesCaseSensitive) {
         if ((validity_result & Duplicate) && d->uniqueness_resolution_policy == Reject) {
             if (rejectMsg)
                 *rejectMsg = QString(tr("Naming Policy Filter: Subject name \"%1\" is not unique in this context.")).arg(obj->objectName());

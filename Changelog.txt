@@ -60,6 +60,7 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     [#] Slightly improved layout in SingleTaskWidget.
 
     [*] Fixed compilation issues against Qt5 when property browser is enable using DEFINES += QTILITIES_PROPERTY_BROWSER
+    [*] Fixed bug where ProhibitDuplicateNamesCaseSensitive was not handled properly in NamingPolicyFilter::evaluateAttachment().
 
     ============================
     QtilitiesExtensionSystem:
