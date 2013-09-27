@@ -15,7 +15,6 @@
 #include "QtilitiesCoreGui_global.h"
 #include "LoggerConfigWidget.h"
 #include "WidgetLoggerEngine.h"
-#include "WidgetLoggerEngineFrontend.h"
 
 #include <Logger.h>
 #include <LoggingConstants.h>

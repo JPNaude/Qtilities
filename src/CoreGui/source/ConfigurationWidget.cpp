@@ -248,9 +248,6 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
         d->config_pages_widget.treeView()->sortByColumn(1,Qt::AscendingOrder);
     }
 
-    if (d->config_pages.subjectCount() > 0)
-        d->activity_filter->setActiveSubject(d->config_pages.subjectAt(0));
-
     d->initialized = true;
 
     QApplication::restoreOverrideCursor();
@@ -343,9 +340,12 @@ void Qtilities::CoreGui::ConfigurationWidget::handleActiveItemChanges(QList<QObj
         if (d->active_widget)
             d->active_widget->hide();
 
-        if (d->apply_all_pages)
-            ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
-        else
+        if (d->apply_all_pages) {
+            if (d->config_pages.subjectCount() == 1)
+                ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(config_page->supportsApply());
+            else
+                ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
+        } else
             ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(config_page->supportsApply());
         ui->buttonBox->button(QDialogButtonBox::Help)->setEnabled(!config_page->configPageHelpID().isEmpty());
         ui->buttonBox->button(QDialogButtonBox::RestoreDefaults)->setEnabled(config_page->supportsRestoreDefaults());

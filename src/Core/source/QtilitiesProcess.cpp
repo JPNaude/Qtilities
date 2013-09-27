@@ -20,7 +20,9 @@
 using namespace Qtilities::Logging;
 
 struct Qtilities::Core::QtilitiesProcessPrivateData {
-    QtilitiesProcessPrivateData() : process(0) { }
+    QtilitiesProcessPrivateData() : process(0),
+        last_run_buffer_enabled(false),
+        read_process_buffers(true) { }
 
     QProcess* process;
     QString buffer_std_out;
@@ -31,9 +33,17 @@ struct Qtilities::Core::QtilitiesProcessPrivateData {
 
     QMutex buffer_mutex_std_out;
     QMutex buffer_mutex_std_err;
+
+    QByteArray last_run_buffer;
+    bool last_run_buffer_enabled;
+    bool read_process_buffers;
 };
 
-Qtilities::Core::QtilitiesProcess::QtilitiesProcess(const QString& task_name, bool enable_logging, bool read_process_buffers, QObject* parent) : Task(task_name,enable_logging,parent) {
+Qtilities::Core::QtilitiesProcess::QtilitiesProcess(const QString& task_name,
+                                                    bool enable_logging,
+                                                    bool read_process_buffers,
+                                                    QObject* parent) : Task(task_name,enable_logging,parent)
+{
     d = new QtilitiesProcessPrivateData;
     d->process = new QProcess;
     d->default_qprocess_error_string = d->process->errorString();
@@ -45,9 +55,16 @@ Qtilities::Core::QtilitiesProcess::QtilitiesProcess(const QString& task_name, bo
     connect(d->process, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(procFinished(int, QProcess::ExitStatus)));
     connect(d->process,SIGNAL(stateChanged(QProcess::ProcessState)),this,SLOT(procStateChanged(QProcess::ProcessState)));
 
-    if (read_process_buffers) {
+    d->read_process_buffers = read_process_buffers;
+    if (d->read_process_buffers) {
         connect(d->process,SIGNAL(readyReadStandardOutput()), this, SLOT(logProgressOutput()));
         connect(d->process,SIGNAL(readyReadStandardError()), this, SLOT(logProgressError()));
+    } else {
+        // If the buffers are not processed, we need to read them and append to the last buffer manually,
+        // if they are processed, the logProcessOutput() and logProcessError() functions will update the
+        // last run buffer for us.
+        connect(d->process,SIGNAL(readyReadStandardOutput()), this, SLOT(lastRunBufferAppendProgressOutput()));
+        connect(d->process,SIGNAL(readyReadStandardError()), this, SLOT(lastRunBufferAppendProgressError()));
     }
 
     setCanStop(true);
@@ -75,15 +92,51 @@ QStringList Qtilities::Core::QtilitiesProcess::lineBreakStrings() {
     return d->line_break_strings;
 }
 
-void Qtilities::Core::QtilitiesProcess::addProcessBufferMessageTypeHint(ProcessBufferMessageTypeHint hint)
-{
+void Qtilities::Core::QtilitiesProcess::addProcessBufferMessageTypeHint(ProcessBufferMessageTypeHint hint) {
     d->buffer_message_type_hints.append(hint);
+}
+
+void Qtilities::Core::QtilitiesProcess::setLastRunBufferEnabled(bool is_enabled) {
+    d->last_run_buffer_enabled = is_enabled;
+}
+
+bool Qtilities::Core::QtilitiesProcess::lastRunBufferEnabled() const {
+    return d->last_run_buffer_enabled;
+}
+
+QByteArray Qtilities::Core::QtilitiesProcess::lastRunBuffer() const {
+    return d->last_run_buffer;
+}
+
+void Qtilities::Core::QtilitiesProcess::clearLastRunBuffer() {
+    d->last_run_buffer.clear();
+}
+
+void Qtilities::Core::QtilitiesProcess::lastRunBufferAppendProgressOutput() {
+    if (d->last_run_buffer_enabled)  {
+        QByteArray new_output_ba = d->process->readAllStandardOutput();
+        if (new_output_ba.isEmpty())
+            return;
+
+        d->last_run_buffer.append(new_output_ba);
+    }
+}
+
+void Qtilities::Core::QtilitiesProcess::lastRunBufferAppendProgressError() {
+    if (d->last_run_buffer_enabled)  {
+        QByteArray new_output_ba = d->process->readAllStandardError();
+        if (new_output_ba.isEmpty())
+            return;
+
+        d->last_run_buffer.append(new_output_ba);
+    }
 }
 
 bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program,
                                                      const QStringList& arguments,
                                                      QProcess::OpenMode mode,
-                                                     int wait_for_started_msecs) {
+                                                     int wait_for_started_msecs,
+                                                     int timeout_msecs) {
     if (state() == ITask::TaskPaused)
         return false;
 
@@ -106,12 +159,20 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program,
     QString native_program = FileUtils::toNativeSeparators(program);
     logMessage(tr("Executing Process: ") + native_program + " " + arguments.join(" "));
     if (d->process->workingDirectory().isEmpty())
-        logMessage("> working directory of process: " + QDir::current().path());
+        logMessage(tr("> working directory of process: %1").arg(QDir::current().path()));
     else
-        logMessage("> working directory of process: " + d->process->workingDirectory());
+        logMessage(tr("> working directory of process: %1").arg(d->process->workingDirectory()));
     QDir dir(d->process->workingDirectory());
     if (!dir.exists())
-        logWarning("> working directory does not exist, process might fail to start.");
+        logWarning(tr("> working directory does not exist, process might fail to start."));
+
+    QTimer timer;
+    if (timeout_msecs > 0) {
+        timer.setSingleShot(true);
+        timer.start(timeout_msecs);
+        connect(&timer,SIGNAL(timeout()),SLOT(stop()));
+        logMessage(tr("A %1 msec timeout was specified for this process. It will be stopped if not completed before the timeout was reached.").arg(timeout_msecs));
+    }
 
     logMessage("");
     d->process->start(native_program, arguments, mode);
@@ -205,9 +266,17 @@ void Qtilities::Core::QtilitiesProcess::procStateChanged(QProcess::ProcessState 
 }
 
 void Qtilities::Core::QtilitiesProcess::logProgressOutput() {
-    QString new_output = d->process->readAllStandardOutput();
-    if (new_output.isEmpty())
+    if (!d->read_process_buffers)
         return;
+
+    QByteArray new_output_ba = d->process->readAllStandardOutput();
+    if (new_output_ba.isEmpty())
+        return;
+
+    if (d->last_run_buffer_enabled)
+        d->last_run_buffer.append(new_output_ba);
+
+    QString new_output = QString(new_output_ba);
 
     d->buffer_mutex_std_out.lock();
 
@@ -255,9 +324,17 @@ void Qtilities::Core::QtilitiesProcess::logProgressOutput() {
 }
 
 void Qtilities::Core::QtilitiesProcess::logProgressError() {   
-    QString new_output = d->process->readAllStandardError();
-    if (new_output.isEmpty())
+    if (!d->read_process_buffers)
         return;
+
+    QByteArray new_output_ba = d->process->readAllStandardOutput();
+    if (new_output_ba.isEmpty())
+        return;
+
+    if (d->last_run_buffer_enabled)
+        d->last_run_buffer.append(new_output_ba);
+
+    QString new_output = QString(new_output_ba);
 
     d->buffer_mutex_std_err.lock();
 
@@ -344,6 +421,4 @@ void Qtilities::Core::QtilitiesProcess::completeTaskExt() {
 
     // Now we can complete the task.
     completeTask();
-
-
 }

@@ -161,8 +161,7 @@ Qtilities::Core::Observer::~Observer() {
     }
 
     // We do not need to delete observerData here since it is a QSharedDataPointer.
-
-    LOG_DEBUG(QString("Done with destruction of observer \"%1\".").arg(objectName()));
+    LOG_TRACE(QString("Done with destruction of observer \"%1\".").arg(objectName()));
 }
 
 QStringList Qtilities::Core::Observer::monitoredProperties() const {

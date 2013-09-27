@@ -67,6 +67,9 @@ QString Qtilities::Logging::FormattingEngine_Rich_Text::formatMessage(Logger::Me
     }
     message.append("</font>");
 
+    // To keep a user's log as intended, we need to reserve spaces:
+    // message = message.replace(" ",QChar(QChar::Nbsp));
+
     QString custom_color_hint;
     if (messages.count() > 0)
         custom_color_hint = matchColorFormattingHint(messages.front().toString(),message_type);

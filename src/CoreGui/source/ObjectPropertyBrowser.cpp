@@ -17,10 +17,10 @@
 #include <QtilitiesPropertyChangeEvent>
 #include <QtilitiesProperty>
 
-#include <QtCore/QMetaObject>
-#include <QtCore/QMetaProperty>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QScrollArea>
+#include <QMetaObject>
+#include <QMetaProperty>
+#include <QVBoxLayout>
+#include <QScrollArea>
 #include <qtvariantproperty.h>
 #include <qtgroupboxpropertybrowser.h>
 #include <qttreepropertybrowser.h>

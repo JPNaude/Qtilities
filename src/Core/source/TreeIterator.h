@@ -138,8 +138,14 @@ rootTop->attachSubject(rootNodeB);
 
             QObject* last()
             {
-                d_current = d_top_node->treeChildren("QObject",-1,d_iterator_id).last();
-                return const_cast<QObject*> (d_current);
+                QList<QObject*> tree_children = d_top_node->treeChildren("QObject",-1,d_iterator_id);
+                if (tree_children.count() > 0) {
+                    d_current = tree_children.last();
+                    return const_cast<QObject*> (d_current);
+                } else {
+                    d_current = 0;
+                    return 0;
+                }
             }
 
             QObject* current() const

@@ -91,13 +91,18 @@ namespace Qtilities {
 
         \section qtilities_process_buffering Buffering of process buffers
 
-        When the read_process_buffers parameter in the QtilitiesProcess constructor is enabled, the
+        When the \p read_process_buffers parameter in the QtilitiesProcess constructor is enabled, the
         process buffers of the backend QProcess will be processed. Processed messages
         will be emitted using newStandardErrorMessage() and newStandardErrorMessage(), and if the enable_logging
         parameter in the QtilitiesProcess was enabled, the processed messages will also be logged to the task
         representing the process.
 
-        If read_process_buffers is false, the process buffer won't be touched and you can manually access it
+        In addition, QtilitiesProcess can buffer all messages from the backend process in a \"last run buffer\". This can
+        be enabled using setLastRunBuffer() enabled. Note that the last run buffer can be used along with the processing
+        of messages through \p read_process_buffers. The last run buffer can be cleared using clearLastRunBuffer() and accessed
+        through lastRunBuffer(). The last run buffer is disabled by default.
+
+        If \p read_process_buffers is false and the last run buffer is not used, the process buffer won't be touched and you can manually access it
         through the internal QIODevice exposed through the process() function.
 
         Processing of messages allows QtilitiesProcess to properly log messages received from the backend process
@@ -166,12 +171,14 @@ my_process.addProcessBufferMessageTypeHint(message_hint_error);
               \param arguments The arguments to send to the QProcess.
               \param mode The OpenMode of the QProcess.
               \param wait_for_started_msecs The wait for started time in milli seconds to be passed to the waitForStarted() call on the QProcess().
+              \param timeout When other than -1, the timeout in milli seconds for the process. If it has not completed before the timeout is reached, stop() will be called on the task associated with this process.
               \returns True when the task was started successfully (thus waitForStarted() returned true), false otherwise.
               */
             virtual bool startProcess(const QString& program,
                                       const QStringList& arguments,
                                       QProcess::OpenMode mode = QProcess::ReadWrite,
-                                      int wait_for_started_msecs = 30000);
+                                      int wait_for_started_msecs = 30000,
+                                      int timeout_msecs = -1);
 
             //! Access to the QProcess instance contained and used within this object.
             QProcess* process();
@@ -218,13 +225,62 @@ my_process.addProcessBufferMessageTypeHint(message_hint_error);
              */
             void addProcessBufferMessageTypeHint(ProcessBufferMessageTypeHint hint);
 
+            //! Sets if the last run buffer is enabled for this process.
+            /*!
+             * \param is_enabled True if it must be enabled, false otherwise.
+             *
+             * \sa lastRunBufferEnabled(), lastRunBuffer(), clearLastRunBuffer()
+             *
+             * <i>This function was added in %Qtilities v1.5.</i>
+             */
+            void setLastRunBufferEnabled(bool is_enabled);
+            //! Gets if the last run buffer is enabled for this process
+            /*!
+             * The last run buffer is disabled by default.
+             *
+             * \return True if enabled, false otherwise.
+             *
+             * \sa setLastRunBufferEnabled(), lastRunBuffer(), clearLastRunBuffer()
+             *
+             * <i>This function was added in %Qtilities v1.5.</i>
+             */
+            bool lastRunBufferEnabled() const;
+            //! Gets the last run buffer.
+            /*!
+             * QtilitiesProcess can buffer all messages from the backend process in a \"last run buffer\". This can
+             * be enabled using setLastRunBuffer() enabled. The last run buffer can be cleared using clearLastRunBuffer() and accessed
+             * through lastRunBuffer(). The last run buffer is disabled by default.
+             *
+             * \sa setLastRunBufferEnabled(), lastRunBufferEnabled(), clearLastRunBuffer()
+             *
+             * <i>This function was added in %Qtilities v1.5.</i>
+             */
+            QByteArray lastRunBuffer() const;
+            //! Clears the last run buffer.
+            /*!
+             * \sa setLastRunBufferEnabled(), lastRunBufferEnabled(), lastRunBuffer()
+             *
+             * <i>This function was added in %Qtilities v1.5.</i>
+             */
+            void clearLastRunBuffer();
+
         protected slots:
-            //! Function connected to the
+            //! Function connected to the readyReadStandardOutput() signal of the backend process.
+            /*!
+             * <i>This function was added in %Qtilities v1.5.</i>
+             */
+            void lastRunBufferAppendProgressOutput();
+            //! Function connected to the readyReadStandardError() signal of the backend process.
+            /*!
+             * <i>This function was added in %Qtilities v1.5.</i>
+             */
+            void lastRunBufferAppendProgressError();
+            //! Function connected to the readyReadStandardOutput() signal of the backend process.
             /*!
              * \note For more details on how QtilitiesProcess can buffer and log process message, see \ref qtilities_process_buffering.
              */
             virtual void logProgressOutput();
-            //! Function connected to the
+            //! Function connected to the readyReadStandardError() signal of the backend process.
             /*!
              * \note For more details on how QtilitiesProcess can buffer and log process message, see \ref qtilities_process_buffering.
              */

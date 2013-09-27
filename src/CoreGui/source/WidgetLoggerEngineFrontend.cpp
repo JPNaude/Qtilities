@@ -102,6 +102,7 @@ Qtilities::CoreGui::MessagesPlainTextEditTab::MessagesPlainTextEditTab(QWidget *
     d->txtLog.setReadOnly(true);
     d->txtLog.setFont(QFont("Courier New"));
     d->txtLog.setMaximumBlockCount(1000);
+    d->txtLog.setFrameShape(QFrame::NoFrame);
 
     d->central_widget = new QWidget;
 
