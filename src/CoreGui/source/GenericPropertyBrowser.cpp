@@ -558,7 +558,7 @@ QString GenericPropertyBrowser::getToolTipText(GenericProperty *property) {
 //        tooltip_text.append("<span style=\"color: gray;\">Exportable: No</span>");
 
     if (!property->note().isEmpty())
-        tooltip_text.append("<br>Note: " + property->note());
+        tooltip_text.append("<span style=\"color: gray;\"><br>Note: " + property->note() + "</span>");
 
     return tooltip_text.join("<br>");
 }
