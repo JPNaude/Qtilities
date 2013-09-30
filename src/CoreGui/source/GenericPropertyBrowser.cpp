@@ -528,7 +528,7 @@ void GenericPropertyBrowser::inspectPropertyManager() {
 QString GenericPropertyBrowser::getToolTipText(GenericProperty *property) {
     QStringList tooltip_text;
     if (!property->description().isEmpty())
-        tooltip_text.append(property->description());
+        tooltip_text.append(property->description() + "<br>");
 
     if (!property->valueString().isEmpty())
         tooltip_text.append("<span style=\"color: gray;\">Current Value: " + property->valueString() + "</span>");
