@@ -21,17 +21,21 @@
 # Thus all dependencies are expected two levels up from the Qtilities
 # build directory.
 #****************************************************************************
-QTILITIES_DEPENDENCIES  = $$PWD/../../../
+QTILITIES_DEPENDENCIES  = $$PWD/../../
 
 # --------------------------
 # Qt Property Browser Solution
 # --------------------------
 # http://qt.gitorious.org/qt-solutions
 # --------------------------
-# Builds Qtilities with the ObjectPropertyBrowser and
-# ObjectDynamicPropertyBrowser classes, thus you
-# need the Qt Property Browser Solution.
-#DEFINES += QTILITIES_PROPERTY_BROWSER
+# Builds Qtilities with the following additional classes:
+# ObjectPropertyBrowser
+# ObjectDynamicPropertyBrowser
+# GenericProperty
+# GenericPropertyManager
+# GenericPropertyBrowser
+# They all depend on the Qt Property Browser Solution.
+DEFINES += QTILITIES_PROPERTY_BROWSER
 # --------------------------
 contains(DEFINES, QTILITIES_PROPERTY_BROWSER) {
     DEFINES += QT_QTPROPERTYBROWSER_IMPORT

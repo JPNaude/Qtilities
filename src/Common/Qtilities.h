@@ -23,7 +23,8 @@ namespace Qtilities {
         Qtilities_1_2           = 2,            /*!< %Qtilities v1.2. See \ref page_serializing_overview_1_2 for a detailed overview. */
         Qtilities_1_3           = 2,            /*!< %Qtilities v1.3. See \ref page_serializing_overview_1_2 for a detailed overview. */
         Qtilities_1_4           = 2,            /*!< %Qtilities v1.4. See \ref page_serializing_overview_1_2 for a detailed overview. */
-        Qtilities_Latest        = Qtilities_1_4 /*!< The latest export version in the current version of %Qtilities. */
+        Qtilities_1_5           = 2,            /*!< %Qtilities v1.4. See \ref page_serializing_overview_1_2 for a detailed overview. */
+        Qtilities_Latest        = Qtilities_1_5 /*!< The latest export version in the current version of %Qtilities. */
     };
 
     //! The %Qtilities major version number.

@@ -9,8 +9,8 @@
 **
 ****************************************************************************/
 
-#ifndef OBSERVERPROPERTY_H
-#define OBSERVERPROPERTY_H
+#ifndef QTILITIES_PROPERTY_H
+#define QTILITIES_PROPERTY_H
 
 #include <QString>
 #include <QMap>
@@ -29,7 +29,24 @@ namespace Qtilities {
             \class Qtilities::Core::QtilitiesProperty
             \brief The base class of all the different %Qtilities property types.
 
-            For information about how QtilitiesProperty is used in the context of Qtilities::Core::Observer, please see \ref qtilities_properties.
+            QtilitiesProperty is the base class of all the different %Qtilities property types. These properties are ready to use properties which
+            can be set as set on QObjects using normal dynamic properties which are part of the Qt Property System, using QObject::setProperty().
+            Normally, QObject::setProperty() takes a name and QVariant for its value. Using the %Qtilities properties you do more advanced operations
+            using the underlying QObject dynamic properties.
+
+            These more advanced operations are frequently used internally by the %Qtilities observer system. For information about how QtilitiesProperty is
+            used in the context of Qtilities::Core::Observer, please see \ref qtilities_properties.
+
+            See the class specific documentation for the different types of %Qtilities properties for more information:
+            - Qtilities::Core::SharedProperty
+            - Qtilities::Core::MultiContextProperty
+
+            %Qtilities provides the Qtilities::CoreGui::ObjectPropertyBrowser to browse properties set using Q_PROPERTY on any QObject, while
+            Qtilities::CoreGui::ObjectDynamicPropertyBrowser allows browsing of dynamic properties. The dynamic property browser supports
+            normal QVariant based properties, as well as all QtilitiesProperty based classes.
+
+            Finally, these properties are meant to be used as part of the Qt Property System as well as the %Qtilities observer system. They are
+            not meant to be used as generic type property classes.
             */
             class QTILIITES_CORE_SHARED_EXPORT QtilitiesProperty : public IExportable
             {
@@ -50,7 +67,8 @@ namespace Qtilities {
 
                 //! Indicates if the property is reserved.
                 /*!
-                  Reserved properties are managed by %Qtilities and must not be changed by developers. Changes to these properties will automatically be filtered by Observers observing them.
+                  Reserved properties are managed by %Qtilities and must not be changed by developers. Changes to these properties will automatically be
+                  filtered by Observers observing them.
 
                   For non-Qtilities properties this is false by default.
                   */
@@ -376,8 +394,8 @@ if (prop.isValid() && prop.canConvert<SharedProperty>()) {
     }
 }
 
-Q_DECLARE_METATYPE(Qtilities::Core::MultiContextProperty);
-Q_DECLARE_METATYPE(Qtilities::Core::SharedProperty);
+Q_DECLARE_METATYPE(Qtilities::Core::MultiContextProperty)
+Q_DECLARE_METATYPE(Qtilities::Core::SharedProperty)
 
 QDataStream & operator<< (QDataStream& stream, const Qtilities::Core::MultiContextProperty& stream_obj);
 QDataStream & operator>> (QDataStream& stream, Qtilities::Core::MultiContextProperty& stream_obj);
@@ -387,4 +405,4 @@ QDebug operator<<(QDebug dbg, const Qtilities::Core::SharedProperty &prop);
 QDebug operator<<(QDebug dbg, const Qtilities::Core::MultiContextProperty &prop);
 
 
-#endif // OBSERVERPROPERTY_H
+#endif // QTILITIES_PROPERTY_H

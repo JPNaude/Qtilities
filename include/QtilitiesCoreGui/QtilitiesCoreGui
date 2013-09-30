@@ -65,6 +65,10 @@
 #include "IGroupedConfigPageInfoProvider.h"
 #include "GroupedConfigPage.h"
 #include "AddDynamicPropertyWizard.h"
+#include "GenericPropertyBrowser.h"
+#include "GenericPropertyTypeManagers.h"
+#include "GenericPropertyPathEditor.h"
+#include "GenericPropertyPathEditorListWrapper.h"
 
 #ifndef QTILITIES_NO_HELP
 #include "HelpManager.h"

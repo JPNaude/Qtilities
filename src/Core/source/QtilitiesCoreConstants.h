@@ -47,6 +47,13 @@ namespace Qtilities {
             const char * const qti_def_FACTORY_TAG_OBSERVER                 = "qti.def.FactoryTag.Observer";
             //! %Factory tag for FileSetInfo.
             const char * const qti_def_FACTORY_TAG_FILE_SET_INFO            = "qti.def.FactoryTag.FileSetInfo";
+            //! %Factory tag for GenericProperty.
+            const char * const qti_def_FACTORY_TAG_GENERIC_PROPERTY         = "qti.def.FactoryTag.GenericProperty";
+            //! The QtilitiesCategory used by GenericProperty to group macros.
+            const char * const qti_def_GENERIC_PROPERTY_CATEGORY_MACROS      = "Macros";
+            //! The QtilitiesCategory used by GenericProperty to group internal properties.
+            const char * const qti_def_GENERIC_PROPERTY_CATEGORY_INTERNAL    = "Internal";
+
             //! The standard context used in the Qtilities::Core::ContextManager class. This context is always active.
             const char * const qti_def_CONTEXT_STANDARD                     = "qti.def.Context.Standard";
             //! Mime type used by Qtilities::Core::ObserverMimeData.

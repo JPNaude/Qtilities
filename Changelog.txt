@@ -30,6 +30,7 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     ============================
     QtilitiesCore:
     ============================
+    [+] Added new generic property related classes: GenericProperty, GenericPropertyManager.
     [+] Added QtilitiesProcess::setProcessBufferMessageTypeHint(). Also, added new
         class ProcessBufferMessageTypeHint used in this function.
     [+] Added FileUtils::toUnixPath().
@@ -43,6 +44,7 @@ https://github.com/JPNaude/Qtilities/issues/milestones
         subclasses to reimplement its functionality. Also, bunch of improvements internally in QtilitiesProcess and
         detailed documentation how messages from the backend process are buffered was added.
     [#] Changed debug messages in Observer's destructor to trace messages.
+    [#] QtilitiesProperty is now properly documented.
 
     [*] Fixed bug in Observer::handle_deletedSubject() where application can sometimes
         crash with "Detected QWeakPointer creation in a QObject being deleted".
@@ -51,6 +53,8 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     ============================
     QtilitiesCoreGui:
     ============================
+    [+] Added new generic property related classes: GenericPropertyBrowser, GenericPropertyPathEditor, GenericPropertyPathEditorListWrapper,
+        FileEditorFactory and PathPropertyManager.
     [+] Added TaskSummaryWidget::getSingleTaskWidgetForTask().
     [+] WidgetLoggerFrontends now has the option to specify where and if toolbars with actions related to the
         displayed log should be shown.
@@ -60,7 +64,7 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     [#] Slightly improved layout in SingleTaskWidget.
 
     [*] Fixed compilation issues against Qt5 when property browser is enable using DEFINES += QTILITIES_PROPERTY_BROWSER
-    [*] Fixed bug where ProhibitDuplicateNamesCaseSensitive was not handled properly in NamingPolicyFilter::evaluateAttachment().
+    [*] Fixed bug where ProhibitDuplicateNamesCaseSensitive was not handled properly in NamingPolicyFilter::evaluateAttachment()
 
     ============================
     QtilitiesExtensionSystem:
@@ -78,6 +82,11 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     Plugins:
     ============================
     [*] Cleaned up memory leak in HelpPlugin.
+
+    ============================
+    Examples:
+    ============================
+    [+] Added a new example which shows how to use, and explain the purpose of the different property classes in Qtilities.
 
 
 ================================

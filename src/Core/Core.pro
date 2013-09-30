@@ -77,7 +77,9 @@ HEADERS += source/QtilitiesCore_global.h \
     source/QtilitiesProcess.h \
     source/FileSetInfo.h \
     source/FileLocker.h \
-    source/IAvailablePropertyProvider.h
+    source/IAvailablePropertyProvider.h \
+    source/GenericProperty.h \
+    source/GenericPropertyManager.h
 
 SOURCES += source/QtilitiesCoreApplication.cpp \
     source/QtilitiesCoreApplication_p.cpp \
@@ -105,4 +107,6 @@ SOURCES += source/QtilitiesCoreApplication.cpp \
     source/FileUtils.cpp \
     source/QtilitiesProcess.cpp \
     source/FileSetInfo.cpp \
-    source/FileLocker.cpp
+    source/FileLocker.cpp \
+    source/GenericProperty.cpp \
+    source/GenericPropertyManager.cpp

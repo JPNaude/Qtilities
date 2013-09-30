@@ -106,7 +106,11 @@ HEADERS += source/QtilitiesCoreGui_global.h \
     source/ObserverTableModelProxyFilter.h \
     source/GroupedConfigPage.h \
     source/IGroupedConfigPageInfoProvider.h \
-    source/AddDynamicPropertyWizard.h
+    source/AddDynamicPropertyWizard.h \
+    source/GenericPropertyBrowser.h \
+    source/GenericPropertyTypeManagers.h \
+    source/GenericPropertyPathEditor.h \
+    source/GenericPropertyPathEditorListWrapper.h
 
 SOURCES += source/QtilitiesApplication.cpp \
     source/QtilitiesApplication_p.cpp \
@@ -156,7 +160,11 @@ SOURCES += source/QtilitiesApplication.cpp \
     source/TaskSummaryWidget.cpp \
     source/ObserverTableModelProxyFilter.cpp \
     source/GroupedConfigPage.cpp \
-    source/AddDynamicPropertyWizard.cpp
+    source/AddDynamicPropertyWizard.cpp \
+    source/GenericPropertyBrowser.cpp \
+    source/GenericPropertyTypeManagers.cpp \
+    source/GenericPropertyPathEditor.cpp \
+    source/GenericPropertyPathEditorListWrapper.cpp
 
 FORMS += source/ObserverWidget.ui \
     source/NamingPolicyInputDialog.ui \
@@ -176,7 +184,9 @@ FORMS += source/ObserverWidget.ui \
     source/StringListWidget.ui \
     source/SingleTaskWidget.ui \
     source/TaskSummaryWidget.ui \
-    source/GroupedConfigPage.ui
+    source/GroupedConfigPage.ui \
+    source/GenericPropertyPathEditor.ui \
+    source/GenericPropertyPathEditorListWrapper.ui
 
 # --------------------------
 # Files only included when Qtilities help is defined to be present.

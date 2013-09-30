@@ -23,7 +23,7 @@ QTILITIES_BIN           = $$QTILITIES_BASE/bin
 # Version Definitions
 #****************************************************************************
 QTILITIES_VERSION_MAJOR    = 1
-QTILITIES_VERSION_MINOR    = 4
+QTILITIES_VERSION_MINOR    = 5
 QTILITIES_VERSION_REVISION = 0
 DEFINES                += "QTILITIES_VERSION_MAJOR=$$QTILITIES_VERSION_MAJOR"
 DEFINES                += "QTILITIES_VERSION_MINOR=$$QTILITIES_VERSION_MINOR"

@@ -37,6 +37,7 @@ Thumbs.db
 ######################
 build_files
 output
+bin
 bin/Examples
 bin/Plugins
 doc/output
@@ -47,4 +48,5 @@ Makefile
 *.pro.user*
 *.vsd
 gitKey*
+*.pdb
 child/

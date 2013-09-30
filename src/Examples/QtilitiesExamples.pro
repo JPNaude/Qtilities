@@ -23,6 +23,7 @@ SUBDIRS	   += ClipboardExample
 SUBDIRS	   += TheBasicsExample
 SUBDIRS	   += ExportingExample
 SUBDIRS	   += TasksExample
+SUBDIRS	   += PropertiesExample
 
 # The tcl scripting example depends on Tcl, thus its commented out by default.
 #SUBDIRS    += TclScriptingExample
