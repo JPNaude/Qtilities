@@ -65,6 +65,9 @@ Qtilities::Logging::Logger::Logger(QObject* parent) : QObject(parent) {
     d->priority_formatting_engine = 0;
     d->session_path = QCoreApplication::applicationDirPath() + qti_def_PATH_SESSION;
     d->settings_enabled = true;
+
+    qRegisterMetaType<Logger::MessageType>("Logger::MessageType");
+    qRegisterMetaType<Logger::MessageContextFlags>("Logger::MessageContextFlags");
 }
 
 Qtilities::Logging::Logger::~Logger() {

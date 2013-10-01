@@ -45,6 +45,7 @@ https://github.com/JPNaude/Qtilities/issues/milestones
         detailed documentation how messages from the backend process are buffered was added.
     [#] Changed debug messages in Observer's destructor to trace messages.
     [#] QtilitiesProperty is now properly documented.
+    [#] Moved registration of Logger::MessageType and Logger::MessageContext from ITask to Logger's constructor.
 
     [*] Fixed bug in Observer::handle_deletedSubject() where application can sometimes
         crash with "Detected QWeakPointer creation in a QObject being deleted".
