@@ -46,10 +46,13 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     [#] Changed debug messages in Observer's destructor to trace messages.
     [#] QtilitiesProperty is now properly documented.
     [#] Moved registration of Logger::MessageType and Logger::MessageContext from ITask to Logger's constructor.
+    [#] FileUtils::makeLocalCopyOfResource() will also create the local_path directory using QDir::mkpath() if it does not exist.
 
     [*] Fixed bug in Observer::handle_deletedSubject() where application can sometimes
         crash with "Detected QWeakPointer creation in a QObject being deleted".
     [*] Fixed possible crash in TreeIterator::last() when the TreeIterator was constructed with a null node.
+    [*] Fixed potential crash in ~QtilitiesProcess() when it was run in a different thread. Now using deleteLater()
+        on backend process.
 
     ============================
     QtilitiesCoreGui:
@@ -63,6 +66,7 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     [+] Add ability to refresh icons in Mode Manager dynamically at runtime. See issue #96.
 
     [#] Slightly improved layout in SingleTaskWidget.
+    [#] Changed ConfigurationWidget so that it no longer assigns a 0 margin to pages it displays.
 
     [*] Fixed compilation issues against Qt5 when property browser is enable using DEFINES += QTILITIES_PROPERTY_BROWSER
     [*] Fixed bug where ProhibitDuplicateNamesCaseSensitive was not handled properly in NamingPolicyFilter::evaluateAttachment()

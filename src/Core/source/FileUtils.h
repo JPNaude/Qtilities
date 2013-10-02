@@ -180,6 +180,8 @@ QFileInfoList files = fu.findFilesUnderDir("c:/my_path");
             /*!
               This function will create a local copy of a resource file.
 
+              \note From %Qtilities v1.5 onwards, This function will also create the local_path directory using QDir::mkpath() if it does not exist.
+
               \param resource_path The resource to make a copy of.
               \param local_path The target local path for the resource.
               \param errorMsg When specified, will be populated by any error messages when the function returns false.

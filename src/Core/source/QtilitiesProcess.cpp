@@ -75,7 +75,7 @@ Qtilities::Core::QtilitiesProcess::~QtilitiesProcess() {
         if (state() == ITask::TaskBusy)
             completeTaskExt();
         d->process->kill();
-        delete d->process;
+        d->process->deleteLater();
     }
     delete d;
 }

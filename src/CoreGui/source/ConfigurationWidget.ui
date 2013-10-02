@@ -33,7 +33,7 @@
        </size>
       </property>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <layout class="QGridLayout" name="gridLayout">
        <item row="0" column="0">
         <widget class="QLabel" name="lblPageIcon">
@@ -105,7 +105,7 @@
           </size>
          </property>
          <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
+          <enum>QFrame::NoFrame</enum>
          </property>
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
