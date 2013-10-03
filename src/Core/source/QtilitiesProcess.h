@@ -106,24 +106,13 @@ namespace Qtilities {
         through the internal QIODevice exposed through the process() function.
 
         Processing of messages allows QtilitiesProcess to properly log messages received from the backend process
-        using the %Qtilities logger. In many cases, messages received from the QIODevice used by QProcess are not nicely
-        formatted. For example, readyReadStandardOutput() and readyReadStandardError() aren't emitted once for every message.
-        They will normally be emitted with a buffered message which needs to be split up in order to identify individual messages.
-        That is the goal of process buffering in QtilitiesProcess.
+        using the %Qtilities logger.
 
-        \subsection qtilities_process_buffering_default Default buffer processing
+        \subsection qtilities_process_buffering_default Classification of received messages
 
-        Default buffer processing is done when no line break strings are set which helps the processing logic
-        to know which strings can be used to split up the individual messages. That is, when lineBreakStrings() is empty which
-        is the default. The next section covers the case where custom line break strings have been set, enabling
-        proper logging of process messages in more complicated situations.
-
-        During default buffer processing, the process buffer is split into individual messages using a search for the
-        new line character ("\n"). The text in the QStringList resulting from the split is then handled as individual messages.
-        By default these individual messages are logged as normal info messages. However, using setProcessBufferMessageTypeHint() it
-        is possible to classify these individual messages as different types of messages. For example, if the backend process
-        starts error messages with "ERROR:", it is possible to add a process buffer message type hint using
-        the following regular expression:
+        Using setProcessBufferMessageTypeHint() it is possible to classify these individual messages as different types
+        of messages. For example, if the backend process starts error messages with "ERROR:", it is possible to add a process
+        buffer message type hint using the following regular expression:
 
 \code
 QRegExp reg_exp_error = QRegExp(QObject::tr("ERROR:") + "*",Qt::CaseInsensitive,QRegExp::Wildcard);
@@ -132,20 +121,6 @@ my_process.addProcessBufferMessageTypeHint(message_hint_error);
 \endcode
 
         The processing logic will then know to log these messages as errors instead of normal information messages.
-
-        \subsection qtilities_process_buffering_line_break_strings Custom line break processing
-
-        Using setLineBreakStrings() it is possible to specify custom strings which are used to split the process buffer
-        into individual messages. This extra functionality is required in cases where individual messages are split across
-        multiple lines. For example, if an error message is split accross multiple line, the standard buffer processing logic
-        will log the first line of the message as an error, and the next line as a normal information message.
-
-        To solve this problem, custom line break strings can be provided in order to split messages not usign the line
-        break character, but using any of the specified line break strings. In order for the processing logic to work
-        properly, it is required that the backend process always provide data in a consitant way. For example, info messages
-        must start with a known string, warnings with another known string and errors with another known string. These known
-        strings can be set as the line break strings on the QtilitiesProcess and all text between these known strings will be logged
-        as individual messages.
           */
         class QTILIITES_CORE_SHARED_EXPORT QtilitiesProcess : public Task
         {
@@ -183,24 +158,6 @@ my_process.addProcessBufferMessageTypeHint(message_hint_error);
             //! Access to the QProcess instance contained and used within this object.
             QProcess* process();
 
-            //! Sets the strings to be used for splitting logged messages.
-            /*!
-              By default this list is empty an a line break character \r is used to received split messages.
-
-              You can however specify multiple strings to use using this function.
-
-              <i>This function was added in %Qtilities v1.1.</i>
-
-              \sa lineBreakStrings()
-              */
-            void setLineBreakStrings(const QStringList& line_break_strings);
-            //! Gets the strings to be used for splitting logged messages.
-            /*!
-              <i>This function was added in %Qtilities v1.1.</i>
-
-              \sa setLineBreakStrings()
-              */
-            QStringList lineBreakStrings();
             //! Sets a regular expression used to associate messages received from the process buffer with logger message types.
             /*!
              * When the read_process_buffers parameter in the QtilitiesProcess constructor is enabled, the
@@ -234,7 +191,7 @@ my_process.addProcessBufferMessageTypeHint(message_hint_error);
              * <i>This function was added in %Qtilities v1.5.</i>
              */
             void setLastRunBufferEnabled(bool is_enabled);
-            //! Gets if the last run buffer is enabled for this process
+            //! Gets if the last run buffer is enabled for this process.
             /*!
              * The last run buffer is disabled by default.
              *
@@ -265,60 +222,26 @@ my_process.addProcessBufferMessageTypeHint(message_hint_error);
             void clearLastRunBuffer();
 
         protected slots:
-            //! Function connected to the readyReadStandardOutput() signal of the backend process.
-            /*!
-             * <i>This function was added in %Qtilities v1.5.</i>
-             */
-            void lastRunBufferAppendProgressOutput();
-            //! Function connected to the readyReadStandardError() signal of the backend process.
-            /*!
-             * <i>This function was added in %Qtilities v1.5.</i>
-             */
-            void lastRunBufferAppendProgressError();
-            //! Function connected to the readyReadStandardOutput() signal of the backend process.
-            /*!
-             * \note For more details on how QtilitiesProcess can buffer and log process message, see \ref qtilities_process_buffering.
-             */
-            virtual void logProgressOutput();
-            //! Function connected to the readyReadStandardError() signal of the backend process.
-            /*!
-             * \note For more details on how QtilitiesProcess can buffer and log process message, see \ref qtilities_process_buffering.
-             */
-            virtual void logProgressError();
+            void manualAppendLastRunBuffer();
+            void readStandardOutput();
+            void readStandardError();
 
         private slots:
-            void procStarted();
             void procFinished(int exit_code, QProcess::ExitStatus exit_status);
             void procError(QProcess::ProcessError error);
-            void procStateChanged(QProcess::ProcessState newState);
 
         public slots:
             //! Stops the process.
             /*!
-                This function will first call terminate() on the process, wait and then call kill().
-
-                Its important to call Task::stop() at the end of your implementation.
-            */
+             * This function will first call terminate() on the process, wait and then call kill().
+             * \note When reimplementing this function, it is important to call Task::stop() at the end of your implementation.
+             */
             virtual void stopProcess();
 
-        signals:
-            //! Emitted when new standard output becomes available.
-            /*!
-             * <i>This function was added in %Qtilities v1.2.</i>
-             */
-            void newStandardOutputMessage(const QString& message);
-            //! Emitted when new standard error becomes available.
-            /*!
-             * <i>This function was added in %Qtilities v1.2.</i>
-             */
-            void newStandardErrorMessage(const QString& message);
+        protected:
+            virtual void processSingleBufferMessage(const QString &buffer_message, Logger::MessageType msg_type);
 
         private:
-            //! Process buffer work function.
-            void processSingleBufferMessage(const QString& buffer_message);
-            //! Internal function used to complete the task. Thus function will also process any remaining messages in the process buffer.
-            void completeTaskExt();
-
             QtilitiesProcessPrivateData* d;
         };
     }
