@@ -56,6 +56,8 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     [*] Removed buffering done in QtilitiesProcess. See issue #99 for details. This led to the removal of
         QtilitiesProcess::setLineBreakStrings(), QtilitiesProcess::lineBreakString(), QtilitiesProcess::newStandardOutputMessage()
         and QtilitiesProcess::newStandardErrorMessage().
+    [*] Fixed Task::completeTask() not always emitting with the correct result. For example, it would
+        be emitted with the result set to TaskResultFromBusyStateFailOnError instead of TaskFailed.
 
     ============================
     QtilitiesCoreGui:

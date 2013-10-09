@@ -609,7 +609,7 @@ bool Qtilities::Core::Task::completeTask(ITask::TaskResult result, const QString
         logMessage(QString(tr("Task \"%1\" failed. See the task log for more information (%2).")).arg(taskName()).arg(elapsedTimeString()),Logger::Error);
     }
 
-    emit taskCompleted(result,message,type);
+    emit taskCompleted(d->task_result,message,type);
     emit stateChanged(ITask::TaskCompleted,old_state);
 
     // Now we check if we must destroy the task:
