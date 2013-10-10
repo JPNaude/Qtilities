@@ -81,6 +81,7 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     ============================
     QtilitiesExtensionSystem:
     ============================
+    [*] Fixing issues in the extension system when no default plugin configuration is available.
 
     ============================
     QtilitiesProjectManagement:

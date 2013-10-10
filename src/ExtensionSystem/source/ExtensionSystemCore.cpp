@@ -102,22 +102,17 @@ Qtilities::ExtensionSystem::ExtensionSystemCore::~ExtensionSystemCore()
 }
 
 void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
-    if (d->active_configuration_file.isEmpty()) {
-        QDir dir(QtilitiesApplication::applicationDirPath() + QDir::separator() + "plugins");
-        dir.mkpath(QtilitiesApplication::applicationDirPath() + QDir::separator() + "plugins");
-        d->active_configuration_file = QtilitiesApplication::applicationDirPath() + QDir::separator() + "plugins" + QDir::separator() +  "default" + qti_def_SUFFIX_PLUGIN_CONFIG;
-    }
-
     // Start a processing cycle on the actions observer. Otherwise it will refresh the actions view everytime
     // an action is added in a plugin.
     OBJECT_MANAGER->objectPool()->startProcessingCycle();
 
-//    // Check if isPluginActivityControlEnabled() is true and that a default plugin file exists.
-//    // In that case, load the default plugin file:
-//    if (isPluginActivityControlEnabled()) {
-        // This will fail if there was no default file:
-    loadPluginConfiguration();
-//    }
+    if (d->active_configuration_file.isEmpty()) {
+        d->active_configuration_file = QtilitiesApplication::applicationDirPath() + QDir::separator() + "plugins" + QDir::separator() +  "default" + qti_def_SUFFIX_PLUGIN_CONFIG;
+        QFileInfo fi(d->active_configuration_file);
+        if (fi.exists())
+            loadPluginConfiguration();
+    } else
+        loadPluginConfiguration();
 
     // Now go get all the plugins:
     d->pluginsDir = QDir(QCoreApplication::applicationDirPath());
@@ -466,9 +461,14 @@ bool Qtilities::ExtensionSystem::ExtensionSystemCore::savePluginConfiguration(QS
         file_name = d->active_configuration_file;
 
     QFile file(file_name);
+    QFileInfo fi(file_name);
+
+    QDir dir(fi.path());
+    dir.mkpath(fi.path());
+
     if (!file.open(QFile::WriteOnly)) {
         if (errorMsg)
-            *errorMsg = QString(tr("Failed to open target plugin configuration file in write mode:<br>%1")).arg(file_name);
+            *errorMsg = tr("Failed to open target plugin configuration file in write mode:<br>%1").arg(file_name);
         return false;
     }
 
@@ -528,18 +528,24 @@ bool Qtilities::ExtensionSystem::ExtensionSystemCore::savePluginConfiguration(QS
 
 bool Qtilities::ExtensionSystem::ExtensionSystemCore::loadPluginConfiguration(QString file_name, QStringList* inactive_plugins, QStringList* filtered_plugins) {
     if (d->is_initialized && (!inactive_plugins || !filtered_plugins)) {
-        LOG_DEBUG("Failed to load plugin configuration from file: " + file_name + ". The extension system is already initialized. ");
+        LOG_DEBUG(tr("Failed to load plugin configuration from file: %1 . The extension system is already initialized.").arg(file_name));
         return false;
     }
 
     if (file_name.isEmpty())
-        file_name = d->active_configuration_file;
+        file_name = QDir::toNativeSeparators(d->active_configuration_file);
 
     // Load the file into doc:
     QDomDocument doc("QtilitiesPluginConfiguration");
     QFile file(file_name);
+
+    if (!file.exists()) {
+        LOG_WARNING(tr("Plugin configuration file does not exist, it will not be loaded: %1").arg(file_name));
+        return false;
+    }
+
     if (!file.open(QIODevice::ReadOnly)) {
-        LOG_ERROR(tr("Failed to load plugin configuration from file: ") + file_name);
+        LOG_WARNING(tr("Failed to load plugin configuration from file: %1").arg(file_name));
         return false;
     }
 
@@ -548,9 +554,9 @@ bool Qtilities::ExtensionSystem::ExtensionSystemCore::loadPluginConfiguration(QS
     int error_line;
     int error_column;
     if (!doc.setContent(docStr,&error_string,&error_line,&error_column)) {
-        LOG_ERROR(QString(tr("The tree input file could not be parsed by QDomDocument. Error on line %1 column %2: %3")).arg(error_line).arg(error_column).arg(error_string));
+        LOG_WARNING(tr("The tree input file could not be parsed by QDomDocument. Error on line %1 column %2: %3").arg(error_line).arg(error_column).arg(error_string));
         file.close();
-        LOG_ERROR(tr("Failed to load plugin configuration from file: ") + file_name);
+        LOG_WARNING(tr("Failed to load plugin configuration from file: %1").arg(file_name));
         return false;
     }
     file.close();
