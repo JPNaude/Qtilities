@@ -138,8 +138,8 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
     emit pluginLoadingStarted();
 
     foreach (const QString& path, d->customPluginPaths) {
-        emit newProgressMessage(QString(tr("Searching for plugins in directory: %1")).arg(path));
-        LOG_INFO(QString(tr("Searching for plugins in directory: %1")).arg(path));
+        emit newProgressMessage(tr("Searching for plugins in directory: %1").arg(path));
+        LOG_INFO(tr("Searching for plugins in directory: %1").arg(path));
         QCoreApplication::processEvents();
 
         QDir dir(path);
@@ -179,13 +179,13 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                         // Check if the object implements IPlugin:
                         IPlugin* pluginIFace = qobject_cast<IPlugin*> (obj);
                         if (pluginIFace) {
-                            emit newProgressMessage(QString(tr("Loading plugin from file: %1")).arg(stripped_file_name));
-                            LOG_INFO(QString(tr("Loading plugin from file: %1")).arg(stripped_file_name));
+                            emit newProgressMessage(tr("Loading plugin from file: %1").arg(stripped_file_name));
+                            LOG_INFO(tr("Loading plugin from file: %1").arg(stripped_file_name));
                             QCoreApplication::processEvents();
 
                             // Check that the plugins with the same does not exist:
                             if (d->plugins.subjectNames().contains(pluginIFace->pluginName())) {
-                                LOG_WARNING(QString(tr("A plugin called %1 already exists. Plugin won't be loaded from file: %2")).arg(pluginIFace->pluginName()).arg(stripped_file_name));
+                                LOG_WARNING(tr("A plugin called %1 already exists. Plugin won't be loaded from file: %2").arg(pluginIFace->pluginName()).arg(stripped_file_name));
                                 continue;
                             }
 
@@ -203,9 +203,9 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                             // Do a plugin compatibility check here:
                             if (pluginIFace->pluginVersionInformation().hasSupportedVersions()) {
                                 if (!pluginIFace->pluginVersionInformation().isSupportedVersion(QCoreApplication::applicationVersion())) {
-                                    LOG_ERROR(QString(tr("Incompatible plugin version of the following plugin detected (in file %1): Your application version (v%2) is not found in the list of compatible application versions that this plugin supports.")).arg(stripped_file_name).arg(QCoreApplication::applicationVersion()));
+                                    LOG_ERROR(tr("Incompatible plugin version of the following plugin detected (in file %1): Your application version (v%2) is not found in the list of compatible application versions that this plugin supports.").arg(stripped_file_name).arg(QCoreApplication::applicationVersion()));
                                     pluginIFace->addPluginState(IPlugin::IncompatibleState);
-                                    pluginIFace->addErrorMessage(QString(tr("Application version (v%2) is not found in the list of compatible application versions that this plugin supports.")).arg(QCoreApplication::applicationVersion()));
+                                    pluginIFace->addErrorMessage(tr("Application version (v%2) is not found in the list of compatible application versions that this plugin supports.").arg(QCoreApplication::applicationVersion()));
                                 }
                             }
 
@@ -242,8 +242,8 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                             LOG_ERROR(tr("Plugin found which does not implement the expected IPlugin interface."));
                         }
                     } else {
-                        LOG_ERROR(QString(tr("Plugin could not be loaded: %1. Error: %2")).arg(stripped_file_name).arg(loader.errorString()));
-                        qDebug() << QString(tr("Plugin could not be loaded: %1. Error: %2")).arg(stripped_file_name).arg(loader.errorString());
+                        LOG_ERROR(tr("Plugin could not be loaded: %1. Error: %2").arg(stripped_file_name).arg(loader.errorString()));
+                        qDebug() << QString("Plugin could not be loaded: %1. Error: %2").arg(stripped_file_name).arg(loader.errorString());
                     }
                 }
             } else {
@@ -252,7 +252,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
             }
         }
 
-        emit newProgressMessage(QString(tr("Finished loading plugins in directory:\n %1")).arg(path));
+        emit newProgressMessage(tr("Finished loading plugins in directory:\n %1").arg(path));
     }
 
     // Now that all plugins were loaded, we call initializeDependencies() on all active ones:
@@ -269,7 +269,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
 
             if (!is_inactive_plugin) {
                 QStringList error_strings;
-                emit newProgressMessage(QString(tr("Initializing dependencies in plugin: %1")).arg(pluginIFace->pluginName()));
+                emit newProgressMessage(tr("Initializing dependencies in plugin: %1").arg(pluginIFace->pluginName()));
                 QCoreApplication::processEvents();
                 #ifdef QTILITIES_BENCHMARKING
                 time_t start_init_dep,end_init_dep;
@@ -306,7 +306,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                 category_property.setValue(false,d->plugins.observerID());
                 ObjectManager::setMultiContextProperty(pluginIFace->objectBase(),category_property);
 
-                LOG_INFO(QString(tr("Inactive plugin found which will not be initialized: %1")).arg(pluginIFace->pluginName()));
+                LOG_INFO(tr("Inactive plugin found which will not be initialized: %1").arg(pluginIFace->pluginName()));
             }
             OBJECT_MANAGER->registerObject(d->plugins.subjectAt(i),QtilitiesCategory("Core::Plugins (IPlugin)","::"));
 
@@ -330,7 +330,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
     #ifndef QT_NO_DEBUG
     time(&end);
     double diff = difftime(end,start);
-    qDebug() << QString("Extension system took " + QString::number(diff) + " second(s) to load " + QString::number(d->plugins.subjectCount()) + " plugins. They were initialized according to your active configuration set.");
+    qDebug() << tr("Extension system took %1 second(s) to load %2 plugins. They were initialized according to your active configuration set.").arg(QString::number(diff)).arg(QString::number(d->plugins.subjectCount()));
     #endif
 
     // Only connect here since the signal will be emitted in above code:
@@ -339,7 +339,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
     // TODO: If there was errors or warnings, msgbox the user and ask if they want to review the errors.
     OBJECT_MANAGER->objectPool()->endProcessingCycle(false);
 
-    emit newProgressMessage(QString(tr("Finished loading plugins in %1 directories.")).arg(d->customPluginPaths.count()));
+    emit newProgressMessage(tr("Finished loading plugins in %1 directories.").arg(d->customPluginPaths.count()));
     QCoreApplication::processEvents();
 
     d->is_initialized = true;
@@ -357,7 +357,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::finalize() {
         IPlugin* pluginIFace = qobject_cast<IPlugin*> (d->plugins.subjectAt(0));
 
         if (pluginIFace) {
-            emit newProgressMessage(QString(tr("Finalizing plugin: %1")).arg(pluginIFace->pluginName()));
+            emit newProgressMessage(tr("Finalizing plugin: %1").arg(pluginIFace->pluginName()));
             QCoreApplication::processEvents();
 
             // Check that it is active:
@@ -570,7 +570,7 @@ bool Qtilities::ExtensionSystem::ExtensionSystemCore::loadPluginConfiguration(QS
     if (root.hasAttribute("ExportVersion")) {
         read_version = (Qtilities::ExportVersion) root.attribute("ExportVersion").toInt();
     } else {
-        LOG_ERROR(QString(tr("The ExportVersion of the input file could not be determined. This might indicate that the input file is in the wrong format. The plugin configuration will not be parsed.")));
+        LOG_ERROR(tr("The ExportVersion of the input file could not be determined. This might indicate that the input file is in the wrong format. The plugin configuration will not be parsed."));
         LOG_ERROR(tr("Failed to load plugin configuration from file: ") + file_name);
         return false;
     }
@@ -583,7 +583,7 @@ bool Qtilities::ExtensionSystem::ExtensionSystemCore::loadPluginConfiguration(QS
         is_supported_format = true;
 
     if (!is_supported_format) {
-        LOG_ERROR(QString(tr("Unsupported plugin configuration file found with export version: %1. The file will not be parsed.")).arg(read_version));
+        LOG_ERROR(tr("Unsupported plugin configuration file found with export version: %1. The file will not be parsed.").arg(read_version));
         return false;
     }
 
@@ -623,7 +623,7 @@ bool Qtilities::ExtensionSystem::ExtensionSystemCore::loadPluginConfiguration(QS
                         if (!d->core_plugins.contains(plugin_name)) {
                             d->set_inactive_plugins << plugin_name;
                         } else
-                            LOG_ERROR(QString(tr("ExtensionSystemCore::loadPluginConfiguration(): %1 is a core plugin. The plugin configuration attempted to set it as an inactive plugin. This is not allowed for core plugins.")).arg(plugin_name));
+                            LOG_ERROR(tr("ExtensionSystemCore::loadPluginConfiguration(): %1 is a core plugin. The plugin configuration attempted to set it as an inactive plugin. This is not allowed for core plugins.").arg(plugin_name));
                     } else {
                         inactive_plugins->append(plugin_name);
                     }
@@ -714,7 +714,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::handlePluginConfigurationC
              if (d->core_plugins.contains(iface->pluginName())) {
                 QMessageBox msgBox;
                 msgBox.setIcon(QMessageBox::Information);
-                msgBox.setText(QString(tr("%1 is a core plugin and must be active at all times.")).arg(iface->pluginName()));
+                msgBox.setText(tr("%1 is a core plugin and must be active at all times.").arg(iface->pluginName()));
                 msgBox.exec();
 
                 MultiContextProperty category_property(qti_prop_ACTIVITY_MAP);
@@ -742,7 +742,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::handlePluginConfigurationC
         } else {
             // If there is a config widget, we update its status message:
             if (d->extension_system_config_widget)
-                d->extension_system_config_widget->setStatusMessage(QString(tr("<font color='red'>Failed to save new configuration.<br>%1</font>")).arg(errorMsg));
+                d->extension_system_config_widget->setStatusMessage(tr("<font color='red'>Failed to save new configuration.<br>%1</font>").arg(errorMsg));
         }
     }
 }

@@ -168,6 +168,12 @@ void Qtilities::Logging::Logger::logMessage(const QString& engine_name, MessageT
 
 //    if (message.toString() == "QFile::seek: IODevice is not open")
 //        int i = 5;
+//    else if (message.toString().contains("&other != this"))
+//        int i = 5;
+//    else if (message.toString().contains("QFontDatabase"))
+//        int i = 5;
+//    else if (message.toString().contains("index out of range"))
+//        int i = 5;
 //    else if (message.toString().contains("Cannot send events to objects owned"))
 //        int i = 5;
 //    else if (message.toString().contains("abort()"))

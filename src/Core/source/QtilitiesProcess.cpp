@@ -205,25 +205,25 @@ void Qtilities::Core::QtilitiesProcess::procError(QProcess::ProcessError error) 
     switch (error)
     {
         case QProcess::FailedToStart:
-            logMessage("Process " + taskName() + " failed to start. Either the invoked program is missing, or you may have insufficient permissions to invoke the program.",Logger::Error);
+            logMessage("Process \"" + taskName() + "\" failed to start. Either the invoked program is missing, or you may have insufficient permissions to invoke the program.",Logger::Error);
             break;
         case QProcess::Crashed:
-            logMessage("Process " + taskName() + " crashed some time after starting successfully.",Logger::Error);
+            logMessage("Process \"" + taskName() + "\" crashed some time after starting successfully.",Logger::Error);
             break;
         case QProcess::Timedout:
-            logMessage("The last waitFor...() function of process " + taskName() + " timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.",Logger::Error);
+            logMessage("The last waitFor...() function of process \"" + taskName() + "\" timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.",Logger::Error);
             break;
         case QProcess::WriteError:
-            logMessage("An error occurred when attempting to write to process " + taskName() + ". For example, the process may not be running, or it may have closed its input channel.",Logger::Error);
+            logMessage("An error occurred when attempting to write to process \"" + taskName() + "\". For example, the process may not be running, or it may have closed its input channel.",Logger::Error);
             break;
         case QProcess::ReadError:
-            logMessage("An error occurred when attempting to read from process " + taskName() + ". For example, the process may not be running.",Logger::Error);
+            logMessage("An error occurred when attempting to read from process \"" + taskName() + "\". For example, the process may not be running.",Logger::Error);
             break;
         case QProcess::UnknownError:
-            logMessage("Process " + taskName() + " failed with an unknown error.",Logger::Error);
+            logMessage("Process \"" + taskName() + "\" failed with an unknown error.",Logger::Error);
             break;
         default:
-            logMessage("Process " + taskName() + " failed with an unknown error.",Logger::Error);
+            logMessage("Process \"" + taskName() + "\" failed with an unknown error.",Logger::Error);
     }
 }
 
@@ -257,7 +257,7 @@ void Qtilities::Core::QtilitiesProcess::processSingleBufferMessage(const QString
         while (itr.hasNext()) {
             ProcessBufferMessageTypeHint hint = itr.next();
             if (hint.d_regexp.exactMatch(buffer_message)) {
-                if (hint.d_priority > highest_matching_hint_priority) {
+                if (hint.d_priority >= highest_matching_hint_priority) {
                     highest_matching_hint_priority = hint.d_priority;
                     matching_hints << hint;
                 }

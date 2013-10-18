@@ -191,7 +191,7 @@ QFileInfoList files = fu.findFilesUnderDir("c:/my_path");
               */
             static bool makeLocalCopyOfResource(const QString& resource_path,
                                                 const QString& local_path,
-                                                QString* errorMsg,
+                                                QString* errorMsg = 0,
                                                 QFile::Permissions local_permissions = QFile::ReadOwner | QFile::WriteOwner);
             //! Convenience function that returns the given path as an Unix formatted path.
             /*!

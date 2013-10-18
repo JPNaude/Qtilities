@@ -47,6 +47,7 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     [#] QtilitiesProperty is now properly documented.
     [#] Moved registration of Logger::MessageType and Logger::MessageContext from ITask to Logger's constructor.
     [#] FileUtils::makeLocalCopyOfResource() will also create the local_path directory using QDir::mkpath() if it does not exist.
+    [#] FileUtils::makeLocalCopyOfResource()'s errorMsg parameter is no longer compulsory.
 
     [*] Fixed bug in Observer::handle_deletedSubject() where application can sometimes
         crash with "Detected QWeakPointer creation in a QObject being deleted".
