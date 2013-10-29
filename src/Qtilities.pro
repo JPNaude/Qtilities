@@ -13,9 +13,6 @@ TARGET      = Qtilities
 TEMPLATE    = subdirs
 SUBDIRS     = Logging Core CoreGui ExtensionSystem ProjectManagement Testing
 
-#src_lib.subdir = src/lib
-#src_lib.target = sub-src-lib
-
 Core.depends              = Logging
 CoreGui.depends           = Logging \
                             Core
