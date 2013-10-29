@@ -11,21 +11,11 @@ QTILITIES += extension_system
 include(../Qtilities.pri)
 INCLUDEPATH += $$QTILITIES_INCLUDE/Testing
 
-CONFIG += qt \
-    dll \
-    ordered
+CONFIG += qt dll
+QT += xml gui
 
-QT += xml \
-      gui
-
-greaterThan(QT_MAJOR_VERSION, 4) {
-QT += widgets \
-      printsupport \
-      testlib
-}
-lessThan(QT_MAJOR_VERSION, 5) {
-    CONFIG += qtestlib
-}
+greaterThan(QT_MAJOR_VERSION, 4) { QT += widgets printsupport testlib }
+lessThan(QT_MAJOR_VERSION, 5) { CONFIG += qtestlib }
 
 TARGET = QtilitiesTesting$${QTILITIES_LIB_POSTFIX}
 

@@ -337,7 +337,7 @@ bool FileUtils::makeLocalCopyOfResource(const QString &resource_path, const QStr
     QFile resource_file(resource_path);
     if (!resource_file.exists()) {
         if (errorMsg)
-            *errorMsg = QString(tr("Resource file does not exist at path: %1. It will not be copied.")).arg(local_path);
+            *errorMsg = QString(tr("Resource file does not exist at path: %1. It will not be copied.")).arg(resource_file.fileName());
         return false;
     }
 

@@ -9,17 +9,11 @@
 QTILITIES += coregui
 include(../Qtilities.pri)
 INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesExtensionSystem
-CONFIG += qt \
-    dll \
-    ordered
 
-QT += xml \
-      gui
+CONFIG += qt dll
+QT += xml gui
 
-greaterThan(QT_MAJOR_VERSION, 4) {
-QT += widgets \
-      printsupport
-}
+greaterThan(QT_MAJOR_VERSION, 4) { QT += widgets printsupport }
 
 TARGET = QtilitiesExtensionSystem$${QTILITIES_LIB_POSTFIX}
 

@@ -12,9 +12,7 @@ include(../Qtilities.pri)
 INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesLogging
 INCLUDEPATH += $$QTILITIES_SOURCE/Common
 
-CONFIG += qt \
-    dll \
-    ordered
+CONFIG += qt dll
 
 QT += core
 QT -= gui

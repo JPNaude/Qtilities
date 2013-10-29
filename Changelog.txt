@@ -12,6 +12,8 @@ https://github.com/JPNaude/Qtilities/issues/milestones
 
     General:
     ============================
+    [#] All .pro files no longer use CONFIG += ordered. Proper dependencies are now defined, allowing
+        parralel compilation to be done.
 
     ============================
     QtilitiesLogging:
@@ -59,6 +61,7 @@ https://github.com/JPNaude/Qtilities/issues/milestones
         and QtilitiesProcess::newStandardErrorMessage().
     [*] Fixed Task::completeTask() not always emitting with the correct result. For example, it would
         be emitted with the result set to TaskResultFromBusyStateFailOnError instead of TaskFailed.
+    [*] Fixed path printed in FileUtils::makeLocalCopyOfResource() error message when resource file does not exist.
 
     ============================
     QtilitiesCoreGui:

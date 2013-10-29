@@ -10,17 +10,10 @@ include(../Qtilities.pri)
 
 INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCoreGui
 
-CONFIG += qt \
-    dll \
-    ordered
+CONFIG += qt dll
+QT += xml gui
 
-QT += xml \
-      gui
-
-greaterThan(QT_MAJOR_VERSION, 4) {
-QT += widgets \
-      printsupport
-}
+greaterThan(QT_MAJOR_VERSION, 4) { QT += widgets printsupport }
 
 TARGET = QtilitiesCoreGui$${QTILITIES_LIB_POSTFIX}
 

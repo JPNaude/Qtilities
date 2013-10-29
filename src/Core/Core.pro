@@ -11,12 +11,9 @@ QTILITIES += logging
 include(../Qtilities.pri)
 INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCore
 
-CONFIG += qt \
-    dll \
-    ordered
-QT += core
+CONFIG += qt dll
+QT += core xml
 QT -= gui
-QT += xml
 
 TARGET = QtilitiesCore$${QTILITIES_LIB_POSTFIX}
 
