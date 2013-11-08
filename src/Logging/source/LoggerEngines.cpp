@@ -298,6 +298,12 @@ QString Qtilities::Logging::ConsoleLoggerEngine::status() const {
     }
 }
 
+void ConsoleLoggerEngine::resetConsoleEscapeCodes() {
+#ifndef Q_OS_WIN
+    fprintf(stdout, qPrintable(QString("%1").arg(CONSOLE_RESET)));
+#endif
+}
+
 void Qtilities::Logging::ConsoleLoggerEngine::logMessage(const QString& message, Logger::MessageType message_type) {
 #ifdef Q_OS_WIN
     if (message_type == Logger::Error || message_type == Logger::Fatal) {
@@ -312,7 +318,7 @@ void Qtilities::Logging::ConsoleLoggerEngine::logMessage(const QString& message,
             if (message_colors.contains(Logger::Info))
                 fprintf(stdout, qPrintable(QString("%1%s\n%2").arg(message_colors[Logger::Info]).arg(CONSOLE_RESET)), qPrintable(message));
             else
-                fprintf(stdout, "%s\n", qPrintable(message));
+                fprintf(stdout, qPrintable(QString("%1%s\n").arg(CONSOLE_RESET)), qPrintable(message));
         } else if (message_type == Logger::Warning) {
             fprintf(stdout, qPrintable(QString("%1%s\n%2").arg(message_colors[Logger::Warning]).arg(CONSOLE_RESET)), qPrintable(message));
         } else if (message_type == Logger::Error) {

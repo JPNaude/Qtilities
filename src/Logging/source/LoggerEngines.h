@@ -184,7 +184,7 @@ namespace Qtilities {
              *
              * \note Enabled by default and does not work on Windows.
              *
-             * \sa setConsoleFormattingEnabled(), setConsoleFormattingHint()
+             * \sa setConsoleFormattingEnabled(), setConsoleFormattingHint(), resetConsoleEscapeCodes()
              *
              * <i>This function was added in %Qtilities v1.5.</i>
              */
@@ -202,11 +202,24 @@ namespace Qtilities {
              *
              * \note Enabled by default and does not work on Windows.
              *
-             * \sa consoleFormattingEnabled(), setConsoleFormattingEnabled()
+             * \sa consoleFormattingEnabled(), setConsoleFormattingEnabled(), resetConsoleEscapeCodes()
              *
              * <i>This function was added in %Qtilities v1.5.</i>
              */
             void setConsoleFormattingHint(Logger::MessageType message_type, QString hint_color);
+            //! Sets the formatting hint to use for console messages when consoleFormattingEnabled() is true.
+            /*!
+             * Resets the escape codes on the console using the ANSI escape code character.
+             *
+             * For more information on these escape codes, including OS support etc, see http://en.wikipedia.org/wiki/ANSI_escape_code.
+             *
+             * \note Does nothing on Windows.
+             *
+             * \sa consoleFormattingEnabled(), setConsoleFormattingEnabled()
+             *
+             * <i>This function was added in %Qtilities v1.5.</i>
+             */
+            void resetConsoleEscapeCodes();
 
             // AbstractLoggerEngine implementation
             bool initialize();
