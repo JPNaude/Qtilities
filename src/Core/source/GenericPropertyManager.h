@@ -123,15 +123,31 @@ namespace Qtilities {
 
         public:
             //! Adds a property. If a property with the same name already exists, this function returns the existing property.
-            GenericProperty* addProperty(const QString& property_name, QVariant value = QVariant());
+            /*!
+             * \param property_name The name of the property to add.
+             * \param value The value of the property to add.
+             * \param refresh Indicates if the property browser must be refreshed after the property was added.
+             * \return The added property.
+             */
+            GenericProperty* addProperty(const QString& property_name, QVariant value = QVariant(), bool refresh_browser = true);
             //! Adds an existing property.
-            bool addProperty(GenericProperty* property);
+            /*!
+             * \param property The property to add.
+             * \param refresh Indicates if the property browser must be refreshed after the property was added.
+             * \return True when successfull, false otherwise.
+             */
+            bool addProperty(GenericProperty* property, bool refresh_browser = true);
             //! Adds all properties in a list.
             void addProperties(QList<GenericProperty*> properties);
             //! Adds all properties in a list with safe pointers.
             void addProperties(QList<QPointer<GenericProperty> > properties);
             //! Removes a property. If a property with the name does not exists, this function does nothing and returns false.
-            bool removeProperty(const QString& property_name);
+            /*!
+             * \param property_name The name of the property to remove.
+             * \param refresh Indicates if the property browser must be refreshed after the property was added.
+             * \return True when successfull, false otherwise.
+             */
+            bool removeProperty(const QString& property_name, bool refresh_browser = true);
 
             //! Sets the value of the specified property.
             /*!

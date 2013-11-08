@@ -28,7 +28,7 @@ struct GenericPropertyData {
         default_editable(true),
         state_dependent(true),
         context_dependent(false),
-        is_internal(true),
+        is_internal(false),
         visible(true),
         default_visible(true),
         default_value_set(false),

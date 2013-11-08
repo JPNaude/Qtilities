@@ -158,6 +158,10 @@ GenericPropertyBrowser::~GenericPropertyBrowser() {
     delete d;
 }
 
+QtAbstractPropertyBrowser *GenericPropertyBrowser::abstractPropertyBrowser() const {
+    return d->property_browser;
+}
+
 QSize GenericPropertyBrowser::sizeHint() const {
     if (d->property_browser) {
         if (d->property_browser->sizeHint().isValid() && d->property_browser->sizeHint().width() != 0

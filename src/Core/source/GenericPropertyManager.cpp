@@ -61,12 +61,13 @@ void GenericPropertyManager::clear() {
         GenericProperty *prop = qobject_cast<GenericProperty*> (d->properties_observer.subjectAt(i));
         Q_ASSERT(prop);
         if (prop) {
-            if (!prop->isInternal())
+//            if (!prop->isInternal())
                 props_to_delete << prop;
         }
     }
 
     qDeleteAll(props_to_delete);
+    refresh();
 }
 
 Observer *GenericPropertyManager::propertiesObserver() const {
@@ -172,7 +173,7 @@ QList<GenericProperty *> GenericPropertyManager::allProperties(const QtilitiesCa
     return properties;
 }
 
-GenericProperty *GenericPropertyManager::addProperty(const QString &property_name, QVariant value) {
+GenericProperty *GenericPropertyManager::addProperty(const QString &property_name, QVariant value, bool refresh_browser) {
     GenericProperty* prop = containsProperty(property_name);
     if (prop)
         return prop;
@@ -194,7 +195,8 @@ GenericProperty *GenericPropertyManager::addProperty(const QString &property_nam
                 prop->setValue(value);
             }
 
-            emit refresh();
+            if (refresh_browser)
+                emit refresh();
             return prop;
         } else {
             LOG_ERROR(error_msg);
@@ -205,7 +207,7 @@ GenericProperty *GenericPropertyManager::addProperty(const QString &property_nam
     return 0;
 }
 
-bool GenericPropertyManager::addProperty(GenericProperty *property) {
+bool GenericPropertyManager::addProperty(GenericProperty *property, bool refresh_browser) {
     if (!property)
         return false;
     GenericProperty* existing_prop = containsProperty(property->propertyName());
@@ -215,7 +217,8 @@ bool GenericPropertyManager::addProperty(GenericProperty *property) {
         QString error_msg;
         if (d->properties_observer.attachSubject(property,Observer::SpecificObserverOwnership,&error_msg)) {
             connectToProperty(property);
-            emit refresh();
+            if (refresh_browser)
+                emit refresh();
             return true;
         } else {
             LOG_ERROR(error_msg);
@@ -225,21 +228,32 @@ bool GenericPropertyManager::addProperty(GenericProperty *property) {
 }
 
 void GenericPropertyManager::addProperties(QList<GenericProperty *> properties) {
-    for (int i = 0; i < properties.count(); i++)
-        addProperty(properties.at(i));
+    bool do_refresh = false;
+    for (int i = 0; i < properties.count(); i++) {
+        if (addProperty(properties.at(i),false))
+            do_refresh = true;
+    }
+    if (do_refresh)
+        refresh();
 }
 
 void GenericPropertyManager::addProperties(QList<QPointer<GenericProperty> > properties) {
-    for (int i = 0; i < properties.count(); i++)
-        addProperty(properties.at(i));
+    bool do_refresh = false;
+    for (int i = 0; i < properties.count(); i++) {
+        if (addProperty(properties.at(i),false))
+            do_refresh = true;
+    }
+    if (do_refresh)
+        refresh();
 }
 
-bool GenericPropertyManager::removeProperty(const QString &property_name) {
+bool GenericPropertyManager::removeProperty(const QString &property_name, bool refresh_browser) {
     GenericProperty* prop = containsProperty(property_name);
     if (prop) {
         // SpecificObserverOwnership, thus will be removed from observer.
         delete prop;
-        refresh();
+        if (refresh_browser)
+            refresh();
         return true;
     } else {
         return false;

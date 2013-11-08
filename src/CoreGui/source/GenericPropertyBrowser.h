@@ -14,6 +14,8 @@
 #include "QtilitiesCoreGui_global.h"
 #include "GenericPropertyManager.h"
 
+#include <qtpropertybrowser.h>
+
 #include <QPointer>
 
 class QtProperty;
@@ -45,6 +47,12 @@ namespace Qtilities {
 
             GenericPropertyBrowser(GenericPropertyManager* property_manager, BrowserType browser_type = TreeBrowser, QWidget *parent = 0);
             ~GenericPropertyBrowser();
+
+            //! Return a reference to the QtAbstractPropertyBrowser property browser used internally.
+            /*!
+             * <i>This function was added in %Qtilities v1.2.</i>
+             */
+            QtAbstractPropertyBrowser* abstractPropertyBrowser() const;
 
             //! Sets the object to inspect and display properties for.
             QObject *object() const;
