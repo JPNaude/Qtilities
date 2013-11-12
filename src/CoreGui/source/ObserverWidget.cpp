@@ -102,7 +102,7 @@ struct Qtilities::CoreGui::ObserverWidgetData {
         tree_name_column_delegate(0),
         activity_filter(0),
         top_level_observer(0),
-        notify_selected_objects_changed_in_set_observer(true),
+        notify_selected_objects_changed(true),
         initialized(false),
         read_only(false),
         update_selection_activity(true),
@@ -191,7 +191,7 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     #endif
 
     //! Indicates if setObserver() should emit selectedObjectsChanged(QList<QObject*>()). Default is true, but when in tree mode we call setObserverContext() and in that case we don't want to emit it to avoid double emissions.
-    bool notify_selected_objects_changed_in_set_observer;
+    bool notify_selected_objects_changed;
     //! Indicates if the widget is in an initialized state. Thus initialization was successful. \sa initialize()
     bool initialized;
     //! Indicates if the widget is read only
@@ -437,8 +437,10 @@ bool Qtilities::CoreGui::ObserverWidget::setObserverContext(Observer* observer) 
 
     emit observerContextChanged(d_observer);
 
-    if (d->notify_selected_objects_changed_in_set_observer)
-        emit selectedObjectsChanged(QList<QObject*>());
+    // We don't want to emit selectedObjectsChanged() because the widget will still
+    // be initialized after the observer was set in which selectedObjectsChanged() will also
+    // be emitted.
+    // emit selectedObjectsChanged(QList<QObject*>());
     setEnabled(true);
     return true;
 }
@@ -2247,10 +2249,10 @@ void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observ
     //        qDebug() << "New selection parent: " << observer << " with NO display hints.";
     //    }
 
-        bool current_notify_selected_objects_changed_in_set_observer = d->notify_selected_objects_changed_in_set_observer;
-        d->notify_selected_objects_changed_in_set_observer = false;
+        bool current_notify_selected_objects_changed = d->notify_selected_objects_changed;
+        d->notify_selected_objects_changed = false;
         setObserverContext(observer);
-        d->notify_selected_objects_changed_in_set_observer = current_notify_selected_objects_changed_in_set_observer;
+        d->notify_selected_objects_changed = current_notify_selected_objects_changed;
         // We set d->update_selection_activity to false in here since we don't want an initial selection
         // to be created in initialize()
         d->update_selection_activity = false;
@@ -2265,7 +2267,9 @@ void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observ
             toggleUseObserverHints(valid_selection_parent_hints);
         }
 
+        d->notify_selected_objects_changed = false;
         initialize(true);
+        d->notify_selected_objects_changed = current_notify_selected_objects_changed;
 
         if (change_obs_hints) {
             if (!valid_selection_parent_hints)
@@ -3379,7 +3383,8 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
          // In this case the FollowSelection hint check will happen in the setTreeSelectionParent slot.
          // Refresh actions will happen in the return slot as well.
 
-        emit selectedObjectsChanged(object_list, selection_parent);
+        if (!d->notify_selected_objects_changed)
+            emit selectedObjectsChanged(object_list, selection_parent);
     }
 }
 
