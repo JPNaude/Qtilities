@@ -127,13 +127,14 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program,
 
     QString native_program = FileUtils::toNativeSeparators(program);
     logMessage(tr("Executing Process: ") + native_program + " " + arguments.join(" "));
-    if (d->process->workingDirectory().isEmpty())
+    if (d->process->workingDirectory().isEmpty()) {
         logMessage(tr("> working directory of process: %1").arg(QDir::current().path()));
-    else
+    } else {
         logMessage(tr("> working directory of process: %1").arg(d->process->workingDirectory()));
-    QDir dir(d->process->workingDirectory());
-    if (!dir.exists())
-        logWarning(tr("> working directory does not exist, process might fail to start."));
+        QDir dir(d->process->workingDirectory());
+        if (!dir.exists())
+            logWarning(tr("> working directory does not exist, process might fail to start."));
+    }
 
     QTimer timer;
     if (timeout_msecs > 0) {
