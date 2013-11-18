@@ -535,14 +535,14 @@ QString GenericPropertyBrowser::getToolTipText(GenericProperty *property) {
         tooltip_text.append(property->description() + "<br>");
 
     if (!property->valueString().isEmpty())
-        tooltip_text.append("<span style=\"color: gray;\">Current Value: " + property->valueString() + "</span>");
+        tooltip_text.append(QString("<span style=\"color: gray;\">%1: %2</span>").arg(tr("Current Value")).arg(property->valueString()));
 
     if (!property->defaultValueString().isEmpty() && !property->switchName().isEmpty())
-        tooltip_text.append("<span style=\"color: gray;\">Default: " + property->defaultValueString() + "<br>Switch Name: " + property->switchName() + "</span>");
+        tooltip_text.append(QString("<span style=\"color: gray;\">%1: %2<br>%3: %4</span>").arg(tr("Default")).arg(property->defaultValueString()).arg(tr("Switch Name")).arg(property->switchName()));
     else if (!property->defaultValueString().isEmpty())
-        tooltip_text.append("<span style=\"color: gray;\">Default: " + property->defaultValueString() + "</span>");
+        tooltip_text.append(QString("<span style=\"color: gray;\">%1: %2</span>").arg(tr("Default")).arg(property->defaultValueString()));
     else if (!property->switchName().isEmpty())
-        tooltip_text.append("<span style=\"color: gray;\">Switch Name: " + property->switchName() + "</span>");
+        tooltip_text.append(QString("<span style=\"color: gray;\">%1: %2</span>").arg(tr("Switch Name")).arg(property->switchName()));
 
 //    if (property->contextDependent())
 //        tooltip_text.append("<span style=\"color: gray;\">Context Dependent: Yes</span>");
