@@ -152,7 +152,7 @@ namespace Qtilities {
             // --------------------------------------------------
             // Logging Functionality
             // --------------------------------------------------
-            QStringList lastErrorMessages(int count) const;
+            QStringList lastErrorMessages(int count = -1) const;
             void setLastErrorMessagesStackSize(int size);
             int lastErrorMessagesStackSize() const;
             void setLogContext(Logger::MessageContextFlags message_context);
