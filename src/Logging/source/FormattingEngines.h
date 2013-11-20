@@ -32,8 +32,6 @@ namespace Qtilities {
           */
         class FormattingEngine_Default : virtual public AbstractFormattingEngine
         {           
-            Q_OBJECT
-
         public:
             static FormattingEngine_Default & instance() {
                 static FormattingEngine_Default* theInstance = new FormattingEngine_Default();
@@ -70,8 +68,6 @@ namespace Qtilities {
           */
         class FormattingEngine_Rich_Text : virtual public AbstractFormattingEngine
         {
-            Q_OBJECT
-
         public:
             static FormattingEngine_Rich_Text & instance() {
                 static FormattingEngine_Rich_Text* theInstance = new FormattingEngine_Rich_Text();
@@ -104,8 +100,6 @@ namespace Qtilities {
           */
         class FormattingEngine_XML : virtual public AbstractFormattingEngine
         {
-            Q_OBJECT
-
         public:
             static FormattingEngine_XML & instance() {
                 static FormattingEngine_XML* theInstance = new FormattingEngine_XML();
@@ -138,8 +132,6 @@ namespace Qtilities {
           */
         class FormattingEngine_HTML : virtual public AbstractFormattingEngine
         {
-            Q_OBJECT
-
         public:
             static FormattingEngine_HTML & instance() {
                 static FormattingEngine_HTML* theInstance = new FormattingEngine_HTML();
@@ -175,8 +167,6 @@ namespace Qtilities {
           */
         class FormattingEngine_QtMsgEngineFormat : virtual public AbstractFormattingEngine
         {
-            Q_OBJECT
-
         public:
             static FormattingEngine_QtMsgEngineFormat & instance() {
                 static FormattingEngine_QtMsgEngineFormat* theInstance = new FormattingEngine_QtMsgEngineFormat();
