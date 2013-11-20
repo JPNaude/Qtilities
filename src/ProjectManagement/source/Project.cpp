@@ -36,7 +36,7 @@ using namespace Qtilities::Core;
 
 struct Qtilities::ProjectManagement::ProjectPrivateData {
     ProjectPrivateData(): project_file(QString()),
-    project_name(QString(QObject::tr("New Project"))) {}
+    project_name(QObject::tr("New Project")) {}
 
     QList<IProjectItem*>    project_items;
     QString                 project_file;
@@ -58,7 +58,7 @@ Qtilities::ProjectManagement::Project::~Project() {
 
 bool Qtilities::ProjectManagement::Project::newProject() {
     d->project_file = QString();
-    d->project_name = QString(QObject::tr("New Project"));
+    d->project_name = QObject::tr("New Project");
     for (int i = 0; i < d->project_items.count(); ++i) {
         d->project_items.at(i)->newProjectItem();
     }

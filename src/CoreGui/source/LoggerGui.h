@@ -115,8 +115,7 @@ log_engine->setMessageContexts(Logger::EngineSpecificMessages);
                     new_widget_engine->installFormattingEngine(formatting_engine);
                 } else {
                     delete new_widget_engine;
-                    LOG_ERROR(QString(QObject::tr("Failed to create log widget engine. The specified formatting engine could not be found: %1")).arg(formatter));
-                    qDebug() << (QString(QObject::tr("Failed to create log widget engine. The specified formatting engine could not be found: %1. Make sure you initialized the logger properly using LOG_INITIALIZE().")).arg(formatter));
+                    LOG_DEBUG(QString("Failed to create log widget engine. The specified formatting engine could not be found: %1").arg(formatter));
                     return 0;
                 }
 

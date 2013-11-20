@@ -194,7 +194,7 @@ namespace Qtilities {
                                                                    QDomElement* object_node,
                                                                    bool export_non_default = true,
                                                                    bool export_default = false,
-                                                                   const QString &export_node_name = QObject::tr("generic_properties")) const;
+                                                                   const QString &export_node_name = "generic_properties") const;
             //! Imports all properties which does not match their default state from the given QDomDocument.
             /*!
               This function should be called after loadDefaultProperties(). It will load all changed properties and change the
@@ -204,7 +204,7 @@ namespace Qtilities {
               */
             IExportable::ExportResultFlags importManagerProperties(QDomDocument* doc,
                                                                    QDomElement* object_node,
-                                                                   const QString &export_node_name = QObject::tr("generic_properties"));
+                                                                   const QString &export_node_name = "generic_properties");
 
             //! Exports all macros matching the given macro mode to the given QDomDocment.
             IExportable::ExportResultFlags exportMacros(GenericProperty::MacroMode macro_mode,QDomDocument* doc, QDomElement* object_node);

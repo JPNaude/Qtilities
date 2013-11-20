@@ -43,10 +43,10 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Int
 
 Qtilities::Core::Interfaces::IExportable::Result IExportable::validateQtilitiesExportVersion(Qtilities::ExportVersion export_version, ITask *task) {
     if (export_version < Qtilities::Qtilities_1_0) {
-        LOG_TASK_ERROR(QObject::tr("Qtilities export version compatibility check failed. The Qtilities export version requested (version ") + QString::number((int) export_version) + QObject::tr(") is too old."),task);
+        LOG_TASK_ERROR("Qtilities export version compatibility check failed. The Qtilities export version requested (version " + QString::number((int) export_version) + ") is too old.",task);
         return IExportable::VersionTooOld;
     } else if (export_version > Qtilities::Qtilities_Latest) {
-        LOG_TASK_ERROR(QObject::tr("Qtilities export version compatibility check failed. The Qtilities export version requested (version ") + QString::number((int) export_version) + QObject::tr(") is too new."),task);
+        LOG_TASK_ERROR("Qtilities export version compatibility check failed. The Qtilities export version requested (version " + QString::number((int) export_version) + ") is too new.",task);
         return IExportable::VersionTooNew;
     }
 
@@ -55,10 +55,10 @@ Qtilities::Core::Interfaces::IExportable::Result IExportable::validateQtilitiesE
 
 Qtilities::Core::Interfaces::IExportable::Result IExportable::validateQtilitiesImportVersion(Qtilities::ExportVersion import_version, ITask *task) {
     if (import_version < Qtilities::Qtilities_1_0) {
-        LOG_TASK_ERROR(QObject::tr("Qtilities export version compatibility check failed. The Qtilities export version detected in the input data (version ") + (int) import_version + QObject::tr(") is too old."),task);
+        LOG_TASK_ERROR("Qtilities export version compatibility check failed. The Qtilities export version detected in the input data (version " + QString::number((int) import_version) + ") is too old.",task);
         return IExportable::VersionTooOld;
     } else if (import_version > Qtilities::Qtilities_Latest) {
-        LOG_TASK_ERROR(QObject::tr("Qtilities export version compatibility check failed. The Qtilities export version detected in the input data (version ") + (int) import_version + QObject::tr(") is too new."),task);
+        LOG_TASK_ERROR("Qtilities export version compatibility check failed. The Qtilities export version detected in the input data (version " + QString::number((int) import_version) + ") is too new.",task);
         return IExportable::VersionTooNew;
     }
 

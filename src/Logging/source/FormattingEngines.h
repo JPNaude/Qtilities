@@ -32,6 +32,7 @@ namespace Qtilities {
           */
         class FormattingEngine_Default : virtual public AbstractFormattingEngine
         {           
+            Q_OBJECT
 
         public:
             static FormattingEngine_Default & instance() {
@@ -49,9 +50,9 @@ namespace Qtilities {
             QString initializeString() const;
             QString finalizeString() const;
             QString formatMessage(Logger::MessageType message_type, const QList<QVariant>& messages) const;
-            QString fileExtension() const { return QString("log"); }
+            QString fileExtension() const { return "log"; }
             QString name() const { return qti_def_FORMATTING_ENGINE_DEFAULT; }
-            QString endOfLineChar() const { return QString("\n"); }
+            QString endOfLineChar() const { return "\n"; }
         };
 
         //! Rich Text Formatting Engine.
@@ -69,6 +70,8 @@ namespace Qtilities {
           */
         class FormattingEngine_Rich_Text : virtual public AbstractFormattingEngine
         {
+            Q_OBJECT
+
         public:
             static FormattingEngine_Rich_Text & instance() {
                 static FormattingEngine_Rich_Text* theInstance = new FormattingEngine_Rich_Text();
@@ -86,7 +89,7 @@ namespace Qtilities {
             QString formatMessage(Logger::MessageType message_type, const QList<QVariant>& messages) const;
             QString fileExtension() const { return QString(); }
             QString name() const { return qti_def_FORMATTING_ENGINE_RICH_TEXT; }
-            QString endOfLineChar() const { return QString("<br>"); }
+            QString endOfLineChar() const { return "<br>"; }
         };
 
         //! XML Formatting Engine.
@@ -101,6 +104,8 @@ namespace Qtilities {
           */
         class FormattingEngine_XML : virtual public AbstractFormattingEngine
         {
+            Q_OBJECT
+
         public:
             static FormattingEngine_XML & instance() {
                 static FormattingEngine_XML* theInstance = new FormattingEngine_XML();
@@ -116,9 +121,9 @@ namespace Qtilities {
             QString initializeString() const;
             QString finalizeString() const;
             QString formatMessage(Logger::MessageType message_type, const QList<QVariant>& messages) const;
-            QString fileExtension() const { return QString("xml"); }
+            QString fileExtension() const { return "xml"; }
             QString name() const { return qti_def_FORMATTING_ENGINE_XML; }
-            QString endOfLineChar() const { return QString("\n"); }
+            QString endOfLineChar() const { return "\n"; }
         };
 
         //! HTML Formatting Engine.
@@ -133,6 +138,8 @@ namespace Qtilities {
           */
         class FormattingEngine_HTML : virtual public AbstractFormattingEngine
         {
+            Q_OBJECT
+
         public:
             static FormattingEngine_HTML & instance() {
                 static FormattingEngine_HTML* theInstance = new FormattingEngine_HTML();
@@ -148,9 +155,9 @@ namespace Qtilities {
             QString initializeString() const;
             QString finalizeString() const;
             QString formatMessage(Logger::MessageType message_type, const QList<QVariant>& messages) const;
-            QString fileExtension() const { return QString("html"); }
+            QString fileExtension() const { return "html"; }
             QString name() const { return qti_def_FORMATTING_ENGINE_HTML; }
-            QString endOfLineChar() const { return QString("<br>"); }
+            QString endOfLineChar() const { return "<br>"; }
         };
 
         //! A formatting engine used to format messages for the QtMsgLoggerEngine.
@@ -168,6 +175,8 @@ namespace Qtilities {
           */
         class FormattingEngine_QtMsgEngineFormat : virtual public AbstractFormattingEngine
         {
+            Q_OBJECT
+
         public:
             static FormattingEngine_QtMsgEngineFormat & instance() {
                 static FormattingEngine_QtMsgEngineFormat* theInstance = new FormattingEngine_QtMsgEngineFormat();
@@ -185,7 +194,7 @@ namespace Qtilities {
             QString formatMessage(Logger::MessageType message_type, const QList<QVariant>& messages) const;
             QString fileExtension() const { return QString(); }
             QString name() const { return qti_def_FORMATTING_ENGINE_QT_MSG; }
-            QString endOfLineChar() const { return QString("\n"); }
+            QString endOfLineChar() const { return "\n"; }
         };
     }
 }

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Qtilities Main Window</string>
+   <string notr="true">StringListWidget</string>
   </property>
   <property name="dockNestingEnabled">
    <bool>true</bool>

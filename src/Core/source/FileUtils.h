@@ -75,8 +75,8 @@ namespace Qtilities {
 \code
 FileUtils fu;
 
-// All non-system and non-hidden files:
-QFileInfoList files = fu.findFilesUnderDir("c:/my_path");
+// All text files under /my_path:
+QFileInfoList files = fu.findFilesUnderDir("/my_path","*.txt");
 \endcode
 
                 It is possible to find just directories by specifying the filters to be QDir::AllDirs without including QDir::Files.

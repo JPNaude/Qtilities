@@ -19,7 +19,10 @@
 using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::CoreGui::Icons;
 
-struct Qtilities::CoreGui::SearchBoxWidgetPrivateData {
+namespace Qtilities {
+namespace CoreGui {
+
+struct SearchBoxWidgetPrivateData {
     SearchBoxWidgetPrivateData() : searchOptionRegEx(0),
         searchOptionFixedString(0),
         searchOptionWildcard(0),
@@ -46,7 +49,7 @@ struct Qtilities::CoreGui::SearchBoxWidgetPrivateData {
     SearchBoxWidget::SearchStringChangedNotificationMode search_string_notification_mode;
 };
 
-Qtilities::CoreGui::SearchBoxWidget::SearchBoxWidget(SearchOptions search_options, WidgetMode mode, ButtonFlags buttons, QWidget *parent) :
+SearchBoxWidget::SearchBoxWidget(SearchOptions search_options, WidgetMode mode, ButtonFlags buttons, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SearchBoxWidget)
 {
@@ -127,29 +130,29 @@ Qtilities::CoreGui::SearchBoxWidget::SearchBoxWidget(SearchOptions search_option
     ui->txtReplaceString->setFont(normal_font);
 }
 
-Qtilities::CoreGui::SearchBoxWidget::~SearchBoxWidget()
+SearchBoxWidget::~SearchBoxWidget()
 {
     delete d;
     delete ui;
 }
 
-QString Qtilities::CoreGui::SearchBoxWidget::currentSearchString() const {
+QString SearchBoxWidget::currentSearchString() const {
     return ui->txtSearchString->text();
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::setCurrentSearchString(const QString& search_string) {
+void SearchBoxWidget::setCurrentSearchString(const QString& search_string) {
     ui->txtSearchString->setText(search_string);
 }
 
-QString Qtilities::CoreGui::SearchBoxWidget::currentReplaceString() const {
+QString SearchBoxWidget::currentReplaceString() const {
     return ui->txtReplaceString->text();
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::setCurrentReplaceString(const QString& replace_string) {
+void SearchBoxWidget::setCurrentReplaceString(const QString& replace_string) {
     ui->txtReplaceString->setText(replace_string);
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::changeEvent(QEvent *e)
+void SearchBoxWidget::changeEvent(QEvent *e)
 {
     QWidget::changeEvent(e);
     switch (e->type()) {
@@ -161,21 +164,21 @@ void Qtilities::CoreGui::SearchBoxWidget::changeEvent(QEvent *e)
     }
 }
 
-bool Qtilities::CoreGui::SearchBoxWidget::caseSensitive() const {
+bool SearchBoxWidget::caseSensitive() const {
     if (d->searchOptionCaseSensitive)
         return d->searchOptionCaseSensitive->isChecked();
     else
         return false;
 }
 
-bool Qtilities::CoreGui::SearchBoxWidget::wholeWordsOnly() const {
+bool SearchBoxWidget::wholeWordsOnly() const {
     if (d->searchOptionWholeWordsOnly)
         return d->searchOptionWholeWordsOnly->isChecked();
     else
         return false;
 }
 
-QRegExp::PatternSyntax Qtilities::CoreGui::SearchBoxWidget::patternSyntax() const {
+QRegExp::PatternSyntax SearchBoxWidget::patternSyntax() const {
     if (!d->searchOptionFixedString || !d->searchOptionRegEx || !d->searchOptionWildcard)
         return QRegExp::Wildcard;
 
@@ -189,7 +192,7 @@ QRegExp::PatternSyntax Qtilities::CoreGui::SearchBoxWidget::patternSyntax() cons
         return QRegExp::Wildcard;
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::setPatternSyntax(QRegExp::PatternSyntax pattern_syntax) {
+void SearchBoxWidget::setPatternSyntax(QRegExp::PatternSyntax pattern_syntax) {
     if (!d->searchOptionFixedString || !d->searchOptionRegEx || !d->searchOptionWildcard)
         return;
 
@@ -208,23 +211,23 @@ void Qtilities::CoreGui::SearchBoxWidget::setPatternSyntax(QRegExp::PatternSynta
     }
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::setCaseSensitive(bool toggle) {
+void SearchBoxWidget::setCaseSensitive(bool toggle) {
     if (d->searchOptionCaseSensitive)
         return d->searchOptionCaseSensitive->setChecked(toggle);
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::setWholeWordsOnly(bool toggle) {
+void SearchBoxWidget::setWholeWordsOnly(bool toggle) {
     if (d->searchOptionWholeWordsOnly)
         return d->searchOptionWholeWordsOnly->setChecked(toggle);
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::setEditorFocus(bool select_text) {
+void SearchBoxWidget::setEditorFocus(bool select_text) {
     ui->txtSearchString->setFocus();
     if (select_text)
         ui->txtSearchString->selectAll();
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::setButtonFlags(ButtonFlags button_flags) {
+void SearchBoxWidget::setButtonFlags(ButtonFlags button_flags) {
     d->button_flags = button_flags;
     // Shows buttons according to button flags
     if (d->button_flags & NextButtons) {
@@ -252,11 +255,11 @@ void Qtilities::CoreGui::SearchBoxWidget::setButtonFlags(ButtonFlags button_flag
     }
 }
 
-Qtilities::CoreGui::SearchBoxWidget::ButtonFlags Qtilities::CoreGui::SearchBoxWidget::buttonFlags() const {
+SearchBoxWidget::ButtonFlags SearchBoxWidget::buttonFlags() const {
     return d->button_flags;
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::setSearchOptions(SearchOptions search_options) {
+void SearchBoxWidget::setSearchOptions(SearchOptions search_options) {
     d->search_options = search_options;
     if (d->search_options & CaseSensitive) {
         d->searchOptionCaseSensitive->setVisible(true);
@@ -283,11 +286,11 @@ void Qtilities::CoreGui::SearchBoxWidget::setSearchOptions(SearchOptions search_
     }
 }
 
-Qtilities::CoreGui::SearchBoxWidget::SearchOptions Qtilities::CoreGui::SearchBoxWidget::searchOptions() const {
+SearchBoxWidget::SearchOptions SearchBoxWidget::searchOptions() const {
     return d->search_options;
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::setWidgetMode(WidgetMode widget_mode) {
+void SearchBoxWidget::setWidgetMode(WidgetMode widget_mode) {
     d->widget_mode = widget_mode;
     // Show contents according to selected mode
     if (d->widget_mode == SearchOnly) {
@@ -299,26 +302,26 @@ void Qtilities::CoreGui::SearchBoxWidget::setWidgetMode(WidgetMode widget_mode) 
     }
 }
 
-Qtilities::CoreGui::SearchBoxWidget::WidgetMode Qtilities::CoreGui::SearchBoxWidget::widgetMode() const {
+SearchBoxWidget::WidgetMode SearchBoxWidget::widgetMode() const {
     return d->widget_mode;
 }
 
-QMenu* Qtilities::CoreGui::SearchBoxWidget::searchOptionsMenu() {
+QMenu* SearchBoxWidget::searchOptionsMenu() {
     return d->searchOptionsMenu;
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::setTextEditor(QTextEdit* textEdit) {
+void SearchBoxWidget::setTextEditor(QTextEdit* textEdit) {
     d->textEdit = textEdit;
 
     if (d->textEdit)
         d->widget_target = SearchBoxWidget::TextEdit;
 }
 
-QTextEdit* Qtilities::CoreGui::SearchBoxWidget::textEditor() const {
+QTextEdit* SearchBoxWidget::textEditor() const {
     return d->textEdit;
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::setPlainTextEditor(QPlainTextEdit* plainTextEdit) {
+void SearchBoxWidget::setPlainTextEditor(QPlainTextEdit* plainTextEdit) {
     d->plainTextEdit = plainTextEdit;
 
     if (d->plainTextEdit) {
@@ -326,21 +329,21 @@ void Qtilities::CoreGui::SearchBoxWidget::setPlainTextEditor(QPlainTextEdit* pla
     }
 }
 
-QPlainTextEdit* Qtilities::CoreGui::SearchBoxWidget::plainTextEditor() const {
+QPlainTextEdit* SearchBoxWidget::plainTextEditor() const {
     return d->plainTextEdit;
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::handleOptionsChanged() {
+void SearchBoxWidget::handleOptionsChanged() {
     handleFindPrevious();
     handleFindNext();
     emit searchOptionsChanged();
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::handleReplaceStringChanged(const QString& string) {
+void SearchBoxWidget::handleReplaceStringChanged(const QString& string) {
     emit replaceStringChanged(string);
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::handleClose() {
+void SearchBoxWidget::handleClose() {
     if (d->widget_target == ExternalTarget)
         emit btnClose_clicked();
     else if (d->widget_target == TextEdit || d->widget_target == PlainTextEdit) {
@@ -349,7 +352,7 @@ void Qtilities::CoreGui::SearchBoxWidget::handleClose() {
     }
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::handleFindNext() {
+void SearchBoxWidget::handleFindNext() {
     if (d->widget_target == ExternalTarget)
         emit btnFindNext_clicked();
     else if (d->widget_target == TextEdit && d->textEdit) {
@@ -375,7 +378,7 @@ void Qtilities::CoreGui::SearchBoxWidget::handleFindNext() {
     }
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::handleFindPrevious() {
+void SearchBoxWidget::handleFindPrevious() {
     if (d->widget_target == ExternalTarget)
         emit btnFindPrevious_clicked();
     else if (d->widget_target == TextEdit && d->textEdit) {
@@ -397,7 +400,7 @@ void Qtilities::CoreGui::SearchBoxWidget::handleFindPrevious() {
     }
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::handleReplaceNext() {
+void SearchBoxWidget::handleReplaceNext() {
     if (d->widget_target == ExternalTarget)
         emit btnReplaceNext_clicked();
     else if (d->widget_target == TextEdit && d->textEdit) {
@@ -417,7 +420,7 @@ void Qtilities::CoreGui::SearchBoxWidget::handleReplaceNext() {
     }
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::handleReplacePrevious() {
+void SearchBoxWidget::handleReplacePrevious() {
     if (d->widget_target == ExternalTarget)
         emit btnReplacePrevious_clicked();
     else if (d->widget_target == TextEdit && d->textEdit) {
@@ -437,7 +440,7 @@ void Qtilities::CoreGui::SearchBoxWidget::handleReplacePrevious() {
     }
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::handleReplaceAll() {
+void SearchBoxWidget::handleReplaceAll() {
     if (d->widget_target == ExternalTarget)
         emit btnReplaceAll_clicked();
     else if (d->widget_target == TextEdit && d->textEdit) {
@@ -495,7 +498,7 @@ void Qtilities::CoreGui::SearchBoxWidget::handleReplaceAll() {
     }
 }
 
-QTextDocument::FindFlags Qtilities::CoreGui::SearchBoxWidget::findFlags() const {
+QTextDocument::FindFlags SearchBoxWidget::findFlags() const {
     QTextDocument::FindFlags find_flags = 0;
     if (wholeWordsOnly())
         find_flags |= QTextDocument::FindWholeWords;
@@ -504,7 +507,7 @@ QTextDocument::FindFlags Qtilities::CoreGui::SearchBoxWidget::findFlags() const 
     return find_flags;
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::setInfoText(const QString& info_text) {
+void SearchBoxWidget::setInfoText(const QString& info_text) {
     QFont live_preview_label_font = ui->txtInfoMessage->font();
     live_preview_label_font.setWeight(QFont::Normal);
     ui->txtInfoMessage->setFont(live_preview_label_font);
@@ -512,31 +515,31 @@ void Qtilities::CoreGui::SearchBoxWidget::setInfoText(const QString& info_text) 
     ui->txtInfoMessage->setText(info_text);
 }
 
-QString Qtilities::CoreGui::SearchBoxWidget::infoText() const {
+QString SearchBoxWidget::infoText() const {
     return ui->txtInfoMessage->text();
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::clearInfoText() {
+void SearchBoxWidget::clearInfoText() {
     ui->txtInfoMessage->clear();
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::setSearchStringNotificationMode(Qtilities::CoreGui::SearchBoxWidget::SearchStringChangedNotificationMode notification_mode) {
+void SearchBoxWidget::setSearchStringNotificationMode(SearchBoxWidget::SearchStringChangedNotificationMode notification_mode) {
     d->search_string_notification_mode = notification_mode;
 }
 
-Qtilities::CoreGui::SearchBoxWidget::SearchStringChangedNotificationMode Qtilities::CoreGui::SearchBoxWidget::searchStringNotificationMode() const {
+SearchBoxWidget::SearchStringChangedNotificationMode SearchBoxWidget::searchStringNotificationMode() const {
     return d->search_string_notification_mode;
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::setMessage(const QString& message) {
+void SearchBoxWidget::setMessage(const QString& message) {
     ui->lblMessage->setText(message);
 }
 
-Qtilities::CoreGui::SearchBoxWidget::WidgetTarget Qtilities::CoreGui::SearchBoxWidget::widgetTarget() const {
+SearchBoxWidget::WidgetTarget SearchBoxWidget::widgetTarget() const {
     return d->widget_target;
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::on_txtSearchString_returnPressed() {
+void SearchBoxWidget::on_txtSearchString_returnPressed() {
     if (d->search_string_notification_mode == NotifyOnReturn) {
         handleFindPrevious();
         handleFindNext();
@@ -544,10 +547,14 @@ void Qtilities::CoreGui::SearchBoxWidget::on_txtSearchString_returnPressed() {
     }
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::handleSearchStringChanged(const QString& string) {
+void SearchBoxWidget::handleSearchStringChanged(const QString& string) {
     if (d->search_string_notification_mode == NotifyOnChange) {
         handleFindPrevious();
         handleFindNext();
         emit searchStringChanged(string);
     }
+}
+
+
+}
 }

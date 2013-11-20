@@ -51,15 +51,15 @@ namespace Qtilities {
                     ErrorState = 2,             /*!< The plugin is loaded, but errors occured. See errorMsg() for a list of error messages. */
                     InActive = 4                /*!< The plugin was loaded but not initialized. \sa ExtensionSystemCore::setInactivePlugins().  */
                 };
-                Q_DECLARE_FLAGS(PluginStateFlags, PluginState);
-                Q_FLAGS(PluginStateFlags);
+                Q_DECLARE_FLAGS(PluginStateFlags, PluginState)
+                Q_FLAGS(PluginStateFlags)
 
                 //! Function which returns a string associated with a the plugin's state.
                 QString pluginStateString() const {
                     if (d_state == Functional)
-                        return QString(QObject::tr("Functional"));
+                        return QObject::tr("Functional");
                     else if (d_state == InActive)
-                        return QString(QObject::tr("Inactive"));
+                        return QObject::tr("Inactive");
                     else {
                         QString combined_error_str;
                         if (d_state == ErrorState)

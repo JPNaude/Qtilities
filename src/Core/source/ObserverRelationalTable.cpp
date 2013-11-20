@@ -383,7 +383,7 @@ bool Qtilities::Core::ObserverRelationalTable::compare(ObserverRelationalTable o
 
     // Check for the same amount of items first.
     if (d->entries.count() != other.count()) {
-        LOG_TRACE(QString(QObject::tr("ObserverRelationalTable::compare() failed. Number of entries in table (%1) does not match the number of entries in the table to check (%2).")).arg(d->entries.count()).arg(other.count()));
+        LOG_TRACE(QString("ObserverRelationalTable::compare() failed. Number of entries in table (%1) does not match the number of entries in the table to check (%2).").arg(d->entries.count()).arg(other.count()));
         LOG_TRACE("Items in table:");
         for (int i = 0; i < d->entries.count(); ++i) {
             if (d->entries.values().at(i))
@@ -523,7 +523,7 @@ QMap<int,int> Qtilities::Core::ObserverRelationalTable::parentsToObserverIDs(Rel
 bool Qtilities::Core::ObserverRelationalTable::compareObjects(QList<QPointer<QObject> >& objects) const {
     // Check for the same amount of items first.
     if (d->entries.count() != objects.count()) {
-        LOG_ERROR(QString(QObject::tr("ObserverRelationalTable::compareObjects() failed. Number of entries in table (%1) does not match the number of objects in list to check (%2).")).arg(d->entries.count()).arg(objects.count()));
+        LOG_ERROR(QString("ObserverRelationalTable::compareObjects() failed. Number of entries in table (%1) does not match the number of objects in list to check (%2).").arg(d->entries.count()).arg(objects.count()));
         LOG_TRACE("Items in relational table:");
         for (int i = 0; i < d->entries.count(); ++i) {
             LOG_TRACE(d->entries.values().at(i)->name());
@@ -576,36 +576,36 @@ void Qtilities::Core::ObserverRelationalTable::dumpTableInfo() const {
             break;
         }
 
-        LOG_INFO(QString(QObject::tr("> Table Entry %1 START:")).arg(i));
+        LOG_INFO(QString("> Table Entry %1 START:").arg(i));
         LOG_INFO("> -------------------------------------");
-        LOG_INFO(QString(QObject::tr("> Name:                   %1")).arg(entry->name()));
-        LOG_INFO(QString(QObject::tr("> Visitor ID:             %1")).arg(entry->visitorID()));
-        LOG_INFO(QString(QObject::tr("> Session ID:             %1")).arg(entry->sessionID()));
-        LOG_INFO(QString(QObject::tr("> Previous Session ID:    %1")).arg(entry->previousSessionID()));
-        LOG_INFO(QString(QObject::tr("> Owner Visitor ID:       %1")).arg(entry->parentVisitorID()));
-        LOG_INFO(QString(QObject::tr("> Child count:            %1")).arg(entry->children().count()));
+        LOG_INFO(QString("> Name:                   %1").arg(entry->name()));
+        LOG_INFO(QString("> Visitor ID:             %1").arg(entry->visitorID()));
+        LOG_INFO(QString("> Session ID:             %1").arg(entry->sessionID()));
+        LOG_INFO(QString("> Previous Session ID:    %1").arg(entry->previousSessionID()));
+        LOG_INFO(QString("> Owner Visitor ID:       %1").arg(entry->parentVisitorID()));
+        LOG_INFO(QString("> Child count:            %1").arg(entry->children().count()));
         for (int c = 0; c < entry->children().count(); c++) {
             RelationalTableEntry* child = d->entries[entry->children().at(c)];
             if (child) {
-                LOG_INFO(QString(QObject::tr(">> Child No.   %1")).arg(c));
-                LOG_INFO(QString(QObject::tr(">> Name        %1")).arg(child->name()));
-                LOG_INFO(QString(QObject::tr(">> Visitor ID  %1")).arg(child->visitorID()));
-                LOG_INFO(QString(QObject::tr(">> Ownership   %1")).arg(child->ownership()));
+                LOG_INFO(QString(">> Child No.   %1").arg(c));
+                LOG_INFO(QString(">> Name        %1").arg(child->name()));
+                LOG_INFO(QString(">> Visitor ID  %1").arg(child->visitorID()));
+                LOG_INFO(QString(">> Ownership   %1").arg(child->ownership()));
             } else
-                LOG_WARNING(QObject::tr("Null child found..."));
+                LOG_WARNING("Null child found...");
         }
-        LOG_INFO(QString(QObject::tr("> Parent count: %1")).arg(entry->parents().count()));
+        LOG_INFO(QString("> Parent count: %1").arg(entry->parents().count()));
         for (int c = 0; c < entry->parents().count(); c++) {
             RelationalTableEntry* parent = d->entries[entry->parents().at(c)];
             if (parent) {
-                LOG_INFO(QString(QObject::tr(">> Parent No.  %1")).arg(c));
-                LOG_INFO(QString(QObject::tr(">> Name        %1")).arg(parent->name()));
-                LOG_INFO(QString(QObject::tr(">> Visitor ID  %1")).arg(parent->visitorID()));
+                LOG_INFO(QString(">> Parent No.  %1").arg(c));
+                LOG_INFO(QString(">> Name        %1").arg(parent->name()));
+                LOG_INFO(QString(">> Visitor ID  %1").arg(parent->visitorID()));
             } else
-                LOG_WARNING(QObject::tr("Null parent found..."));
+                LOG_WARNING("Null parent found...");
         }
         LOG_INFO("> -------------------------------------");
-        LOG_INFO(QString(QObject::tr("> Table Entry %1 END:")).arg(i));
+        LOG_INFO(QString("> Table Entry %1 END:").arg(i));
         LOG_INFO("> -------------------------------------");
     }
 
@@ -809,7 +809,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
             if (entryAt(i)->exportBinary(stream) != IExportable::Complete)
                 all_successful = false;
         } else {
-            LOG_ERROR(QString(QObject::tr("Internal error, ObserverRelationalTable::exportBinary(stream) found null object in entry position %1/%2")).arg(i).arg(count()));
+            LOG_ERROR(QString("Internal error, ObserverRelationalTable::exportBinary(stream) found null object in entry position %1/%2").arg(i).arg(count()));
             return IExportable::Failed;
         }
     }

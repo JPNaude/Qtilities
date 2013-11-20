@@ -518,7 +518,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
     #ifdef QT_NO_DEBUG
     if (!obj) {
         if (rejectMsg)
-            *rejectMsg = tr("Observer: Invalid object reference received. Attachment cannot be done.");
+            *rejectMsg = "Observer: Invalid object reference received. Attachment cannot be done.";
         return false;
     }
     #endif
@@ -824,15 +824,15 @@ QList<QPointer<QObject> > Qtilities::Core::Observer::attachSubjects(ObserverMime
 Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach(QObject* obj, Observer::ObjectOwnership, QString* rejectMsg, bool silent) const {
     if (!obj) {
         if (rejectMsg)
-            *rejectMsg = tr("Invalid object reference received. Attachment cannot be done.");
+            *rejectMsg = "Invalid object reference received. Attachment cannot be done.";
         return Observer::Rejected;
     }
 
     QVariant category_variant = getMultiContextPropertyValue(obj,qti_prop_CATEGORY_MAP);
     QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
     if (isConst(category)) {
-        QString reject_string = QString(tr("Attaching object \"%1\" to observer \"%2\" is not allowed. This observer is const for the recieved object.")).arg(obj->objectName()).arg(objectName());
-        LOG_WARNING(reject_string);
+        QString reject_string = QString("Attaching object \"%1\" to observer \"%2\" is not allowed. This observer is const for the recieved object.").arg(obj->objectName()).arg(objectName());
+        LOG_DEBUG(reject_string);
         if (rejectMsg)
             *rejectMsg = reject_string;
         return Observer::Rejected;
@@ -842,8 +842,8 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach
     const Observer* observer_cast = qobject_cast<Observer*> (obj);
     if (observer_cast) {
         if (isParentInHierarchy(observer_cast,this)) {
-            QString reject_string = QString(tr("Attaching observer \"%1\" to observer \"%2\" will result in a circular dependancy.")).arg(obj->objectName()).arg(objectName());
-            LOG_WARNING(reject_string);
+            QString reject_string = QString("Attaching observer \"%1\" to observer \"%2\" will result in a circular dependancy.").arg(obj->objectName()).arg(objectName());
+            LOG_DEBUG(reject_string);
             if (rejectMsg)
                 *rejectMsg = reject_string;
             return Observer::Rejected;
@@ -852,8 +852,8 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach
 
     // First evaluate new subject from Observer side:
     if (observerData->subject_limit == observerData->subject_list.count()) {
-        QString reject_string = QString(tr("Observer (%1): Object (%2) attachment failed, subject limit reached.")).arg(objectName()).arg(obj->objectName());
-        LOG_WARNING(reject_string);
+        QString reject_string = QString("Observer (%1): Object (%2) attachment failed, subject limit reached.").arg(objectName()).arg(obj->objectName());
+        LOG_DEBUG(reject_string);
         if (rejectMsg)
             *rejectMsg = reject_string;
         return Observer::Rejected;
@@ -865,7 +865,7 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach
         MultiContextProperty observer_list = ObjectManager::getMultiContextProperty(obj,qti_prop_OBSERVER_MAP);
         if (observer_list.isValid()) {
             if (observer_list.hasContext(observerData->observer_id)) {
-                QString reject_string = QString(tr("Observer (%1): Object (%2) attachment failed, object is already observed by this observer.")).arg(objectName()).arg(obj->objectName());
+                QString reject_string = QString("Observer (%1): Object (%2) attachment failed, object is already observed by this observer.").arg(objectName()).arg(obj->objectName());
                 LOG_DEBUG(reject_string);
                 if (rejectMsg)
                     *rejectMsg = reject_string;
@@ -888,16 +888,16 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach
                 observer_count = 0;
                 // No count yet, check if the limit is > 0
                 if ((observer_limit < 1) && (observer_limit != -1)){
-                    QString reject_string = QString(tr("Observer (%1): Object (%2) attachment failed, observer limit (%3) reached.")).arg(objectName()).arg(obj->objectName()).arg(observer_limit);
-                    LOG_WARNING(reject_string);
+                    QString reject_string = QString("Observer (%1): Object (%2) attachment failed, observer limit (%3) reached.").arg(objectName()).arg(obj->objectName()).arg(observer_limit);
+                    LOG_DEBUG(reject_string);
                     if (rejectMsg)
                         *rejectMsg = reject_string;
                     return Observer::Rejected;
                 }
             } else {
                 if (observer_count >= observer_limit) {
-                    QString reject_string = QString(tr("Observer (%1): Object (%2) attachment failed, observer limit (%3) reached.")).arg(objectName()).arg(obj->objectName()).arg(observer_limit);
-                    LOG_WARNING(reject_string);
+                    QString reject_string = QString("Observer (%1): Object (%2) attachment failed, observer limit (%3) reached.").arg(objectName()).arg(obj->objectName()).arg(observer_limit);
+                    LOG_DEBUG(reject_string);
                     if (rejectMsg)
                         *rejectMsg = reject_string;
                     return Observer::Rejected;
@@ -973,7 +973,7 @@ void Qtilities::Core::Observer::handle_deletedSubject(QObject* obj) {
     }
 
     if (!passed_filters) {
-        LOG_ERROR(QString(tr("Observer (%1): Error: Subject filter rejected detachment of deleted object (%2).")).arg(objectName()).arg(obj->objectName()));
+        LOG_DEBUG(QString("Observer (%1): Error: Subject filter rejected detachment of deleted object (%2).").arg(objectName()).arg(obj->objectName()));
     }
 
     for (int i = 0; i < observerData->subject_filters.count(); ++i) {
@@ -1000,7 +1000,7 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj, QString* rejectMsg) 
     #endif
     #ifdef QT_NO_DEBUG
         if (!obj) {
-            QString reject_string = QString(tr("Observer (%1): Object detachment failed, invalid object reference received.")).arg(objectName());
+            QString reject_string = QString("Observer (%1): Object detachment failed, invalid object reference received.").arg(objectName());
             LOG_TRACE(reject_string);
             if (rejectMsg)
                 *rejectMsg = reject_string;
@@ -1023,8 +1023,8 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj, QString* rejectMsg) 
     }
 
     if (!passed_filters) {
-        QString reject_string = QString(tr("Observer (%1): Object (%2) detachment failed, detachment was rejected by one or more subject filters.")).arg(objectName()).arg(obj->objectName());
-        LOG_WARNING(reject_string);
+        QString reject_string = QString("Observer (%1): Object (%2) detachment failed, detachment was rejected by one or more subject filters.").arg(objectName()).arg(obj->objectName());
+        LOG_DEBUG(reject_string);
         if (rejectMsg)
             *rejectMsg = reject_string;
         for (int i = 0; i < observerData->subject_filters.count(); ++i)
@@ -1042,7 +1042,7 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj, QString* rejectMsg) 
 
     if (objectName() != QString(qti_def_GLOBAL_OBJECT_POOL)) {
         #ifndef QT_NO_DEBUG
-            QString debug_name = obj->objectName();
+        QString debug_name = obj->objectName();
         #endif
 
         // Check the ownership property of this object
@@ -1078,7 +1078,7 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj, QString* rejectMsg) 
         }
 
         #ifndef QT_NO_DEBUG
-             LOG_DEBUG(QString("Observer (%1): Not observing object (%2) anymore.").arg(objectName()).arg(debug_name));
+        LOG_DEBUG(QString("Observer (%1): Not observing object (%2) anymore.").arg(objectName()).arg(debug_name));
         #endif
     }
 
@@ -1305,8 +1305,8 @@ bool Qtilities::Core::Observer::setMultiContextPropertyValue(QObject* obj, const
         ObjectManager::setMultiContextProperty(obj,observer_property);
         return true;
     } else {
-        QString error_str = QString(tr("Observer (%1): Setting the value of property (%2) failed. This property is not yet set as an MultiContextProperty type class.")).arg(objectName()).arg(property_name);
-        LOG_FATAL(error_str);
+        QString error_str = QString("Observer (%1): Setting the value of property (%2) failed. This property is not yet set as an MultiContextProperty type class.").arg(objectName()).arg(property_name);
+        LOG_DEBUG(error_str);
         qDebug() << error_str;
         // Assert here, otherwise you will think that the property is being set and you won't understand why something else does not work.
         // If you get here, you need to create the property you need, and then set it using the setMultiContextProperty() or setSharedProperty() calls.
@@ -1428,12 +1428,12 @@ bool Qtilities::Core::Observer::isConst(const QtilitiesCategory& category) const
 bool Qtilities::Core::Observer::setSubjectLimit(int subject_limit) {
     // Check if this observer is read only
     if ((observerData->access_mode == ReadOnlyAccess || observerData->access_mode == LockedAccess) && observerData->access_mode_scope == GlobalScope) {
-        LOG_ERROR(QString(tr("Setting the subject limit for observer \"%1\" failed. This observer is read only / locked.").arg(objectName())));
+        LOG_DEBUG(QString("Setting the subject limit for observer \"%1\" failed. This observer is read only / locked.").arg(objectName()));
         return false;
     }
 
     if ((subject_limit < observerData->subject_list.count()) && (subject_limit != -1)) {
-        LOG_ERROR(QString(tr("Setting the subject limit for observer \"%1\" failed, this observer is currently observing more subjects than the desired new limit.").arg(objectName())));
+        LOG_DEBUG(QString("Setting the subject limit for observer \"%1\" failed, this observer is currently observing more subjects than the desired new limit.").arg(objectName()));
         return false;
     } else {
         observerData->subject_limit = subject_limit;
@@ -1445,7 +1445,7 @@ bool Qtilities::Core::Observer::setSubjectLimit(int subject_limit) {
 void Qtilities::Core::Observer::setAccessMode(AccessMode mode, QtilitiesCategory category) {
     // Check if this observer is read only
     if ((observerData->access_mode == ReadOnlyAccess || observerData->access_mode == LockedAccess) && observerData->access_mode_scope == GlobalScope) {
-        LOG_ERROR(QString(tr("Setting the access mode for observer \"%1\" failed. This observer is read only / locked.")).arg(objectName()));
+        LOG_DEBUG(QString("Setting the access mode for observer \"%1\" failed. This observer is read only / locked.").arg(objectName()));
         return;
     }
 
@@ -1454,7 +1454,7 @@ void Qtilities::Core::Observer::setAccessMode(AccessMode mode, QtilitiesCategory
     else {
         // Check if this category exists in this observer context:
         if (!hasCategory(category)) {
-            LOG_ERROR(QString(tr("Observer \"%1\" does not have category \"%2\", access mode cannot be set.")).arg(objectName()).arg(category.toString(",")));
+            LOG_DEBUG(QString("Observer \"%1\" does not have category \"%2\", access mode cannot be set.").arg(objectName()).arg(category.toString(",")));
             return;
         }
 
@@ -1817,7 +1817,7 @@ QList<QPointer<QObject> > Qtilities::Core::Observer::renameCategory(const Qtilit
 Qtilities::Core::Observer::AccessMode Qtilities::Core::Observer::categoryAccessMode(const QtilitiesCategory& category) const {
     // Check if this category exists in this observer context:
     if (!hasCategory(category)) {
-        LOG_ERROR(QString(tr("Observer \"%1\" does not have category \"%2\", access mode cannot be set.")).arg(objectName()).arg(category.toString(",")));
+        LOG_DEBUG(QString("Observer \"%1\" does not have category \"%2\", access mode cannot be set.").arg(objectName()).arg(category.toString(",")));
         return InvalidAccess;
     }
 
@@ -2000,7 +2000,7 @@ bool Qtilities::Core::Observer::installSubjectFilter(AbstractSubjectFilter* subj
         return false;
 
     if (observerData->subject_list.count() > 0) {
-        LOG_ERROR(QString(tr("Observer (%1): Subject filter installation failed. Can't install subject filters if subjects is already attached to an observer.")).arg(objectName()));
+        LOG_DEBUG(QString("Observer (%1): Subject filter installation failed. Can't install subject filters if subjects is already attached to an observer.").arg(objectName()));
         return false;
     }
 
@@ -2011,7 +2011,7 @@ bool Qtilities::Core::Observer::installSubjectFilter(AbstractSubjectFilter* subj
 
     // Set the observer context of the filter
     if (!subject_filter->setObserverContext(this)) {
-        LOG_ERROR(QString(tr("Observer (%1): Subject filter installation failed. Setting the observer context on the subject filter failed.")).arg(objectName()));
+        LOG_DEBUG(QString("Observer (%1): Subject filter installation failed. Setting the observer context on the subject filter failed.").arg(objectName()));
         return false;
     }
 
@@ -2036,7 +2036,7 @@ bool Qtilities::Core::Observer::installSubjectFilter(AbstractSubjectFilter* subj
 
 bool Qtilities::Core::Observer::uninstallSubjectFilter(AbstractSubjectFilter* subject_filter) {
     if (observerData->subject_list.count() > 0) {
-        LOG_ERROR(QString(tr("Observer (%1): Subject filter uninstall failed. Can't uninstall subject filters if subjects is already attached to an observer.")).arg(objectName()));
+        LOG_DEBUG(QString("Observer (%1): Subject filter uninstall failed. Can't uninstall subject filters if subjects is already attached to an observer.").arg(objectName()));
         return false;
     }
 

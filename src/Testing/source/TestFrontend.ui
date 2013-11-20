@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string notr="true">Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="margin">
@@ -37,7 +37,7 @@
    <item row="1" column="0" colspan="6">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Registered Tests:</string>
+      <string notr="true">Registered Tests:</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
@@ -69,21 +69,21 @@
    <item row="2" column="5">
     <widget class="QPushButton" name="btnExecute">
      <property name="text">
-      <string>Execute</string>
+      <string notr="true">Execute</string>
      </property>
     </widget>
    </item>
    <item row="2" column="4">
     <widget class="QPushButton" name="btnShowLog">
      <property name="text">
-      <string>Show Log</string>
+      <string notr="true">Show Log</string>
      </property>
     </widget>
    </item>
    <item row="2" column="3">
     <widget class="QPushButton" name="btnClose">
      <property name="text">
-      <string>Close</string>
+      <string notr="true">Close</string>
      </property>
     </widget>
    </item>

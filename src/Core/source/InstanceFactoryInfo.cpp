@@ -49,7 +49,7 @@ bool Qtilities::Core::InstanceFactoryInfo::importBinary(QDataStream& stream, Qti
     quint32 ui32;
     stream >> ui32;
     if (ui32 != MARKER_IFI_CLASS_SECTION) {
-        LOG_ERROR(QObject::tr("InstanceFactoryInfo binary import failed to detect start marker. Import will fail: ") + Q_FUNC_INFO);
+        LOG_ERROR("InstanceFactoryInfo binary import failed to detect start marker. Import will fail: " + QString(Q_FUNC_INFO));
         return false;
     }
     stream >> d_factory_tag;
@@ -57,7 +57,7 @@ bool Qtilities::Core::InstanceFactoryInfo::importBinary(QDataStream& stream, Qti
     stream >> d_instance_name;
     stream >> ui32;
     if (ui32 != MARKER_IFI_CLASS_SECTION) {
-        LOG_ERROR(QObject::tr("InstanceFactoryInfo binary import failed to detect end marker. Import will fail: ") + Q_FUNC_INFO);
+        LOG_ERROR("InstanceFactoryInfo binary import failed to detect end marker. Import will fail: " + QString(Q_FUNC_INFO));
         return false;
     }
     return true;

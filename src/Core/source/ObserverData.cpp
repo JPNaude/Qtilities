@@ -332,10 +332,10 @@ IExportable::ExportResultFlags Qtilities::Core::ObserverData::exportBinaryExt_1_
                 list_complete = false;
 
             if (!list_complete) {
-                LOG_TASK_TRACE(QString(QObject::tr("%1 exportable subjects found under this observer's level of hierarchy. This list is incomplete.")).arg(exportable_list.count()),exportTask());
+                LOG_TASK_TRACE(QString("%1 exportable subjects found under this observer's level of hierarchy. This list is incomplete.").arg(exportable_list.count()),exportTask());
                 complete = false;
             } else {
-                LOG_TASK_TRACE(QString(QObject::tr("%1 exportable subjects found under this observer's level of hierarchy. This list is complete")).arg(exportable_list.count()),exportTask());
+                LOG_TASK_TRACE(QString("%1 exportable subjects found under this observer's level of hierarchy. This list is complete").arg(exportable_list.count()),exportTask());
             }
         }
 
@@ -407,14 +407,14 @@ IExportable::ExportResultFlags Qtilities::Core::ObserverData::exportBinaryExt_1_
 
     if (success) {
         if (complete) {
-            LOG_TASK_DEBUG(QObject::tr("Binary export of observer ") + observer->observerName() + QString(QObject::tr(" was successful (complete).")),exportTask());
+            LOG_TASK_DEBUG("Binary export of observer " + observer->observerName() + " was successful (complete).",exportTask());
             return IExportable::Complete;
         } else {
-            LOG_TASK_DEBUG(QObject::tr("Binary export of observer ") + observer->observerName() + QString(QObject::tr(" was successful (incomplete).")),exportTask());
+            LOG_TASK_DEBUG("Binary export of observer " + observer->observerName() + " was successful (incomplete).",exportTask());
             return IExportable::Incomplete;
         }
     } else {
-        LOG_TASK_WARNING(QObject::tr("Binary export of observer ") + observer->observerName() + QObject::tr(" failed."),exportTask());
+        LOG_TASK_WARNING("Binary export of observer " + observer->observerName() + " failed.",exportTask());
         return IExportable::Failed;
     }
 }
@@ -425,7 +425,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
     quint32 ui32;
     stream >> ui32;
     if (ui32 != MARKER_OBS_DATA_SECTION) {
-        LOG_TASK_ERROR(QObject::tr("Observer binary import failed to detect marker at start of import. Import will fail at ") + Q_FUNC_INFO,exportTask());
+        LOG_TASK_ERROR("Observer binary import failed to detect marker at start of import. Import will fail at " + QString(Q_FUNC_INFO),exportTask());
         observer->endProcessingCycle();
         return IExportable::Failed;
     }
@@ -455,7 +455,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
     if (export_flags & ExportData) {
         stream >> ui32;
         if (ui32 != MARKER_OBS_DATA_SECTION) {
-            LOG_TASK_ERROR(QObject::tr("Observer binary import failed to detect marker located after factory data. Import will fail at ") + Q_FUNC_INFO,exportTask());
+            LOG_TASK_ERROR("Observer binary import failed to detect marker located after factory data. Import will fail at " + QString(Q_FUNC_INFO),exportTask());
             observer->endProcessingCycle();
             return IExportable::Failed;
         }
@@ -506,7 +506,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
 
         stream >> ui32;
         if (ui32 != MARKER_OBS_DATA_SECTION) {
-            LOG_TASK_ERROR(QObject::tr("Observer binary import failed to detect marker located after ObserverData. Import will fail at ") + Q_FUNC_INFO,exportTask());
+            LOG_TASK_ERROR("Observer binary import failed to detect marker located after ObserverData. Import will fail at " + QString(Q_FUNC_INFO),exportTask());
             observer->endProcessingCycle();
             return IExportable::Failed;
         }
@@ -533,7 +533,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
                     new_filter->clearExportTask();
                     observer->installSubjectFilter(new_filter);
                 } else {
-                    LOG_TASK_ERROR(QString(QObject::tr("%1/%2: Importing subject filter \"%3\" failed. Import cannot continue at %4")).arg(i+1).arg(subject_filter_count).arg(instanceFactoryInfo.d_instance_name).arg(Q_FUNC_INFO),exportTask());
+                    LOG_TASK_ERROR(QString("%1/%2: Importing subject filter \"%3\" failed. Import cannot continue at %4").arg(i+1).arg(subject_filter_count).arg(instanceFactoryInfo.d_instance_name).arg(Q_FUNC_INFO),exportTask());
                     observer->endProcessingCycle();
                     return IExportable::Failed;
                 }
@@ -542,7 +542,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
 
         stream >> ui32;
         if (ui32 != MARKER_OBS_DATA_SECTION) {
-            LOG_TASK_ERROR(QObject::tr("Observer binary import failed to detect marker located after subject filters. Import will fail at ") + Q_FUNC_INFO,exportTask());
+            LOG_TASK_ERROR("Observer binary import failed to detect marker located after subject filters. Import will fail at " + QString(Q_FUNC_INFO),exportTask());
             observer->endProcessingCycle();
             return IExportable::Failed;
         }
@@ -550,7 +550,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
         // Count the number of IExportable subjects first.
         qint32 iface_count = 0;
         stream >> iface_count;
-        LOG_TASK_TRACE(QString(QObject::tr("%1 exportable subject(s) found under this observer's level of hierarchy.")).arg(iface_count),exportTask());
+        LOG_TASK_TRACE(QString("%1 exportable subject(s) found under this observer's level of hierarchy.").arg(iface_count),exportTask());
 
         // Now check all subjects for the IExportable interface.
         for (int i = 0; i < iface_count; ++i) {
@@ -564,7 +564,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
                 return IExportable::Failed;
             }
             if (instanceFactoryInfo.isValid()) {
-                LOG_TASK_TRACE(QString(QObject::tr("%1/%2: Importing subject type \"%3\" in factory \"%4\"...")).arg(i+1).arg(iface_count).arg(instanceFactoryInfo.d_instance_tag).arg(instanceFactoryInfo.d_factory_tag),exportTask());
+                LOG_TASK_TRACE(QString("%1/%2: Importing subject type \"%3\" in factory \"%4\"...").arg(i+1).arg(iface_count).arg(instanceFactoryInfo.d_instance_tag).arg(instanceFactoryInfo.d_factory_tag),exportTask());
 
                 IFactoryProvider* ifactory = OBJECT_MANAGER->referenceIFactoryProvider(instanceFactoryInfo.d_factory_tag);
                 if (ifactory) {
@@ -613,7 +613,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
                             break;
                         }
                     } else {
-                        LOG_TASK_WARNING(QString(QObject::tr("Factory tag %1 does not exist in the factory %2. This item will be skipped and the import will be incomplete.")).arg(instanceFactoryInfo.d_instance_tag).arg(instanceFactoryInfo.d_factory_tag),exportTask());
+                        LOG_TASK_WARNING(QString("Factory tag %1 does not exist in the factory %2. This item will be skipped and the import will be incomplete.").arg(instanceFactoryInfo.d_instance_tag).arg(instanceFactoryInfo.d_factory_tag),exportTask());
                         complete = false;
                         break;
                     }
@@ -625,7 +625,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
         }
         stream >> ui32;
         if (ui32 != MARKER_OBS_DATA_SECTION) {
-            LOG_TASK_ERROR(QObject::tr("Observer binary import failed to detect end marker. Import will fail at ") + Q_FUNC_INFO,exportTask());
+            LOG_TASK_ERROR("Observer binary import failed to detect end marker. Import will fail at " + QString(Q_FUNC_INFO),exportTask());
             observer->endProcessingCycle();
             return IExportable::Failed;
         }
@@ -641,10 +641,10 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
         // Cross-check the constructed table:
         ObserverRelationalTable constructed_table(observer,true);
         if (!constructed_table.compare(readback_table)) {
-            LOG_TASK_WARNING(QString(QObject::tr("Relational verification failed on observer: %1")).arg(observer->observerName()),exportTask());
+            LOG_TASK_WARNING(QString("Relational verification failed on observer: %1").arg(observer->observerName()),exportTask());
             complete = false;
         } else {
-            LOG_TASK_INFO(QString(QObject::tr("Relational verification successful on observer: %1")).arg(observer->observerName()),exportTask());
+            LOG_TASK_INFO(QString("Relational verification successful on observer: %1").arg(observer->observerName()),exportTask());
         }
 
         // Remove all relational properties used.
@@ -655,14 +655,14 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
 
     if (success) {
         if (complete) {
-            LOG_TASK_DEBUG(QObject::tr("Binary import of observer ") + observer->observerName() + QObject::tr(" section was Successful (complete)."),exportTask());
+            LOG_TASK_DEBUG("Binary import of observer " + observer->observerName() + " section was Successful (complete).",exportTask());
             return IExportable::Complete;
         } else {
-            LOG_TASK_DEBUG(QObject::tr("Binary import of observer ") + observer->observerName() + QObject::tr(" section was Successful (incomplete."),exportTask());
+            LOG_TASK_DEBUG("Binary import of observer " + observer->observerName() + " section was Successful (incomplete).",exportTask());
             return IExportable::Incomplete;
         }
     } else {
-        LOG_TASK_WARNING(QObject::tr("Binary import of observer ") + observer->observerName() + QObject::tr(" section failed."),exportTask());
+        LOG_TASK_WARNING("Binary import of observer " + observer->observerName() + " section failed.",exportTask());
         return IExportable::Failed;
     }
 }
@@ -802,10 +802,10 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
             }
 
             if (exportable_list.count() < subject_list.count()) {
-                LOG_TASK_TRACE(QString(QObject::tr("%1 exportable subjects found under this observer's level of hierarchy. This list is incomplete.")).arg(exportable_list.count()),exportTask());
+                LOG_TASK_TRACE(QString("%1 exportable subjects found under this observer's level of hierarchy. This list is incomplete.").arg(exportable_list.count()),exportTask());
                 complete = false;
             } else {
-                LOG_TASK_TRACE(QString(QObject::tr("%1 exportable subjects found under this observer's level of hierarchy. This list is complete.")).arg(exportable_list.count()),exportTask());
+                LOG_TASK_TRACE(QString("%1 exportable subjects found under this observer's level of hierarchy. This list is complete.").arg(exportable_list.count()),exportTask());
             }
         }
 
@@ -904,7 +904,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
                         LOG_TASK_TRACE("TreeItem (" + export_iface->objectBase()->objectName() + ") is complete.",exportTask());
                     }
                 } else {
-                    LOG_TASK_WARNING(QObject::tr("XML export found an interface (") + observer->subjectNameInContext(export_iface->objectBase()) + QObject::tr(" in context ") + observer->observerName() + QObject::tr(") which does not support XML exporting. XML export will be incomplete."),exportTask());
+                    LOG_TASK_WARNING("XML export found an interface (" + observer->subjectNameInContext(export_iface->objectBase()) + " in context " + observer->observerName() + ") which does not support XML exporting. XML export will be incomplete.",exportTask());
                     result = IExportable::Incomplete;
                 }
             }
@@ -915,14 +915,14 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
         delete relational_table;
 
     if (result == IExportable::Failed || result == IExportable::VersionTooOld || result == IExportable::VersionTooNew) {
-        LOG_TASK_WARNING(QObject::tr("Xml export of observer ") + observer->observerName() + QObject::tr(" failed."),exportTask());
+        LOG_TASK_WARNING("Xml export of observer " + observer->observerName() + " failed.",exportTask());
         return result;
     } else {
         if (result == IExportable::Incomplete || !complete) {
-            LOG_TASK_DEBUG(QObject::tr("Xml export of observer ") + observer->observerName() + QString(QObject::tr(" was successful (incomplete).")),exportTask());
+            LOG_TASK_DEBUG("Xml export of observer " + observer->observerName() + " was successful (incomplete).",exportTask());
             return IExportable::Incomplete;
         } else {
-            LOG_TASK_DEBUG(QObject::tr("Xml export of observer ") + observer->observerName() + QString(QObject::tr(" was successful (complete).")),exportTask());
+            LOG_TASK_DEBUG("Xml export of observer " + observer->observerName() + " was successful (complete).",exportTask());
             return IExportable::Complete;
         }
     }
@@ -1046,7 +1046,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
                         // Construct and init the subject filter:
                         InstanceFactoryInfo instanceFactoryInfo(doc,&dataChild,exportVersion());
                         if (instanceFactoryInfo.isValid()) {
-                            LOG_TASK_TRACE(QString(QObject::tr("Importing subject type \"%1\" in factory \"%2\"...")).arg(instanceFactoryInfo.d_instance_tag).arg(instanceFactoryInfo.d_factory_tag),exportTask());
+                            LOG_TASK_TRACE(QString("Importing subject type \"%1\" in factory \"%2\"...").arg(instanceFactoryInfo.d_instance_tag).arg(instanceFactoryInfo.d_factory_tag),exportTask());
 
                             IFactoryProvider* ifactory = OBJECT_MANAGER->referenceIFactoryProvider(instanceFactoryInfo.d_factory_tag);
                             if (ifactory) {
@@ -1058,20 +1058,20 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
                                         abstract_filter->setExportVersion(exportVersion());
                                         abstract_filter->setExportTask(exportTask());
                                         if (abstract_filter->importXml(doc,&dataChild,import_list) == IExportable::Failed) {
-                                            LOG_TASK_ERROR(QString(QObject::tr("Failed to import subject filter \"%1\" for tree node: \"%2\". Importing will not continue.")).arg(instanceFactoryInfo.d_instance_tag).arg(observer->observerName()),exportTask());
+                                            LOG_TASK_ERROR(QString("Failed to import subject filter \"%1\" for tree node: \"%2\". Importing will not continue.").arg(instanceFactoryInfo.d_instance_tag).arg(observer->observerName()),exportTask());
                                             delete abstract_filter;
                                             result = IExportable::Failed;
                                         }
                                         abstract_filter->clearExportTask();
                                         if (!observer->installSubjectFilter(abstract_filter)) {
-                                            LOG_TASK_DEBUG(QString(QObject::tr("Failed to install subject filter \"%1\" for tree node: \"%2\". If this filter already existed this is not a problem.")).arg(instanceFactoryInfo.d_instance_tag).arg(observer->observerName()),exportTask());
+                                            LOG_TASK_DEBUG(QString("Failed to install subject filter \"%1\" for tree node: \"%2\". If this filter already existed this is not a problem.").arg(instanceFactoryInfo.d_instance_tag).arg(observer->observerName()),exportTask());
                                             delete abstract_filter;
                                         }
                                     }
                                 }
                             }
                         } else
-                            LOG_TASK_WARNING(QString(QObject::tr("Found invalid factory data for subject filter on tree node: %1")).arg(observer->observerName()),exportTask());
+                            LOG_TASK_WARNING(QString("Found invalid factory data for subject filter on tree node: %1").arg(observer->observerName()),exportTask());
                         continue;
                     }
 
@@ -1079,7 +1079,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
                         IExportableFormatting* formatting_iface = qobject_cast<IExportableFormatting*> (observer->objectBase());
                         if (formatting_iface) {
                             if (formatting_iface->importFormattingXML(doc,&dataChild,exportVersion()) != IExportable::Complete) {
-                                LOG_TASK_WARNING(QString(QObject::tr("Failed to import formatting for tree node: \"%1\"")).arg(observer->observerName()),exportTask());
+                                LOG_TASK_WARNING(QString("Failed to import formatting for tree node: \"%1\"").arg(observer->observerName()),exportTask());
                                 result = IExportable::Incomplete;
                             }
                         }
@@ -1103,7 +1103,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
                         // Construct and init the child:
                         InstanceFactoryInfo instanceFactoryInfo(doc,&childrenChild,exportVersion());
                         if (instanceFactoryInfo.isValid()) {
-                            LOG_TASK_TRACE(QString(QObject::tr("Importing subject type \"%1\" in factory \"%2\"...")).arg(instanceFactoryInfo.d_instance_tag).arg(instanceFactoryInfo.d_factory_tag),exportTask());
+                            LOG_TASK_TRACE(QString("Importing subject type \"%1\" in factory \"%2\"...").arg(instanceFactoryInfo.d_instance_tag).arg(instanceFactoryInfo.d_factory_tag),exportTask());
 
                             IFactoryProvider* ifactory = OBJECT_MANAGER->referenceIFactoryProvider(instanceFactoryInfo.d_factory_tag);
                             if (ifactory) {
@@ -1124,7 +1124,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
                                         if (observer->attachSubject(iface->objectBase(),ownership,&error_msg)) {
                                             import_list << obj;
                                         } else {
-                                            LOG_TASK_WARNING(QString(QObject::tr("Failed to attach reconstructed object \"%1\" to tree node: %2. Import will be incomplete.")).arg(observer->observerName()).arg(error_msg),exportTask());
+                                            LOG_TASK_WARNING(QString("Failed to attach reconstructed object \"%1\" to tree node: %2. Import will be incomplete.").arg(observer->observerName()).arg(error_msg),exportTask());
                                             delete obj;
                                             result = IExportable::Incomplete;
                                             continue;
@@ -1148,17 +1148,17 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
                                                 category.clearExportTask();
 
                                                 if (category_result == IExportable::Incomplete) {
-                                                    LOG_TASK_WARNING(QString(QObject::tr("Failed to import category completely for object in tree node: %1. Item \"%2\" will not have its category set.")).arg(observer->observerName()).arg(iface->objectBase()->objectName()),exportTask());
+                                                    LOG_TASK_WARNING(QString("Failed to import category completely for object in tree node: %1. Item \"%2\" will not have its category set.").arg(observer->observerName()).arg(iface->objectBase()->objectName()),exportTask());
                                                     result = IExportable::Incomplete;
                                                 } else if (category_result & IExportable::FailedResult) {
-                                                    LOG_TASK_ERROR(QString(QObject::tr("Failed to import category for object in tree node: %1. Item \"%2\" will not have its category set.")).arg(observer->observerName()).arg(iface->objectBase()->objectName()),exportTask());
+                                                    LOG_TASK_ERROR(QString("Failed to import category for object in tree node: %1. Item \"%2\" will not have its category set.").arg(observer->observerName()).arg(iface->objectBase()->objectName()),exportTask());
                                                     result = category_result;
                                                 }
 
                                                 MultiContextProperty category_property(qti_prop_CATEGORY_MAP);
                                                 category_property.setValue(qVariantFromValue(category),observer->observerID());
                                                 if (!ObjectManager::setMultiContextProperty(iface->objectBase(),category_property)) {
-                                                    LOG_TASK_WARNING(QString(QObject::tr("Failed to set category on object \"%1\" to tree node: %2. Import will be incomplete.")).arg(observer->observerName()).arg(iface->objectBase()->objectName()),exportTask());
+                                                    LOG_TASK_WARNING(QString("Failed to set category on object \"%1\" to tree node: %2. Import will be incomplete.").arg(observer->observerName()).arg(iface->objectBase()->objectName()),exportTask());
                                                     result = IExportable::Incomplete;
                                                 }
                                             }
@@ -1179,10 +1179,10 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
                                             intermediate_result = iface->importXml(doc,&childrenChild,import_list);
 
                                         if (intermediate_result == IExportable::Incomplete) {
-                                            LOG_TASK_WARNING(QString(QObject::tr("Failed to reconstruct object completely in tree node: %1. Item \"%2\" will be incomplete.")).arg(observer->observerName()).arg(iface->objectBase()->objectName()),exportTask());
+                                            LOG_TASK_WARNING(QString("Failed to reconstruct object completely in tree node: %1. Item \"%2\" will be incomplete.").arg(observer->observerName()).arg(iface->objectBase()->objectName()),exportTask());
                                             result = IExportable::Incomplete;
                                         } else if (intermediate_result & IExportable::FailedResult) {
-                                            LOG_TASK_ERROR(QString(QObject::tr("Failed to import object in tree node: %1. Item \"%2\" will not be imported.")).arg(observer->observerName()).arg(iface->objectBase()->objectName()),exportTask());
+                                            LOG_TASK_ERROR(QString("Failed to import object in tree node: %1. Item \"%2\" will not be imported.").arg(observer->observerName()).arg(iface->objectBase()->objectName()),exportTask());
                                             result = intermediate_result;
                                         }
 
@@ -1202,21 +1202,21 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
 
                                         iface->clearExportTask();
                                     } else {
-                                        LOG_TASK_ERROR(QString(QObject::tr("Found invalid exportable interface on reconstructed object in tree node: %1")).arg(observer->observerName()),exportTask());
+                                        LOG_TASK_ERROR(QString("Found invalid exportable interface on reconstructed object in tree node: %1").arg(observer->observerName()),exportTask());
                                         observer->endProcessingCycle();
                                         return IExportable::Failed;
                                     }
                                 } else {
-                                    LOG_TASK_WARNING(QString(QObject::tr("Factory tag %1 does not exist in factory %2. This item will be skipped and the import will be incomplete.")).arg(instanceFactoryInfo.d_instance_tag).arg(instanceFactoryInfo.d_factory_tag),exportTask());
+                                    LOG_TASK_WARNING(QString("Factory tag %1 does not exist in factory %2. This item will be skipped and the import will be incomplete.").arg(instanceFactoryInfo.d_instance_tag).arg(instanceFactoryInfo.d_factory_tag),exportTask());
                                     result = IExportable::Incomplete;
                                 }
                             } else {
-                                LOG_TASK_WARNING(QString(QObject::tr("Factory with name %1 does not exist in the object manager. This item will be skipped and the import will be incomplete.")).arg(instanceFactoryInfo.d_factory_tag),exportTask());
+                                LOG_TASK_WARNING(QString("Factory with name %1 does not exist in the object manager. This item will be skipped and the import will be incomplete.").arg(instanceFactoryInfo.d_factory_tag),exportTask());
                                 result = IExportable::Incomplete;
                             }
                         } else {
                             result = IExportable::Incomplete;
-                            LOG_TASK_WARNING(QString(QObject::tr("Found invalid factory data for child on tree node: %1")).arg(observer->observerName()),exportTask());
+                            LOG_TASK_WARNING(QString("Found invalid factory data for child on tree node: %1").arg(observer->observerName()),exportTask());
                         }
                         continue;
                     }
@@ -1240,10 +1240,10 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
             constructed_table.dumpTableInfo();
         }*/
         if (!constructed_table.compare(*readback_table)) {
-            LOG_TASK_WARNING(QString(QObject::tr("Relational verification failed on observer: %1")).arg(observer->observerName()),exportTask());
+            LOG_TASK_WARNING(QString("Relational verification failed on observer: %1").arg(observer->observerName()),exportTask());
             result = IExportable::Incomplete;
         } else {
-            LOG_TASK_INFO(QString(QObject::tr("Relational verification successful on observer: %1")).arg(observer->observerName()),exportTask());
+            LOG_TASK_INFO(QString("Relational verification successful on observer: %1").arg(observer->observerName()),exportTask());
         }
 
         // Remove all relational properties used.
@@ -1272,7 +1272,7 @@ bool Qtilities::Core::ObserverData::constructRelationships(QList<QPointer<QObjec
 
     // First check if all the objects in the pointer list are present in the table:
     if (!table->compareObjects(objects)) {
-        LOG_TASK_ERROR(QString(QObject::tr("Relational table comparison failed. Relationship construction aborted.")),exportTask());
+        LOG_TASK_ERROR(QString("Relational table comparison failed. Relationship construction aborted."),exportTask());
         return false;
     } else
         LOG_TASK_TRACE("Table comparison successfull.",exportTask());
@@ -1336,7 +1336,7 @@ bool Qtilities::Core::ObserverData::constructRelationships(QList<QPointer<QObjec
 //                int prev_session_id = (int) local_map.keys().at(m);
 //                RelationalTableEntry* entry = table->entryWithPreviousSessionID(prev_session_id);
 //                if (!entry) {
-//                    LOG_TASK_ERROR(QString(QObject::tr("ObjectManager::constructRelationships() failed during observer property reconstruction. Failed to find relational table entry for previous session id: %1")).arg(prev_session_id),exportTask());
+//                    LOG_TASK_ERROR(QString("ObjectManager::constructRelationships() failed during observer property reconstruction. Failed to find relational table entry for previous session id: %1").arg(prev_session_id),exportTask());
 //                    // If you get here on custom properties added by subject filters, make sure you handle the
 //                    // import_cycle parameter correctly when initializing and finalizing attachments. What normally
 //                    // happens is that the filter adds the property again with the current session ID. This check
@@ -1381,7 +1381,7 @@ bool Qtilities::Core::ObserverData::constructRelationships(QList<QPointer<QObjec
         // Now get this entry in the table:
         RelationalTableEntry* entry = table->entryWithVisitorID(visitor_id);
         if (!entry) {
-            LOG_TASK_ERROR(QObject::tr("Observer relationship construction failed on object: ") + objects.at(i)->objectName() + QObject::tr(". An attempt will be made to continue with the rest of the relational table."),exportTask());
+            LOG_TASK_ERROR("Observer relationship construction failed on object: " + objects.at(i)->objectName() + ". An attempt will be made to continue with the rest of the relational table.",exportTask());
             break;
         }
 
@@ -1400,7 +1400,7 @@ bool Qtilities::Core::ObserverData::constructRelationships(QList<QPointer<QObjec
                     LOG_TASK_TRACE(">> Object already attached to context: " + obs->observerName(),exportTask());
                 }
             } else {
-                LOG_TASK_ERROR(QString(QObject::tr("Observer ID \"%1\" invalid on object: ")).arg(entry->parents().at(e)) + objects.at(i)->objectName() + QObject::tr(". An attempt will be made to continue with the rest of the relational table."),exportTask());
+                LOG_TASK_ERROR(QString("Observer ID \"%1\" invalid on object: ").arg(entry->parents().at(e)) + objects.at(i)->objectName() + ". An attempt will be made to continue with the rest of the relational table.",exportTask());
                 success = false;
             }
         }
@@ -1428,13 +1428,13 @@ bool Qtilities::Core::ObserverData::constructRelationships(QList<QPointer<QObjec
                 ObjectManager::setSharedProperty(objects.at(i),ownership_property);
                 SharedProperty observer_parent_property(qti_prop_PARENT_ID,QVariant(session_id));
                 ObjectManager::setSharedProperty(objects.at(i),observer_parent_property);
-                LOG_TASK_TRACE(">> Restored object ownership is SpecificObserverOwnership. Owner context ID: " + QString("%1").arg(session_id),exportTask());
+                LOG_TASK_TRACE(">> Restored object ownership is SpecificObserverOwnership. Owner context ID: " + session_id,exportTask());
             } else {
                 // This will happen when the object is the top level observer which was exported. In this
                 // case we need to check if the object has any parents in the observer relational table entry.
                 // If so we flag it as an error, else we know that it is not a problem:
                 if (entry->parents().count() > 0) {
-                    LOG_TASK_ERROR(QString(QObject::tr("Could not find parent with visitor ID (%1) to which object (%2) must be attached with SpecificObserverOwnership.")).arg(entry->parentVisitorID()).arg(objects.at(i)->objectName()),exportTask());
+                    LOG_TASK_ERROR(QString("Could not find parent with visitor ID (%1) to which object (%2) must be attached with SpecificObserverOwnership.").arg(entry->parentVisitorID()).arg(objects.at(i)->objectName()),exportTask());
                     success = false;
                 }
             }
@@ -1446,7 +1446,7 @@ bool Qtilities::Core::ObserverData::constructRelationships(QList<QPointer<QObjec
             LOG_TASK_TRACE(">> Restored object ownership is OwnedBySubjectOwnership",exportTask());
         } else {
             if (entry->parents().count() > 0)
-                LOG_TASK_WARNING(QString(QObject::tr("Could not determine correct ownership for object: %1")).arg(objects.at(i)->objectName()),exportTask());
+                LOG_TASK_WARNING(QString("Could not determine correct ownership for object: %1").arg(objects.at(i)->objectName()),exportTask());
         }
 
         LOG_TASK_TRACE("> Restoring instance names across contexts.",exportTask());
@@ -1504,11 +1504,11 @@ QList<IExportable*> Qtilities::Core::ObserverData::getLimitedExportsList(QList<Q
 
         if (iface) {
             if (!(iface->supportedFormats() & export_mode)) {
-                LOG_TASK_WARNING(IExportable::exportModeToString(export_mode) + QObject::tr(" export found an interface on object (") + observer->subjectNameInContext(obj) + QObject::tr(" in context ") + observer->observerName() + QObject::tr(") which does not support this export type. Export will be incomplete."),exportTask());
+                LOG_TASK_WARNING(IExportable::exportModeToString(export_mode) + " export found an interface on object (" + observer->subjectNameInContext(obj) + " in context " + observer->observerName() + ") which does not support this export type. Export will be incomplete.",exportTask());
                 if (complete)
                     *complete = false;
             } else if (!iface->instanceFactoryInfo().isValid()) {
-                LOG_TASK_WARNING(IExportable::exportModeToString(export_mode) + QObject::tr(" export found an interface on object (") + observer->subjectNameInContext(obj) + QObject::tr(" in context ") + observer->observerName() + QObject::tr(") with invalid instanceFactoryInfo(). Export will be incomplete."),exportTask());
+                LOG_TASK_WARNING(IExportable::exportModeToString(export_mode) + " export found an interface on object (" + observer->subjectNameInContext(obj) + " in context " + observer->observerName() + ") with invalid instanceFactoryInfo(). Export will be incomplete.",exportTask());
                 if (complete)
                     *complete = false;
             } else {
@@ -1524,7 +1524,7 @@ QList<IExportable*> Qtilities::Core::ObserverData::getLimitedExportsList(QList<Q
                 }
             }
         } else {
-            LOG_TASK_WARNING(IExportable::exportModeToString(export_mode) + QObject::tr(" export found an interface on object (") + observer->subjectNameInContext(obj) + QObject::tr(" in context ") + observer->observerName() + QObject::tr(") which does not implement an exportable interface. Export will be incomplete."),exportTask());
+            LOG_TASK_WARNING(IExportable::exportModeToString(export_mode) + " export found an interface on object (" + observer->subjectNameInContext(obj) + " in context " + observer->observerName() + ") which does not implement an exportable interface. Export will be incomplete.",exportTask());
             if (complete)
                 *complete = false;
         }

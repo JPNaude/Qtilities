@@ -37,7 +37,7 @@ Qtilities::Logging::FileLoggerEngine::FileLoggerEngine() : AbstractLoggerEngine(
 {
     file_name = QString();
     abstractLoggerEngineData->formatting_engine = 0;
-    setName(QObject::tr("File Logger Engine"));
+    setName("File Logger Engine");
 }
 
 Qtilities::Logging::FileLoggerEngine::~FileLoggerEngine()
@@ -103,17 +103,17 @@ void Qtilities::Logging::FileLoggerEngine::finalize() {
 }
 
 QString Qtilities::Logging::FileLoggerEngine::description() const {
-    return QObject::tr("Writes log messages to a file.");
+    return "Writes log messages to a file.";
 }
 
 QString Qtilities::Logging::FileLoggerEngine::status() const {
     if (abstractLoggerEngineData->is_initialized) {
         if (abstractLoggerEngineData->is_enabled)
-            return QString(QObject::tr("Logging in progress to output file: %1")).arg(file_name);
+            return QString("Logging in progress to output file: %1").arg(file_name);
         else
-            return QObject::tr("Ready but inactive.");
+            return "Ready but inactive.";
     } else {
-        return QObject::tr("Not initialized.");
+        return "Not initialized.";
     }
 }
 
@@ -191,7 +191,7 @@ Qtilities::Logging::QtMsgLoggerEngine* Qtilities::Logging::QtMsgLoggerEngine::in
 
 Qtilities::Logging::QtMsgLoggerEngine::QtMsgLoggerEngine() : AbstractLoggerEngine()
 {
-    setName(QObject::tr("Qt Message Logger Engine"));
+    setName("Qt Message Logger Engine");
 }
 
 Qtilities::Logging::QtMsgLoggerEngine::~QtMsgLoggerEngine()
@@ -208,17 +208,17 @@ void Qtilities::Logging::QtMsgLoggerEngine::finalize() {
 }
 
 QString Qtilities::Logging::QtMsgLoggerEngine::description() const {
-    return QObject::tr("Writes log messages to the Qt message system.");
+    return "Writes log messages to the Qt message system.";
 }
 
 QString Qtilities::Logging::QtMsgLoggerEngine::status() const {
     if (abstractLoggerEngineData->is_initialized) {
         if (abstractLoggerEngineData->is_enabled)
-            return QObject::tr("Logging in progress...");
+            return "Logging in progress...";
         else
-            return QObject::tr("Ready but inactive.");
+            return "Ready but inactive.";
     } else {
-        return QObject::tr("Not initialized.");
+        return "Not initialized.";
     }
 }
 
@@ -250,7 +250,7 @@ Qtilities::Logging::ConsoleLoggerEngine* Qtilities::Logging::ConsoleLoggerEngine
 }
 
 Qtilities::Logging::ConsoleLoggerEngine::ConsoleLoggerEngine() : AbstractLoggerEngine() {
-    setName(QObject::tr("Console Logger Engine"));
+    setName("Console Logger Engine");
     color_formatting_enabled = true;
 
     message_colors[Logger::Warning] = QString(CONSOLE_BLUE);
@@ -284,17 +284,17 @@ void Qtilities::Logging::ConsoleLoggerEngine::finalize() {
 }
 
 QString Qtilities::Logging::ConsoleLoggerEngine::description() const {
-    return QObject::tr("Writes log messages to the console.");
+    return "Writes log messages to the console.";
 }
 
 QString Qtilities::Logging::ConsoleLoggerEngine::status() const {
     if (abstractLoggerEngineData->is_initialized) {
         if (abstractLoggerEngineData->is_enabled)
-            return QObject::tr("Logging in progress...");
+            return "Logging in progress...";
         else
-            return QObject::tr("Ready but inactive.");
+            return "Ready but inactive.";
     } else {
-        return QObject::tr("Not initialized.");
+        return "Not initialized.";
     }
 }
 

@@ -93,9 +93,9 @@ Qtilities::Core::Interfaces::TaskManager* Qtilities::Core::QtilitiesCoreApplicat
 QString Qtilities::Core::QtilitiesCoreApplicationPrivate::qtilitiesVersionString() const {
     QString version_string;
     if (qti_def_VERSION_BETA != 0)
-        version_string = QString(QObject::tr("%1 Beta %2")).arg(d_version_number.toString()).arg(qti_def_VERSION_BETA);
+        version_string = QString("%1 Beta %2").arg(d_version_number.toString()).arg(qti_def_VERSION_BETA);
     else if (qti_def_VERSION_ALPHA != 0)
-        version_string = QString(QObject::tr("%1 Alpha %2")).arg(d_version_number.toString()).arg(qti_def_VERSION_ALPHA);
+        version_string = QString("%1 Alpha %2").arg(d_version_number.toString()).arg(qti_def_VERSION_ALPHA);
     else
         version_string = d_version_number.toString();
     return version_string;

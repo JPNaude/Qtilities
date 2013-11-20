@@ -354,8 +354,7 @@ bool Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& 
                 return true;
             }
         } else {
-            //qDebug() << QString(QObject::tr("setCategory(-1) on item \"%1\" failed, the item has %2 parent(s) and/or a specific parent could not be found.")).arg(getTreeItemObjectBase()->objectName()).arg(parent_count);
-            LOG_DEBUG(QString(QObject::tr("setCategory(-1) on item \"%1\" failed, the item has %2 parent(s) and/or a specific parent could not be found.")).arg(getTreeItemObjectBase()->objectName()).arg(parent_count));
+            LOG_DEBUG(QString("setCategory(-1) on item \"%1\" failed, the item has %2 parent(s) and/or a specific parent could not be found.").arg(getTreeItemObjectBase()->objectName()).arg(parent_count));
         }
     } else {
         QObject* obj = getTreeItemObjectBase();
@@ -417,8 +416,7 @@ QtilitiesCategory Qtilities::CoreGui::AbstractTreeItem::getCategory(int observer
             if (category_variant.isValid())
                 return category_variant.value<QtilitiesCategory>();
         } else {
-            //qDebug() << QString(QObject::tr("getCategory(-1) on item \"%1\" failed, the item has %2 parent(s) and/or a specific parent could not be found.")).arg(getTreeItemObjectBase()->objectName()).arg(parent_count);
-            LOG_DEBUG(QString(QObject::tr("getCategory(-1) on item \"%1\" failed, the item has %2 parent(s) and/or a specific parent could not be found.")).arg(getTreeItemObjectBase()->objectName()).arg(parent_count));
+            LOG_DEBUG(QString("getCategory(-1) on item \"%1\" failed, the item has %2 parent(s) and/or a specific parent could not be found.").arg(getTreeItemObjectBase()->objectName()).arg(parent_count));
         }
     } else {
         const QObject* obj = getTreeItemObjectBase();

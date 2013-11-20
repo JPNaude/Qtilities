@@ -50,6 +50,7 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     [#] Moved registration of Logger::MessageType and Logger::MessageContext from ITask to Logger's constructor.
     [#] FileUtils::makeLocalCopyOfResource() will also create the local_path directory using QDir::mkpath() if it does not exist.
     [#] FileUtils::makeLocalCopyOfResource()'s errorMsg parameter is no longer compulsory.
+    [#] Assign default -1 value to Task::lastErrorMessages()'s count parameter.
 
     [*] Fixed bug in Observer::handle_deletedSubject() where application can sometimes
         crash with "Detected QWeakPointer creation in a QObject being deleted".
@@ -61,7 +62,10 @@ https://github.com/JPNaude/Qtilities/issues/milestones
         and QtilitiesProcess::newStandardErrorMessage().
     [*] Fixed Task::completeTask() not always emitting with the correct result. For example, it would
         be emitted with the result set to TaskResultFromBusyStateFailOnError instead of TaskFailed.
-    [*] Fixed path printed in FileUtils::makeLocalCopyOfResource() error message when resource file does not exist.
+    [*] Fixed wrong path printed in FileUtils::makeLocalCopyOfResource() error message when resource file does not exist.
+    [*] Fixed "> working directory does not exist, process might fail to start" printing wrongly in
+        some cases when using QtilitiesProcess.
+    [*] Fixed FileUtils::findFilesUnderDir() matching against directories which are more than one level deep from the search dir.
 
     ============================
     QtilitiesCoreGui:

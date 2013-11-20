@@ -677,7 +677,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
     d->initialized = false;
 
     if (!d_observer) {
-        LOG_FATAL(tr("You are attempting to initialize an ObserverWidget without an observer context."));
+        LOG_FATAL(QString("You are attempting to initialize an ObserverWidget without an observer context."));
         d->action_provider->disableAllActions();
         return;
     }
@@ -1427,7 +1427,7 @@ void Qtilities::CoreGui::ObserverWidget::writeSettings() {
 
 void Qtilities::CoreGui::ObserverWidget::readSettings() {
     if (!d->initialized) {
-        LOG_ERROR(QString(tr("readSettings() can only be called on observer widget \"%1\" after the widget has been initialized.")).arg(d->global_meta_type));
+        LOG_ERROR(QString("readSettings() can only be called on observer widget \"%1\" after the widget has been initialized.").arg(d->global_meta_type));
         return;
     }
 
@@ -1581,6 +1581,7 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     context.push_front(CONTEXT_MANAGER->contextID(d->global_meta_type));
 
     ACTION_MANAGER->commandObserver()->startProcessingCycle();
+    QtilitiesCategory item_views_category(tr("Item Views"));
 
     // ---------------------------
     // New Item
@@ -1590,7 +1591,7 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     connect(d->actionNewItem,SIGNAL(triggered()),SLOT(handle_actionNewItem_triggered()));
     Command* command = ACTION_MANAGER->registerAction(qti_action_CONTEXT_NEW_ITEM,d->actionNewItem,context);
     d->action_provider->addAction(d->actionNewItem,QtilitiesCategory(tr("Items")));
-    command->setCategory(QtilitiesCategory("Item Views"));
+    command->setCategory(item_views_category);
     // ---------------------------
     // Remove Item
     // ---------------------------
@@ -1598,7 +1599,7 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     connect(d->actionRemoveItem,SIGNAL(triggered()),SLOT(selectionDetach()));
     command = ACTION_MANAGER->registerAction(qti_action_CONTEXT_REMOVE_ITEM,d->actionRemoveItem,context);
     d->action_provider->addAction(d->actionRemoveItem,QtilitiesCategory(tr("Items")));
-    command->setCategory(QtilitiesCategory("Item Views"));
+    command->setCategory(item_views_category);
     // ---------------------------
     // Delete Item
     // ---------------------------
@@ -1607,7 +1608,7 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     connect(d->actionDeleteItem,SIGNAL(triggered()),SLOT(selectionDelete()));
     command = ACTION_MANAGER->registerAction(qti_action_SELECTION_DELETE,d->actionDeleteItem,context);
     d->action_provider->addAction(d->actionDeleteItem,QtilitiesCategory(tr("Items")));
-    command->setCategory(QtilitiesCategory("Item Views"));
+    command->setCategory(item_views_category);
     // ---------------------------
     // Remove All
     // ---------------------------    
@@ -1615,7 +1616,7 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     connect(d->actionRemoveAll,SIGNAL(triggered()),SLOT(selectionDetachAll()));
     command = ACTION_MANAGER->registerAction(qti_action_CONTEXT_REMOVE_ALL,d->actionRemoveAll,context);
     d->action_provider->addAction(d->actionRemoveAll,QtilitiesCategory(tr("Items")));
-    command->setCategory(QtilitiesCategory("Item Views"));
+    command->setCategory(item_views_category);
     // ---------------------------
     // Delete All
     // ---------------------------
@@ -1623,7 +1624,7 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     connect(d->actionDeleteAll,SIGNAL(triggered()),SLOT(selectionDeleteAll()));
     command = ACTION_MANAGER->registerAction(qti_action_CONTEXT_DELETE_ALL,d->actionDeleteAll,context);
     d->action_provider->addAction(d->actionDeleteAll,QtilitiesCategory(tr("Items")));
-    command->setCategory(QtilitiesCategory("Item Views"));
+    command->setCategory(item_views_category);
     // ---------------------------
     // Switch View
     // ---------------------------
@@ -1632,7 +1633,7 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     connect(d->actionSwitchView,SIGNAL(triggered()),SLOT(toggleDisplayMode()));
     command = ACTION_MANAGER->registerAction(qti_action_CONTEXT_SWITCH_VIEW,d->actionSwitchView,context);
     d->action_provider->addAction(d->actionSwitchView,QtilitiesCategory(tr("View")));
-    command->setCategory(QtilitiesCategory("Item Views"));
+    command->setCategory(item_views_category);
     // ---------------------------
     // Refresh View
     // ---------------------------
@@ -1641,7 +1642,7 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     connect(d->actionRefreshView,SIGNAL(triggered()),SLOT(refresh()));
     command = ACTION_MANAGER->registerAction(qti_action_CONTEXT_REFRESH_VIEW,d->actionRefreshView,context);
     d->action_provider->addAction(d->actionRefreshView,QtilitiesCategory(tr("View")));
-    command->setCategory(QtilitiesCategory("Item Views"));
+    command->setCategory(item_views_category);
     // ---------------------------
     // Find Item
     // ---------------------------
@@ -1650,7 +1651,7 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     connect(d->actionFindItem,SIGNAL(triggered()),SLOT(toggleSearchBox()));
     command = ACTION_MANAGER->registerAction(qti_action_EDIT_FIND,d->actionFindItem,context);
     d->action_provider->addAction(d->actionFindItem,QtilitiesCategory(tr("View")));
-    command->setCategory(QtilitiesCategory("Item Views"));
+    command->setCategory(item_views_category);
     // ---------------------------
     // Go To Parent
     // ---------------------------
@@ -1659,7 +1660,7 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     connect(d->actionPushUp,SIGNAL(triggered()),SLOT(selectionPushUp()));
     command = ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_UP,d->actionPushUp,context);
     d->action_provider->addAction(d->actionPushUp,QtilitiesCategory(tr("Hierarchy")));
-    command->setCategory(QtilitiesCategory("Item Views"));
+    command->setCategory(item_views_category);
     // ---------------------------
     // Go To Parent In New Window
     // ---------------------------
@@ -1667,7 +1668,7 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     connect(d->actionPushUpNew,SIGNAL(triggered()),SLOT(selectionPushUpNew()));
     command = ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_UP_NEW,d->actionPushUpNew,context);
     d->action_provider->addAction(d->actionPushUpNew,QtilitiesCategory(tr("Hierarchy")));
-    command->setCategory(QtilitiesCategory("Item Views"));
+    command->setCategory(item_views_category);
     // ---------------------------
     // Push Down
     // ---------------------------
@@ -1676,7 +1677,7 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     connect(d->actionPushDown,SIGNAL(triggered()),SLOT(selectionPushDown()));
     command = ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_DOWN,d->actionPushDown,context);
     d->action_provider->addAction(d->actionPushDown,QtilitiesCategory(tr("Hierarchy")));
-    command->setCategory(QtilitiesCategory("Item Views"));
+    command->setCategory(item_views_category);
     // ---------------------------
     // Push Down In New Window
     // ---------------------------
@@ -1684,7 +1685,7 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     connect(d->actionPushDownNew,SIGNAL(triggered()),SLOT(selectionPushDownNew()));
     command = ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_DOWN_NEW,d->actionPushDownNew,context);
     d->action_provider->addAction(d->actionPushDownNew,QtilitiesCategory(tr("Hierarchy")));
-    command->setCategory(QtilitiesCategory("Item Views"));
+    command->setCategory(item_views_category);
     // ---------------------------
     // Expand All
     // ---------------------------
@@ -1693,7 +1694,7 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     connect(d->actionExpandAll,SIGNAL(triggered()),SLOT(viewExpandAll()));
     command = ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_EXPAND,d->actionExpandAll,context);
     d->action_provider->addAction(d->actionExpandAll,QtilitiesCategory(tr("Hierarchy")));
-    command->setCategory(QtilitiesCategory("Item Views"));
+    command->setCategory(item_views_category);
     // ---------------------------
     // Collapse All
     // ---------------------------
@@ -1702,13 +1703,13 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     connect(d->actionCollapseAll,SIGNAL(triggered()),SLOT(viewCollapseAll()));
     command = ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_COLLAPSE,d->actionCollapseAll,context);
     d->action_provider->addAction(d->actionCollapseAll,QtilitiesCategory(tr("Hierarchy")));
-    command->setCategory(QtilitiesCategory("Item Views"));
+    command->setCategory(item_views_category);
 
     #ifndef QT_NO_DEBUG
     // ---------------------------
     // Object Debug
     // ---------------------------
-    d->actionDebugObject = new QAction(QIcon(qti_icon_DEBUG_16x16),tr("Debug Object<br><br><span style=\"color: gray;\">Adds the selected object to your global object pool. If the debug plugin is loaded, you can inspect the object there.</span>"),this);
+    d->actionDebugObject = new QAction(QIcon(qti_icon_DEBUG_16x16),QString("Debug Object<br><br><span style=\"color: gray;\">Adds the selected object to your global object pool. If the debug plugin is loaded, you can inspect the object there.</span>"),this);
     connect(d->actionDebugObject,SIGNAL(triggered()),SLOT(selectionDebug()));
     d->action_provider->addAction(d->actionDebugObject,QtilitiesCategory(tr("Items")));
     #endif
@@ -1984,7 +1985,7 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
                             if (observer->subjectCount() > 0) {
                                 d->actionRemoveAll->setText(tr("Detach All Under \"") + observer->observerName() + "\"");
                                 d->actionRemoveAll->setEnabled(true);
-                                d->actionDeleteAll->setText(tr("Delete All Under: ") + observer->observerName() + "\"");
+                                d->actionDeleteAll->setText(tr("Delete All Under  \"") + observer->observerName() + "\"");
                                 d->actionDeleteAll->setEnabled(true);
                             } else {
                                 d->actionRemoveAll->setEnabled(false);
@@ -1994,7 +1995,7 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
                             if (selectionParent()->subjectCount() > 0) {
                                 d->actionRemoveAll->setText(tr("Detach All Under \"") + observer->observerName() + "\"");
                                 d->actionRemoveAll->setEnabled(true);
-                                d->actionDeleteAll->setText(tr("Delete All Under: ") + observer->observerName() + "\"");
+                                d->actionDeleteAll->setText(tr("Delete All Under \"") + observer->observerName() + "\"");
                                 d->actionDeleteAll->setEnabled(true);
                             } else {
                                 d->actionRemoveAll->setEnabled(false);
@@ -2591,10 +2592,7 @@ void Qtilities::CoreGui::ObserverWidget::selectionDelete() {
         QMessageBox msgBox;
         msgBox.setIcon(QMessageBox::Question);
         msgBox.setWindowTitle(tr("Confirm Deletion"));
-        if (selected_count == 1)
-            msgBox.setText(tr("Are you sure you want to delete the selected object?<br><br>This operation cannot be undone."));
-        else
-            msgBox.setText(tr("Are you sure you want to delete the selected objects?<br><br>This operation cannot be undone."));
+        msgBox.setText(tr("Are you sure you want to delete the selected object(s)?<br><br>This operation cannot be undone."));
         msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
         msgBox.setDefaultButton(QMessageBox::Yes);
         int ret = msgBox.exec();
@@ -4282,7 +4280,7 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
                 const ObserverMimeData* observer_mime_data = qobject_cast<const ObserverMimeData*> (dropEvent->mimeData());
                 if (observer_mime_data) {
                     if (observer_mime_data->sourceID() == d_observer->observerID()) {
-                        LOG_ERROR_P(QString(tr("The drop operation could not be completed. The destination and source is the same.")));
+                        LOG_ERROR_P("The drop operation could not be completed. The destination and source is the same.");
                         return false;
                     }
 
@@ -4297,13 +4295,13 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
                             // Attempt to copy the dragged objects:
                             QList<QPointer<QObject> > dropped_list = d_observer->attachSubjects(const_cast<ObserverMimeData*> (observer_mime_data));
                             if (dropped_list.count() != observer_mime_data->subjectList().count()) {
-                                LOG_WARNING_P(QString(tr("The drop operation completed partially. %1/%2 objects were drop successfully.").arg(dropped_list.count()).arg(observer_mime_data->subjectList().count())));
+                                LOG_WARNING_P(QString("The drop operation completed partially. %1/%2 objects were drop successfully.").arg(dropped_list.count()).arg(observer_mime_data->subjectList().count()));
                             } else {
-                                LOG_INFO_P(QString(tr("The drop operation completed successfully on %1 objects.").arg(dropped_list.count())));
+                                LOG_INFO_P(QString("The drop operation completed successfully on %1 objects.").arg(dropped_list.count()));
                             }
                         }
                     } else
-                        LOG_ERROR_P(QString(tr("The drop operation could not be completed. The destination observer cannot accept all the objects in your selection. Error message: ") + error_msg));
+                        LOG_ERROR_P(QString("The drop operation could not be completed. The destination observer cannot accept all the objects in your selection. Error message: ") + error_msg);
                 }
             }
             return false;

@@ -33,7 +33,7 @@ bool FileLocker::isFileLocked(const QString &file_path) const {
 bool FileLocker::lockFile(const QString &file_path, QString *errorMsg) {
     if (isFileLocked(file_path)) {
         if (errorMsg)
-            *errorMsg = QString(QObject::tr("Cannot lock file that is already locked: ") + file_path);
+            *errorMsg = QString("Cannot lock file that is already locked: " + file_path);
         return false;
     }
 
@@ -41,14 +41,14 @@ bool FileLocker::lockFile(const QString &file_path, QString *errorMsg) {
     QFile lock_file(lock_file_path);
     if(!lock_file.open(QFile::WriteOnly | QIODevice::Text)) {
         if (errorMsg)
-            *errorMsg = QString(QObject::tr("Cannot open lock file for writing at: ") + file_path);
+            *errorMsg = QString("Cannot open lock file for writing at: " + file_path);
         return false;
     }
 
     QString lock_file_string;
-    lock_file_string.append(QObject::tr("Lock file created by ") + QCoreApplication::applicationName() + "\n");
+    lock_file_string.append("Lock file created by " + QCoreApplication::applicationName() + "\n");
 
-    QString host_name = QObject::tr("Unknown Host");
+    QString host_name = "Unknown Host";
     // Get the host name:
     #ifdef Q_OS_WIN
     #ifndef Q_CC_MSVC
@@ -71,7 +71,7 @@ bool FileLocker::lockFile(const QString &file_path, QString *errorMsg) {
 
     if (!lock_file.write(lock_file_string.toUtf8())) {
         if (errorMsg)
-            *errorMsg = QString(QObject::tr("Cannot write lock contents to lock file: ") + file_path);
+            *errorMsg = QString("Cannot write lock contents to lock file: " + file_path);
         return false;
     }
     lock_file.close();
@@ -110,7 +110,7 @@ QString FileLocker::lastLockHostName(QString file_path, QString *errorMsg) const
     QFile lock_file(file_path);
     if (!lock_file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         if (errorMsg)
-            *errorMsg = QString(QObject::tr("Cannot open lock file for reading at: ") + file_path);
+            *errorMsg = QString("Cannot open lock file for reading at: " + file_path);
         return QString();
     }
 
@@ -140,7 +140,7 @@ QString FileLocker::lastLockDateTime(QString file_path, QString *errorMsg) const
     QFile lock_file(file_path);
     if (!lock_file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         if (errorMsg)
-            *errorMsg = QString(QObject::tr("Cannot open lock file for reading at: ") + file_path);
+            *errorMsg = QString("Cannot open lock file for reading at: " + file_path);
         return QString();
     }
 
@@ -161,15 +161,15 @@ QString FileLocker::lastLockDateTime(QString file_path, QString *errorMsg) const
 QString FileLocker::lastLockSummary(QString file_path, const QString &line_break_char, QString *errorMsg) const {
     if (!isFileLocked(file_path)) {
         if (errorMsg)
-            *errorMsg = QString("Cannot unlock file that is not locked: " + file_path);
+            *errorMsg = "Cannot unlock file that is not locked: " + file_path;
         return QString();
     }
 
     file_path = lockFilePathForFile(file_path);
 
     QString summary;
-    summary.append(QObject::tr("Locked on host: ") + lastLockHostName(file_path) + line_break_char);
-    summary.append(QObject::tr("Locked at: ") + lastLockDateTime(file_path));
+    summary.append("Locked on host: " + lastLockHostName(file_path) + line_break_char);
+    summary.append("Locked at: " + lastLockDateTime(file_path));
     return summary;
 }
 

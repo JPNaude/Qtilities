@@ -60,13 +60,13 @@ Qtilities::CoreGui::StringListWidget::StringListWidget(const QStringList& string
 
     QToolBar* toolbar = new QToolBar("List Modification Toolbar");
     addToolBar(d->toolbar_area,toolbar);
-    toolbar->setObjectName(tr("List Modification Toolbar"));
+    toolbar->setObjectName("List Modification Toolbar");
     toolbar->addAction(d->actionAddString);
     toolbar->addAction(d->actionRemoveString);
     connect(d->actionAddString,SIGNAL(triggered()),SLOT(handleAddString()));
     connect(d->actionRemoveString,SIGNAL(triggered()),SLOT(handleRemoveString()));
 
-    d->open_dialog_filter = tr("All Files (*.*)");
+    d->open_dialog_filter = "All Files (*.*)";
     d->open_dialog_path = QtilitiesApplication::applicationSessionPath();
 
     // TODO: Bad way to do it, but workaround for now:
@@ -147,12 +147,12 @@ void Qtilities::CoreGui::StringListWidget::handleAddString() {
 
     QString string_type;
     if (d->string_type.isEmpty())
-        string_type = "Add New Item";
+        string_type = tr("Add New Item");
     else
-        string_type = QString(tr("Add New %1")).arg(d->string_type);
+        string_type = tr("Add New %1").arg(d->string_type);
 
     if (d->list_type == PlainStrings) {
-        QString text = QInputDialog::getText(this, string_type,tr("New Item:"), QLineEdit::Normal,"", &ok);
+        QString text = QInputDialog::getText(this, string_type,tr("New Item"), QLineEdit::Normal,"", &ok);
         if (ok && !text.isEmpty()) {
             QStringList list = d->model.stringList();
             list << text;

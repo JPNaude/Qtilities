@@ -87,7 +87,7 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
     QDir::Filters final_filters = filters;
     // Always add QDir::NoDotAndDotDot otherwise we can go into an endless loop here.
     final_filters |= QDir::NoDotAndDotDot;
-    //qDebug() << "XXX" << dir.path() << file_filters << ignore_list;
+    //qDebug() << "XXX" << dir.path() << file_filters << ignore_list << final_filters;
 
     QStringList ignore_patterns = ignore_list.split(" ",QString::SkipEmptyParts);
     ignore_patterns.removeDuplicates();
@@ -104,13 +104,8 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
                 if (!ignore_list.isEmpty()) {
                     foreach (const QString& ignore_pattern, ignore_patterns) {
                         // IMPORTANT: For paths, \\ separators does not do the trick. We need to use /
-                        #ifdef Q_OS_WIN
-                        QString path_to_match = QDir::fromNativeSeparators(info.filePath());
-                        QString match_value_correct_sep = QDir::fromNativeSeparators(ignore_pattern);
-                        #else
-                        QString path_to_match = QDir::toNativeSeparators(info.filePath());
-                        QString match_value_correct_sep = QDir::toNativeSeparators(ignore_pattern);
-                        #endif
+                        QString path_to_match = FileUtils::toUnixPath(info.filePath());
+                        QString match_value_correct_sep = FileUtils::toUnixPath(ignore_pattern);
 
                         QRegExp regExp(match_value_correct_sep);
                         regExp.setPatternSyntax(QRegExp::Wildcard);
@@ -129,11 +124,15 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
                 }
             }
 
-            task_ref->setDisplayName(tr("Finding Files: ") + dir.dirName());
+            task_ref->setDisplayName("Finding Files: " + dir.dirName());
             task_ref->startTask(folder_count*10 + file_count);
-            task_ref->logMessage(tr("Searching for files in directory: ") + dirName);
+            task_ref->logMessage("Searching for files in directory: " + dirName);
         }
         d->find_files_under_dir_list.clear();
+    } else {
+        // If its not the first run, we are in a recursive call. In this case, remove QDir::AllDirs which is passed as an argument
+        // for the recursive calls.
+        final_filters &= ~QDir::AllDirs;
     }
 
     foreach (const QFileInfo& info, dir.entryInfoList(final_filters | QDir::AllDirs,sort)) {
@@ -143,13 +142,8 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
         if (!ignore_list.isEmpty()) {
             foreach (const QString& ignore_pattern, ignore_patterns) {
                 // IMPORTANT: For paths, \\ separators does not do the trick. We need to use /
-                #ifdef Q_OS_WIN
-                QString path_to_match = QDir::fromNativeSeparators(info.filePath());
-                QString match_value_correct_sep = QDir::fromNativeSeparators(ignore_pattern);
-                #else
-                QString path_to_match = QDir::toNativeSeparators(info.filePath());
-                QString match_value_correct_sep = QDir::toNativeSeparators(ignore_pattern);
-                #endif
+                QString path_to_match = FileUtils::toUnixPath(info.filePath());
+                QString match_value_correct_sep = FileUtils::toUnixPath(ignore_pattern);
 
                 QRegExp regExp(match_value_correct_sep);
                 regExp.setPatternSyntax(QRegExp::Wildcard);
@@ -163,14 +157,14 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
         if (not_ignored) {
             if (info.isDir()) {
                 if (task_ref) {
-                    task_ref->logMessage(tr("Searching for files in directory: ") + info.absoluteFilePath());
-                    task_ref->setDisplayName(tr("Finding Files: ") + info.dir().dirName());
+                    task_ref->logMessage("Searching for files in directory: " + info.absoluteFilePath());
+                    task_ref->setDisplayName("Finding Files: " + info.dir().dirName());
                 }
                 findFilesUnderDir(info.absoluteFilePath(),file_filters,ignore_list,filters | QDir::AllDirs,sort,false);
 
-                if (final_filters & QDir::AllDirs) {
+                if (final_filters & QDir::Dirs) {
                     if (task_ref)
-                        task_ref->logMessage(tr("Found directory: ") + info.absoluteFilePath());
+                        task_ref->logMessage("Found directory: " + info.absoluteFilePath());
                     d->find_files_under_dir_list.append(info);
                 }
 
@@ -179,7 +173,7 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
             } else {
                 if (final_filters & QDir::Files) {
                     if (task_ref)
-                        task_ref->logMessage(tr("Found file: ") + info.absoluteFilePath());
+                        task_ref->logMessage("Found file: " + info.absoluteFilePath());
                     d->find_files_under_dir_list.append(info);
                 }
 
@@ -189,16 +183,16 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
         } else if (first_run) {
             if (task_ref) {
                 if (info.isDir())
-                    task_ref->logMessage(tr("Ignoring directory: ") + info.absoluteFilePath());
+                    task_ref->logMessage("Ignoring directory: " + info.absoluteFilePath());
                 else
-                    task_ref->logMessage(tr("Ignoring file: ") + info.absoluteFilePath());
+                    task_ref->logMessage("Ignoring file: " + info.absoluteFilePath());
             }
         }
     }
 
     if (first_run && task_ref) {
         task_ref->setDisplayName(tr("Found Files In: ") + dir.dirName());
-        task_ref->logMessage(tr("Successfully searched for and found ") + QString::number(d->find_files_under_dir_list.count()) + tr(" files under directory: ") + dirName);
+        task_ref->logMessage("Successfully searched for and found " + QString::number(d->find_files_under_dir_list.count()) + " files under directory: " + dirName);
         task_ref->completeTask(ITask::TaskSuccessful);
     }
 
