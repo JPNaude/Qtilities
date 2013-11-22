@@ -241,5 +241,6 @@ int main(int argc, char *argv[])
     ACTION_MANAGER->saveShortcutMapping(shortcut_mapping_file);
 
     LOG_FINALIZE();
+    EXTENSION_SYSTEM->finalize();
     return result;
 }

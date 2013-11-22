@@ -54,6 +54,7 @@ int main(int argc, char *argv[])
     // Create the observer widget in tree mode:
     // (Note we can also use TreeWidget which is the same as ObserverWidget)
     ObserverWidget* observer_widget = new ObserverWidget;
+    observer_widget->setRefreshMode(ObserverWidget::FullRebuildOpaqueProgress);
     // Create the observer widget in table mode
     //ObserverWidget* observer_widget = new ObserverWidget(Qtilities::TableView);
     // Size smallest

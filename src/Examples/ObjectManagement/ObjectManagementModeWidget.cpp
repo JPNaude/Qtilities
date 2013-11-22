@@ -152,6 +152,7 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     // Create ObserverWidget
     // ---------------------------
     d->observer_widget = new ObserverWidget(Qtilities::TreeView);
+    d->observer_widget->setRefreshMode(ObserverWidget::FullRebuildOpaqueProgress);
     d->observer_widget->setGlobalMetaType("Example Observer Meta Type");
     d->observer_widget->setAcceptDrops(true);
     d->scope_widget = new ObjectScopeWidget();
@@ -175,59 +176,65 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     layout->addWidget(d->observer_widget);
     layout->setMargin(0);
     d->observer_widget->show();
+
+    addExampleObjects();
 }
 
 Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::~ObjectManagementModeWidget()
 {
-    delete ui;
+    if (d->observer_widget)
+        delete d->observer_widget;
+    if (d->scope_widget)
+        delete d->scope_widget;
     delete d;
+    delete ui;
 }
 
 void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addObject_triggered(QObject* object) {
     Observer* observer = qobject_cast<Observer*> (object);
     if (observer) {
         QStringList items;
-        items << tr("New Item") << tr("New Node") << tr("QWidget");
+        items << "New Item" << "New Node" << "QWidget";
 
         bool ok;
-        QString new_item_selection = QInputDialog::getItem(this, tr("What type of object would you like to add?"),tr("Object Types:"), items, 0, false, &ok);
+        QString new_item_selection = QInputDialog::getItem(this, "What type of object would you like to add?","Object Types:", items, 0, false, &ok);
         if (ok && !new_item_selection.isEmpty()) {
             ok = false;
             if (new_item_selection == "New Item") {
-                QString subject_name = QInputDialog::getText(this, tr("Name of object:"), QString("Provide a name for the new object:"), QLineEdit::Normal, "new_object",&ok);
+                QString subject_name = QInputDialog::getText(this, "Name of object:", "Provide a name for the new object:", QLineEdit::Normal, "new_object",&ok);
                 if (ok && !subject_name.isEmpty()) {
                     TreeItem* new_item = new TreeItem(subject_name);
                     QString subject_category;
                     if (observer->displayHints()) {
                         if (observer->displayHints()->hierarchicalDisplayHint() & ObserverHints::CategorizedHierarchy) {
-                            subject_category = QInputDialog::getText(this, tr("Object category:"), QString("Provide a category for the new object, or leave it blank if you want to leave it uncategorized:"), QLineEdit::Normal, "Sample Category",&ok);
+                            subject_category = QInputDialog::getText(this, "Object category:", "Provide a category for the new object, or leave it blank if you want to leave it uncategorized:", QLineEdit::Normal, "Sample Category",&ok);
                             if (ok)
                                 new_item->setCategory(QtilitiesCategory(subject_category),observer->observerID());
                         }
                     }
                     QStringList management_options;
-                    management_options << tr("Manual Ownership") << tr("Auto Ownership") << tr("Specific Observer Ownership") << tr("Observer Scope Ownership") << tr("Owned By Subject Ownership");
-                    QString item = QInputDialog::getItem(this, tr("How do you want your new object to be managed?"),tr("Ownership Types:"), management_options, 0, false);
+                    management_options << "Manual Ownership" << "Auto Ownership" << "Specific Observer Ownership" << "Observer Scope Ownership" << "Owned By Subject Ownership";
+                    QString item = QInputDialog::getItem(this, "How do you want your new object to be managed?","Ownership Types:", management_options, 0, false);
                     if (!item.isEmpty()) {
-                        if (item == tr("Manual Ownership"))
+                        if (item == QLatin1String("Manual Ownership"))
                             observer->attachSubject(new_item, Observer::ManualOwnership);
-                        else if (item == tr("Auto Ownership"))
+                        else if (item == QLatin1String("Auto Ownership"))
                             observer->attachSubject(new_item, Observer::AutoOwnership);
-                        else if (item == tr("Specific Observer Ownership"))
+                        else if (item == QLatin1String("Specific Observer Ownership"))
                             observer->attachSubject(new_item, Observer::SpecificObserverOwnership);
-                        else if (item == tr("Observer Scope Ownership"))
+                        else if (item == QLatin1String("Observer Scope Ownership"))
                             observer->attachSubject(new_item, Observer::ObserverScopeOwnership);
-                        else if (item == tr("Owned By Subject Ownership"))
+                        else if (item == QLatin1String("Owned By Subject Ownership"))
                             observer->attachSubject(new_item, Observer::OwnedBySubjectOwnership);
                         OBJECT_MANAGER->registerObject(new_item,QtilitiesCategory("Example Objects"));
                     }
                 }
             } else if (new_item_selection == "QWidget")  {
-                QString subject_name = QInputDialog::getText(this, tr("Name of widget:"), QString("Provide a name for the new widget:"), QLineEdit::Normal, "new_widget",&ok);
+                QString subject_name = QInputDialog::getText(this, "Name of widget:", "Provide a name for the new widget:", QLineEdit::Normal, "new_widget",&ok);
                 if (ok && !subject_name.isEmpty()) {
                     QWidget* new_subject = new QWidget();
                     QLabel* label_text = new QLabel(new_subject);
-                    label_text->setText(QString(tr("Hello, I'm a widget observed by %1. I will delete myself when closed.")).arg(observer->observerName()));
+                    label_text->setText(QString("Hello, I'm a widget observed by %1. I will delete myself when closed.").arg(observer->observerName()));
                     label_text->adjustSize();
                     new_subject->resize(label_text->width()+10,label_text->height()+10);
                     new_subject->setWindowTitle(subject_name);
@@ -238,7 +245,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addObjec
                     new_subject->show();
                 }
             } else if (new_item_selection == "New Node")  {
-                QString subject_name = QInputDialog::getText(this, tr("Name of Node:"), QString("Provide a name for the new node:"), QLineEdit::Normal, "New Node",&ok);
+                QString subject_name = QInputDialog::getText(this, "Name of Node:", "Provide a name for the new node:", QLineEdit::Normal, "New Node",&ok);
                 if (ok && !subject_name.isEmpty()) {
                     TreeNode* new_node = new TreeNode(subject_name);
                     // Finaly attach the new observer
@@ -250,6 +257,11 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addObjec
                 }
             }
         }
+    } else {
+        QMessageBox msgBox;
+        msgBox.setIcon(QMessageBox::Information);
+        msgBox.setText("Please select a tree node to which you want to add new items.");
+        msgBox.exec();
     }
 }
 
@@ -274,7 +286,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
     nodeA->displayHints()->setDragDropHint(ObserverHints::AllDragDrop);
     nodeA->displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
     for (int i = 0; i < 5; i++)
-        nodeA->addItem(QString("Item %1").arg(i));
+        nodeA->addItem(QString("Item A_%1").arg(i));
 
     if (!selected_observer)
         d->top_level_node->attachSubject(nodeA, Observer::ObserverScopeOwnership);
@@ -290,7 +302,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
     nodeB->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
     nodeB->displayHints()->setDragDropHint(ObserverHints::AllDragDrop);
     for (int i = 0; i < 5; i++)
-        nodeB->addItem(QString("Item %1").arg(i));
+        nodeB->addItem(QString("Item B_%1").arg(i));
 
     if (!selected_observer)
         d->top_level_node->attachSubject(nodeB, Observer::ObserverScopeOwnership);
@@ -308,11 +320,11 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
     for (int i = 0; i < 5; i++) {
         QWidget* widget = new QWidget;
         QLabel* label_text = new QLabel(widget);
-        label_text->setText(QString(tr("Hello, I'm a widget. I will delete myself when closed.")));
+        label_text->setText("Hello, I'm a widget. I will delete myself when closed.");
         label_text->adjustSize();
         widget->resize(label_text->width()+10,label_text->height()+10);
         widget->setObjectName(QString("Widget %1").arg(i));
-        widget->setWindowTitle(QString("Widget %1").arg(i));
+        widget->setWindowTitle(widget->objectName());
         widget->setAttribute(Qt::WA_DeleteOnClose, true);
         nodeC->attachSubject(widget, Observer::ObserverScopeOwnership);
     }
@@ -394,7 +406,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::createDo
     ObserverDotWriter dotGraph(d->top_level_node);
     dotGraph.generateDotScript();
 
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Dot Input File"),QtilitiesApplication::applicationSessionPath(),tr("Dot Input Files (*.gv)"));
+    QString fileName = QFileDialog::getSaveFileName(this, "Save Dot Input File",QtilitiesApplication::applicationSessionPath(),"Dot Input Files (*.gv)");
     if (!fileName.isEmpty()) {
         dotGraph.saveToFile(fileName);
 

@@ -187,5 +187,6 @@ int main(int argc, char *argv[])
 
     PROJECT_MANAGER_FINALIZE();
     LOG_FINALIZE();
+    EXTENSION_SYSTEM->finalize();
     return result;
 }

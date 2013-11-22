@@ -45,6 +45,14 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setApplicationName("Building Tree Structures Example");
     QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersionString());
 
+    int num_examples = 8;
+    int current_example = 0;
+    QProgressDialog progress("Preparing example trees...", "Cancel...", 0, num_examples, 0);
+    QObject::connect(&progress,SIGNAL(canceled()),qApp,SLOT(quit()));
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+    QApplication::processEvents();
+
     // We need to set a QWidget as the application's main window in order for proxy actions to work:
     QTabWidget* tab_widget = new QTabWidget;
     QtilitiesMainWindow mainWindow;
@@ -56,6 +64,10 @@ int main(int argc, char *argv[])
     Log->setLoggerSessionConfigPath(QtilitiesApplication::applicationSessionPath());
     LOG_INITIALIZE();
     Log->setIsQtMessageHandler(false);
+
+    ++current_example;
+    progress.setValue(current_example);
+    QApplication::processEvents();
 
     // ----------------------------------
     // Uncategorized Tree
@@ -108,6 +120,10 @@ int main(int argc, char *argv[])
 
     tab_widget->addTab(combined_uncategorized_widget,QIcon(),"Uncategorized Tree");
 
+    ++current_example;
+    progress.setValue(current_example);
+    QApplication::processEvents();
+
     // ------------------------------------
     // Demonstration of tree duplication
     // ------------------------------------
@@ -135,6 +151,10 @@ int main(int argc, char *argv[])
     TreeWidget* categorized_widget = new TreeWidget(rootNodeCategorized);
     categorized_widget->show();
     tab_widget->addTab(categorized_widget,QIcon(),"Categorized Tree");
+
+    ++current_example;
+    progress.setValue(current_example);
+    QApplication::processEvents();
 
     // ----------------------------------
     // Parent Tracking Activity
@@ -184,6 +204,10 @@ int main(int argc, char *argv[])
     parent_tracking_widget->show();
     tab_widget->addTab(parent_tracking_widget,QIcon(),"Parent Tracking Activity");
 
+    ++current_example;
+    progress.setValue(current_example);
+    QApplication::processEvents();
+
     // ----------------------------------
     // Tree With Subject Filters
     // ----------------------------------
@@ -221,6 +245,10 @@ int main(int argc, char *argv[])
     dotGraph.generateDotScript();
     dotGraph.saveToFile(QtilitiesApplication::applicationSessionPath() + "/output_file.gv");*/
 
+    ++current_example;
+    progress.setValue(current_example);
+    QApplication::processEvents();
+
     // ------------------------------------
     // Forcing Selection Of At Least One Item
     // ------------------------------------
@@ -246,11 +274,15 @@ int main(int argc, char *argv[])
     tab_widget->addTab(minimum_selection_widget,QIcon(),"Forcing Minimum Selection In Table");
     rootNodeMinimumSelection->addItem("Child 5");
 
+    ++current_example;
+    progress.setValue(current_example);
+    QApplication::processEvents();
+
     // ------------------------------------
     // Big Table Shown Using Fetch More Implementation
     // ------------------------------------
     TreeNode* bigTableObserver = new TreeNode("Big Table");
-    for (int i = 0; i < 10000; i++) {
+    for (int i = 0; i < 1000; i++) {
         bigTableObserver->addItem("Item " + QString::number(i));
     }
 
@@ -260,74 +292,84 @@ int main(int argc, char *argv[])
     big_table_widget->show();
     tab_widget->addTab(big_table_widget,QIcon(),"Big Table");
 
+    ++current_example;
+    progress.setValue(current_example);
+    QApplication::processEvents();
+
     // ------------------------------------
     // Big With Activity Filter
+    // This can take long on slow machines, thus uncomment manually to see example...
     // ------------------------------------
 
-    TreeNode* bigTableObserverWithActivity = new TreeNode("Big Table With Activity Filter");
-    bigTableObserverWithActivity->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::CheckboxTriggered);
-    bigTableObserverWithActivity->enableCategorizedDisplay();
-    bigTableObserverWithActivity->displayHints()->setItemViewColumnHint(ObserverHints::ColumnNameHint | ObserverHints::ColumnChildCountHint);
-    bigTableObserverWithActivity->displayHints()->setDisplayFlagsHint(ObserverHints::ItemView | ObserverHints::ActionToolBar);
-    bigTableObserverWithActivity->displayHints()->setActionHints(ObserverHints::ActionRefreshView | ObserverHints::ActionSwitchView | ObserverHints::ActionDeleteItem);
+//    TreeNode* bigTableObserverWithActivity = new TreeNode("Big Table With Activity Filter");
+//    bigTableObserverWithActivity->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::CheckboxTriggered);
+//    bigTableObserverWithActivity->enableCategorizedDisplay();
+//    bigTableObserverWithActivity->displayHints()->setItemViewColumnHint(ObserverHints::ColumnNameHint | ObserverHints::ColumnChildCountHint);
+//    bigTableObserverWithActivity->displayHints()->setDisplayFlagsHint(ObserverHints::ItemView | ObserverHints::ActionToolBar);
+//    bigTableObserverWithActivity->displayHints()->setActionHints(ObserverHints::ActionRefreshView | ObserverHints::ActionSwitchView | ObserverHints::ActionDeleteItem);
 
-    QTime time;
-    time.start();
-    int msg_count = 0;
-    int ms = time.elapsed();
-    int s = ms / 1000; ms %= 1000;
-    int m = s / 60; s %= 60;
-    int h = m / 60; m %= 60;
-    ++msg_count;
-    qDebug() << "##### Construction" << msg_count << QString("%1:%2:%3:%4").arg(h,2,10,QChar('0')).arg(m,2,10,QChar('0')).arg(s,2,10,QChar('0')).arg(ms,4,10,QChar('0'));
+//    QTime time;
+//    time.start();
+//    int msg_count = 0;
+//    int ms = time.elapsed();
+//    int s = ms / 1000; ms %= 1000;
+//    int m = s / 60; s %= 60;
+//    int h = m / 60; m %= 60;
+//    ++msg_count;
+//    qDebug() << "##### Construction" << msg_count << QString("%1:%2:%3:%4").arg(h,2,10,QChar('0')).arg(m,2,10,QChar('0')).arg(s,2,10,QChar('0')).arg(ms,4,10,QChar('0'));
 
-    for (int i = 0; i < 2000; i++) {
-        bigTableObserverWithActivity->addItem("Item " + QString::number(i),QtilitiesCategory(QString::number(i)));
+//    for (int i = 0; i < 2000; i++) {
+//        bigTableObserverWithActivity->addItem("Item " + QString::number(i),QtilitiesCategory(QString::number(i)));
 
-//        if ((i % 10000) == 0) {
-//            ms = time.elapsed();
-//            s = ms / 1000; ms %= 1000;
-//            m = s / 60; s %= 60;
-//            h = m / 60; m %= 60;
-//            qDebug() << "##### Add item" << i << QString("%1:%2:%3:%4").arg(h,2,10,QChar('0')).arg(m,2,10,QChar('0')).arg(s,2,10,QChar('0')).arg(ms,4,10,QChar('0'));
-//        }
-    }
+////        if ((i % 10000) == 0) {
+////            ms = time.elapsed();
+////            s = ms / 1000; ms %= 1000;
+////            m = s / 60; s %= 60;
+////            h = m / 60; m %= 60;
+////            qDebug() << "##### Add item" << i << QString("%1:%2:%3:%4").arg(h,2,10,QChar('0')).arg(m,2,10,QChar('0')).arg(s,2,10,QChar('0')).arg(ms,4,10,QChar('0'));
+////        }
+//    }
 
-    ms = time.elapsed();
-    s = ms / 1000; ms %= 1000;
-    m = s / 60; s %= 60;
-    h = m / 60; m %= 60;
-    ++msg_count;
-    qDebug() << "##### Construction" << msg_count << QString("%1:%2:%3:%4").arg(h,2,10,QChar('0')).arg(m,2,10,QChar('0')).arg(s,2,10,QChar('0')).arg(ms,4,10,QChar('0'));
+//    ms = time.elapsed();
+//    s = ms / 1000; ms %= 1000;
+//    m = s / 60; s %= 60;
+//    h = m / 60; m %= 60;
+//    ++msg_count;
+//    qDebug() << "##### Construction" << msg_count << QString("%1:%2:%3:%4").arg(h,2,10,QChar('0')).arg(m,2,10,QChar('0')).arg(s,2,10,QChar('0')).arg(ms,4,10,QChar('0'));
 
-    bigTableObserverWithActivity->treeAt(0);
+//    bigTableObserverWithActivity->treeAt(0);
 
-    ms = time.elapsed();
-    s = ms / 1000; ms %= 1000;
-    m = s / 60; s %= 60;
-    h = m / 60; m %= 60;
-    ++msg_count;
-    qDebug() << "##### Construction" << msg_count << QString("%1:%2:%3:%4").arg(h,2,10,QChar('0')).arg(m,2,10,QChar('0')).arg(s,2,10,QChar('0')).arg(ms,4,10,QChar('0'));
+//    ms = time.elapsed();
+//    s = ms / 1000; ms %= 1000;
+//    m = s / 60; s %= 60;
+//    h = m / 60; m %= 60;
+//    ++msg_count;
+//    qDebug() << "##### Construction" << msg_count << QString("%1:%2:%3:%4").arg(h,2,10,QChar('0')).arg(m,2,10,QChar('0')).arg(s,2,10,QChar('0')).arg(ms,4,10,QChar('0'));
 
-    ObserverWidget* big_table_with_activity_widget = new ObserverWidget(Qtilities::TreeView);
-    big_table_with_activity_widget->setObserverContext(bigTableObserverWithActivity);
-    //big_table_with_activity_widget->toggleLazyInit(true);
-    big_table_with_activity_widget->initialize();
-    big_table_with_activity_widget->show();
-    tab_widget->addTab(big_table_with_activity_widget,QIcon(),"Big Table (With Activity Filter)");
+//    ObserverWidget* big_table_with_activity_widget = new ObserverWidget(Qtilities::TreeView);
+//    big_table_with_activity_widget->setRefreshMode(ObserverWidget::FullRebuildOpaqueProgress);
+//    big_table_with_activity_widget->setObserverContext(bigTableObserverWithActivity);
+//    //big_table_with_activity_widget->toggleLazyInit(true);
+//    big_table_with_activity_widget->initialize();
+//    big_table_with_activity_widget->show();
+//    tab_widget->addTab(big_table_with_activity_widget,QIcon(),"Big Table (With Activity Filter)");
 
-//    ObserverWidget* big_table_with_activity_widget2 = new ObserverWidget(Qtilities::TreeView);
-//    big_table_with_activity_widget2->setObserverContext(bigTableObserverWithActivity);
-//    big_table_with_activity_widget2->toggleLazyInit(true);
-//    big_table_with_activity_widget2->initialize();
-//    big_table_with_activity_widget2->show();
+////    ObserverWidget* big_table_with_activity_widget2 = new ObserverWidget(Qtilities::TreeView);
+////    big_table_with_activity_widget2->setObserverContext(bigTableObserverWithActivity);
+////    big_table_with_activity_widget2->toggleLazyInit(true);
+////    big_table_with_activity_widget2->initialize();
+////    big_table_with_activity_widget2->show();
 
-    ms = time.elapsed();
-    s = ms / 1000; ms %= 1000;
-    m = s / 60; s %= 60;
-    h = m / 60; m %= 60;
-    ++msg_count;
-    qDebug() << "##### Construction" << msg_count << QString("%1:%2:%3:%4").arg(h,2,10,QChar('0')).arg(m,2,10,QChar('0')).arg(s,2,10,QChar('0')).arg(ms,4,10,QChar('0'));
+//    ms = time.elapsed();
+//    s = ms / 1000; ms %= 1000;
+//    m = s / 60; s %= 60;
+//    h = m / 60; m %= 60;
+//    ++msg_count;
+//    qDebug() << "##### Construction" << msg_count << QString("%1:%2:%3:%4").arg(h,2,10,QChar('0')).arg(m,2,10,QChar('0')).arg(s,2,10,QChar('0')).arg(ms,4,10,QChar('0'));
+
+//    ++current_example;
+//    progress.setValue(current_example);
+//    QApplication::processEvents();
 
     // ----------------------------------
     // Tree With Formatting
@@ -389,8 +431,12 @@ int main(int argc, char *argv[])
     formatted_widget->show();
     tab_widget->addTab(formatted_widget,QIcon(),"Tree With Formatting");
 
-    tab_widget->show();
+    ++current_example;
+    progress.setValue(current_example);
+    QApplication::processEvents();
+    progress.hide();
 
+    tab_widget->show();
     mainWindow.resize(900,500);
     mainWindow.show();
     return a.exec();
