@@ -126,9 +126,16 @@ namespace Qtilities {
             QModelIndex findCategory(QtilitiesCategory category) const;
             //! Finds the matching QModelIndex indexes for all nodes with display names specified by \p node_names.
             /*!
-              \sa Qtilities::CoreGui::ObserverWidget::expandedNodeNames()
+              \sa Qtilities::CoreGui::ObserverWidget::findExpandedItems()
               */
             QModelIndexList findExpandedNodeIndexes(const QStringList& node_names) const;
+            //! Finds the matching QModelIndex indexes for all objects specified by \p objects.
+            /*!
+              \sa Qtilities::CoreGui::ObserverWidget::findExpandedObjects()
+
+              <i>This function was added in %Qtilities v1.5.</i>
+              */
+            QModelIndexList findExpandedNodeIndexes(const QList<QPointer<QObject> >& objects) const;
 
         public slots:
             //! When the observer context changes, this function will take note of the change and when needed, the model will rebuild the internal tree structure using rebuildTreeStructure();
@@ -229,6 +236,11 @@ namespace Qtilities {
             ObserverTreeItem* findCategory(ObserverTreeItem* item, QtilitiesCategory category) const;
             //! Deletes all tree items, starting with the root item.
             void deleteRootItem();
+            //! Finds the root indices.
+            /*!
+             * Depending on the root index display hint, there can be one or more root indices.
+             */
+            QList<QModelIndex> rootIndices() const;
 
             ObserverTreeModelData* d;
         };

@@ -112,10 +112,16 @@ categorized_widget->show();
         public:
             //! The possible refresh modes of an ObserverWidget.
             /*!
-              \sa Qtilities::CoreGui::ObserverWidget, Qtilities::CoreGui::ConfigurationWidget
-              */
+             * Controls how ObserverWidget handles changes to the underlying Observer in TreeView mode.
+             *
+             * The default is FullRebuildOpaqueProgress. Before %Qtilities v1.5 the behaviour was FullRebuildHideProgress.
+             *
+             * \sa setRefreshMode(), setRefreshMode().
+             *
+             * <i>This enum was added in %Qtilities v1.5.</i>
+             */
             enum RefreshMode {
-                FullRebuildHideProgress,   /*!< Hides the tree view while the internal tree is rebuilt, and a show a progress widget in its place. This is the default. */
+                FullRebuildHideProgress,   /*!< Hides the tree view while the internal tree is rebuilt, and a show a progress widget in its place. */
                 FullRebuildOpaqueProgress  /*!< Overlays an opaque progress widget on top of the item view. */
             };
             //! Sets the refresh mode of the item view.
@@ -125,6 +131,8 @@ categorized_widget->show();
              * \note You must call this function before initialize() for it to have any effect.
              *
              * \sa refreshMode();
+             *
+             * <i>This function was added in %Qtilities v1.5.</i>
              */
             void setRefreshMode(RefreshMode refresh_mode);
             //! Gets the refresh mode of the item view.
@@ -134,6 +142,8 @@ categorized_widget->show();
              * \returns The refresh mode of the item view.
              *
              * \sa setRefreshMode();
+             *
+             * <i>This function was added in %Qtilities v1.5.</i>
              */
             RefreshMode refreshMode() const;
 
@@ -296,30 +306,64 @@ categorized_widget->show();
               \sa setReadOnly(), readOnlyStateChanged()
               */
             bool readOnly() const;
-            //! Finds all expanded items in the current view.
+            //! Finds all expanded item names in the current view.
             /*!
-                It should not be neccesarry to use this function directly, rather use lastExpandedItemsResults() since the internal list of expanded items
-                is automatically updated whenever the expansion state of any item in the view changes.
-
-                Use this function only if you want to force recalculation of the expanded items.
-
-                \note Only usefull when displayMode() is Qtilities::TreeView.
-
-                \sa expandNodes(), lastExpandedItemsResults()
-
-                <i>This function was added in %Qtilities v1.1.</i>
-                */
-            QStringList findExpandedItems() const;
+             * It should not be neccesarry to use this function directly, rather use lastExpandedItemsResults() since the internal list of expanded items
+             * is automatically updated whenever the expansion state of any item in the view changes.
+             *
+             * Use this function only if you want to force recalculation of the expanded items.
+             *
+             * \note If the tree contains duplicate items, this list will also contain duplicate items. If uniqueness is
+             * required, use findExpandedObjects() instead.
+             *
+             * \note Only usefull when displayMode() is Qtilities::TreeView.
+             *
+             * \sa expandNodes(), lastExpandedItemsResults()
+             *
+             * <i>This function was added in %Qtilities v1.1.</i>
+             */
+            QStringList findExpandedItems();
             //! Returns the last set of calculated expanded items from the last findExpandedItems() call without calculating them again.
             /*!
-              When findExpandedItems() is called it stores the results internally. Thus function accesses those results without
-              recalculating them.
+             * When findExpandedItems() is called it stores the results internally. Thus function accesses those results without
+             * recalculating them.
+             *
+             * \note If the tree contains duplicate items, this list will also contain duplicate items. If uniqueness is
+             * required, use findExpandedObjects() instead.
+             *
+             * \sa findExpandedItems(), expandNodes(), findExpandedObjects(), lastExpandedObjectsResults()
+             *
+             * <i>This function was added in %Qtilities v1.1.</i>
+             */
+            QStringList lastExpandedItemsResults();
+            //! Finds all expanded objects in the current view.
+            /*!
+             * It should not be neccesarry to use this function directly, rather use lastExpandedObjectsResults() since the internal list of expanded items
+             * is automatically updated whenever the expansion state of any item in the view changes.
+             *
+             * Use this function only if you want to force recalculation of the expanded items.
+             *
+             * \note Only usefull when displayMode() is Qtilities::TreeView.
+             *
+             * \sa expandNodes(), lastExpandedItemsResults(), findExpandedItems(), expandNodes(),
+             *
+             * <i>This function was added in %Qtilities v1.5.</i>
+             */
+            QList<QPointer<QObject> > findExpandedObjects();
+            //! Returns the last set of calculated expanded items from the last findExpandedObjects() call without calculating them again.
+            /*!
+             * When findExpandedObjects() is called it stores the results internally. Thus function accesses those results without
+             * recalculating them.
+             *
+             * \sa findExpandedItems(), expandNodes(), findExpandedItems(), expandNodes(),
+             *
+             * <i>This function was added in %Qtilities v1.5.</i>
+             */
+            QList<QPointer<QObject> > lastExpandedObjectsResults();
 
-              \sa findExpandedItems(), expandNodes()
-
-                <i>This function was added in %Qtilities v1.1.</i>
-              */
-            QStringList lastExpandedItemsResults() const;
+        private:
+            //! Function used internally by findExpandedObjects() and findExpandedItems() to avoid doing duplicate work.
+            void updateLastExpandedResults();
 
             // --------------------------------
             // Factory Interface Implementation
@@ -358,20 +402,31 @@ categorized_widget->show();
             /*!
               If any name in node_names does not exist in the tree it is ignored.
 
-              \param node_names The node names to expand. When empty, viewExpandAll() will be called.
+              \param node_names The node names to expand.
 
-              \sa findExpandedItems();
+              \sa findExpandedItems(), expandObjects()
 
               <i>This function was added in %Qtilities v1.1.</i>
               */
             void expandNodes(const QStringList& node_names);
+            //! Expand all nodes which represents objects in the given list.
+            /*!
+              If any object in objects does not exist in the tree it is ignored.
+
+              \param objects The objects to expand.
+
+              \sa findExpandedObjects(), findExpandedItems()
+
+              <i>This function was added in %Qtilities v1.5.</i>
+              */
+            void expandObjects(const QList<QPointer<QObject> >& objects);
             //! Expand all nodes specified by the indexes in \p indexes.
             /*!
               If any name in node_names does not exist in the tree it is ignored.
 
               \param indexes The indexes to expand. When empty, viewExpandAll() will be called.
 
-              \sa findExpandedItems();
+              \sa findExpandedItems()
               */
             void expandNodes(QModelIndexList indexes);
 

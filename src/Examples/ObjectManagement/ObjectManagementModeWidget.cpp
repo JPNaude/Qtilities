@@ -77,6 +77,11 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     d->top_level_node->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
     d->top_level_node->displayHints()->setDragDropHint(ObserverHints::AllDragDrop);
 
+    // Uncomment these to play around with root display formats.
+    //d->top_level_node->displayHints()->setRootIndexDisplayHint(ObserverHints::RootIndexDisplayUndecorated);
+    //d->top_level_node->displayHints()->setRootIndexDisplayHint(ObserverHints::RootIndexDisplayDecorated);
+    d->top_level_node->displayHints()->setRootIndexDisplayHint(ObserverHints::RootIndexHide); // This is the default:
+
     OBJECT_MANAGER->registerObject(d->top_level_node,QtilitiesCategory("Example Objects"));
 
     // ---------------------------
@@ -285,6 +290,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
     nodeA->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);
     nodeA->displayHints()->setDragDropHint(ObserverHints::AllDragDrop);
     nodeA->displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
+
     for (int i = 0; i < 5; i++)
         nodeA->addItem(QString("Item A_%1").arg(i));
 

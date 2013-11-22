@@ -321,7 +321,8 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     //! The mouse button to react to when doing drag and drop copies.
     Qt::MouseButton button_copy;
 
-    QStringList last_expanded_items_result;
+    QList<QPointer<QObject> > last_expanded_objects_result;
+    QStringList last_expanded_names_result;
 
     bool disable_proxy_models;
 
@@ -638,12 +639,36 @@ bool Qtilities::CoreGui::ObserverWidget::readOnly() const {
     return d->read_only;
 }
 
-QStringList Qtilities::CoreGui::ObserverWidget::findExpandedItems() const {
+QStringList Qtilities::CoreGui::ObserverWidget::findExpandedItems() {
+    updateLastExpandedResults();
+    return d->last_expanded_names_result;
+}
+
+QStringList Qtilities::CoreGui::ObserverWidget::lastExpandedItemsResults() {
+    if (d->last_expanded_names_result.isEmpty())
+        d->last_expanded_names_result = findExpandedItems();
+    return d->last_expanded_names_result;
+}
+
+QList<QPointer<QObject> > Qtilities::CoreGui::ObserverWidget::findExpandedObjects() {
+    updateLastExpandedResults();
+    return d->last_expanded_objects_result;
+}
+
+QList<QPointer<QObject> > Qtilities::CoreGui::ObserverWidget::lastExpandedObjectsResults() {
+    if (d->last_expanded_objects_result.isEmpty())
+        d->last_expanded_objects_result = findExpandedObjects();
+    return d->last_expanded_objects_result;
+}
+
+void Qtilities::CoreGui::ObserverWidget::updateLastExpandedResults() {
     if (d->display_mode == Qtilities::TreeView && d->tree_model && d->tree_view && d->tree_proxy_model) {
-        QStringList expanded_items;
+        d->last_expanded_names_result.clear();
+        d->last_expanded_objects_result.clear();
 
         QModelIndexList all_indexes = d->tree_model->getAllIndexes();
-        foreach (QModelIndex index, all_indexes) {           
+        foreach (QModelIndex index, all_indexes) {
+            QApplication::processEvents();
             ObserverTreeItem* item = d->tree_model->getItem(index);
             if (!item)
                 continue;
@@ -660,7 +685,7 @@ QStringList Qtilities::CoreGui::ObserverWidget::findExpandedItems() const {
                     Observer* obs = d->tree_model->parentOfIndex(index);
                     if (obs) {
                         if (obs != d->top_level_observer) {
-                            if (!expanded_items.contains(obs->observerName())) {
+                            if (!d->last_expanded_names_result.contains(obs->observerName())) {
                                 //qDebug() << "Not adding expanded item" << item->objectName() << "to list of expanded items. Its parent node is not expanded. Parent:" << obs->observerName() << ", Observer context:" << d->top_level_observer;
                                 continue;
                             }
@@ -669,7 +694,7 @@ QStringList Qtilities::CoreGui::ObserverWidget::findExpandedItems() const {
                 } else {
                     Observer* obs = d->tree_model->parentOfIndex(index);
                     if (obs) {
-                        if (!expanded_items.contains(obs->observerName())) {
+                        if (!d->last_expanded_names_result.contains(obs->observerName())) {
                             //qDebug() << "Not adding expanded item" << item->objectName() << "to list of expanded items. Its parent node is not expanded. Parent: " << obs->observerName();
                             continue;
                         }
@@ -680,22 +705,14 @@ QStringList Qtilities::CoreGui::ObserverWidget::findExpandedItems() const {
                     QString item_text = d->tree_model->data(index,Qt::DisplayRole).toString();
                     if (item_text.endsWith("*"))
                         item_text.chop(1);
-                    expanded_items << item_text;
+                    d->last_expanded_names_result << item_text;
+                    QObject* obj = d->tree_model->getObject(index);
+                    if (obj)
+                        d->last_expanded_objects_result << obj;
                 }
             }
         }
-        d->last_expanded_items_result = expanded_items;
-        //qDebug() << "FOUND EXPANDED ITEMS" << expanded_items;
-        return expanded_items;
     }
-
-    return QStringList();
-}
-
-QStringList Qtilities::CoreGui::ObserverWidget::lastExpandedItemsResults() const {
-    if (d->last_expanded_items_result.isEmpty())
-        d->last_expanded_items_result = findExpandedItems();
-    return d->last_expanded_items_result;
 }
 
 void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
@@ -2751,7 +2768,6 @@ void Qtilities::CoreGui::ObserverWidget::refresh() {
         d->tree_model->refresh();
     else if (displayMode() == Qtilities::TableView && d->table_model)
         d->table_model->refresh();
-    //d_observer->refreshViewsLayout(QList<QPointer<QObject> >(),true);
 
     // Handle observer's follow selection stuff
     if (activeHints()->activityControlHint() == ObserverHints::FollowSelection && d->activity_filter) {
@@ -3632,8 +3648,7 @@ void Qtilities::CoreGui::ObserverWidget::selectCategory(QtilitiesCategory catego
 }
 
 void Qtilities::CoreGui::ObserverWidget::clearSelection() {
-    QList<QObject*> objects;
-    selectObjects(objects);
+    selectObjects(QList<QObject*>());
     d->current_selection.clear();
 }
 
@@ -3651,14 +3666,8 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QPointer<QObject> >
                 d->tree_view->selectionModel()->clear();
             emit selectedObjectsChanged(QList<QObject*>());
         }
-    } else {
-        QList<QObject*> simple_list;
-        for (int i = 0; i < objects.count(); ++i) {
-            if (objects.at(i))
-                simple_list << objects.at(i);
-        }
-        selectObjects(simple_list);
-    }
+    } else
+        selectObjects(ObjectManager::convSafeObjectsToNormal(objects));
 }
 
 void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) {
@@ -4025,7 +4034,19 @@ void Qtilities::CoreGui::ObserverWidget::expandNodes(const QStringList &node_nam
         QModelIndexList indexes = d->tree_model->findExpandedNodeIndexes(node_names);
         expandNodes(indexes);
         if (!node_names.isEmpty())
-            d->last_expanded_items_result = node_names;
+            d->last_expanded_names_result = node_names;
+    }
+}
+
+void Qtilities::CoreGui::ObserverWidget::expandObjects(const QList<QPointer<QObject> > &objects) {
+    if (!d->top_level_observer || !observerContext())
+        return;
+
+    if (d->tree_view && d->tree_model && d->display_mode == Qtilities::TreeView) {
+        QModelIndexList indexes = d->tree_model->findExpandedNodeIndexes(objects);
+        expandNodes(indexes);
+        if (!objects.isEmpty())
+            d->last_expanded_objects_result = objects;
     }
 }
 
@@ -4040,7 +4061,7 @@ void Qtilities::CoreGui::ObserverWidget::expandNodes(QModelIndexList indexes) {
             viewExpandAll();
             return;
         } else {
-            viewCollapseAll();
+            d->tree_view->collapseAll();
         }
 
         foreach (QModelIndex index, indexes) {

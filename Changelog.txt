@@ -82,7 +82,10 @@ https://github.com/JPNaude/Qtilities/issues/milestones
         displayed log should be shown.
     [+] Added TaskLogNoInitialization to the TaskLogInitialization enumeration in TaskManagerGui.
         This allows tasks to be used more efficiently in console applications.
-    [+] Add ability to refresh icons in Mode Manager dynamically at runtime. See issue #96.
+    [+] Added ability to refresh icons in Mode Manager dynamically at runtime. See issue #96.
+    [+] Added required functions to get expanded objects in an ObserverWidget tree, and to expand specific objects.
+        Previously this could have only been done using the names of items, which obviously caused issues when
+        duplicate names were present in a tree.
 
     [#] Slightly improved layout in SingleTaskWidget.
     [#] Changed ConfigurationWidget so that it no longer assigns a 0 margin to pages it displays.
@@ -95,6 +98,8 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     [*] Fixed bug where ProhibitDuplicateNamesCaseSensitive was not handled properly in NamingPolicyFilter::evaluateAttachment()
     [*] Fixed double emission of selectedObjectsChanged() when the tree parent observer changes when in tree view mode.
     [*] Fixed ObserverWidget not respecting the ObserverHints::ItemViewColumnFlags of new selections in TreeView mode.
+    [*] Fixed ObserverWidget not keeping its selection when refreshing while using the ObserverHints::RootIndexHide hint.
+    [*] Fixed ObserverWidget not keeping its expanded nodes when refreshing while using the ObserverHints::RootIndexHide hint.
 
     ============================
     QtilitiesExtensionSystem:
