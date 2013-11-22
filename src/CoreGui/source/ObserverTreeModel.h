@@ -203,7 +203,7 @@ namespace Qtilities {
             //! Signal which is emitted just before a tree model rebuild will start.
             void treeModelBuildAboutToStart() const;
             //! Signal which is emitted when a new tree building cycle starts.
-            void treeModelBuildStarted(int task_id) const;
+            void treeModelBuildStarted() const;
             //! Signal which is emitted when a new tree building cycle ends.
             void treeModelBuildEnded() const;
             //! Signal which requests for a set of items to be expanded in the view.

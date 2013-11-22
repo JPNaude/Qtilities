@@ -21,7 +21,8 @@ Qtilities::CoreGui::AbstractObserverItemModel::AbstractObserverItemModel() {
 }
 
 Qtilities::CoreGui::AbstractObserverItemModel::~AbstractObserverItemModel() {
-    delete model->hints_default;
+    if (model->hints_default)
+        delete model->hints_default;
     delete model;
 }
 

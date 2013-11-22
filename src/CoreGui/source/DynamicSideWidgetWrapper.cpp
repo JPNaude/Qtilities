@@ -28,7 +28,7 @@ struct Qtilities::CoreGui::DynamicSideWidgetWrapperPrivateData {
         is_current_widget_managed(false) {}
 
     QComboBox*                          widgetCombo;
-    QWidget*                            current_widget;
+    QPointer<QWidget>                   current_widget;
     QMap<QString, ISideViewerWidget*>   text_iface_map;
     QList<QAction*>                     viewer_actions;
     bool                                ignore_combo_box_changes;
@@ -72,14 +72,14 @@ Qtilities::CoreGui::DynamicSideWidgetWrapper::DynamicSideWidgetWrapper(QMap<QStr
     handleCurrentIndexChanged(current_text);
     setObjectName(current_text);
 
-    ui->widgetCombo->setStyleSheet(DynamicSideWidgetWrapper::comboBoxStyle());
+    //ui->widgetCombo->setStyleSheet(DynamicSideWidgetWrapper::comboBoxStyle());
 }
 
 Qtilities::CoreGui::DynamicSideWidgetWrapper::~DynamicSideWidgetWrapper() {
-    if (d->current_widget && !d->is_current_widget_managed) {
-        d->current_widget->hide();
-        d->current_widget->setParent(0);
-    }
+//    if (d->current_widget && !d->is_current_widget_managed) {
+//        d->current_widget->hide();
+//        d->current_widget->setParent(0);
+//    }
 
     delete ui;
     delete d;

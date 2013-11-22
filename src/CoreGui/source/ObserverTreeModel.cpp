@@ -92,14 +92,18 @@ Qtilities::CoreGui::ObserverTreeModel::~ObserverTreeModel() {
 bool Qtilities::CoreGui::ObserverTreeModel::setObserverContext(Observer* observer) {
     if (d_observer) {
         d_observer->disconnect(this);
-        clearTreeStructure();
+        //clearTreeStructure(); // This causes invalid objects showing up, and repainting the treeview.
     }
 
-    if (!observer)
+    if (!observer) {
+        clearTreeStructure();
         return false;
+    }
 
-    if (!AbstractObserverItemModel::setObserverContext(observer))
+    if (!AbstractObserverItemModel::setObserverContext(observer)) {
+        clearTreeStructure();
         return false;
+    }
 
     // Check if this observer has a subject type filter installed
     for (int i = 0; i < d_observer->subjectFilters().count(); ++i) {
@@ -1136,6 +1140,7 @@ void Qtilities::CoreGui::ObserverTreeModel::clearTreeStructure() {
     qDebug() << "Clearing tree structure on view: " << objectName();
     #endif
 
+    emit treeModelBuildStarted();
     beginResetModel();
     emit layoutAboutToBeChanged();
     d->tree_model_up_to_date = false;
@@ -1151,6 +1156,7 @@ void Qtilities::CoreGui::ObserverTreeModel::clearTreeStructure() {
     d->tree_model_up_to_date = true;
     endResetModel();
     emit layoutChanged();
+    emit treeModelBuildEnded();
 }
 
 void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
@@ -1176,9 +1182,7 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
             //qDebug() << "Doing expanded items replace:" << d->expanded_items_replace_map.keys().at(i) << "with" << d->expanded_items_replace_map.values().at(i);
         }
     }
-
-    emit treeModelBuildStarted(d->tree_builder.taskID());
-
+    emit treeModelBuildStarted();
     // Rebuild the tree structure:
     beginResetModel();
     d->tree_model_up_to_date = false;

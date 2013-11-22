@@ -44,9 +44,7 @@ struct Qtilities::CoreGui::ModeManagerPrivateData {
     QMap<int, QShortcut*>       mode_shortcuts;
     QMap<QShortcut*,Command*>   command_shortcut_map;
     bool                        register_shortcuts;
-    QAction*                    actionSwitchToPreviousMode;
-
-
+    QPointer<QAction>           actionSwitchToPreviousMode;
 };
 
 Qtilities::CoreGui::ModeManager::ModeManager(int manager_id, Qt::Orientation orientation, QObject *parent) :
@@ -63,12 +61,11 @@ Qtilities::CoreGui::ModeManager::ModeManager(int manager_id, Qt::Orientation ori
     if (d->orientation == Qt::Horizontal) {
         d->mode_list_widget->setFlow(QListWidget::TopToBottom);
         d->mode_list_widget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        d->mode_list_widget->setHorizontalScrollBarPolicy( Qt::ScrollBarAsNeeded);
+        d->mode_list_widget->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     } else {
         d->mode_list_widget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        d->mode_list_widget->setVerticalScrollBarPolicy( Qt::ScrollBarAsNeeded);
+        d->mode_list_widget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         d->mode_list_widget->setFlow(QListWidget::LeftToRight);
-
     }
     d->mode_list_widget->setMovement(QListView::Static);
     d->mode_list_widget->setViewMode(QListView::IconMode);

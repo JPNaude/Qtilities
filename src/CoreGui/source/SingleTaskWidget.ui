@@ -143,7 +143,7 @@
     </widget>
    </item>
    <item>
-    <spacer name="horizontalSpacer">
+    <spacer name="middleSpacer">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>

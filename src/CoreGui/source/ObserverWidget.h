@@ -105,6 +105,38 @@ categorized_widget->show();
             ObserverWidget(Observer* observer_context, DisplayMode display_mode = TreeView, QWidget * parent = 0, Qt::WindowFlags f = 0);
             //! Default destructor.
             virtual ~ObserverWidget();
+
+        private:
+            void constructPrivate(DisplayMode display_mode = TreeView, Observer* observer_context = 0);
+
+        public:
+            //! The possible refresh modes of an ObserverWidget.
+            /*!
+              \sa Qtilities::CoreGui::ObserverWidget, Qtilities::CoreGui::ConfigurationWidget
+              */
+            enum RefreshMode {
+                FullRebuildHideProgress,   /*!< Hides the tree view while the internal tree is rebuilt, and a show a progress widget in its place. This is the default. */
+                FullRebuildOpaqueProgress  /*!< Overlays an opaque progress widget on top of the item view. */
+            };
+            //! Sets the refresh mode of the item view.
+            /*!
+             * \param refresh_mode The refresh mode to use.
+             *
+             * \note You must call this function before initialize() for it to have any effect.
+             *
+             * \sa refreshMode();
+             */
+            void setRefreshMode(RefreshMode refresh_mode);
+            //! Gets the refresh mode of the item view.
+            /*!
+             * The default is: FullRebuildHideProgress
+             *
+             * \returns The refresh mode of the item view.
+             *
+             * \sa setRefreshMode();
+             */
+            RefreshMode refreshMode() const;
+
             //! Implementation of virtual function ObserverAwareBase::setObserverContext().
             bool setObserverContext(Observer* observer);
             //! Enables/disables lazy initialization.
@@ -301,7 +333,7 @@ categorized_widget->show();
             //! Slot which will call the handleSearchStringChanged() slot with an empty QString as parameter.
             void resetProxyModel();
             //! Shows the single task widget for the tree model rebuilding task.
-            void showProgressInfo(int task_id);
+            void showProgressInfo();
             //! Hides the single task widget for the tree model rebuilding task.
             void hideProgressInfo(bool emit_tree_build_completed = true);
             //! Adapts the size of columns when data changes.
@@ -939,7 +971,7 @@ categorized_widget->show();
 
         signals:
             //! Signal which is emitted when a new tree building cycle starts (Only when in TreeView mode).
-            void treeModelBuildStarted(int task_id) const;
+            void treeModelBuildStarted() const;
             //! Signal which is emitted when a new tree building cycle ends (Only when in TreeView mode).
             void treeModelBuildEnded() const;
             //! Signal which is emitted when the add new item action is triggered.

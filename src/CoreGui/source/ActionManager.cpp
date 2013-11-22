@@ -488,8 +488,7 @@ QList<Command*> Qtilities::CoreGui::ActionManager::commandsWithKeySequence(QKeyS
         return commands;
 
     Command* command = qobject_cast<Command*> (d->observer_commands.subjectAt(0));
-    SubjectIterator<Qtilities::CoreGui::Command> command_itr(command,
-                                                             &d->observer_commands);
+    SubjectIterator<Qtilities::CoreGui::Command> command_itr(command,&d->observer_commands);
 
     if (command_itr.current()) {
         foreach (const QString& search_string, key_sequence.toString().split(",")) {

@@ -23,7 +23,7 @@ using namespace QtilitiesTesting;
 struct Qtilities::Plugins::Debug::DebugPluginPrivateData {
     DebugPluginPrivateData() : debug_mode(0) {}
 
-    DebugWidget* debug_mode;
+    QPointer<DebugWidget> debug_mode;
 };
 
 Qtilities::Plugins::Debug::DebugPlugin::DebugPlugin(QObject* parent) : QObject(parent) {
@@ -32,6 +32,10 @@ Qtilities::Plugins::Debug::DebugPlugin::DebugPlugin(QObject* parent) : QObject(p
 }
 
 Qtilities::Plugins::Debug::DebugPlugin::~DebugPlugin() {
+    // Uncommenting the following crashes:
+    // See https://github.com/JPNaude/Qtilities/issues/100.
+    // if (d->debug_mode)
+    //     delete d->debug_mode;
     delete d;
 }
 
@@ -66,7 +70,7 @@ QString Qtilities::Plugins::Debug::DebugPlugin::pluginName() const {
 }
 
 QtilitiesCategory Qtilities::Plugins::Debug::DebugPlugin::pluginCategory() const {
-    return QtilitiesCategory(tr("Debugging"));
+    return QtilitiesCategory("Debugging");
 }
 
 Qtilities::Core::VersionInformation Qtilities::Plugins::Debug::DebugPlugin::pluginVersionInformation() const {
@@ -87,11 +91,11 @@ QString Qtilities::Plugins::Debug::DebugPlugin::pluginPublisherContact() const {
 }
 
 QString Qtilities::Plugins::Debug::DebugPlugin::pluginDescription() const {
-    return tr("A plugin which helps to debug Qtilities applications.");
+    return "A plugin which helps to debug Qtilities applications.";
 }
 
 QString Qtilities::Plugins::Debug::DebugPlugin::pluginCopyright() const {
-    return QString(tr("Copyright") + " 2009-2013, Jaco Naudé");
+    return "Copyright 2009-2013, Jaco Naudé";
 }
 
 QString Qtilities::Plugins::Debug::DebugPlugin::pluginLicense() const  {

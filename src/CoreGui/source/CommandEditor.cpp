@@ -30,7 +30,7 @@ using namespace Qtilities::CoreGui::Icons;
 struct Qtilities::CoreGui::CommandEditorPrivateData {
     CommandEditorPrivateData() { }
 
-    ObserverWidget                          observer_widget;
+    ObserverWidget*                         observer_widget;
     qti_private_CommandTreeModel*           model;
     qti_private_ShortcutEditorDelegate*     shortcut_delegate;
     QAction*                                action_restore_defaults;
@@ -43,17 +43,17 @@ Qtilities::CoreGui::CommandEditor::CommandEditor(QWidget *parent) :
     ui(new Ui::CommandEditor)
 {
     d = new CommandEditorPrivateData;
+    d->observer_widget = new ObserverWidget;
     ui->setupUi(this);
 }
 
-Qtilities::CoreGui::CommandEditor::~CommandEditor()
-{
-    delete ui;
+Qtilities::CoreGui::CommandEditor::~CommandEditor() {
     delete d;
+    delete ui;
 }
 
 Qtilities::CoreGui::ObserverWidget* Qtilities::CoreGui::CommandEditor::commandWidget() const {
-    return &d->observer_widget;
+    return d->observer_widget;
 }
 
 QIcon Qtilities::CoreGui::CommandEditor::configPageIcon() const {
@@ -79,7 +79,7 @@ void Qtilities::CoreGui::CommandEditor::configPageApply() {
     QString shortcut_mapping_file = QString("%1%3%2").arg(QtilitiesApplication::applicationSessionPath()).arg(qti_def_PATH_SHORTCUTS_FILE).arg(QDir::separator());
     if (!ACTION_MANAGER->saveShortcutMapping(shortcut_mapping_file)) {
         QMessageBox msgBox;
-        msgBox.setWindowTitle("Shortcut Export Failed");
+        msgBox.setWindowTitle(tr("Shortcut Export Failed"));
         msgBox.setText(tr("Shortcut mapping export failed. Please see the session log for details."));
         msgBox.exec();
     }
@@ -91,11 +91,11 @@ void Qtilities::CoreGui::CommandEditor::configPageInitialize() {
 
     QHBoxLayout* layout = new QHBoxLayout(ui->widgetCommandsHolder);
     layout->setMargin(0);
-    layout->addWidget(&d->observer_widget);
+    layout->addWidget(d->observer_widget);
 
     d->model = new qti_private_CommandTreeModel(this);
-    d->observer_widget.setCustomTreeModel(d->model);
-    d->observer_widget.setObserverContext(ACTION_MANAGER->commandObserver());
+    d->observer_widget->setCustomTreeModel(d->model);
+    d->observer_widget->setObserverContext(ACTION_MANAGER->commandObserver());
 
     d->action_restore_defaults = new QAction(QIcon(qti_icon_EDIT_PASTE_16x16),"Restore Defaults",this);
     connect(d->action_restore_defaults,SIGNAL(triggered()),SLOT(restoreDefaults()));
@@ -103,20 +103,20 @@ void Qtilities::CoreGui::CommandEditor::configPageInitialize() {
     connect(d->action_load,SIGNAL(triggered()),SLOT(importConfiguration()));
     d->action_save = new QAction(QIcon(qti_icon_FILE_SAVE_16x16),"Save Current Configuration",this);
     connect(d->action_save,SIGNAL(triggered()),SLOT(exportConfiguration()));
-    d->observer_widget.actionProvider()->addAction(d->action_restore_defaults,QtilitiesCategory("Current Configuration"));
-    d->observer_widget.actionProvider()->addAction(d->action_load,QtilitiesCategory("Current Configuration"));
-    d->observer_widget.actionProvider()->addAction(d->action_save,QtilitiesCategory("Current Configuration"));
+    d->observer_widget->actionProvider()->addAction(d->action_restore_defaults,QtilitiesCategory("Current Configuration"));
+    d->observer_widget->actionProvider()->addAction(d->action_load,QtilitiesCategory("Current Configuration"));
+    d->observer_widget->actionProvider()->addAction(d->action_save,QtilitiesCategory("Current Configuration"));
 
     ACTION_MANAGER->commandObserver()->startProcessingCycle();
-    d->observer_widget.initialize();
+    d->observer_widget->initialize();
     ACTION_MANAGER->commandObserver()->endProcessingCycle(false);
 
     d->shortcut_delegate = new qti_private_ShortcutEditorDelegate(this);
-    if (d->observer_widget.treeView()) {
-        d->observer_widget.treeView()->setItemDelegate(d->shortcut_delegate);
-        d->observer_widget.treeView()->setAlternatingRowColors(true);
-        d->observer_widget.treeView()->sortByColumn(d->model->columnPosition(AbstractObserverItemModel::ColumnName));
-        QHeaderView* table_header = d->observer_widget.treeView()->header();
+    if (d->observer_widget->treeView()) {
+        d->observer_widget->treeView()->setItemDelegate(d->shortcut_delegate);
+        d->observer_widget->treeView()->setAlternatingRowColors(true);
+        d->observer_widget->treeView()->sortByColumn(d->model->columnPosition(AbstractObserverItemModel::ColumnName));
+        QHeaderView* table_header = d->observer_widget->treeView()->header();
         if (table_header) {
             #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
             table_header->setResizeMode(d->model->columnPosition(AbstractObserverItemModel::ColumnLast)+1,QHeaderView::Stretch);
@@ -126,7 +126,7 @@ void Qtilities::CoreGui::CommandEditor::configPageInitialize() {
         }
     }
 
-    d->observer_widget.show();
+    d->observer_widget->show();
 }
 
 void Qtilities::CoreGui::CommandEditor::changeEvent(QEvent *e)
@@ -143,6 +143,7 @@ void Qtilities::CoreGui::CommandEditor::changeEvent(QEvent *e)
 
 void Qtilities::CoreGui::CommandEditor::restoreDefaults() {
     QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Question);
     msgBox.setText(tr("Restore Default Shortcuts"));
     msgBox.setInformativeText(tr("This will overwrite your current shortcut configuration.\n\nDo you want to continue?"));
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
@@ -182,9 +183,10 @@ void Qtilities::CoreGui::CommandEditor::importConfiguration() {
             msgBox.setText(tr("Shortcut mapping import failed. Please see the session log for details."));
             msgBox.exec();
         } else {
-            d->observer_widget.refresh();
-            if (d->observer_widget.treeView())
-                d->observer_widget.treeView()->sortByColumn(d->model->columnPosition(AbstractObserverItemModel::ColumnName));
+            d->observer_widget->refresh();
+            if (d->observer_widget->treeView())
+                d->observer_widget->treeView()->sortByColumn(d->model->columnPosition(AbstractObserverItemModel::ColumnName));
         }
     }
 }
+

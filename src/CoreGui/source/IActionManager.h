@@ -143,30 +143,31 @@ namespace Qtilities {
                 virtual void restoreDefaultShortcuts() = 0;
                 //! Exports the current shortcut configuraiton.
                 /*!
-                  Shorcut mappings are saved automatically when the user clicks apply on Qtilities::CoreGui::CommandEditor. Apart from that you need to save and load your settings manually as shown below:
-
-\code
-// Load the previous session's keyboard mapping file.
-QString shortcut_mapping_file = QString("%1/%2").arg(QtilitiesApplication::applicationSessionPath()).arg(qti_def_PATH_SHORTCUTS_FILE);
-ACTION_MANAGER->loadShortcutMapping(shortcut_mapping_file);
-
-int result = application.exec();
-
-// Save the current keyboard mapping for the next session.
-ACTION_MANAGER->saveShortcutMapping(shortcut_mapping_file);
-
-return result;
-\endcode
-                  */
+                 * Shorcut mappings are saved automatically when the user clicks apply on Qtilities::CoreGui::CommandEditor.
+                 *  Apart from that you need to save and load your settings manually as shown below:
+                 *
+                 * \code
+                 * // Load the previous session's keyboard mapping file.
+                 * QString shortcut_mapping_file = QString("%1/%2").arg(QtilitiesApplication::applicationSessionPath()).arg(qti_def_PATH_SHORTCUTS_FILE);
+                 * ACTION_MANAGER->loadShortcutMapping(shortcut_mapping_file);
+                 *
+                 * int result = application.exec();
+                 *
+                 * // Save the current keyboard mapping for the next session.
+                 * ACTION_MANAGER->saveShortcutMapping(shortcut_mapping_file);
+                 *
+                 * return result;
+                 * \endcode
+                 */
                 virtual bool saveShortcutMapping(const QString& file_name, Qtilities::ExportVersion version = Qtilities::Qtilities_Latest) = 0;
                 //! Imports a previously exported shortcut configuration.
                 virtual bool loadShortcutMapping(const QString& file_name) = 0;
-                //! Creates the command editor/shortcut configuration page.
+                //! Creates and returns a the command editor/shortcut configuration page.
                 /*!
-                    The command editor widget is returned by the function call.
-
-                    \sa Qtilities::CoreGui::CommandEditor
-                    */
+                 *  The command editor widget is returned by the function call.
+                 *
+                 * \sa Qtilities::CoreGui::CommandEditor
+                 */
                 virtual QWidget* commandEditor() = 0;
                 //! Returns commands that uses a specific shortcut mapping.
                 virtual QList<Command*> commandsWithKeySequence(QKeySequence key_sequence) = 0;

@@ -53,6 +53,7 @@
 #include <QSettings>
 #include <QToolBar>
 #include <QDrag>
+#include <QGraphicsOpacityEffect>
 
 #include <stdio.h>
 #include <time.h>
@@ -70,8 +71,65 @@ namespace Qtilities {
     }
 }
 
+// ----------------------------------------------------
+// QtilitiesTreeView
+// A custom QTreeView on which painting can be disabled.
+// ----------------------------------------------------
+class QtilitiesTreeView : public QTreeView {
+
+public:
+    QtilitiesTreeView(QWidget *parent = 0) :QTreeView(parent), d_painting_enabled(true) {
+        viewport()->installEventFilter(this);
+        installEventFilter(this);
+    }
+    ~QtilitiesTreeView() {}
+
+    bool paintingEnabled() const {
+        return d_painting_enabled;
+    }
+
+    void setPaintingEnabled(bool enabled) {
+        if (d_painting_enabled != enabled) {
+            d_painting_enabled = enabled;
+            if (d_painting_enabled)
+                repaint();
+        }
+    }
+
+    bool eventFilter(QObject *obj, QEvent *event) {
+        if ((obj == viewport() || obj == this)) {
+            if (event->type() == QEvent::Paint) {
+                if (!d_painting_enabled)
+                    return true;
+            }
+//            if (event->type() == QEvent::Paint) {
+//                if (!d_painting_enabled) {
+//                    qDebug() << "Received paint and window deactivate event while disabled:" << event->type();
+//                    return true;
+//                } else {
+//                    qDebug() << "Received paint event while enabled:" << event->type();
+//                }
+//            } else {
+//                if (!d_painting_enabled) {
+//                    qDebug() << "Received non-paint event while disabled:" << event->type();
+//                }
+//            }
+        }
+        return false;
+    }
+
+private:
+    bool d_painting_enabled;
+};
+
 struct Qtilities::CoreGui::ObserverWidgetData {
-    ObserverWidgetData() : actionRemoveItem(0),
+    ObserverWidgetData() : update_progress_widget(0),
+        refresh_mode(ObserverWidget::FullRebuildOpaqueProgress),
+        update_progress_widget_contents(0),
+        update_progress_widget_contents_label(0),
+        update_progress_widget_contents_frame(0),
+        actions_constructed(false),
+        actionRemoveItem(0),
         actionRemoveAll(0),
         actionDeleteItem(0),
         actionDeleteAll(0),
@@ -121,13 +179,25 @@ struct Qtilities::CoreGui::ObserverWidgetData {
         actionFilterTypeSeperator(0),
         last_display_flags(ObserverHints::NoDisplayFlagsHint),
         do_column_resizing(true),
-        task_widget(0),
         button_move(Qt::RightButton),
         button_copy(Qt::LeftButton),
         disable_proxy_models(false),
         lazy_init(false),
-        search_item_filter_flags(ObserverTreeItem::TreeItem){ }
+        search_item_filter_flags(ObserverTreeItem::TreeItem) { }
+    ~ObserverWidgetData() {}
 
+    //! The full update progress widget, containing the transparent spacers etc.
+    QWidget* update_progress_widget;
+    ObserverWidget::RefreshMode refresh_mode;
+    //! The visible section of update_progress_widget's center frame.
+    QWidget* update_progress_widget_contents;
+    //! The QLabel used inside update_progress_widget_contents.
+    QLabel* update_progress_widget_contents_label;
+    //! The frame containing update_progress_widget_contents.
+    QFrame* update_progress_widget_contents_frame;
+
+    //! Indicates if actions have been constructed.
+    bool actions_constructed;
     QAction* actionRemoveItem;
     QAction* actionRemoveAll;
     QAction* actionDeleteItem;
@@ -162,7 +232,7 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     QPointer<QTableView> table_view;
     ObserverTableModel* table_model;
     QAbstractProxyModel* custom_table_proxy_model;
-    QPointer<QTreeView> tree_view;
+    QPointer<QtilitiesTreeView> tree_view;
     ObserverTreeModel* tree_model;
     QAbstractProxyModel* custom_tree_proxy_model;
     QAbstractProxyModel* tree_proxy_model;
@@ -243,9 +313,6 @@ struct Qtilities::CoreGui::ObserverWidgetData {
 
     //! Stores if automatic column resizing must be done. See enableAutoColumnResizing()
     bool do_column_resizing;
-
-    //! The task ID of the tree model rebuilding task.
-    SingleTaskWidget* task_widget;
     //! Remembers if the search box widget was visible when starting a refresh operation.
     bool search_box_visible_before_refresh;
 
@@ -268,14 +335,27 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWi
     QMainWindow(parent, f),
     ui(new Ui::ObserverWidget)
 {
+    constructPrivate(display_mode);
+}
+
+Qtilities::CoreGui::ObserverWidget::ObserverWidget(Observer* observer_context, DisplayMode display_mode, QWidget * parent, Qt::WindowFlags f) :
+    QMainWindow(parent, f),
+    ui(new Ui::ObserverWidget)
+{
+    constructPrivate(display_mode,observer_context);
+}
+
+Qtilities::CoreGui::ObserverWidget::~ObserverWidget() {
+    CONTEXT_MANAGER->unregisterContext(d->global_meta_type);
+    delete ui;
+    delete d;
+}
+
+void Qtilities::CoreGui::ObserverWidget::constructPrivate(DisplayMode display_mode, Observer* observer_context) {
     ui->setupUi(this);
+    ui->widgetProgressInfo->hide();
     d = new ObserverWidgetData;
     d->action_provider = new ActionProvider(this);
-
-    hideProgressInfo();
-
-    // **** IMPORTANT *****
-    // Changes here should also happen in the other constructor!
 
     #ifdef QTILITIES_PROPERTY_BROWSER
     d->property_editor_dock_area = Qt::RightDockWidgetArea;
@@ -287,8 +367,6 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWi
 //    d->dynamic_property_filter_inversed = false;
 //    d->dynamic_property_filter = QStringList();
     #endif
-
-    ui->widgetProgressInfo->setVisible(false);
 
     d->display_mode = display_mode;
     d->hints_default = new ObserverHints(this);
@@ -314,51 +392,6 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWi
     setObjectName(context_string);
 
     setDockNestingEnabled(true);
-}
-
-Qtilities::CoreGui::ObserverWidget::ObserverWidget(Observer* observer_context, DisplayMode display_mode, QWidget * parent, Qt::WindowFlags f) :
-    QMainWindow(parent, f),
-    ui(new Ui::ObserverWidget)
-{
-    ui->setupUi(this);
-    d = new ObserverWidgetData;
-    d->action_provider = new ActionProvider(this);
-
-    #ifdef QTILITIES_PROPERTY_BROWSER
-    d->property_editor_dock_area = Qt::RightDockWidgetArea;
-    d->property_editor_type = ObjectPropertyBrowser::TreeBrowser;
-    d->property_filter_inversed = false;
-    d->property_filter = QStringList();
-    d->dynamic_property_editor_dock_area = Qt::RightDockWidgetArea;
-    d->dynamic_property_editor_type = ObjectDynamicPropertyBrowser::TreeBrowser;
-//    d->dynamic_property_filter_inversed = false;
-//    d->dynamic_property_filter = QStringList();
-    #endif
-
-    ui->widgetProgressInfo->setVisible(false);
-    ui->navigationBarWidget->setVisible(false);
-
-    d->display_mode = display_mode;
-    d->hints_default = new ObserverHints(this);
-
-    setWindowIcon(QIcon(qti_icon_QTILITIES_SYMBOL_WHITE_16x16));
-    ui->widgetSearchBox->hide();
-
-    // Assign a default meta type for this widget:
-    // We construct each action and then register it
-    QString context_string = "ObserverWidget";
-    int count = 0;
-    context_string.append(QString("%1").arg(count));
-    while (CONTEXT_MANAGER->hasContext(context_string)) {
-        QString count_string = QString("%1").arg(count);
-        context_string.chop(count_string.length());
-        ++count;
-        context_string.append(QString("%1").arg(count));
-    }
-    CONTEXT_MANAGER->registerContext(context_string);
-    d->global_meta_type = context_string;
-    d->shared_global_meta_type = QString();
-    setObjectName(context_string);
 
     if (observer_context) {
         setObserverContext(observer_context);
@@ -366,10 +399,12 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(Observer* observer_context, D
     }
 }
 
-Qtilities::CoreGui::ObserverWidget::~ObserverWidget() {
-    CONTEXT_MANAGER->unregisterContext(d->global_meta_type);
-    delete ui;
-    delete d;           
+void Qtilities::CoreGui::ObserverWidget::setRefreshMode(Qtilities::CoreGui::ObserverWidget::RefreshMode refresh_mode) {
+    d->refresh_mode = refresh_mode;
+}
+
+Qtilities::CoreGui::ObserverWidget::RefreshMode Qtilities::CoreGui::ObserverWidget::refreshMode() const {
+    return d->refresh_mode;
 }
 
 Qtilities::Core::ObserverHints* Qtilities::CoreGui::ObserverWidget::activeHints() const {
@@ -495,7 +530,7 @@ bool Qtilities::CoreGui::ObserverWidget::setCustomTreeModel(ObserverTreeModel* t
     d->tree_model->toggleLazyInit(d->lazy_init);
 
     connect(d->tree_model,SIGNAL(dataChanged(const QModelIndex &, const QModelIndex& )),this,SLOT(adaptColumns(const QModelIndex &, const QModelIndex&)));
-    connect(d->tree_model,SIGNAL(treeModelBuildStarted(int)),SLOT(showProgressInfo(int)));
+    connect(d->tree_model,SIGNAL(treeModelBuildStarted()),SLOT(showProgressInfo()));
     connect(d->tree_model,SIGNAL(treeModelBuildEnded()),SLOT(hideProgressInfo()));
     connect(d->tree_model,SIGNAL(expandItemsRequest(QModelIndexList)),SLOT(expandNodes(QModelIndexList)));
     connect(d->tree_model,SIGNAL(treeModelBuildAboutToStart()),SLOT(handleTreeModelBuildAboutToStart()));
@@ -670,9 +705,12 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         setAttribute(Qt::WA_DeleteOnClose, true);
         // Register contextString in the context manager.
         OBJECT_MANAGER->registerObject(this,QtilitiesCategory("GUI::Observer Widgets","::"));
-        constructActions();
     }
 
+    // If the action hints indicate that actions must be present, we call
+    // constructActions(). Its clever enought not too construct everything just once:
+    if (activeHints()->actionHints() != ObserverHints::ActionNoHints && !d->actions_constructed)
+        constructActions();
 
     d->initialized = false;
 
@@ -734,7 +772,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
 
             // Check if there is already a model.
             if (!d->tree_view) {
-                d->tree_view = new QTreeView(ui->itemParentWidget);
+                d->tree_view = new QtilitiesTreeView(ui->itemParentWidget);
                 connect(d->tree_view,SIGNAL(expanded(QModelIndex)),SLOT(handleExpanded(QModelIndex)));
                 connect(d->tree_view,SIGNAL(collapsed(QModelIndex)),SLOT(handleCollapsed(QModelIndex)));
                 d->tree_view->setFocusPolicy(Qt::StrongFocus);
@@ -748,7 +786,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                     d->tree_model->toggleLazyInit(d->lazy_init);
 
                     connect(d->tree_model,SIGNAL(treeModelBuildAboutToStart()),SLOT(handleTreeModelBuildAboutToStart()));
-                    connect(d->tree_model,SIGNAL(treeModelBuildStarted(int)),SLOT(showProgressInfo(int)));
+                    connect(d->tree_model,SIGNAL(treeModelBuildStarted()),SLOT(showProgressInfo()));
                     connect(d->tree_model,SIGNAL(treeModelBuildEnded()),SLOT(hideProgressInfo()));
                     connect(d->tree_model,SIGNAL(dataChanged(const QModelIndex &, const QModelIndex&)),this,SLOT(adaptColumns(const QModelIndex &, const QModelIndex&)));
                     connect(d->tree_model,SIGNAL(expandItemsRequest(QModelIndexList)),SLOT(expandNodes(QModelIndexList)));
@@ -966,8 +1004,11 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
     // Refreshes the visibility of columns:
     // We only do this for table views here, for tree views this happens after the tree
     // build is complete in hideProgressInfo() connected to treeModelBuildEnded() on the tree:
-    if (displayMode() == Qtilities::TableView)
-        refreshColumnVisibility();
+//    if (displayMode() == Qtilities::TableView)
+//        refreshColumnVisibility();
+    // Since Qtilities v1.5 we do the column visibility here for tree views as well. Instead of
+    // of hideProgressInfo() as described above.
+    refreshColumnVisibility();
 
     d->initialized = true;
     if (!hints_only) {
@@ -1016,18 +1057,20 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
     d->update_selection_activity = false;
     handleSelectionModelChange();
     d->update_selection_activity = true;
-    // If selection problems occur, uncomment the above again.
-    //refreshActions();
     refreshActionToolBar();
 
     // Resize view:
-    if (!hints_only)
-        hideProgressInfo(false);
+    // Disabled since Qtilities v1.5
+//    if (!hints_only)
+//        hideProgressInfo(false);
 
     resizeColumns();
-
-    if (d->display_mode == Qtilities::TableView)
+    if (d->display_mode == Qtilities::TableView) {
+        //resizeColumns();
         QApplication::restoreOverrideCursor();
+    } else {
+        //viewCollapseAll();
+    }
 }
 
 void Qtilities::CoreGui::ObserverWidget::refreshColumnVisibility() {
@@ -1574,7 +1617,7 @@ void Qtilities::CoreGui::ObserverWidget::resizeTableViewRows(int height) {
 }
 
 void Qtilities::CoreGui::ObserverWidget::constructActions() {
-    if (d->actionNewItem)
+    if (d->actions_constructed)
         return;
 
     QList<int> context;
@@ -1715,6 +1758,7 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     #endif
 
     ACTION_MANAGER->commandObserver()->endProcessingCycle(false);
+    d->actions_constructed = true;
 }
 
 #ifndef QT_NO_DEBUG
@@ -1737,6 +1781,9 @@ void Qtilities::CoreGui::ObserverWidget::selectionDebug() const {
 #endif
 
 void Qtilities::CoreGui::ObserverWidget::refreshActions() {
+    if (!d->actions_constructed)
+        return;
+
     if (!d->initialized && !d->actionRemoveItem) {
         if (d->actionCollapseAll)
             d->actionCollapseAll->setEnabled(false);
@@ -2254,6 +2301,7 @@ void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observ
         d->notify_selected_objects_changed = false;
         setObserverContext(observer);
         d->notify_selected_objects_changed = current_notify_selected_objects_changed;
+
         // We set d->update_selection_activity to false in here since we don't want an initial selection
         // to be created in initialize()
         d->update_selection_activity = false;
@@ -2695,7 +2743,7 @@ void Qtilities::CoreGui::ObserverWidget::refresh() {
     if (!d->initialized || !d_observer)
         return;
 
-    // Call selectObjects() in order to update internal d->current_selection.
+    // Call selectedObjects() in order to update internal d->current_selection.
     QList<QObject*> previous_selection = selectedObjects();
 
     // Call refresh on the applicable model:
@@ -3014,7 +3062,8 @@ void Qtilities::CoreGui::ObserverWidget::toggleDisplayMode() {
             d->navigation_stack.clear();
         }
 
-        ui->widgetProgressInfo->setVisible(false);
+        if (d->refresh_mode == FullRebuildHideProgress)
+            ui->widgetProgressBarHolder->setVisible(false);
         d->display_mode = TableView;
 //        qDebug() << "Obs context before:" << observerContext() << "Stack" << d->navigation_stack;
 //        foreach (int id, d->navigation_stack) {
@@ -3039,8 +3088,10 @@ void Qtilities::CoreGui::ObserverWidget::toggleDisplayMode() {
 
 void Qtilities::CoreGui::ObserverWidget::viewCollapseAll() {
     if (d->tree_view && d->display_mode == TreeView) {
-        d->tree_view->expandToDepth(0);
-        //qDebug() << "Collapsing all";
+//        if (activeHints()->rootIndexDisplayHint() == ObserverHints::RootIndexHide)
+//            d->tree_view->collapseAll();
+//        else
+            d->tree_view->expandToDepth(0);
         resizeColumns();
     }
 }
@@ -3048,7 +3099,6 @@ void Qtilities::CoreGui::ObserverWidget::viewCollapseAll() {
 void Qtilities::CoreGui::ObserverWidget::viewExpandAll() {
     if (d->tree_view && d->display_mode == TreeView) {
         d->tree_view->expandAll();
-        //qDebug() << "Expanding all";
         resizeColumns();
     }
 }
@@ -3447,6 +3497,8 @@ bool Qtilities::CoreGui::ObserverWidget::confirmDeletes() const {
 
 void Qtilities::CoreGui::ObserverWidget::contextDeleted() {
     if (d->display_mode == TreeView){
+        QApplication::processEvents();
+        QApplication::processEvents();
         if (sender() == d->top_level_observer) {
             d->initialized = false;
             clearSelection();
@@ -3765,58 +3817,139 @@ void Qtilities::CoreGui::ObserverWidget::resetProxyModel() {
     handleSearchStringChanged("");
 }
 
-void Qtilities::CoreGui::ObserverWidget::showProgressInfo(int task_id) {
-    if (displayMode() == Qtilities::TreeView) {
-        if (!d->task_widget) {
-            d->task_widget = TaskManagerGui::instance()->singleTaskWidget(task_id);
-            d->task_widget->setMinimumWidth(700);
-            d->task_widget->progressBar()->setMinimumWidth(300);
+void Qtilities::CoreGui::ObserverWidget::showProgressInfo() {
+    if (displayMode() == Qtilities::TreeView && d->tree_view) {
+        if (!d->update_progress_widget_contents) {
+            d->update_progress_widget_contents = new QWidget;
+            d->update_progress_widget_contents->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Maximum);
+            if (d->update_progress_widget_contents->layout())
+                delete d->update_progress_widget_contents->layout();
+            QVBoxLayout* contents_layout = new QVBoxLayout(d->update_progress_widget_contents);
+            d->update_progress_widget_contents_label = new QLabel(tr("Updating %1").arg(d->top_level_observer->observerName()));
+            d->update_progress_widget_contents_label->setAlignment(Qt::AlignHCenter);
+            contents_layout->addWidget(d->update_progress_widget_contents_label);
+            contents_layout->setMargin(0);
+            QProgressBar* update_progress_widget_contents_progressbar = new QProgressBar;
+            update_progress_widget_contents_progressbar->setTextVisible(false);
+            update_progress_widget_contents_progressbar->setMinimum(0);
+            update_progress_widget_contents_progressbar->setMaximum(0);
+            update_progress_widget_contents_progressbar->setMaximumHeight(8);
+            contents_layout->addWidget(update_progress_widget_contents_progressbar);
+        } else {
+            if (d->update_progress_widget_contents_label && d->top_level_observer)
+                d->update_progress_widget_contents_label->setText(tr("Updating %1").arg(d->top_level_observer->observerName()));
+        }
 
+        if (d->refresh_mode == FullRebuildHideProgress) {
             if (ui->widgetProgressBarHolder->layout())
                 delete ui->widgetProgressBarHolder->layout();
 
             QHBoxLayout* layout = new QHBoxLayout(ui->widgetProgressBarHolder);
             layout->setMargin(0);
-            layout->addWidget(d->task_widget);
+            layout->addWidget(d->update_progress_widget_contents);
+
+            ui->itemParentWidget->hide();
+            ui->navigationBarWidget->hide();
+
+            if (d->searchBoxWidget) {
+                d->search_box_visible_before_refresh = ui->widgetSearchBox->isVisible();
+                ui->widgetSearchBox->hide();
+            }
+
+            ui->widgetProgressInfo->show();
+
+            emit treeModelBuildStarted();
+            QApplication::processEvents();
+        } else if (d->refresh_mode == FullRebuildOpaqueProgress) {
+            QApplication::processEvents();
+            if (!d->update_progress_widget) {
+                d->update_progress_widget = new QWidget(ui->itemParentWidget);
+                if (d->update_progress_widget->layout())
+                    delete d->update_progress_widget->layout();
+                QGridLayout* progress_layout = new QGridLayout(d->update_progress_widget);
+                progress_layout->addItem(new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Expanding),0,0,1,3);
+                progress_layout->addItem(new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Expanding),1,0,1,1);
+
+                d->update_progress_widget_contents_frame = new QFrame;
+                if (d->update_progress_widget_contents_frame->layout())
+                    delete d->update_progress_widget_contents_frame->layout();
+                QHBoxLayout* frame_layout = new QHBoxLayout(d->update_progress_widget_contents_frame);
+                frame_layout->addWidget(d->update_progress_widget_contents);
+                d->update_progress_widget_contents_frame->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Maximum);
+                d->update_progress_widget_contents_frame->setFrameShape(QFrame::StyledPanel);
+                d->update_progress_widget_contents_frame->setLineWidth(2);
+                d->update_progress_widget_contents_frame->setFrameShadow(QFrame::Sunken);
+                d->update_progress_widget_contents_frame->setAutoFillBackground(true);
+
+                QGraphicsOpacityEffect* opacityEffect = new QGraphicsOpacityEffect(d->update_progress_widget_contents_frame);
+                opacityEffect->setOpacity(0.85);
+                d->update_progress_widget_contents_frame->setGraphicsEffect(opacityEffect);
+
+                progress_layout->addWidget(d->update_progress_widget_contents_frame,1,1,1,1);
+                progress_layout->addItem(new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Expanding),1,2,1,1);
+                progress_layout->addItem(new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Expanding),2,0,1,3);
+
+                // Take the progress widget from its parent layout:
+                d->update_progress_widget->setAutoFillBackground(false);
+                d->update_progress_widget->setVisible(true);
+            }
+
+            if (ui->itemParentWidget->width() <= 500)
+                d->update_progress_widget_contents_frame->setMinimumWidth(0);
+            else if (ui->itemParentWidget->width() > 500 && ui->itemParentWidget->width() < 1000)
+                d->update_progress_widget_contents_frame->setMinimumWidth(ui->itemParentWidget->width() / 3);
+            else if (ui->itemParentWidget->width() > 500)
+                d->update_progress_widget_contents_frame->setMinimumWidth(ui->itemParentWidget->width() / 4);
+
+            d->update_progress_widget->resize(ui->itemParentWidget->size());
+            d->update_progress_widget->show();
+            QApplication::processEvents();
+            QApplication::processEvents(); // VERY IMPORTANT: Tested on Qt 5.1 - we need two consecutive process event calls here!
+
+            d->tree_view->setPaintingEnabled(false);
+            // Eat mouse events while we are refreshing:
+            d->update_progress_widget->setAttribute(Qt::WA_TransparentForMouseEvents,false);
+
+            emit treeModelBuildStarted();
+            QApplication::processEvents();
         }
-
-        d->task_widget->show();
-        ui->itemParentWidget->hide();
-        ui->navigationBarWidget->hide();
-
-        if (d->searchBoxWidget) {
-            d->search_box_visible_before_refresh = ui->widgetSearchBox->isVisible();
-            ui->widgetSearchBox->hide();
-        }
-
-        ui->widgetProgressInfo->show();
-
-        emit treeModelBuildStarted(task_id);
-        QApplication::processEvents();
     }
 }
 
 void Qtilities::CoreGui::ObserverWidget::hideProgressInfo(bool emit_tree_build_completed) {
     if (displayMode() == Qtilities::TreeView) {
-        ui->widgetProgressInfo->hide();
-        ui->itemParentWidget->show();
+        if (d->refresh_mode == FullRebuildHideProgress) {
+             ui->widgetProgressInfo->hide();
+             ui->itemParentWidget->show();
 
-        if (activeHints()) {
-            if (activeHints()->displayFlagsHint() & ObserverHints::NavigationBar && d->display_mode == Qtilities::TableView)
-                ui->navigationBarWidget->show();
-        } else
-            ui->navigationBarWidget->hide();
+             if (activeHints()) {
+                 if (activeHints()->displayFlagsHint() & ObserverHints::NavigationBar && d->display_mode == Qtilities::TableView)
+                     ui->navigationBarWidget->show();
+             } else
+                 ui->navigationBarWidget->hide();
 
-        if (d->searchBoxWidget && d->search_box_visible_before_refresh)
-            ui->widgetSearchBox->show();
+             if (d->searchBoxWidget && d->search_box_visible_before_refresh)
+                 ui->widgetSearchBox->show();
 
-        refreshColumnVisibility();
-        resizeColumns();
+             if (emit_tree_build_completed)
+                 emit treeModelBuildEnded();
 
-        if (emit_tree_build_completed)
-            emit treeModelBuildEnded();
+             QApplication::processEvents();
+        } else {
+            if (!d->update_progress_widget)
+                return;
 
-        QApplication::processEvents();
+            d->tree_view->setPaintingEnabled(true);
+            d->update_progress_widget->hide();
+
+            // Stop eating mouse events while we are refreshing...
+            d->update_progress_widget->setAttribute(Qt::WA_TransparentForMouseEvents,true);
+
+            if (emit_tree_build_completed)
+                emit treeModelBuildEnded();
+
+            QApplication::processEvents();
+        }
     }
 }
 
@@ -3885,6 +4018,9 @@ void Qtilities::CoreGui::ObserverWidget::handleCollapsed(const QModelIndex &inde
 }
 
 void Qtilities::CoreGui::ObserverWidget::expandNodes(const QStringList &node_names) {
+    if (!d->top_level_observer || !observerContext())
+        return;
+
     if (d->tree_view && d->tree_model && d->display_mode == Qtilities::TreeView) {
         QModelIndexList indexes = d->tree_model->findExpandedNodeIndexes(node_names);
         expandNodes(indexes);
@@ -3894,6 +4030,9 @@ void Qtilities::CoreGui::ObserverWidget::expandNodes(const QStringList &node_nam
 }
 
 void Qtilities::CoreGui::ObserverWidget::expandNodes(QModelIndexList indexes) {
+    if (!d->top_level_observer || !observerContext())
+        return;
+
     if (d->tree_view && d->tree_proxy_model && d->display_mode == Qtilities::TreeView) {
         disconnect(d->tree_view,SIGNAL(expanded(QModelIndex)),this,SLOT(handleExpanded(QModelIndex)));
 
@@ -4003,6 +4142,9 @@ void Qtilities::CoreGui::ObserverWidget::constructDynamicPropertyBrowser() {
 #endif
 
 void Qtilities::CoreGui::ObserverWidget::refreshActionToolBar(bool force_full_refresh) {
+    if (!d->actions_constructed)
+        return;
+
     // Check if an action toolbar should be created:
     if ((activeHints()->displayFlagsHint() & ObserverHints::ActionToolBar) && d->action_provider) {
         if (!force_full_refresh) {

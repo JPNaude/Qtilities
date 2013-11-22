@@ -29,8 +29,8 @@ using namespace Qtilities::CoreGui;
 struct Qtilities::Plugins::Help::HelpPluginData {
     HelpPluginData() {}
 
-    HelpPluginConfig    help_plugin_config;
-    QPointer<HelpMode>  help_mode;
+    QPointer<HelpPluginConfig> help_plugin_config;
+    QPointer<HelpMode> help_mode;
 };
 
 Qtilities::Plugins::Help::HelpPlugin::HelpPlugin(QObject* parent) : QObject(parent) {
@@ -39,8 +39,8 @@ Qtilities::Plugins::Help::HelpPlugin::HelpPlugin(QObject* parent) : QObject(pare
 }
 
 Qtilities::Plugins::Help::HelpPlugin::~HelpPlugin() {
-    if (d->help_mode)
-        delete d->help_mode;
+//    if (d->help_mode)
+//        delete d->help_mode;
     delete d;
 }
 
@@ -48,9 +48,10 @@ bool Qtilities::Plugins::Help::HelpPlugin::initialize(const QStringList &argumen
     Q_UNUSED(arguments)
     Q_UNUSED(error_strings)
 
-    d->help_mode = new HelpMode();
+    d->help_mode = new HelpMode;
+    d->help_plugin_config = new HelpPluginConfig;
     OBJECT_MANAGER->registerObject(d->help_mode,QtilitiesCategory("GUI::Application Modes (IMode)","::"));
-    OBJECT_MANAGER->registerObject(&d->help_plugin_config,QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
+    OBJECT_MANAGER->registerObject(d->help_plugin_config,QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
 
     return true;
 }

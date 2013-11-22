@@ -20,14 +20,12 @@ using namespace QtilitiesCoreGui;
 struct Qtilities::CoreGui::ObserverTreeModelBuilderPrivateData  {
     ObserverTreeModelBuilderPrivateData() : hints(0),
         root_item(0),
-        task(QObject::tr("Tree Builder"),false),
         threading_enabled(false) {}
 
     QMutex                          build_lock;
     ObserverHints*                  hints;
     bool                            use_hints;
     ObserverTreeItem*               root_item;
-    Task                            task;
     QThread*                        thread;
     bool                            threading_enabled;
 };
@@ -35,13 +33,9 @@ struct Qtilities::CoreGui::ObserverTreeModelBuilderPrivateData  {
 Qtilities::CoreGui::ObserverTreeModelBuilder::ObserverTreeModelBuilder(ObserverTreeItem* item, bool use_observer_hints, ObserverHints* observer_hints, QObject* parent) : QObject(parent) {
     d = new ObserverTreeModelBuilderPrivateData;
 
-    d->task.setTaskType(ITask::TaskLocal);
-    d->task.setSubTaskPerformanceIndication(ITask::SubTaskNoPerformanceIndication);
     d->hints = observer_hints;
     d->use_hints = use_observer_hints;
     setRootItem(item);
-
-    OBJECT_MANAGER->registerObject(&d->task,QtilitiesCategory("Tasks"));
 }
 
 Qtilities::CoreGui::ObserverTreeModelBuilder::~ObserverTreeModelBuilder() {
@@ -55,21 +49,11 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::setOriginThread(QThread* thre
 void Qtilities::CoreGui::ObserverTreeModelBuilder::setRootItem(ObserverTreeItem* item) {
     d->root_item = item;
     if (d->root_item) {
-        QString context_name = tr("Root Item");
+        QString context_name = "Root Item";
         Observer* obs = qobject_cast<Observer*> (d->root_item->getObject());
         if (obs)
             context_name = obs->observerName();
-
-        d->task.setDisplayName(tr("Loading: ") + context_name);
-        d->task.setObjectName(tr("Loading Tree: ") + context_name);
-
-        if (d->task.loggerEngine())
-            d->task.loggerEngine()->setName(tr("Task Log: Tree Builder (") + context_name + ")");
     }
-}
-
-int Qtilities::CoreGui::ObserverTreeModelBuilder::taskID() const {
-    return d->task.taskID();
 }
 
 void Qtilities::CoreGui::ObserverTreeModelBuilder::setUseObserverHints(bool use_observer_hints) {
@@ -87,7 +71,6 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::setThreadingEnabled(bool is_e
 void Qtilities::CoreGui::ObserverTreeModelBuilder::startBuild() {
     d->build_lock.lock();
 
-    d->task.startTask();
     QApplication::processEvents();
     buildRecursive(d->root_item);
 
@@ -97,7 +80,6 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::startBuild() {
     }
 
     d->build_lock.unlock();
-    d->task.completeTask(ITask::TaskSuccessful);
 
     //printStructure(root_item);
     emit buildCompleted(d->root_item);
@@ -107,7 +89,6 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::buildRecursive(ObserverTreeIt
      // In here we build the complete structure of all the children below item.
     Observer* observer = qobject_cast<Observer*> (item->getObject());
     ObserverTreeItem* new_item;
-    //d->task.addCompletedSubTasks(1,"Building item: " + item->objectName());
 
     if (!d->threading_enabled)
         QApplication::processEvents();

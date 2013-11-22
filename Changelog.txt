@@ -70,6 +70,11 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     ============================
     QtilitiesCoreGui:
     ============================
+    [+] ObserverWidget/TreeWidget now has a new refresh mode which makes refreshes much smoother than
+        previously. The new mode (which is also the default) overlays a progress indicator on top of
+        the current tree and smoothly refreshes the tree, instead of hiding the tree and showing
+        a progress indicator instead of the tree. The old behaviour is still around to use
+        if you prefer to do so. See ObseverWidget::RefreshMode for more details.
     [+] Added new generic property related classes: GenericPropertyBrowser, GenericPropertyPathEditor,
         GenericPropertyPathEditorListWrapper, FileEditorFactory and PathPropertyManager.
     [+] Added TaskSummaryWidget::getSingleTaskWidgetForTask().
@@ -82,10 +87,14 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     [#] Slightly improved layout in SingleTaskWidget.
     [#] Changed ConfigurationWidget so that it no longer assigns a 0 margin to pages it displays.
     [#] Changed ConfigurationWidget so that does not put a border around the frame in which it puts config widgets.
+    [#] ObserverWidget will no longer register all its actions by default, only when ActionHints are specified on the
+        displayed observer and the ObserverWidget is set to use its observer hints, instead of custom hints.
+    [#] A few optimizations in ObserverTreeModel and ObserverTreeModelBuilder.
 
     [*] Fixed compilation issues against Qt5 when property browser is enable using DEFINES += QTILITIES_PROPERTY_BROWSER
     [*] Fixed bug where ProhibitDuplicateNamesCaseSensitive was not handled properly in NamingPolicyFilter::evaluateAttachment()
     [*] Fixed double emission of selectedObjectsChanged() when the tree parent observer changes when in tree view mode.
+    [*] Fixed ObserverWidget not respecting the ObserverHints::ItemViewColumnFlags of new selections in TreeView mode.
 
     ============================
     QtilitiesExtensionSystem:

@@ -41,8 +41,6 @@ namespace Qtilities {
 
             //! Sets the root ObserverTreeitem.
             void setRootItem(ObserverTreeItem* item);
-            //! Returns the task id of the tree build task.
-            int taskID() const;
             //! Sets if threading is enabled in the builder.
             void setThreadingEnabled(bool is_enabled);
 

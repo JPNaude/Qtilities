@@ -47,7 +47,7 @@ struct Qtilities::Testing::DebugWidgetPrivateData {
     QMainWindow         contexts_main_window;
     QDockWidget         contexts_dock_window;
 
-    CommandEditor       command_editor;
+    CommandEditor*      command_editor;
     QPointer<Command>   current_command;
 
     TaskSummaryWidget   task_summary_widget;
@@ -72,7 +72,7 @@ Qtilities::Testing::DebugWidget::DebugWidget(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->btnRefreshViews->setIcon(QIcon(qti_icon_REFRESH_16x16));
-    ui->btnRefreshViews->setText(tr("Refresh Views"));
+    ui->btnRefreshViews->setText("Refresh Views");
     ui->btnRemoveFilterExpression->setIcon(QIcon(qti_icon_REMOVE_ONE_16x16));
     ui->btnAddFilterExpression->setIcon(QIcon(qti_icon_NEW_16x16));
     ui->btnAddActivePlugin->setIcon(QIcon(qti_icon_NEW_16x16));
@@ -82,14 +82,16 @@ Qtilities::Testing::DebugWidget::DebugWidget(QWidget *parent) :
     ui->lblPluginInfoIcon->setText("");
     ui->lblPluginInfoMessage->setText("");
 
-    setWindowTitle(("Qtilities Debug Widget"));
-    setObjectName(tr("Qtilities Debug Widget"));
+    setObjectName("Qtilities Debug Widget");
+    setWindowTitle(objectName());
     setAttribute(Qt::WA_QuitOnClose,false);
 
     d = new DebugWidgetPrivateData;
     connect(&d->plugin_msg_timer,SIGNAL(timeout()), ui->lblPluginInfoIcon, SLOT(hide()));
     connect(&d->plugin_msg_timer,SIGNAL(timeout()), ui->lblPluginInfoMessage, SLOT(clear()));
-    connect(d->command_editor.commandWidget(),SIGNAL(selectedObjectsChanged(QList<QObject*>)),SLOT(refreshCommandInformation()));
+
+    d->command_editor = new CommandEditor;
+    connect(d->command_editor->commandWidget(),SIGNAL(selectedObjectsChanged(QList<QObject*>)),SLOT(refreshCommandInformation()));
 
     // Version:
     ui->labelVersion->setText(QtilitiesApplication::qtilitiesVersionString());
@@ -218,11 +220,11 @@ Qtilities::Testing::DebugWidget::DebugWidget(QWidget *parent) :
     if (ui->commandEditorHolder->layout())
         delete ui->commandEditorHolder->layout();
     QHBoxLayout* command_editor_layout = new QHBoxLayout(ui->commandEditorHolder);
-    command_editor_layout->addWidget(&d->command_editor);
+    command_editor_layout->addWidget(d->command_editor);
     command_editor_layout->setMargin(0);
-    if (d->command_editor.layout())
-        d->command_editor.layout()->setMargin(0);
-    d->command_editor.configPageInitialize();
+    if (d->command_editor->layout())
+        d->command_editor->layout()->setMargin(0);
+    d->command_editor->configPageInitialize();
 
     // Action Container Editor:
     if (ui->actionContainersHolder->layout())
@@ -267,14 +269,7 @@ Qtilities::Testing::DebugWidget::DebugWidget(QWidget *parent) :
     on_btnRefreshViews_clicked();
 }
 
-Qtilities::Testing::DebugWidget::~DebugWidget()
-{
-    #ifdef QTILITIES_CONAN
-    if (d->object_analysis_widget)
-        delete d->object_analysis_widget;
-    if (d->command_analysis_widget)
-        delete d->command_analysis_widget;
-    #endif
+Qtilities::Testing::DebugWidget::~DebugWidget() {
     delete d;
     delete ui;
 }
@@ -288,7 +283,7 @@ QIcon Qtilities::Testing::DebugWidget::modeIcon() const {
 }
 
 QString Qtilities::Testing::DebugWidget::modeName() const {
-    return tr("Debugging");
+    return "Debugging";
 }
 
 void Qtilities::Testing::DebugWidget::aboutToBeActivated() {
@@ -412,7 +407,7 @@ bool Qtilities::Testing::DebugWidget::on_btnSavePluginConfigSet_clicked()
 
 bool Qtilities::Testing::DebugWidget::on_btnSaveNewPluginConfigSet_clicked()
 {
-    QString fileName = QFileDialog::getSaveFileName(0, tr("Save Plugin Configuration"),QString("%1/new_plugin_configuration").arg(QtilitiesApplication::applicationSessionPath()),QString(tr("Plugin Configurations (*%1)")).arg(qti_def_SUFFIX_PLUGIN_CONFIG));
+    QString fileName = QFileDialog::getSaveFileName(0, "Save Plugin Configuration",QString("%1/new_plugin_configuration").arg(QtilitiesApplication::applicationSessionPath()),QString("Plugin Configurations (*%1)").arg(qti_def_SUFFIX_PLUGIN_CONFIG));
     if (!fileName.isEmpty()) {
         QStringList inactive_list = d->inactive_plugins_model.stringList();
         QStringList filter_list = d->filtered_plugins_model.stringList();
@@ -470,7 +465,7 @@ void Qtilities::Testing::DebugWidget::on_btnOpenPluginConfigSet_clicked()
         QFileInfo fi(ui->txtPluginsActiveSet->text());
         open_path = fi.path();
     }
-    QString fileName = QFileDialog::getOpenFileName(0, tr("Open Plugin Configuration"),open_path,QString(tr("Plugin Configurations (*%1)")).arg(qti_def_SUFFIX_PLUGIN_CONFIG));
+    QString fileName = QFileDialog::getOpenFileName(0, "Open Plugin Configuration",open_path,QString("Plugin Configurations (*%1)").arg(qti_def_SUFFIX_PLUGIN_CONFIG));
     if (!fileName.isEmpty()) {
         QStringList inactive_list;
         QStringList filter_list;
@@ -489,7 +484,7 @@ void Qtilities::Testing::DebugWidget::on_btnRemoveActivePlugin_clicked()
 void Qtilities::Testing::DebugWidget::on_btnAddActivePlugin_clicked()
 {
     bool ok;
-    QString text = QInputDialog::getText(this, tr("Add active plugin"),tr("Plugin name:"), QLineEdit::Normal,"", &ok);
+    QString text = QInputDialog::getText(this, "Add active plugin","Plugin name:", QLineEdit::Normal,"", &ok);
     if (ok && !text.isEmpty()) {
         QStringList list = d->active_plugins_model.stringList();
         list << text;
@@ -506,7 +501,7 @@ void Qtilities::Testing::DebugWidget::on_btnRemoveInactivePlugin_clicked()
 void Qtilities::Testing::DebugWidget::on_btnAddInactivePlugin_clicked()
 {
     bool ok;
-    QString text = QInputDialog::getText(this, tr("Add inactive plugin"),tr("Plugin name:"), QLineEdit::Normal,"", &ok);
+    QString text = QInputDialog::getText(this, "Add inactive plugin","Plugin name:", QLineEdit::Normal,"", &ok);
     if (ok && !text.isEmpty()) {
         QStringList list = d->inactive_plugins_model.stringList();
         list << text;
@@ -523,13 +518,13 @@ void Qtilities::Testing::DebugWidget::on_btnRemoveFilterExpression_clicked()
 void Qtilities::Testing::DebugWidget::on_btnAddFilterExpression_clicked()
 {
     bool ok;
-    QString text = QInputDialog::getText(this, tr("Add filter expression"),tr("Filter expression:"), QLineEdit::Normal,"", &ok);
+    QString text = QInputDialog::getText(this, "Add filter expression","Filter expression:", QLineEdit::Normal,"", &ok);
     if (ok && !text.isEmpty()) {
         QRegExp reg_exp(text);
         reg_exp.setPatternSyntax(QRegExp::Wildcard);
         while (!reg_exp.isValid()) {
-            QString msg_string = QString(tr("You entered an invalid regular expression:\n\nError: %1\n\nNew expression:")).arg(reg_exp.errorString());
-            QString text = QInputDialog::getText(this, tr("Expression Is Not Valid"),msg_string, QLineEdit::Normal,reg_exp.pattern(), &ok);
+            QString msg_string = QString("You entered an invalid regular expression:\n\nError: %1\n\nNew expression:").arg(reg_exp.errorString());
+            QString text = QInputDialog::getText(this, "Expression Is Not Valid",msg_string, QLineEdit::Normal,reg_exp.pattern(), &ok);
             if (ok && !text.isEmpty())
                 reg_exp.setPattern(text);
             else
@@ -553,7 +548,7 @@ void Qtilities::Testing::DebugWidget::handleListMessage(Logger::MessageType type
         ui->lblPluginInfoIcon->setVisible(true);
         ui->lblPluginInfoMessage->setText(QString("<font color='red'>%1</font>").arg(msg));
     } else {
-        if (msg.startsWith(tr("Successfully")))
+        if (msg.startsWith("Successfully"))
             ui->lblPluginInfoIcon->setPixmap(QIcon(qti_icon_SUCCESS_16x16).pixmap(12));
         else
             ui->lblPluginInfoIcon->setPixmap(QIcon(qti_icon_INFO_16x16).pixmap(12));
@@ -698,7 +693,7 @@ void Qtilities::Testing::DebugWidget::refreshContexts() {
 }
 
 void Qtilities::Testing::DebugWidget::refreshCommandInformation() {
-    QList<QObject*> commands = d->command_editor.commandWidget()->selectedObjects();
+    QList<QObject*> commands = d->command_editor->commandWidget()->selectedObjects();
     if (commands.isEmpty()) {
         ui->tableSelectedActionOverview->clear();
         ui->lblCommandType->setText("No command selected.");
@@ -856,7 +851,7 @@ void Qtilities::Testing::DebugWidget::refreshCurrentPluginState() {
 
 void Qtilities::Testing::DebugWidget::refreshCurrentPluginSet() {
     if (EXTENSION_SYSTEM->activePluginConfigurationFile().isEmpty())
-        ui->txtPluginsActiveSet->setText(tr("No plugin configuration set loaded"));
+        ui->txtPluginsActiveSet->setText("No plugin configuration set loaded");
     else
         ui->txtPluginsActiveSet->setText(EXTENSION_SYSTEM->activePluginConfigurationFile());
 
@@ -879,7 +874,7 @@ void Qtilities::Testing::DebugWidget::refreshEditedPluginState() {
         return;
 
     if (EXTENSION_SYSTEM->activePluginConfigurationFile().isEmpty())
-        ui->txtPluginsEditSet->setText(tr("No plugin configuration set loaded"));
+        ui->txtPluginsEditSet->setText("No plugin configuration set loaded");
     else
         ui->txtPluginsEditSet->setText(EXTENSION_SYSTEM->activePluginConfigurationFile());
 

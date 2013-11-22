@@ -23,7 +23,7 @@ struct Qtilities::Plugins::Help::BrowserData {
         locationBar(0),
         txtLocationEdit(0) {}
 
-    QWebView* web_view;
+    QPointer<QWebView> web_view;
     QPushButton* btnSearch;
     QToolButton* btnBack;
     QToolButton* btnForward;
@@ -151,16 +151,16 @@ void Qtilities::Plugins::Help::Browser::handle_loadUrl( ){
         #ifdef Q_OS_WIN
         if (!QSslSocket::supportsSsl()) {
             QMessageBox msgBox;
-            msgBox.setWindowTitle("Failed To Load Webpage");
-            msgBox.setText("Your system and/or Qt installation does not support websites using SSL (thus https://).\n\nThe page you are trying to load uses SSL and therefore cannot be loaded:\n" + d->web_view->url().toString());
+            msgBox.setWindowTitle(tr("Failed To Load Webpage"));
+            msgBox.setText(tr("Your system and/or Qt installation does not support websites using SSL (thus https://).\n\nThe page you are trying to load uses SSL and therefore cannot be loaded:\n") + d->web_view->url().toString());
             msgBox.exec();
             LOG_ERROR("Error while loading secure page at " + d->web_view->url().toString() + ". SSL is not supported.");
             return;
         }
         #else
         QMessageBox msgBox;
-        msgBox.setWindowTitle("Failed To Load Webpage");
-        msgBox.setText("Your system and/or Qt installation does not seem to support websites using SSL (thus https://).\n\nThe page you are trying to load uses SSL and therefore cannot be loaded:\n" + d->web_view->url().toString());
+        msgBox.setWindowTitle(tr("Failed To Load Webpage");
+        msgBox.setText(tr("Your system and/or Qt installation does not seem to support websites using SSL (thus https://).\n\nThe page you are trying to load uses SSL and therefore cannot be loaded:\n)" + d->web_view->url().toString());
         msgBox.exec();
         LOG_ERROR("Error while loading secure page at " + d->web_view->url().toString() + ". SSL is not supported.");
         return;
@@ -180,7 +180,7 @@ void Qtilities::Plugins::Help::Browser::handle_finished(bool ok){
 
     if (!ok) {
         if (!d->web_view->url().toString().isEmpty())
-            LOG_ERROR(tr("Error while loading page at ") + d->web_view->url().toString());
+            LOG_ERROR("Error while loading page at " + d->web_view->url().toString());
     }
 
     d->locationBar->setEnabled(true);
