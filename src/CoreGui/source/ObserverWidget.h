@@ -436,6 +436,11 @@ categorized_widget->show();
               This function was added in Qtilities v1.1.
               */
             void expandedNodesChanged(const QStringList& node_names);
+            //! Signal which is emitted when the expanded nodes changes.
+            /*!
+              This function was added in Qtilities v1.5.
+              */
+            void expandedObjectsChanged(const QList<QPointer<QObject> >& objects);
             //! Signal which is emitted when the observer context of this widget changes.
             void observerContextChanged(Observer* new_context);
             //! Signal which is emitted when this widget's read only state changes.

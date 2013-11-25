@@ -104,7 +104,7 @@ public:
             }
 //            if (event->type() == QEvent::Paint) {
 //                if (!d_painting_enabled) {
-//                    qDebug() << "Received paint and window deactivate event while disabled:" << event->type();
+//                    qDebug() << "Received paint event while disabled:" << event->type();
 //                    return true;
 //                } else {
 //                    qDebug() << "Received paint event while enabled:" << event->type();
@@ -3107,14 +3107,29 @@ void Qtilities::CoreGui::ObserverWidget::viewCollapseAll() {
 //        if (activeHints()->rootIndexDisplayHint() == ObserverHints::RootIndexHide)
 //            d->tree_view->collapseAll();
 //        else
-            d->tree_view->expandToDepth(0);
+
+        bool current_do_column_resizing = d->do_column_resizing;
+        d->do_column_resizing = false;
+
+        disconnect(d->tree_view,SIGNAL(expanded(QModelIndex)),this,SLOT(handleExpanded(QModelIndex)));
+        d->tree_view->expandToDepth(0);
+        connect(d->tree_view,SIGNAL(expanded(QModelIndex)),SLOT(handleExpanded(QModelIndex)),Qt::UniqueConnection);
+
+        d->do_column_resizing = current_do_column_resizing;
         resizeColumns();
     }
 }
 
 void Qtilities::CoreGui::ObserverWidget::viewExpandAll() {
     if (d->tree_view && d->display_mode == TreeView) {
+        bool current_do_column_resizing = d->do_column_resizing;
+        d->do_column_resizing = false;
+
+        disconnect(d->tree_view,SIGNAL(expanded(QModelIndex)),this,SLOT(handleExpanded(QModelIndex)));
         d->tree_view->expandAll();
+        connect(d->tree_view,SIGNAL(expanded(QModelIndex)),SLOT(handleExpanded(QModelIndex)),Qt::UniqueConnection);
+
+        d->do_column_resizing = current_do_column_resizing;
         resizeColumns();
     }
 }
@@ -3948,14 +3963,14 @@ void Qtilities::CoreGui::ObserverWidget::hideProgressInfo(bool emit_tree_build_c
             if (!d->update_progress_widget)
                 return;
 
-            d->tree_view->setPaintingEnabled(true);
-            d->update_progress_widget->hide();
-
-            // Stop eating mouse events while we are refreshing...
+            // Stop eating mouse events when we are done refreshing...
             d->update_progress_widget->setAttribute(Qt::WA_TransparentForMouseEvents,true);
 
             if (emit_tree_build_completed)
                 emit treeModelBuildEnded();
+
+            d->update_progress_widget->hide();
+            d->tree_view->setPaintingEnabled(true);
 
             QApplication::processEvents();
         }
@@ -3964,6 +3979,7 @@ void Qtilities::CoreGui::ObserverWidget::hideProgressInfo(bool emit_tree_build_c
 
 void Qtilities::CoreGui::ObserverWidget::resizeColumns() {
     if (d->do_column_resizing) {
+        qDebug() << Q_FUNC_INFO;
         if (d->display_mode == Qtilities::TableView && d->table_model && d->table_view) {
             resizeTableViewRows();
 
@@ -4015,7 +4031,8 @@ void Qtilities::CoreGui::ObserverWidget::handleExpanded(const QModelIndex &index
         return;
 
     resizeColumns();
-    emit expandedNodesChanged(findExpandedItems());
+    emit expandedNodesChanged(lastExpandedItemsResults());
+    emit expandedObjectsChanged(lastExpandedObjectsResults());
 }
 
 void Qtilities::CoreGui::ObserverWidget::handleCollapsed(const QModelIndex &index) {
@@ -4023,7 +4040,8 @@ void Qtilities::CoreGui::ObserverWidget::handleCollapsed(const QModelIndex &inde
         return;
 
     resizeColumns();
-    emit expandedNodesChanged(findExpandedItems());
+    emit expandedNodesChanged(lastExpandedItemsResults());
+    emit expandedObjectsChanged(lastExpandedObjectsResults());
 }
 
 void Qtilities::CoreGui::ObserverWidget::expandNodes(const QStringList &node_names) {
@@ -4059,17 +4077,21 @@ void Qtilities::CoreGui::ObserverWidget::expandNodes(QModelIndexList indexes) {
 
         if (indexes.isEmpty()) {
             viewExpandAll();
+            connect(d->tree_view,SIGNAL(expanded(QModelIndex)),SLOT(handleExpanded(QModelIndex)),Qt::UniqueConnection);
             return;
         } else {
             d->tree_view->collapseAll();
         }
 
+        bool current_do_column_resizing = d->do_column_resizing;
+        d->do_column_resizing = false;
         foreach (QModelIndex index, indexes) {
             if (d->tree_proxy_model)
                 d->tree_view->setExpanded(d->tree_proxy_model->mapFromSource(index),true);
             else
                 d->tree_view->setExpanded(index,true);
         }
+        d->do_column_resizing = current_do_column_resizing;
         connect(d->tree_view,SIGNAL(expanded(QModelIndex)),SLOT(handleExpanded(QModelIndex)),Qt::UniqueConnection);
         resizeColumns();
     }
