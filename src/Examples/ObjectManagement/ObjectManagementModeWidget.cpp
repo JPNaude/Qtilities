@@ -73,6 +73,7 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
 
     d = new ObjectManagementModeWidgetData;
     d->top_level_node= new TreeNode("Root");
+    d->top_level_node->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames,NamingPolicyFilter::AutoRename);
     d->top_level_node->displayHints()->setActionHints(ObserverHints::ActionAllHints);
     d->top_level_node->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
     d->top_level_node->displayHints()->setDragDropHint(ObserverHints::AllDragDrop);
@@ -80,7 +81,7 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     // Uncomment these to play around with root display formats.
     //d->top_level_node->displayHints()->setRootIndexDisplayHint(ObserverHints::RootIndexDisplayUndecorated);
     //d->top_level_node->displayHints()->setRootIndexDisplayHint(ObserverHints::RootIndexDisplayDecorated);
-    d->top_level_node->displayHints()->setRootIndexDisplayHint(ObserverHints::RootIndexHide); // This is the default:
+    d->top_level_node->displayHints()->setRootIndexDisplayHint(ObserverHints::RootIndexHide); // This is the default
 
     OBJECT_MANAGER->registerObject(d->top_level_node,QtilitiesCategory("Example Objects"));
 
@@ -88,7 +89,6 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     // Factory and Project Item Stuff
     // ---------------------------
     d->project_item = new ObserverProjectItemWrapper(d->top_level_node,this);
-    OBJECT_MANAGER->registerObject(d->project_item,QtilitiesCategory("Core::Project Items (IProjectItem)","::"));
 
     QList<int> context;
     context.push_front(CONTEXT_MANAGER->contextID(qti_def_CONTEXT_STANDARD));
@@ -157,7 +157,7 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     // Create ObserverWidget
     // ---------------------------
     d->observer_widget = new ObserverWidget(Qtilities::TreeView);
-    d->observer_widget->setRefreshMode(ObserverWidget::FullRebuildOpaqueProgress);
+    d->observer_widget->setRefreshMode(ObserverWidget::RefreshModeShowTree);
     d->observer_widget->setGlobalMetaType("Example Observer Meta Type");
     d->observer_widget->setAcceptDrops(true);
     d->scope_widget = new ObjectScopeWidget();
@@ -175,7 +175,7 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     addExampleObjects();    
     //QList<QObject*> children = d->top_level_node->treeChildren();
     QList<QPointer<QObject> > initial_selection;
-    initial_selection << d->top_level_node->treeChildren().front();
+    initial_selection << d->top_level_node->treeChildren().first();
     d->observer_widget->initialize(initial_selection);
 
     // Create new layout with new widget
@@ -291,9 +291,11 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
     nodeA->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);
     nodeA->displayHints()->setDragDropHint(ObserverHints::AllDragDrop);
     nodeA->displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
+    nodeA->displayHints()->setCategoryEditingFlags(ObserverHints::CategoriesEditableAllLevels);
 
     for (int i = 0; i < 5; i++)
         nodeA->addItem(QString("Item A_%1").arg(i));
+    nodeA->addItem("Item A_6",QtilitiesCategory("Example Category::Double Click To Rename","::"));
 
     if (!selected_observer)
         d->top_level_node->attachSubject(nodeA, Observer::ObserverScopeOwnership);
@@ -303,11 +305,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
     // Create a second node:
     TreeNode* nodeB = new TreeNode("Node B");
     nodeB->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames,NamingPolicyFilter::AutoRename);
-    nodeB->displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
-    nodeB->displayHints()->setActionHints(ObserverHints::ActionAllHints);
-    nodeB->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);
-    nodeB->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
-    nodeB->displayHints()->setDragDropHint(ObserverHints::AllDragDrop);
+    nodeB->copyHints(nodeA->displayHints());
     for (int i = 0; i < 5; i++)
         nodeB->addItem(QString("Item B_%1").arg(i));
 
@@ -319,11 +317,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
     // Create a node with some QWidgets:
     TreeNode* nodeC = new TreeNode("Node C");
     nodeC->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames,NamingPolicyFilter::AutoRename);
-    nodeC->displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
-    nodeC->displayHints()->setActionHints(ObserverHints::ActionAllHints);
-    nodeC->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);
-    nodeC->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
-    nodeC->displayHints()->setDragDropHint(ObserverHints::AllDragDrop);
+    nodeC->copyHints(nodeA->displayHints());
     for (int i = 0; i < 5; i++) {
         QWidget* widget = new QWidget;
         QLabel* label_text = new QLabel(widget);

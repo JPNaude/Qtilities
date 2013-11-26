@@ -41,11 +41,12 @@ struct Qtilities::CoreGui::ObserverTreeModelData  {
 
     QPointer<ObserverTreeItem>  rootItem;
     QPointer<Observer>          selection_parent;
-    QList<QtilitiesCategory>    selected_categories;
     QString                     type_grouping_name;
     bool                        read_only;
     QFileIconProvider           icon_provider;
 
+    //! The selected categories.
+    QList<QtilitiesCategory>    selected_categories;
     //! Set by setSelectedObjects(), used when layout of the tree changed externally (not in the view)
     QList<QPointer<QObject> >   selected_objects;
     //! Set by recordObserverChange(), used to record requested selected objects emitted using Observer::refreshViewsLayout().
@@ -63,12 +64,12 @@ struct Qtilities::CoreGui::ObserverTreeModelData  {
 
     //! Nodes to expand in the tree after a rebuild is done.
     QList<QPointer<QObject> >   expanded_objects;
-    QStringList                 expanded_items;
-    //! A map with expanded items which must be replaced after d->expanded_items was set by the observer widget.
+    QStringList                 expanded_categories;
+    //! A map with expanded items which must be replaced after d->expanded_categories was set by the observer widget.
     /*!
         This is needed in order to expand renamed categories.
       */
-    QMap<QString,QString>       expanded_items_replace_map;
+    QMap<QString,QString>       expanded_categories_replace_map;
 
     QMutex                      build_mutex;
 };
@@ -1002,8 +1003,8 @@ bool Qtilities::CoreGui::ObserverTreeModel::setData(const QModelIndex &set_data_
                         // Replace category in expanded category list if it was in there:
                         // Expanded items only contains the top node names, thus
                         // a simple replace works for CategoriesEditableTopLevel.
-                        d->expanded_items_replace_map.clear();
-                        d->expanded_items_replace_map[bottom_name_old] = new_category.categoryBottom();
+                        d->expanded_categories_replace_map.clear();
+                        d->expanded_categories_replace_map[bottom_name_old] = new_category.categoryBottom();
 
                         // Replace category in d->selected_categories if it was in there:
                         if (d->selected_categories.contains(item->category())) {
@@ -1020,10 +1021,10 @@ bool Qtilities::CoreGui::ObserverTreeModel::setData(const QModelIndex &set_data_
                         // Replace category in expanded category list if it was in there:
                         // Expanded items only contains the top node names, thus
                         // a simple replace DOES NOT neccesserily work for CategoriesEditableAllLevels.
-                        // However this since we don't know what the user wants to do, we still add it
+                        // However since we don't know what the user wants to do, we still add it
                         // for cases where only the top level category is changed.
-                        d->expanded_items_replace_map.clear();
-                        d->expanded_items_replace_map[bottom_name_old] = new_category.categoryBottom();
+                        d->expanded_categories_replace_map.clear();
+                        d->expanded_categories_replace_map[bottom_name_old] = new_category.categoryBottom();
 
                         // Replace category in d->selected_categories if it was in there:
                         if (d->selected_categories.contains(item->category())) {
@@ -1178,15 +1179,15 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
     if (d->at_least_one_tree_build_completed)
         emit treeModelBuildAboutToStart();
 
-    // d->expanded_items would have been set in the above code.
+    // d->expanded_categories would have been set in the above code.
     // Now we do the needed replacements:
-    QList<QString> keys = d->expanded_items_replace_map.keys();
+    QList<QString> keys = d->expanded_categories_replace_map.keys();
     int count = keys.count();
     for (int i = 0; i < count; ++i) {
-        if (d->expanded_items.contains(keys.at(i))) {
-            d->expanded_items.removeOne(keys.at(i));
-            d->expanded_items << d->expanded_items_replace_map.values().at(i);
-            //qDebug() << "Doing expanded items replace:" << d->expanded_items_replace_map.keys().at(i) << "with" << d->expanded_items_replace_map.values().at(i);
+        if (d->expanded_categories.contains(keys.at(i))) {
+            d->expanded_categories.removeOne(keys.at(i));
+            d->expanded_categories << d->expanded_categories_replace_map.values().at(i);
+            //qDebug() << "Doing expanded items replace:" << d->expanded_categories_replace_map.keys().at(i) << "with" << d->expanded_categories_replace_map.values().at(i);
         }
     }
     emit treeModelBuildStarted();
@@ -1247,8 +1248,9 @@ void Qtilities::CoreGui::ObserverTreeModel::receiveBuildObserverTreeItem(Observe
         //emit layoutAboutToBeChanged();
         //emit layoutChanged();
         if (d->do_auto_select_and_expand) {
-            // Restore expanded items:
-            QModelIndexList expanded_indexes = findExpandedNodeIndexes(d->expanded_items);
+            // Restore expanded categories:
+            QModelIndexList expanded_indexes = findExpandedNodeIndexes(d->expanded_categories);
+            expanded_indexes << findExpandedNodeIndexes(d->expanded_objects);
             emit expandItemsRequest(expanded_indexes);
 
             // Handle item selection after tree has been rebuilt:
@@ -1266,9 +1268,10 @@ void Qtilities::CoreGui::ObserverTreeModel::receiveBuildObserverTreeItem(Observe
     emit treeModelBuildEnded();
 }
 
-void Qtilities::CoreGui::ObserverTreeModel::setExpandedItems(QStringList expanded_items) {
-    //qDebug() << "setExpandedItems" << expanded_items;
-    d->expanded_items = expanded_items;
+void Qtilities::CoreGui::ObserverTreeModel::setExpandedItems(const QList<QPointer<QObject> >& expanded_objects, const QStringList& expanded_categories) {
+    //qDebug() << "setExpandedItems" << expanded_categories;
+    d->expanded_categories = expanded_categories;
+    d->expanded_objects = expanded_objects;
 }
 
 void Qtilities::CoreGui::ObserverTreeModel::enableAutoSelectAndExpand() {

@@ -194,7 +194,6 @@ int main(int argc, char *argv[])
     ExtendedObserverTreeModel* extended_tree_model = new ExtendedObserverTreeModel();
     observer_widgetA->setCustomTreeModel(extended_tree_model);
     observer_widgetA->initialize();
-    observer_widgetA->readSettings();
     observer_widgetA->toggleUseGlobalActiveObjects(true);
 
     // Create the second observer widget:
@@ -204,8 +203,11 @@ int main(int argc, char *argv[])
     observer_widgetB->setNavigationStack(nav_stack);
     observer_widgetB->setObserverContext(observerC);
     observer_widgetB->initialize();
-    observer_widgetB->readSettings();
     observer_widgetB->toggleUseGlobalActiveObjects(true);
+
+    // Note, since v1.5, this example does not restore the ObserverWidget setting when the application is closed and reopened.
+    // This change was introduced because of the removal of writeSettings() and readSettings() on ObserverWidget. Implementing it
+    // here instead of in ObserverWidget itself is the right way to do this.
 
     // Create a container widget for all these widgets:
     QWidget* observer_widget_container = new QWidget();

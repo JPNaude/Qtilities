@@ -196,7 +196,7 @@ namespace Qtilities {
               */
             QModelIndexList getAllIndexes(ObserverTreeItem* item = 0) const;
             //! Sets all expanded nodes and categories.
-            void setExpandedItems(QStringList expanded_items);
+            void setExpandedItems(const QList<QPointer<QObject> > &expanded_objects, const QStringList &expanded_categories);
 
             //! Enables automatic selection and expansion to restore the selection and expansion state of the tree after a refresh has occured.
             /*!

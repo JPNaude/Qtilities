@@ -114,15 +114,15 @@ categorized_widget->show();
             /*!
              * Controls how ObserverWidget handles changes to the underlying Observer in TreeView mode.
              *
-             * The default is FullRebuildOpaqueProgress. Before %Qtilities v1.5 the behaviour was FullRebuildHideProgress.
+             * The default is RefreshModeShowTree. Before %Qtilities v1.5 the default behaviour was RefreshModeHideTree.
              *
-             * \sa setRefreshMode(), setRefreshMode().
+             * \sa setRefreshMode(), setRefreshMode()
              *
              * <i>This enum was added in %Qtilities v1.5.</i>
              */
             enum RefreshMode {
-                FullRebuildHideProgress,   /*!< Hides the tree view while the internal tree is rebuilt, and a show a progress widget in its place. */
-                FullRebuildOpaqueProgress  /*!< Overlays an opaque progress widget on top of the item view. */
+                RefreshModeHideTree,   /*!< Hides the tree view while the internal tree is rebuilt, and a show a progress widget in its place. */
+                RefreshModeShowTree    /*!< Shows the tree as normal, and just change the cursor of the tree widget to Qt::WaitCursor. */
             };
             //! Sets the refresh mode of the item view.
             /*!
@@ -130,18 +130,18 @@ categorized_widget->show();
              *
              * \note You must call this function before initialize() for it to have any effect.
              *
-             * \sa refreshMode();
+             * \sa refreshMode()
              *
              * <i>This function was added in %Qtilities v1.5.</i>
              */
             void setRefreshMode(RefreshMode refresh_mode);
             //! Gets the refresh mode of the item view.
             /*!
-             * The default is: FullRebuildHideProgress
+             * The default is: RefreshModeShowTree
              *
              * \returns The refresh mode of the item view.
              *
-             * \sa setRefreshMode();
+             * \sa setRefreshMode()
              *
              * <i>This function was added in %Qtilities v1.5.</i>
              */
@@ -334,17 +334,17 @@ categorized_widget->show();
             QStringList findExpandedItems();
             //! Returns the last set of calculated expanded items from the last findExpandedItems() call without calculating them again.
             /*!
-             * When findExpandedItems() is called it stores the results internally. Thus function accesses those results without
+             * When findExpandedItems() is called it stores the results internally. This function accesses those results without
              * recalculating them.
              *
              * \note If the tree contains duplicate items, this list will also contain duplicate items. If uniqueness is
              * required, use findExpandedObjects() instead.
              *
-             * \sa findExpandedItems(), expandNodes(), findExpandedObjects(), lastExpandedObjectsResults()
+             * \sa findExpandedItems(), expandNodes(), findExpandedObjects(), lastExpandedObjectsResults(), findExpandedCategories(), lastExpandedCategoriesResults()
              *
              * <i>This function was added in %Qtilities v1.1.</i>
              */
-            QStringList lastExpandedItemsResults();
+            QStringList lastExpandedItemsResults() const;
             //! Finds all expanded objects in the current view.
             /*!
              * It should not be neccesarry to use this function directly, rather use lastExpandedObjectsResults() since the internal list of expanded items
@@ -354,21 +354,45 @@ categorized_widget->show();
              *
              * \note Only usefull when displayMode() is Qtilities::TreeView.
              *
-             * \sa expandNodes(), lastExpandedItemsResults(), findExpandedItems(), expandNodes(),
+             * \sa expandNodes(), lastExpandedItemsResults(), findExpandedItems(), expandNodes(), findExpandedCategories(), lastExpandedCategoriesResults()
              *
              * <i>This function was added in %Qtilities v1.5.</i>
              */
             QList<QPointer<QObject> > findExpandedObjects();
-            //! Returns the last set of calculated expanded items from the last findExpandedObjects() call without calculating them again.
+            //! Returns the last set of calculated expanded objects from the last findExpandedObjects() call without calculating them again.
             /*!
-             * When findExpandedObjects() is called it stores the results internally. Thus function accesses those results without
+             * When findExpandedObjects() is called it stores the results internally. This function accesses those results without
              * recalculating them.
              *
-             * \sa findExpandedItems(), expandNodes(), findExpandedItems(), expandNodes(),
+             * \sa findExpandedItems(), expandNodes(), findExpandedItems(), expandNodes(), findExpandedCategories(), lastExpandedCategoriesResults()
              *
              * <i>This function was added in %Qtilities v1.5.</i>
              */
-            QList<QPointer<QObject> > lastExpandedObjectsResults();
+            QList<QPointer<QObject> > lastExpandedObjectsResults() const;
+            //! Finds all expanded categories in the current view.
+            /*!
+             * It should not be neccesarry to use this function directly, rather use lastExpandedCategoriesResults() since the internal list of expanded items
+             * is automatically updated whenever the expansion state of any item in the view changes.
+             *
+             * Use this function only if you want to force recalculation of the expanded items.
+             *
+             * \note Only usefull when displayMode() is Qtilities::TreeView.
+             *
+             * \sa expandNodes(), lastExpandedItemsResults(), findExpandedItems(), expandNodes(), lastExpandedCategoriesResults()
+             *
+             * <i>This function was added in %Qtilities v1.5.</i>
+             */
+            QStringList findExpandedCategories();
+            //! Returns the last set of calculated expanded categories from the last findExpandedCategories() call without calculating them again.
+            /*!
+             * When findExpandedCategories() is called it stores the results internally. This function accesses those results without
+             * recalculating them.
+             *
+             * \sa findExpandedItems(), expandNodes(), findExpandedItems(), expandNodes(), findExpandedCategories()
+             *
+             * <i>This function was added in %Qtilities v1.5.</i>
+             */
+            QStringList lastExpandedCategoriesResults() const;
 
         private:
             //! Function used internally by findExpandedObjects() and findExpandedItems() to avoid doing duplicate work.
@@ -409,7 +433,7 @@ categorized_widget->show();
 
               \param node_names The node names to expand.
 
-              \sa findExpandedItems(), expandObjects()
+              \sa findExpandedItems(), expandObjects(), findExpandedCategories()
 
               <i>This function was added in %Qtilities v1.1.</i>
               */
@@ -420,11 +444,22 @@ categorized_widget->show();
 
               \param objects The objects to expand.
 
-              \sa findExpandedObjects(), findExpandedItems()
+              \sa findExpandedObjects(), findExpandedItems(), findExpandedCategories()
 
               <i>This function was added in %Qtilities v1.5.</i>
               */
             void expandObjects(const QList<QPointer<QObject> >& objects);
+            //! Expand all specified categories.
+            /*!
+              If any category in the list does not exist in the tree it is ignored.
+
+              \param category_names The categories to expand.
+
+              \sa findExpandedObjects(), findExpandedItems(), findExpandedCategories()
+
+              <i>This function was added in %Qtilities v1.5.</i>
+              */
+            void expandCategories(const QStringList& category_names);
             //! Expand all nodes specified by the indexes in \p indexes.
             /*!
               If any name in node_names does not exist in the tree it is ignored.
@@ -522,40 +557,9 @@ categorized_widget->show();
             bool treeExpandCollapseVisible() const;
 
             // --------------------------------
-            // Settings, Global Meta Type and Action Provider Functions
+            // Global Meta Type and Action Provider Functions
             // --------------------------------
-        public slots:
-            //! Monitors the settings update request signal on the QtilitiesCoreGui instance.
-            void handleSettingsUpdateRequest(const QString& request_id);
-            //! Slot connected to QCoreApplication::aboutToQuit() signal.
-            /*!
-              Saves settings about this ObserverWidget instance using QSettings. The following parameters are saved:
-              - The main window state of the observer widget (ObserverWidget inherits QMainWindow).
-              - The grid style.
-              - The default table view row size (Only in TableView mode). \sa defaultRowHeight()
-              - The display mode. \sa DisplayMode
-              - If delete operations must be confirmed. \sa confirmDeletes()
-              - If automatic column resizing is enabled. \sa enableAutoColumnResizing()
-
-              \note This connection is made in the readSettings() functions. Thus if you don't want to store settings
-              for an ObserverWidget, don't read it when the widget is created.
-
-              For more information about the saving of settings by %Qtilities classes, see \ref configuration_widget_storage_layout.
-
-              \sa readSettings(), globalMetaType()
-              */
-            virtual void writeSettings();
-
         public:
-            //! Restores the widget to a previous state.
-            /*!
-              \note This function must be called only after initialize() was called.
-
-              For more information about the saving of settings by %Qtilities classes, see \ref configuration_widget_storage_layout.
-
-              \sa writeSettings(), globalMetaType()
-              */
-            virtual void readSettings();
             //! Function which allows this observer widget to share global object activity with other observer widgets.
             /*!
               This function will allow this observer widget to share global object activity with other observer widgets.

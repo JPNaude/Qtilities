@@ -1259,7 +1259,7 @@ void Qtilities::CoreGui::NamingPolicyDelegate::setModelData(QWidget *editor, QAb
 void Qtilities::CoreGui::NamingPolicyDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const {
     Q_UNUSED(index)
 
-     editor->setGeometry(option.rect);
+    editor->setGeometry(option.rect);
 }
 
 void Qtilities::CoreGui::NamingPolicyDelegate::on_LineEdit_TextChanged(const QString & text) {

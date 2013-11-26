@@ -347,7 +347,7 @@ int main(int argc, char *argv[])
 //    qDebug() << "##### Construction" << msg_count << QString("%1:%2:%3:%4").arg(h,2,10,QChar('0')).arg(m,2,10,QChar('0')).arg(s,2,10,QChar('0')).arg(ms,4,10,QChar('0'));
 
 //    ObserverWidget* big_table_with_activity_widget = new ObserverWidget(Qtilities::TreeView);
-//    big_table_with_activity_widget->setRefreshMode(ObserverWidget::FullRebuildOpaqueProgress);
+//    big_table_with_activity_widget->setRefreshMode(ObserverWidget::RefreshModeShowTree);
 //    big_table_with_activity_widget->setObserverContext(bigTableObserverWithActivity);
 //    //big_table_with_activity_widget->toggleLazyInit(true);
 //    big_table_with_activity_widget->initialize();
