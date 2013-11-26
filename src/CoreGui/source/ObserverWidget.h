@@ -123,7 +123,7 @@ categorized_widget->show();
             enum RefreshMode {
                 RefreshModeHideTree,   /*!< Hides the tree view while the internal tree is rebuilt, and a show a progress widget in its place. */
                 RefreshModeShowTree    /*!< Shows the tree as normal, and just change the cursor of the tree widget to Qt::WaitCursor. */
-            };
+            };          
             //! Sets the refresh mode of the item view.
             /*!
              * \param refresh_mode The refresh mode to use.
@@ -158,7 +158,7 @@ categorized_widget->show();
 
               \note You must call this function before initialize() for it to have any effect.
               \note Only usefull when in TreeView mode, in TableView mode this does not have any effect.
-              \note After initialization lazy initialization is always turned off in order for display mode switching to work properly.
+              \note After the first initialize() call, lazy initialization is always turned off in order for display mode switching to work properly.
 
               \sa lazyInitEnabled()
 
@@ -172,21 +172,35 @@ categorized_widget->show();
               <i>This function was added in %Qtilities v1.1.</i>
               */
             bool lazyInitEnabled() const;
+
             //! Initializes the observer widget. Make sure to set the item model as well as the flags you would like to use before calling initialize.
             /*!
               \sa toggleLazyInit(), lazyInitEnabled()
               */
-            virtual void initialize(bool hints_only = false);
+            virtual void initialize();
             //! Initializes the observer widget, make an initial selection and expand specified items.
             /*!
               \sa toggleLazyInit(), lazyInitEnabled()
 
-              \param initial_selection The objects which should be selected after the tree was initialized.
-              \param expanded_items The nodes which should be expanded after the tree was initialized.
+              \param initial_selection The objects which should be selected after the view was initialized.
+              \param expanded_items The nodes which should be expanded after the tree was initialized when in tree view mode (thus, only usefull in TreeView mode).
+
+              \note This constructor is only usefull when not doing lazy initialization.
 
               <i>This function was added in %Qtilities v1.5.</i>
               */
             virtual void initialize(QList<QPointer<QObject> > initial_selection, QList<QPointer<QObject> > expanded_items = QList<QPointer<QObject> >());
+
+        private:
+            //! Initializes the activity for the selection parent when using FollowSelection.
+            void initializeFollowSelectionActivityFilter(bool inherit_activity_filter_activity_selection);
+            //! Initializes the observer widget. Make sure to set the item model as well as the flags you would like to use before calling initialize.
+            /*!
+              \sa toggleLazyInit(), lazyInitEnabled()
+              */
+            virtual void initializePrivate(bool hints_only);
+
+        public:
             //! Gets the current navigation stack of this widget.
             QStack<int> navigationStack() const;
             //! Allows you to set the navigation stack of this widget.
@@ -497,16 +511,6 @@ categorized_widget->show();
             QString contextString() const { return globalMetaType(); }
             QString contextHelpId() const { return QString(); }
 
-            //! Indicates if this observer widget appends contexts of selected objects implementing IContext.
-            /*!
-              False by default.
-
-              \sa setAppendSelectedContexts()
-              */
-            bool appendSelectedContexts() const;
-            //! Enables/disables appending of selected contexts when selected objects change.
-            void setAppendSelectedContexts(bool enable);
-
             // --------------------------------
             // IObjectBase Implementation
             // --------------------------------
@@ -604,14 +608,6 @@ categorized_widget->show();
               \sa setGlobalMetaType(), updateGlobalActiveSubjects(), setSharedGlobalMetaType(), sharedGlobalMetaType()
               */
             QString globalMetaType() const;
-            //! Sets the global object subject type used by this observer widget.
-            /*!
-              If objects are selected, they are set as the active objects. If no objects are selected, the observer context
-              is set as the active object.
-
-              For more information see the \ref meta_type_object_management section of the \ref page_object_management article.
-              */
-            void updateGlobalActiveSubjects();
             //! Function to toggle if this observer widget updates global active objects under its globalMetaType() meta type.
             /*!
               For more information on global active objects, see the \ref meta_type_object_management section of the \ref page_object_management article.
@@ -752,7 +748,18 @@ categorized_widget->show();
               */
             void handleTreeRebuildCompleted(bool emit_tree_build_completed = true);
 
+            //! Updates the view's current selection from an activity change in the observer's activity filter when using FollowSelection.
+            void updateSelectionFromActivityFilter(QList<QObject*> objects);
+
         public slots:
+            //! Sets the global object subject type used by this observer widget.
+            /*!
+              If objects are selected, they are set as the active objects. If no objects are selected, the observer context
+              is set as the active object.
+
+              For more information see the \ref meta_type_object_management section of the \ref page_object_management article.
+              */
+            void updateGlobalActiveSubjects();
             //! Selects the specified objects in the active item view.
             /*!
               \param objects The objects that must be selected. If any objects in the list are not present in the view, they will be ignored. If the list is empty, nothing will happen.
@@ -969,10 +976,6 @@ categorized_widget->show();
             void selectionRemoveAll(bool delete_all);
 
         public slots:
-            //! Handle post layout changed actions in table view mode.
-            void handleLayoutChangeCompleted();
-            //! This function is triggered by the Qtilities::Core::ObserverHints::ActionNewItem action.
-            virtual void handle_actionNewItem_triggered();
             //! Refreshes the current item view.
             /*!
               This function will emit the refreshViewsData() signal on the top level observer context.
@@ -1059,6 +1062,10 @@ categorized_widget->show();
             void refreshActions();
 
         private slots:
+            //! Handle post layout changed actions in table view mode.
+            void handleLayoutChangeCompleted();
+            //! This function is triggered by the Qtilities::Core::ObserverHints::ActionNewItem action.
+            virtual void handle_actionNewItem_triggered();
             #ifndef QT_NO_DEBUG
             void selectionDebug() const;
             #endif
@@ -1154,7 +1161,6 @@ categorized_widget->show();
         private:
             //! Refreshes the visible columns.
             void refreshColumnVisibility();
-
             //! Disconnects the clipboard's copy and cut actions from this widget.
             void disconnectClipboard();
             void changeEvent(QEvent *e);

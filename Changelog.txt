@@ -95,6 +95,10 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     [#] A few optimizations in ObserverTreeModel and ObserverTreeModelBuilder.
 
     [-] Removed ObserverWidget::writeSettings() and ObserverWidget::readSettings().
+    [-] Removed the functionality in ObserverWidget where it will append the contexts of any selected objects
+        that implements IContext in the context manager. This is unnecesarry overhead and can easily be implemented
+        wherever its needed by connecting a slot to the selectedObjectsChanged() signal on ObserverWidget. The following
+        functions were removed from ObserverWidget: appendSelectedContexts() and setAppendSelectedContexts().
 
     [*] Fixed compilation issues against Qt5 when property browser is enable using DEFINES += QTILITIES_PROPERTY_BROWSER
     [*] Fixed bug where ProhibitDuplicateNamesCaseSensitive was not handled properly in NamingPolicyFilter::evaluateAttachment()
