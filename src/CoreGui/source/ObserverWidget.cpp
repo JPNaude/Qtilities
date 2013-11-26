@@ -1184,24 +1184,28 @@ void Qtilities::CoreGui::ObserverWidget::setNavigationStack(QStack<int> navigati
 }
 
 void Qtilities::CoreGui::ObserverWidget::toggleUseObserverHints(bool toggle) {
-    d->use_observer_hints = toggle;
-    // Important: We need to change the models of this observer widget as well:
-    if (d->tree_model)
-        d->tree_model->toggleUseObserverHints(toggle);
-    if (d->table_model)
-        d->table_model->toggleUseObserverHints(toggle);
-    // Important: We need to change the table proxy filters as well.
-    // Note that we don't change the tree proxy filters since the tree model builder
-    // does not build the tree for filtered categories.
-    if (d->table_proxy_model) {
-        ObserverTableModelProxyFilter* obs_proxy_model = qobject_cast<ObserverTableModelProxyFilter*> (d->table_proxy_model);
-        if (obs_proxy_model)
-            obs_proxy_model->toggleUseObserverHints(toggle);
-    }
-    if (d->custom_table_proxy_model) {
-        ObserverTableModelProxyFilter* obs_proxy_model = qobject_cast<ObserverTableModelProxyFilter*> (d->custom_table_proxy_model);
-        if (obs_proxy_model)
-            obs_proxy_model->toggleUseObserverHints(toggle);
+    if (d->use_observer_hints != toggle) {
+        d->use_observer_hints = toggle;
+        // Important: We need to change the models of this observer widget as well:
+        if (d->tree_model)
+            d->tree_model->toggleUseObserverHints(toggle);
+        if (d->table_model)
+            d->table_model->toggleUseObserverHints(toggle);
+        // Important: We need to change the table proxy filters as well.
+        // Note that we don't change the tree proxy filters since the tree model builder
+        // does not build the tree for filtered categories.
+        if (d->table_proxy_model) {
+            ObserverTableModelProxyFilter* obs_proxy_model = qobject_cast<ObserverTableModelProxyFilter*> (d->table_proxy_model);
+            if (obs_proxy_model)
+                obs_proxy_model->toggleUseObserverHints(toggle);
+        }
+        if (d->custom_table_proxy_model) {
+            ObserverTableModelProxyFilter* obs_proxy_model = qobject_cast<ObserverTableModelProxyFilter*> (d->custom_table_proxy_model);
+            if (obs_proxy_model)
+                obs_proxy_model->toggleUseObserverHints(toggle);
+        }
+
+        refresh();
     }
 }
 

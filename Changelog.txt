@@ -71,10 +71,18 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     QtilitiesCoreGui:
     ============================
     [+] ObserverWidget/TreeWidget now has a new refresh mode which makes refreshes much smoother than
-        previously. The new mode (which is also the default) overlays a progress indicator on top of
-        the current tree and smoothly refreshes the tree, instead of hiding the tree and showing
-        a progress indicator instead of the tree. The old behaviour is still around to use
-        if you prefer to do so. See ObseverWidget::RefreshMode for more details.
+        previously. The new mode will update the tree very smoothly when the backend tree structure
+        changes. The old behaviour is still around to use if you prefer to use it. See ObseverWidget::RefreshMode for more details.
+    [+] Added access functions to ObserverWidget to get hold of expanded objects and categories seperately. Internally
+        ObserverWidget and ObserverTreeModel also uses objects and categories instead of the previously
+        used list of names in order to more accurately restore the expansion state of your tree when
+        a refresh occurs. Previously any tree that contained items with duplicate names would not have
+        kept its expansion state properly after a refresh.
+    [+] Added the ability to turn off automatic item selection and expansion state restoration when
+        an ObserverWidget refreshes. See ObserverWidget::enableAutoSelectAndExpand() and
+        ObserverWidget::disableAutoSelectAndExpand() for more details.
+    [+] ObserverWidget got a new constructor which allows you to specify the initial selection and
+        initial set of objects which needs to be expanded once the tree was initialized.
     [+] Added new generic property related classes: GenericPropertyBrowser, GenericPropertyPathEditor,
         GenericPropertyPathEditorListWrapper, FileEditorFactory and PathPropertyManager.
     [+] Added TaskSummaryWidget::getSingleTaskWidgetForTask().
@@ -88,17 +96,21 @@ https://github.com/JPNaude/Qtilities/issues/milestones
         duplicate names were present in a tree.
 
     [#] Slightly improved layout in SingleTaskWidget.
+    [#] Big performance improvements in ObserverWidget, especially when doing collapsing and expansion of
+        many nodes, and when using the FollowSelection activity filter hint.
     [#] Changed ConfigurationWidget so that it no longer assigns a 0 margin to pages it displays.
     [#] Changed ConfigurationWidget so that does not put a border around the frame in which it puts config widgets.
     [#] ObserverWidget will no longer register all its actions by default, only when ActionHints are specified on the
         displayed observer and the ObserverWidget is set to use its observer hints, instead of custom hints.
-    [#] A few optimizations in ObserverTreeModel and ObserverTreeModelBuilder.
+    [#] ObserverWidget::setUseObserverHints() will now refresh the hints on the widget when toggled.
 
     [-] Removed ObserverWidget::writeSettings() and ObserverWidget::readSettings().
     [-] Removed the functionality in ObserverWidget where it will append the contexts of any selected objects
         that implements IContext in the context manager. This is unnecesarry overhead and can easily be implemented
         wherever its needed by connecting a slot to the selectedObjectsChanged() signal on ObserverWidget. The following
         functions were removed from ObserverWidget: appendSelectedContexts() and setAppendSelectedContexts().
+    [-] Removed the code which allowed ObserverTreeModel to build its internal tree representation in a different
+        thread. This was never really tested and its not needed.
 
     [*] Fixed compilation issues against Qt5 when property browser is enable using DEFINES += QTILITIES_PROPERTY_BROWSER
     [*] Fixed bug where ProhibitDuplicateNamesCaseSensitive was not handled properly in NamingPolicyFilter::evaluateAttachment()
