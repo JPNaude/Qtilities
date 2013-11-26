@@ -171,8 +171,12 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     d->observer_widget->setObserverContext(d->top_level_node);
     d->observer_widget->addToolBar(d->widgets_toolbar);
     d->observer_widget->setAcceptDrops(true);
-    d->observer_widget->initialize();
     d->observer_widget->layout()->setMargin(0);
+    addExampleObjects();    
+    //QList<QObject*> children = d->top_level_node->treeChildren();
+    QList<QPointer<QObject> > initial_selection;
+    initial_selection << d->top_level_node->treeChildren().front();
+    d->observer_widget->initialize(initial_selection);
 
     // Create new layout with new widget
     if (layout())
@@ -181,12 +185,9 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     layout->addWidget(d->observer_widget);
     layout->setMargin(0);
     d->observer_widget->show();
-
-    addExampleObjects();
 }
 
-Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::~ObjectManagementModeWidget()
-{
+Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::~ObjectManagementModeWidget() {
     if (d->observer_widget)
         delete d->observer_widget;
     if (d->scope_widget)

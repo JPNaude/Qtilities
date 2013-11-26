@@ -92,7 +92,7 @@ public:
         if (d_painting_enabled != enabled) {
             d_painting_enabled = enabled;
             if (d_painting_enabled)
-                repaint();
+                viewport()->repaint();
         }
     }
 
@@ -178,11 +178,15 @@ struct Qtilities::CoreGui::ObserverWidgetData {
         actionFilterCategories(0),
         actionFilterTypeSeperator(0),
         last_display_flags(ObserverHints::NoDisplayFlagsHint),
+        current_column_visibility(ObserverHints::ColumnNoHints),
+        column_visibility_initialized(false),
         do_column_resizing(true),
+        do_auto_select_and_expand(true),
         button_move(Qt::RightButton),
         button_copy(Qt::LeftButton),
         disable_proxy_models(false),
         lazy_init(false),
+        lazy_refresh(false),
         search_item_filter_flags(ObserverTreeItem::TreeItem) { }
     ~ObserverWidgetData() {}
 
@@ -195,6 +199,8 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     QLabel* update_progress_widget_contents_label;
     //! The frame containing update_progress_widget_contents.
     QFrame* update_progress_widget_contents_frame;
+    //! Stores the widget's cursor at the beginning of a refresh.
+    QCursor current_cursor;
 
     //! Indicates if actions have been constructed.
     bool actions_constructed;
@@ -311,10 +317,17 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     //! This hint keeps track of the previously used activeHints()->displayFlagsHint(). If it changed, the toolbars will be reconstructed in the refreshActionToolBar() function.
     ObserverHints::DisplayFlags last_display_flags;
 
-    //! Stores if automatic column resizing must be done. See enableAutoColumnResizing()
+    //! Stores the current ObserverHints::ItemViewColumnFlags. Used for optimization purposes.
+    ObserverHints::ItemViewColumnFlags current_column_visibility;
+    //! Stores if the column visibility has been initialized.
+    bool column_visibility_initialized;
+
+    //! Stores if automatic column resizing must be done. See enableAutoColumnResizing().
     bool do_column_resizing;
     //! Remembers if the search box widget was visible when starting a refresh operation.
     bool search_box_visible_before_refresh;
+    //! Stores if select and expand must be done. See enableAutoSelectAndExpand().
+    bool do_auto_select_and_expand;
 
     //! The mouse button to react to when doing drag and drop moves.
     Qt::MouseButton button_move;
@@ -328,6 +341,8 @@ struct Qtilities::CoreGui::ObserverWidgetData {
 
     //! Stores if lazy initialization has been enabled on this widget.
     bool lazy_init;
+    //! Stores if lazy refresh has been enabled.
+    bool lazy_refresh;
 
     ObserverTreeItem::TreeItemTypeFlags search_item_filter_flags;
 };
@@ -430,6 +445,12 @@ bool Qtilities::CoreGui::ObserverWidget::setObserverContext(Observer* observer) 
     if (d_observer == observer)
         return false;
 
+    if (d_observer) {
+        d_observer->disconnect(this);
+        d_observer->disconnect(d->navigation_bar);
+        d->last_display_flags = ObserverHints::NoDisplayFlagsHint;
+    }
+
     if (!observer) {
         if (d->display_mode == TableView && d->table_model) {
             d->table_model->setObserverContext(0);
@@ -440,11 +461,6 @@ bool Qtilities::CoreGui::ObserverWidget::setObserverContext(Observer* observer) 
         return false;
     } else
         setEnabled(true);
-
-    if (d_observer) {
-        d_observer->disconnect(this);
-        d->last_display_flags = ObserverHints::NoDisplayFlagsHint;
-    }
 
     if (d->top_level_observer) {
         if (d->display_mode == TableView) {
@@ -463,7 +479,7 @@ bool Qtilities::CoreGui::ObserverWidget::setObserverContext(Observer* observer) 
     if (!ObserverAwareBase::setObserverContext(observer))
         return false;
 
-    connect(d_observer,SIGNAL(destroyed()),SLOT(contextDeleted()));
+    connect(d_observer,SIGNAL(destroyed()),SLOT(contextDeleted()),Qt::UniqueConnection);
 
     // Update the observer context of the delegates
     if (d->display_mode == TableView && d->table_name_column_delegate)
@@ -529,10 +545,14 @@ bool Qtilities::CoreGui::ObserverWidget::setCustomTreeModel(ObserverTreeModel* t
     d->tree_model = tree_model;
     d->tree_model->setParent(this);
     d->tree_model->toggleLazyInit(d->lazy_init);
+    if (d->do_auto_select_and_expand)
+        d->tree_model->enableAutoSelectAndExpand();
+    else
+        d->tree_model->disableAutoSelectAndExpand();
 
     connect(d->tree_model,SIGNAL(dataChanged(const QModelIndex &, const QModelIndex& )),this,SLOT(adaptColumns(const QModelIndex &, const QModelIndex&)));
-    connect(d->tree_model,SIGNAL(treeModelBuildStarted()),SLOT(showProgressInfo()));
-    connect(d->tree_model,SIGNAL(treeModelBuildEnded()),SLOT(hideProgressInfo()));
+    connect(d->tree_model,SIGNAL(treeModelBuildStarted()),SLOT(handleTreeRebuildStarted()));
+    connect(d->tree_model,SIGNAL(treeModelBuildEnded()),SLOT(handleTreeRebuildCompleted()));
     connect(d->tree_model,SIGNAL(expandItemsRequest(QModelIndexList)),SLOT(expandNodes(QModelIndexList)));
     connect(d->tree_model,SIGNAL(treeModelBuildAboutToStart()),SLOT(handleTreeModelBuildAboutToStart()));
     return true;
@@ -645,8 +665,8 @@ QStringList Qtilities::CoreGui::ObserverWidget::findExpandedItems() {
 }
 
 QStringList Qtilities::CoreGui::ObserverWidget::lastExpandedItemsResults() {
-    if (d->last_expanded_names_result.isEmpty())
-        d->last_expanded_names_result = findExpandedItems();
+//    if (d->last_expanded_names_result.isEmpty())
+//        d->last_expanded_names_result = findExpandedItems();
     return d->last_expanded_names_result;
 }
 
@@ -656,8 +676,8 @@ QList<QPointer<QObject> > Qtilities::CoreGui::ObserverWidget::findExpandedObject
 }
 
 QList<QPointer<QObject> > Qtilities::CoreGui::ObserverWidget::lastExpandedObjectsResults() {
-    if (d->last_expanded_objects_result.isEmpty())
-        d->last_expanded_objects_result = findExpandedObjects();
+//    if (d->last_expanded_objects_result.isEmpty())
+//        d->last_expanded_objects_result = findExpandedObjects();
     return d->last_expanded_objects_result;
 }
 
@@ -674,6 +694,10 @@ void Qtilities::CoreGui::ObserverWidget::updateLastExpandedResults() {
                 continue;
 
             if (item->itemType() == ObserverTreeItem::CategoryItem || item->itemType() == ObserverTreeItem::TreeNode) {
+                // If it has no children, we don't consider it as expanded:
+                if (item->childCount() == 0)
+                    continue;
+
                 QModelIndex mapped_index;
                 if (d->tree_proxy_model)
                     mapped_index = d->tree_proxy_model->mapFromSource(index);
@@ -712,6 +736,8 @@ void Qtilities::CoreGui::ObserverWidget::updateLastExpandedResults() {
                 }
             }
         }
+
+        //qDebug() << Q_FUNC_INFO << d->last_expanded_names_result.count() << d->last_expanded_names_result.join(",");
     }
 }
 
@@ -737,8 +763,10 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         return;
     }
 
-    if (d->display_mode == Qtilities::TableView)
-        QApplication::setOverrideCursor(Qt::WaitCursor);
+    if (d->display_mode == Qtilities::TableView) {
+        d->current_cursor = cursor();
+        setCursor(QCursor(Qt::WaitCursor));
+    }
 
     // Set the title and name of the observer widget.
     // Here we need to check if we must use d_observer inside a specific context
@@ -779,10 +807,8 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
 
         // Check and setup the item display mode
         if (d->display_mode == TreeView) {
-            disconnect(d_observer,SIGNAL(destroyed()),this,SLOT(contextDeleted()));
-            connect(d_observer,SIGNAL(destroyed()),SLOT(contextDeleted()));
-            disconnect(d->top_level_observer,SIGNAL(destroyed()),this,SLOT(contextDeleted()));
-            connect(d->top_level_observer,SIGNAL(destroyed()),SLOT(contextDeleted()));
+            connect(d_observer,SIGNAL(destroyed()),SLOT(contextDeleted()),Qt::UniqueConnection);
+            connect(d->top_level_observer,SIGNAL(destroyed()),SLOT(contextDeleted()),Qt::UniqueConnection);
 
             if (d->table_view)
                 d->table_view->hide();
@@ -801,10 +827,14 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 if (!d->tree_model) {
                     d->tree_model = new ObserverTreeModel(d->tree_view);
                     d->tree_model->toggleLazyInit(d->lazy_init);
+                    if (d->do_auto_select_and_expand)
+                        d->tree_model->enableAutoSelectAndExpand();
+                    else
+                        d->tree_model->disableAutoSelectAndExpand();
 
                     connect(d->tree_model,SIGNAL(treeModelBuildAboutToStart()),SLOT(handleTreeModelBuildAboutToStart()));
-                    connect(d->tree_model,SIGNAL(treeModelBuildStarted()),SLOT(showProgressInfo()));
-                    connect(d->tree_model,SIGNAL(treeModelBuildEnded()),SLOT(hideProgressInfo()));
+                    connect(d->tree_model,SIGNAL(treeModelBuildStarted()),SLOT(handleTreeRebuildStarted()));
+                    connect(d->tree_model,SIGNAL(treeModelBuildEnded()),SLOT(handleTreeRebuildCompleted()));
                     connect(d->tree_model,SIGNAL(dataChanged(const QModelIndex &, const QModelIndex&)),this,SLOT(adaptColumns(const QModelIndex &, const QModelIndex&)));
                     connect(d->tree_model,SIGNAL(expandItemsRequest(QModelIndexList)),SLOT(expandNodes(QModelIndexList)));
                 }
@@ -883,8 +913,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             d->tree_view->setVisible(true);
         } else if (d->display_mode == TableView) {
             // Connect to the current parent observer, in the tree view the model will monitor this for you.
-            disconnect(d_observer,SIGNAL(destroyed()),this,SLOT(contextDeleted()));
-            connect(d_observer,SIGNAL(destroyed()),SLOT(contextDeleted()));
+            connect(d_observer,SIGNAL(destroyed()),SLOT(contextDeleted()),Qt::UniqueConnection);
 
             if (d->tree_view)
                 d->tree_view->hide();
@@ -1019,12 +1048,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
     }
 
     // Refreshes the visibility of columns:
-    // We only do this for table views here, for tree views this happens after the tree
-    // build is complete in hideProgressInfo() connected to treeModelBuildEnded() on the tree:
-//    if (displayMode() == Qtilities::TableView)
-//        refreshColumnVisibility();
-    // Since Qtilities v1.5 we do the column visibility here for tree views as well. Instead of
-    // of hideProgressInfo() as described above.
     refreshColumnVisibility();
 
     d->initialized = true;
@@ -1081,16 +1104,39 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
 //    if (!hints_only)
 //        hideProgressInfo(false);
 
-    resizeColumns();
     if (d->display_mode == Qtilities::TableView) {
-        //resizeColumns();
-        QApplication::restoreOverrideCursor();
-    } else {
-        //viewCollapseAll();
+        resizeColumns();
+        setCursor(d->current_cursor);
     }
 }
 
+void Qtilities::CoreGui::ObserverWidget::initialize(QList<QPointer<QObject> > initial_selection, QList<QPointer<QObject> > expanded_items) {
+    d->lazy_refresh = false;
+    bool current_select_and_expand_enabled = d->do_auto_select_and_expand;
+    disableAutoSelectAndExpand();
+
+    initialize();
+
+    if (!expanded_items.isEmpty())
+        expandObjects(expanded_items);
+    if (!initial_selection.isEmpty())
+        selectObjects(initial_selection);
+    d->lazy_refresh = true;
+
+    if (current_select_and_expand_enabled)
+        enableAutoSelectAndExpand();
+
+    handleTreeRebuildCompleted();
+}
+
 void Qtilities::CoreGui::ObserverWidget::refreshColumnVisibility() {
+    if (activeHints()->itemViewColumnHint() == d->current_column_visibility && d->column_visibility_initialized)
+        return;
+    else {
+        d->current_column_visibility = activeHints()->itemViewColumnHint();
+        d->column_visibility_initialized = true;
+    }
+
     // Update the columns shown
     if (d->display_mode == TableView && d->table_view && d->table_model) {
         // Show only the needed columns for the current observer.
@@ -1159,6 +1205,8 @@ void Qtilities::CoreGui::ObserverWidget::refreshColumnVisibility() {
             d->tree_view->showColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnAccess));
         }
     }
+
+    resizeColumns();
 }
 
 QStack<int> Qtilities::CoreGui::ObserverWidget::navigationStack() const {
@@ -1190,7 +1238,7 @@ void Qtilities::CoreGui::ObserverWidget::setNavigationStack(QStack<int> navigati
         Observer* stack_observer = OBJECT_MANAGER->observerReference(d->navigation_stack.at(i));
         if (stack_observer)
             connect(stack_observer,SIGNAL(numberOfSubjectsChanged(Observer::SubjectChangeIndication,QList<QPointer<QObject> >)),
-                    SLOT(contextDetachHandler(Observer::SubjectChangeIndication,QList<QPointer<QObject> >)));
+                    SLOT(contextDetachHandler(Observer::SubjectChangeIndication,QList<QPointer<QObject> >)),Qt::UniqueConnection);
     }
 }
 
@@ -1451,6 +1499,18 @@ void Qtilities::CoreGui::ObserverWidget::enableAutoColumnResizing() {
 
 void Qtilities::CoreGui::ObserverWidget::disableAutoColumnResizing() {
     d->do_column_resizing = false;
+}
+
+void Qtilities::CoreGui::ObserverWidget::enableAutoSelectAndExpand() {
+    d->do_auto_select_and_expand = true;
+    if (d->tree_model)
+        d->tree_model->enableAutoSelectAndExpand();
+}
+
+void Qtilities::CoreGui::ObserverWidget::disableAutoSelectAndExpand() {
+    d->do_auto_select_and_expand = false;
+    if (d->tree_model)
+        d->tree_model->disableAutoSelectAndExpand();
 }
 
 void Qtilities::CoreGui::ObserverWidget::writeSettings() {
@@ -2762,6 +2822,7 @@ void Qtilities::CoreGui::ObserverWidget::refresh() {
 
     // Call selectedObjects() in order to update internal d->current_selection.
     QList<QObject*> previous_selection = selectedObjects();
+    QApplication::processEvents();
 
     // Call refresh on the applicable model:
     if (displayMode() == Qtilities::TreeView && d->tree_model)
@@ -2780,10 +2841,10 @@ void Qtilities::CoreGui::ObserverWidget::refresh() {
     }
 
     setWindowTitle(d_observer->observerName());
-    if (d->navigation_bar && d->display_mode == Qtilities::TableView)
+    if (d->navigation_bar && d->display_mode == Qtilities::TableView) {
         d->navigation_bar->refreshHierarchy();
-
-    resizeColumns();
+        resizeColumns();
+    }
 }
 
 void Qtilities::CoreGui::ObserverWidget::selectionPushUp() {
@@ -3104,16 +3165,18 @@ void Qtilities::CoreGui::ObserverWidget::toggleDisplayMode() {
 
 void Qtilities::CoreGui::ObserverWidget::viewCollapseAll() {
     if (d->tree_view && d->display_mode == TreeView) {
-//        if (activeHints()->rootIndexDisplayHint() == ObserverHints::RootIndexHide)
-//            d->tree_view->collapseAll();
-//        else
-
         bool current_do_column_resizing = d->do_column_resizing;
         d->do_column_resizing = false;
 
-        disconnect(d->tree_view,SIGNAL(expanded(QModelIndex)),this,SLOT(handleExpanded(QModelIndex)));
-        d->tree_view->expandToDepth(0);
-        connect(d->tree_view,SIGNAL(expanded(QModelIndex)),SLOT(handleExpanded(QModelIndex)),Qt::UniqueConnection);
+        disconnect(d->tree_view,SIGNAL(collapsed(QModelIndex)),this,SLOT(handleCollapsed(QModelIndex)));
+        if (activeHints()->rootIndexDisplayHint() == ObserverHints::RootIndexHide)
+            d->tree_view->collapseAll();
+        else
+            d->tree_view->expandToDepth(0);
+        connect(d->tree_view,SIGNAL(collapsed(QModelIndex)),SLOT(handleCollapsed(QModelIndex)),Qt::UniqueConnection);
+
+        d->last_expanded_names_result.clear();
+        d->last_expanded_objects_result.clear();
 
         d->do_column_resizing = current_do_column_resizing;
         resizeColumns();
@@ -3128,6 +3191,8 @@ void Qtilities::CoreGui::ObserverWidget::viewExpandAll() {
         disconnect(d->tree_view,SIGNAL(expanded(QModelIndex)),this,SLOT(handleExpanded(QModelIndex)));
         d->tree_view->expandAll();
         connect(d->tree_view,SIGNAL(expanded(QModelIndex)),SLOT(handleExpanded(QModelIndex)),Qt::UniqueConnection);
+
+        updateLastExpandedResults();
 
         d->do_column_resizing = current_do_column_resizing;
         resizeColumns();
@@ -3734,12 +3799,6 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
             }
 
             d->update_selection_activity = true;
-
-            // Update the property browser:
-            #ifdef QTILITIES_PROPERTY_BROWSER
-                refreshPropertyBrowser();
-                refreshDynamicPropertyBrowser();
-            #endif
         } else if (d->tree_view && d->tree_model && d->display_mode == TreeView && d->tree_proxy_model) {
             d->update_selection_activity = false;
 
@@ -3782,12 +3841,6 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
             }
 
             d->update_selection_activity = true;
-
-            // Update the property browser:
-            #ifdef QTILITIES_PROPERTY_BROWSER
-                refreshPropertyBrowser();
-                refreshDynamicPropertyBrowser();
-            #endif
         }
     } else {
         if (d->table_view) {
@@ -3800,6 +3853,14 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
             emit selectedObjectsChanged(QList<QObject*>());
         }
     }
+
+    // Update the property browser:
+    #ifdef QTILITIES_PROPERTY_BROWSER
+    refreshPropertyBrowser();
+    refreshDynamicPropertyBrowser();
+    #endif
+
+    refreshActionToolBar();
 }
 
 void Qtilities::CoreGui::ObserverWidget::handleSearchOptionsChanged() {
@@ -3817,7 +3878,8 @@ void Qtilities::CoreGui::ObserverWidget::handleSearchStringChanged(const QString
 
     // Check if the installed proxy model is a QSortFilterProxyModel:
     if (model) {
-        QApplication::setOverrideCursor(Qt::WaitCursor);
+        d->current_cursor = cursor();
+        setCursor(QCursor(Qt::WaitCursor));
 
         Qt::CaseSensitivity caseSensitivity = d->searchBoxWidget->caseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive;
         model->setFilterCaseSensitivity(caseSensitivity);
@@ -3833,7 +3895,7 @@ void Qtilities::CoreGui::ObserverWidget::handleSearchStringChanged(const QString
         model->invalidate();
         resizeColumns();
 
-        QApplication::restoreOverrideCursor();
+        setCursor(d->current_cursor);
     }
 }
 
@@ -3841,7 +3903,7 @@ void Qtilities::CoreGui::ObserverWidget::resetProxyModel() {
     handleSearchStringChanged("");
 }
 
-void Qtilities::CoreGui::ObserverWidget::showProgressInfo() {
+void Qtilities::CoreGui::ObserverWidget::handleTreeRebuildStarted() {
     if (displayMode() == Qtilities::TreeView && d->tree_view) {
         if (!d->update_progress_widget_contents) {
             d->update_progress_widget_contents = new QWidget;
@@ -3864,6 +3926,9 @@ void Qtilities::CoreGui::ObserverWidget::showProgressInfo() {
                 d->update_progress_widget_contents_label->setText(tr("Updating %1").arg(d->top_level_observer->observerName()));
         }
 
+        d->current_cursor = cursor();
+        setCursor(QCursor(Qt::WaitCursor));
+
         if (d->refresh_mode == FullRebuildHideProgress) {
             if (ui->widgetProgressBarHolder->layout())
                 delete ui->widgetProgressBarHolder->layout();
@@ -3885,101 +3950,98 @@ void Qtilities::CoreGui::ObserverWidget::showProgressInfo() {
             emit treeModelBuildStarted();
             QApplication::processEvents();
         } else if (d->refresh_mode == FullRebuildOpaqueProgress) {
-            QApplication::processEvents();
-            if (!d->update_progress_widget) {
-                d->update_progress_widget = new QWidget(ui->itemParentWidget);
-                if (d->update_progress_widget->layout())
-                    delete d->update_progress_widget->layout();
-                QGridLayout* progress_layout = new QGridLayout(d->update_progress_widget);
-                progress_layout->addItem(new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Expanding),0,0,1,3);
-                progress_layout->addItem(new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Expanding),1,0,1,1);
+//            if (!d->update_progress_widget) {
+//                d->update_progress_widget = new QWidget(ui->itemParentWidget);
+//                if (d->update_progress_widget->layout())
+//                    delete d->update_progress_widget->layout();
+//                QGridLayout* progress_layout = new QGridLayout(d->update_progress_widget);
+//                progress_layout->addItem(new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Expanding),0,0,1,3);
+//                progress_layout->addItem(new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Expanding),1,0,1,1);
 
-                d->update_progress_widget_contents_frame = new QFrame;
-                if (d->update_progress_widget_contents_frame->layout())
-                    delete d->update_progress_widget_contents_frame->layout();
-                QHBoxLayout* frame_layout = new QHBoxLayout(d->update_progress_widget_contents_frame);
-                frame_layout->addWidget(d->update_progress_widget_contents);
-                d->update_progress_widget_contents_frame->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Maximum);
-                d->update_progress_widget_contents_frame->setFrameShape(QFrame::StyledPanel);
-                d->update_progress_widget_contents_frame->setLineWidth(2);
-                d->update_progress_widget_contents_frame->setFrameShadow(QFrame::Sunken);
-                d->update_progress_widget_contents_frame->setAutoFillBackground(true);
+//                d->update_progress_widget_contents_frame = new QFrame;
+//                if (d->update_progress_widget_contents_frame->layout())
+//                    delete d->update_progress_widget_contents_frame->layout();
+//                QHBoxLayout* frame_layout = new QHBoxLayout(d->update_progress_widget_contents_frame);
+//                frame_layout->addWidget(d->update_progress_widget_contents);
+//                d->update_progress_widget_contents_frame->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Maximum);
+//                d->update_progress_widget_contents_frame->setFrameShape(QFrame::StyledPanel);
+//                d->update_progress_widget_contents_frame->setLineWidth(2);
+//                d->update_progress_widget_contents_frame->setFrameShadow(QFrame::Sunken);
+//                d->update_progress_widget_contents_frame->setAutoFillBackground(true);
 
-                QGraphicsOpacityEffect* opacityEffect = new QGraphicsOpacityEffect(d->update_progress_widget_contents_frame);
-                opacityEffect->setOpacity(0.85);
-                d->update_progress_widget_contents_frame->setGraphicsEffect(opacityEffect);
+//                QGraphicsOpacityEffect* opacityEffect = new QGraphicsOpacityEffect(d->update_progress_widget_contents_frame);
+//                opacityEffect->setOpacity(0.85);
+//                d->update_progress_widget_contents_frame->setGraphicsEffect(opacityEffect);
 
-                progress_layout->addWidget(d->update_progress_widget_contents_frame,1,1,1,1);
-                progress_layout->addItem(new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Expanding),1,2,1,1);
-                progress_layout->addItem(new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Expanding),2,0,1,3);
+//                progress_layout->addWidget(d->update_progress_widget_contents_frame,1,1,1,1);
+//                progress_layout->addItem(new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Expanding),1,2,1,1);
+//                progress_layout->addItem(new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Expanding),2,0,1,3);
 
-                // Take the progress widget from its parent layout:
-                d->update_progress_widget->setAutoFillBackground(false);
-                d->update_progress_widget->setVisible(true);
-            }
+//                // Take the progress widget from its parent layout:
+//                d->update_progress_widget->setAutoFillBackground(false);
+//                d->update_progress_widget->setVisible(true);
+//            }
 
-            if (ui->itemParentWidget->width() <= 500)
-                d->update_progress_widget_contents_frame->setMinimumWidth(0);
-            else if (ui->itemParentWidget->width() > 500 && ui->itemParentWidget->width() < 1000)
-                d->update_progress_widget_contents_frame->setMinimumWidth(ui->itemParentWidget->width() / 3);
-            else if (ui->itemParentWidget->width() > 500)
-                d->update_progress_widget_contents_frame->setMinimumWidth(ui->itemParentWidget->width() / 4);
+//            if (ui->itemParentWidget->width() <= 500)
+//                d->update_progress_widget_contents_frame->setMinimumWidth(0);
+//            else if (ui->itemParentWidget->width() > 500 && ui->itemParentWidget->width() < 1000)
+//                d->update_progress_widget_contents_frame->setMinimumWidth(ui->itemParentWidget->width() / 3);
+//            else if (ui->itemParentWidget->width() > 500)
+//                d->update_progress_widget_contents_frame->setMinimumWidth(ui->itemParentWidget->width() / 4);
 
-            d->update_progress_widget->resize(ui->itemParentWidget->size());
-            d->update_progress_widget->show();
-            QApplication::processEvents();
-            QApplication::processEvents(); // VERY IMPORTANT: Tested on Qt 5.1 - we need two consecutive process event calls here!
+//            d->update_progress_widget->resize(ui->itemParentWidget->size());
+//            d->update_progress_widget->show();
+//            QApplication::processEvents();
+//            QApplication::processEvents(); // VERY IMPORTANT: Tested on Qt 5.1 - we need two consecutive process event calls here!
 
-            d->tree_view->setPaintingEnabled(false);
+            //d->tree_view->setPaintingEnabled(false);
             // Eat mouse events while we are refreshing:
-            d->update_progress_widget->setAttribute(Qt::WA_TransparentForMouseEvents,false);
+            //d->update_progress_widget->setAttribute(Qt::WA_TransparentForMouseEvents,false);
 
             emit treeModelBuildStarted();
-            QApplication::processEvents();
         }
     }
 }
 
-void Qtilities::CoreGui::ObserverWidget::hideProgressInfo(bool emit_tree_build_completed) {
+void Qtilities::CoreGui::ObserverWidget::handleTreeRebuildCompleted(bool emit_tree_build_completed) {
     if (displayMode() == Qtilities::TreeView) {
-        if (d->refresh_mode == FullRebuildHideProgress) {
-             ui->widgetProgressInfo->hide();
-             ui->itemParentWidget->show();
+        if (!d->lazy_refresh) {
+            if (d->refresh_mode == FullRebuildHideProgress) {
+                 ui->widgetProgressInfo->hide();
+                 ui->itemParentWidget->show();
 
-             if (activeHints()) {
-                 if (activeHints()->displayFlagsHint() & ObserverHints::NavigationBar && d->display_mode == Qtilities::TableView)
-                     ui->navigationBarWidget->show();
-             } else
-                 ui->navigationBarWidget->hide();
+                 if (activeHints()) {
+                     if (activeHints()->displayFlagsHint() & ObserverHints::NavigationBar && d->display_mode == Qtilities::TableView)
+                         ui->navigationBarWidget->show();
+                 } else
+                     ui->navigationBarWidget->hide();
 
-             if (d->searchBoxWidget && d->search_box_visible_before_refresh)
-                 ui->widgetSearchBox->show();
+                 if (d->searchBoxWidget && d->search_box_visible_before_refresh)
+                     ui->widgetSearchBox->show();
+            } else if (d->refresh_mode == FullRebuildOpaqueProgress) {
+//                if (!d->update_progress_widget)
+//                    return;
 
-             if (emit_tree_build_completed)
-                 emit treeModelBuildEnded();
+//                // Stop eating mouse events when we are done refreshing...
+//                d->update_progress_widget->setAttribute(Qt::WA_TransparentForMouseEvents,true);
 
-             QApplication::processEvents();
-        } else {
-            if (!d->update_progress_widget)
-                return;
+//                d->update_progress_widget->hide();
+                //d->tree_view->setPaintingEnabled(true);
+            }
 
-            // Stop eating mouse events when we are done refreshing...
-            d->update_progress_widget->setAttribute(Qt::WA_TransparentForMouseEvents,true);
-
-            if (emit_tree_build_completed)
-                emit treeModelBuildEnded();
-
-            d->update_progress_widget->hide();
-            d->tree_view->setPaintingEnabled(true);
-
-            QApplication::processEvents();
+            setCursor(d->current_cursor);
         }
     }
+
+    if (emit_tree_build_completed)
+        emit treeModelBuildEnded();
+
+    QApplication::processEvents();
 }
 
 void Qtilities::CoreGui::ObserverWidget::resizeColumns() {
     if (d->do_column_resizing) {
-        qDebug() << Q_FUNC_INFO;
+        //qDebug() << Q_FUNC_INFO;
         if (d->display_mode == Qtilities::TableView && d->table_model && d->table_view) {
             resizeTableViewRows();
 
@@ -4021,8 +4083,10 @@ void Qtilities::CoreGui::ObserverWidget::adaptColumns(const QModelIndex & toplef
 
 void Qtilities::CoreGui::ObserverWidget::handleTreeModelBuildAboutToStart() {
     if (displayMode() == Qtilities::TreeView) {
-        QStringList expanded_items = lastExpandedItemsResults();
-        d->tree_model->setExpandedItems(expanded_items);
+        if (d->do_auto_select_and_expand) {
+            QStringList expanded_items = lastExpandedItemsResults();
+            d->tree_model->setExpandedItems(expanded_items);
+        }
     }
 }
 
@@ -4031,6 +4095,8 @@ void Qtilities::CoreGui::ObserverWidget::handleExpanded(const QModelIndex &index
         return;
 
     resizeColumns();
+
+    updateLastExpandedResults();
     emit expandedNodesChanged(lastExpandedItemsResults());
     emit expandedObjectsChanged(lastExpandedObjectsResults());
 }
@@ -4040,6 +4106,7 @@ void Qtilities::CoreGui::ObserverWidget::handleCollapsed(const QModelIndex &inde
         return;
 
     resizeColumns();
+    updateLastExpandedResults();
     emit expandedNodesChanged(lastExpandedItemsResults());
     emit expandedObjectsChanged(lastExpandedObjectsResults());
 }
@@ -4073,24 +4140,26 @@ void Qtilities::CoreGui::ObserverWidget::expandNodes(QModelIndexList indexes) {
         return;
 
     if (d->tree_view && d->tree_proxy_model && d->display_mode == Qtilities::TreeView) {
-        disconnect(d->tree_view,SIGNAL(expanded(QModelIndex)),this,SLOT(handleExpanded(QModelIndex)));
-
         if (indexes.isEmpty()) {
             viewExpandAll();
-            connect(d->tree_view,SIGNAL(expanded(QModelIndex)),SLOT(handleExpanded(QModelIndex)),Qt::UniqueConnection);
             return;
-        } else {
-            d->tree_view->collapseAll();
         }
+
+        disconnect(d->tree_view,SIGNAL(expanded(QModelIndex)),this,SLOT(handleExpanded(QModelIndex)));
 
         bool current_do_column_resizing = d->do_column_resizing;
         d->do_column_resizing = false;
+        d->tree_view->collapseAll();
+
         foreach (QModelIndex index, indexes) {
             if (d->tree_proxy_model)
                 d->tree_view->setExpanded(d->tree_proxy_model->mapFromSource(index),true);
             else
                 d->tree_view->setExpanded(index,true);
         }
+
+        updateLastExpandedResults();
+
         d->do_column_resizing = current_do_column_resizing;
         connect(d->tree_view,SIGNAL(expanded(QModelIndex)),SLOT(handleExpanded(QModelIndex)),Qt::UniqueConnection);
         resizeColumns();

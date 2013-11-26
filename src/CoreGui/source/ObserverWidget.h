@@ -177,6 +177,16 @@ categorized_widget->show();
               \sa toggleLazyInit(), lazyInitEnabled()
               */
             virtual void initialize(bool hints_only = false);
+            //! Initializes the observer widget, make an initial selection and expand specified items.
+            /*!
+              \sa toggleLazyInit(), lazyInitEnabled()
+
+              \param initial_selection The objects which should be selected after the tree was initialized.
+              \param expanded_items The nodes which should be expanded after the tree was initialized.
+
+              <i>This function was added in %Qtilities v1.5.</i>
+              */
+            virtual void initialize(QList<QPointer<QObject> > initial_selection, QList<QPointer<QObject> > expanded_items = QList<QPointer<QObject> >());
             //! Gets the current navigation stack of this widget.
             QStack<int> navigationStack() const;
             //! Allows you to set the navigation stack of this widget.
@@ -283,7 +293,6 @@ categorized_widget->show();
               */
             void disableProxyModels() const;
 
-        public:
             //! Sets the display mode of the widget.
             /*!
               \sa displayMode(), toggleDisplayMode()
@@ -368,7 +377,7 @@ categorized_widget->show();
             // --------------------------------
             // Factory Interface Implementation
             // --------------------------------
-            static FactoryItem<QWidget, ObserverWidget> factory;
+            static FactoryItem<QWidget, ObserverWidget> factory;           
 
         private slots:
             void contextDeleted();
@@ -376,10 +385,6 @@ categorized_widget->show();
             void contextDetachHandler(Observer::SubjectChangeIndication indication, QList<QPointer<QObject> > obj);
             //! Slot which will call the handleSearchStringChanged() slot with an empty QString as parameter.
             void resetProxyModel();
-            //! Shows the single task widget for the tree model rebuilding task.
-            void showProgressInfo();
-            //! Hides the single task widget for the tree model rebuilding task.
-            void hideProgressInfo(bool emit_tree_build_completed = true);
             //! Adapts the size of columns when data changes.
             void adaptColumns(const QModelIndex & topleft, const QModelIndex& bottomRight);
             //! Slot which listens for treeModelBuildAboutToStart() on tree models in order to set the expanded items on them.
@@ -540,6 +545,7 @@ categorized_widget->show();
               \sa readSettings(), globalMetaType()
               */
             virtual void writeSettings();
+
         public:
             //! Restores the widget to a previous state.
             /*!
@@ -708,12 +714,40 @@ categorized_widget->show();
               \sa enableAutoColumnResizing()
               */
             void disableAutoColumnResizing();
+            //! Enables automatic selection and expansion in TreeView mode to restore the selection and expansion state of the tree after a refresh has occured.
+            /*!
+              True by default.
+
+              <i>This function was added in %Qtilities v1.5.</i>
+
+              \sa disableAutoSelectAndExpand()
+              */
+            void enableAutoSelectAndExpand();
+            //! Disables automatic selection and expansion in TreeView mode to restore the selection and expansion state of the tree after a refresh has occured.
+            /*!
+              <i>This function was added in %Qtilities v1.5.</i>
+
+              \sa enableAutoSelectAndExpand()
+              */
+            void disableAutoSelectAndExpand();
+
         private slots:
             //! Updates the current selection parent context.
             /*!
-              This function is only used in TreeView mode.
+              \note This function is only used in TreeView mode.
               */
             void setTreeSelectionParent(Observer* observer);
+            //! Handles notification from the tree model that a new tree rebuilding operation has started.
+            /*!
+              \note This function is only used in TreeView mode.
+              */
+            void handleTreeRebuildStarted();
+            //! Handles notification from the tree model that the tree has been rebuilt.
+            /*!
+              \note This function is only used in TreeView mode.
+              */
+            void handleTreeRebuildCompleted(bool emit_tree_build_completed = true);
+
         public slots:
             //! Selects the specified objects in the active item view.
             /*!

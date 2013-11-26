@@ -19,15 +19,12 @@ using namespace QtilitiesCoreGui;
 
 struct Qtilities::CoreGui::ObserverTreeModelBuilderPrivateData  {
     ObserverTreeModelBuilderPrivateData() : hints(0),
-        root_item(0),
-        threading_enabled(false) {}
+        root_item(0) {}
 
     QMutex                          build_lock;
     ObserverHints*                  hints;
     bool                            use_hints;
     ObserverTreeItem*               root_item;
-    QThread*                        thread;
-    bool                            threading_enabled;
 };
 
 Qtilities::CoreGui::ObserverTreeModelBuilder::ObserverTreeModelBuilder(ObserverTreeItem* item, bool use_observer_hints, ObserverHints* observer_hints, QObject* parent) : QObject(parent) {
@@ -40,10 +37,6 @@ Qtilities::CoreGui::ObserverTreeModelBuilder::ObserverTreeModelBuilder(ObserverT
 
 Qtilities::CoreGui::ObserverTreeModelBuilder::~ObserverTreeModelBuilder() {
     delete d;
-}
-
-void Qtilities::CoreGui::ObserverTreeModelBuilder::setOriginThread(QThread* thread) {
-    d->thread = thread;
 }
 
 void Qtilities::CoreGui::ObserverTreeModelBuilder::setRootItem(ObserverTreeItem* item) {
@@ -64,20 +57,11 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::setActiveHints(ObserverHints*
     d->hints = active_hints;
 }
 
-void Qtilities::CoreGui::ObserverTreeModelBuilder::setThreadingEnabled(bool is_enabled) {
-    d->threading_enabled = is_enabled;
-}
-
 void Qtilities::CoreGui::ObserverTreeModelBuilder::startBuild() {
     d->build_lock.lock();
 
     QApplication::processEvents();
     buildRecursive(d->root_item);
-
-    if (d->threading_enabled) {
-        d->root_item->moveToThread(d->thread);
-        moveToThread(d->thread);
-    }
 
     d->build_lock.unlock();
 
@@ -89,9 +73,6 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::buildRecursive(ObserverTreeIt
      // In here we build the complete structure of all the children below item.
     Observer* observer = qobject_cast<Observer*> (item->getObject());
     ObserverTreeItem* new_item;
-
-    if (!d->threading_enabled)
-        QApplication::processEvents();
 
     if (!observer && item->getObject()) {
         // Handle cases where the item is a category item
@@ -241,7 +222,7 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::buildRecursive(ObserverTreeIt
                     QVector<QVariant> column_data;
                     column_data << QVariant(uncat_names.at(i));
                     if (obs) {
-                        new_item = new ObserverTreeItem(obj_at,item,column_data,ObserverTreeItem::TreeNode);;
+                        new_item = new ObserverTreeItem(obj_at,item,column_data,ObserverTreeItem::TreeNode);
                         item->appendChild(new_item);
                         // If this item has locked access, we don't dig into any items underneath it:
                         if (obs->accessMode(QtilitiesCategory()) != Observer::LockedAccess && obs)
@@ -280,7 +261,6 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::printStructure(ObserverTreeIt
     } else
         qDebug() << "Tree Debug (" << level << "): Object = " << item->objectName() << ", Parent = " << item->parentItem()->objectName() << ", Child Count = " << item->childCount();
 
-    for (int i = 0; i < item->childCount(); ++i) {
+    for (int i = 0; i < item->childCount(); ++i)
         printStructure(item->child(i),level+1);
-    }
 }

@@ -36,8 +36,8 @@ using namespace Qtilities::Core::Constants;
 struct Qtilities::CoreGui::ObserverTreeModelData  {
     ObserverTreeModelData() : tree_model_up_to_date(true),
         tree_rebuild_queued(false),
-        tree_building_threading_enabled(false),
-        at_least_one_tree_build_completed(false) {}
+        at_least_one_tree_build_completed(false),
+        do_auto_select_and_expand(true) {}
 
     QPointer<ObserverTreeItem>  rootItem;
     QPointer<Observer>          selection_parent;
@@ -54,13 +54,15 @@ struct Qtilities::CoreGui::ObserverTreeModelData  {
     QList<QPointer<QObject> >   queued_selection;
 
     bool                        tree_model_up_to_date;
-    QThread                     tree_builder_thread;
     ObserverTreeModelBuilder    tree_builder;
     bool                        tree_rebuild_queued;
-    bool                        tree_building_threading_enabled;
     bool                        at_least_one_tree_build_completed;
 
+    //! Stores if select and expand must be done. See enableAutoSelectAndExpand().
+    bool                        do_auto_select_and_expand;
+
     //! Nodes to expand in the tree after a rebuild is done.
+    QList<QPointer<QObject> >   expanded_objects;
     QStringList                 expanded_items;
     //! A map with expanded items which must be replaced after d->expanded_items was set by the observer widget.
     /*!
@@ -84,6 +86,7 @@ Qtilities::CoreGui::ObserverTreeModel::ObserverTreeModel(QObject* parent) :
     d->read_only = false;
 
     qRegisterMetaType<Qtilities::CoreGui::ObserverTreeItem>("Qtilities::CoreGui::ObserverTreeItem");
+    connect(&d->tree_builder,SIGNAL(buildCompleted(ObserverTreeItem*)),SLOT(receiveBuildObserverTreeItem(ObserverTreeItem*)));
 }
 
 Qtilities::CoreGui::ObserverTreeModel::~ObserverTreeModel() {
@@ -97,6 +100,7 @@ bool Qtilities::CoreGui::ObserverTreeModel::setObserverContext(Observer* observe
         d_observer->disconnect(this);
         //clearTreeStructure(); // This causes invalid objects showing up, and repainting the treeview.
     }
+
 
     if (!observer) {
         clearTreeStructure();
@@ -337,7 +341,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
             } else {
                 // We might get in here when a view tries to repaint itself (for example when a message box dissapears above it) befire
                 // the tree has been rebuilt properly.
-                return tr("Invalid object. Refresh needed...");
+                return "Refreshing...";
             }
         // ------------------------------------
         // Qt::CheckStateRole
@@ -1149,10 +1153,10 @@ void Qtilities::CoreGui::ObserverTreeModel::clearTreeStructure() {
     d->tree_model_up_to_date = false;
     deleteRootItem();
     QVector<QVariant> columns;
-    columns.push_back(QString("Child Count"));
-    columns.push_back(QString("Access"));
-    columns.push_back(QString("Type Info"));
-    columns.push_back(QString("Object Tree"));
+    columns.push_back("Child Count");
+    columns.push_back("Access");
+    columns.push_back("Type Info");
+    columns.push_back("Object Tree");
     d->rootItem = new ObserverTreeItem(0,0,columns);
     d->rootItem->setObjectName("Root Item");
 
@@ -1186,71 +1190,47 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
         }
     }
     emit treeModelBuildStarted();
+
     // Rebuild the tree structure:
     beginResetModel();
     d->tree_model_up_to_date = false;
-    QApplication::processEvents();
     deleteRootItem();
 
     // The root index display hint determines how we create the root node:
     ObserverTreeItem* item_to_send_to_builder = 0;
     if (model->hints_top_level_observer->rootIndexDisplayHint() == ObserverHints::RootIndexHide) {
         QVector<QVariant> columns;
-        columns.push_back(QString(tr("Child Count")));
-        columns.push_back(QString(tr("Access")));
-        columns.push_back(QString(tr("Type Info")));
-        columns.push_back(QString(tr("Object Tree")));
+        columns.push_back("Child Count");
+        columns.push_back("Access");
+        columns.push_back("Type Info");
+        columns.push_back("Object Tree");
         d->rootItem = new ObserverTreeItem(d_observer,0,columns,ObserverTreeItem::TreeNode);
-        d->rootItem->setObjectName(tr("Root Item"));
+        d->rootItem->setObjectName("Root Item");
         item_to_send_to_builder = d->rootItem;
     } else if (model->hints_top_level_observer->rootIndexDisplayHint() == ObserverHints::RootIndexDisplayDecorated || model->hints_top_level_observer->rootIndexDisplayHint() == ObserverHints::RootIndexDisplayUndecorated) {
         QVector<QVariant> columns;
-        columns.push_back(QString(tr("Child Count")));
-        columns.push_back(QString(tr("Access")));
-        columns.push_back(QString(tr("Type Info")));
-        columns.push_back(QString(tr("Object Tree")));
+        columns.push_back("Child Count");
+        columns.push_back("Access");
+        columns.push_back("Type Info");
+        columns.push_back("Object Tree");
         d->rootItem = new ObserverTreeItem(0,0,columns,ObserverTreeItem::TreeNode);
-        d->rootItem->setObjectName(tr("Root Item"));
+        d->rootItem->setObjectName("Root Item");
         ObserverTreeItem* top_level_observer_item = new ObserverTreeItem(d_observer,d->rootItem,QVector<QVariant>(),ObserverTreeItem::TreeNode);
         d->rootItem->appendChild(top_level_observer_item);
         item_to_send_to_builder = top_level_observer_item;
     }
 
     d->tree_rebuild_queued = false;
-
-    if (d->tree_building_threading_enabled) {
-        d->tree_builder.setRootItem(item_to_send_to_builder);
-        d->tree_builder.setUseObserverHints(model->use_observer_hints);
-        d->tree_builder.setActiveHints(activeHints());
-        d->tree_builder.setThreadingEnabled(true);
-
-        item_to_send_to_builder->setParent(0);
-        item_to_send_to_builder->moveToThread(&d->tree_builder_thread);
-        d->tree_builder.moveToThread(&d->tree_builder_thread);
-        d->tree_builder.setOriginThread(thread());
-
-        connect(&d->tree_builder,SIGNAL(buildCompleted(ObserverTreeItem*)),SLOT(receiveBuildObserverTreeItem(ObserverTreeItem*)));
-
-        d->tree_builder_thread.start();
-        QMetaObject::invokeMethod(&d->tree_builder, "startBuild", Qt::QueuedConnection);
-    } else {
-        d->tree_rebuild_queued = false;
-        d->tree_builder.setRootItem(item_to_send_to_builder);
-        d->tree_builder.setUseObserverHints(model->use_observer_hints);
-        d->tree_builder.setActiveHints(activeHints());
-
-        connect(&d->tree_builder,SIGNAL(buildCompleted(ObserverTreeItem*)),SLOT(receiveBuildObserverTreeItem(ObserverTreeItem*)),Qt::UniqueConnection);
-        d->tree_builder.startBuild();
-    }
+    d->tree_builder.setRootItem(item_to_send_to_builder);
+    d->tree_builder.setUseObserverHints(model->use_observer_hints);
+    d->tree_builder.setActiveHints(activeHints());
+    QApplication::processEvents();
+    d->tree_builder.startBuild();
+    QApplication::processEvents();
 }
 
 void Qtilities::CoreGui::ObserverTreeModel::receiveBuildObserverTreeItem(ObserverTreeItem* item) {
     Q_UNUSED(item)
-
-    if (d->tree_building_threading_enabled) {
-        d->tree_builder_thread.quit();
-        disconnect(&d->tree_builder,SIGNAL(buildCompleted(ObserverTreeItem*)),this,SLOT(receiveBuildObserverTreeItem(ObserverTreeItem*)));
-    }
 
     d->tree_model_up_to_date = true;
 
@@ -1263,20 +1243,22 @@ void Qtilities::CoreGui::ObserverTreeModel::receiveBuildObserverTreeItem(Observe
         rebuildTreeStructure();
     } else {
         // From my understanding not needed because we do a proper reset sequence.
-        emit layoutAboutToBeChanged();
-        emit layoutChanged();
+        // They cause a repaint which makes the rebuilt operation flicker.
+        //emit layoutAboutToBeChanged();
+        //emit layoutChanged();
+        if (d->do_auto_select_and_expand) {
+            // Restore expanded items:
+            QModelIndexList expanded_indexes = findExpandedNodeIndexes(d->expanded_items);
+            emit expandItemsRequest(expanded_indexes);
 
-        // Restore expanded items:
-        QModelIndexList expanded_indexes = findExpandedNodeIndexes(d->expanded_items);
-        emit expandItemsRequest(expanded_indexes);
-
-        // Handle item selection after tree has been rebuilt:
-        if (d->new_selection.count() > 0)
-            emit selectObjects(d->new_selection);
-        else if (d->selected_objects.count() > 0)
-            emit selectObjects(d->selected_objects);
-        else if (d->selected_categories.count() > 0)
-            emit selectCategories(d->selected_categories);
+            // Handle item selection after tree has been rebuilt:
+            if (d->new_selection.count() > 0)
+                emit selectObjects(d->new_selection);
+            else if (d->selected_objects.count() > 0)
+                emit selectObjects(d->selected_objects);
+            else if (d->selected_categories.count() > 0)
+                emit selectCategories(d->selected_categories);
+        }
 
         d->at_least_one_tree_build_completed = true;
     }
@@ -1287,6 +1269,14 @@ void Qtilities::CoreGui::ObserverTreeModel::receiveBuildObserverTreeItem(Observe
 void Qtilities::CoreGui::ObserverTreeModel::setExpandedItems(QStringList expanded_items) {
     //qDebug() << "setExpandedItems" << expanded_items;
     d->expanded_items = expanded_items;
+}
+
+void Qtilities::CoreGui::ObserverTreeModel::enableAutoSelectAndExpand() {
+    d->do_auto_select_and_expand = true;
+}
+
+void Qtilities::CoreGui::ObserverTreeModel::disableAutoSelectAndExpand() {
+    d->do_auto_select_and_expand = false;
 }
 
 Qtilities::Core::Observer* Qtilities::CoreGui::ObserverTreeModel::calculateSelectionParent(QModelIndexList index_list) {
@@ -1325,13 +1315,13 @@ Qtilities::Core::Observer* Qtilities::CoreGui::ObserverTreeModel::calculateSelec
         // Only pass on the selection parent if the selected objects are all in the same context:
         if (match) {
             d->selection_parent = parent;
-            emit selectionParentChanged(d->selection_parent);
 
             // Get the hints from the observer:
             if (d->selection_parent) {
                 model->hints_selection_parent = d->selection_parent->displayHints();
             }
 
+            emit selectionParentChanged(d->selection_parent);
             return d->selection_parent;
         } else {
             d->selection_parent = 0;
@@ -1605,17 +1595,22 @@ QModelIndexList Qtilities::CoreGui::ObserverTreeModel::findExpandedNodeIndexes(c
 
 QModelIndexList Qtilities::CoreGui::ObserverTreeModel::getAllIndexes(ObserverTreeItem* item) const {
     static QModelIndexList indexes;
+    if (!item) {
+        indexes.clear();
 
-    QList<QModelIndex> incides = rootIndices();
-    for (int i = 0; i < incides.count(); i++) {
-        if (!item) {
-            indexes.clear();
+        QList<QModelIndex> incides = rootIndices();
+        for (int i = 0; i < incides.count(); i++) {
             item = getItem(incides.at(i));
+            if (!item)
+                return indexes;
+
+            // Add this root and call getAllIndexes on all its children.
+            QModelIndex index = findObject(item->getObject());
+            indexes << index;
+            for (int r = 0; r < item->childCount(); ++r)
+                getAllIndexes(item->child(r));
         }
-
-        if (!item)
-            return indexes;
-
+    } else {
         // Add this root and call getAllIndexes on all its children.
         QModelIndex index = findObject(item->getObject());
         indexes << index;
@@ -1637,6 +1632,8 @@ Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeModel::get
 }
 
 void Qtilities::CoreGui::ObserverTreeModel::handleObserverContextDeleted() {
+    if (d_observer)
+        d_observer->disconnect(this);
     clearTreeStructure();
     d->selection_parent = 0;
 }

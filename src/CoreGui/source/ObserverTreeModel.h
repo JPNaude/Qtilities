@@ -198,6 +198,23 @@ namespace Qtilities {
             //! Sets all expanded nodes and categories.
             void setExpandedItems(QStringList expanded_items);
 
+            //! Enables automatic selection and expansion to restore the selection and expansion state of the tree after a refresh has occured.
+            /*!
+              True by default.
+
+              <i>This function was added in %Qtilities v1.5.</i>
+
+              \sa disableAutoSelectAndExpand()
+              */
+            void enableAutoSelectAndExpand();
+            //! Disables automatic selection and expansion to restore the selection and expansion state of the tree after a refresh has occured.
+            /*!
+              <i>This function was added in %Qtilities v1.5.</i>
+
+              \sa enableAutoSelectAndExpand()
+              */
+            void disableAutoSelectAndExpand();
+
         signals:
             //! Signal which is emmited when the current selection parent changed. If the root item is selected, new_observer will be null.
             void selectionParentChanged(Observer* new_observer);

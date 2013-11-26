@@ -41,8 +41,6 @@ namespace Qtilities {
 
             //! Sets the root ObserverTreeitem.
             void setRootItem(ObserverTreeItem* item);
-            //! Sets if threading is enabled in the builder.
-            void setThreadingEnabled(bool is_enabled);
 
         public slots:
             //! Starts the build.
@@ -51,7 +49,6 @@ namespace Qtilities {
             void setUseObserverHints(bool use_observer_hints);
             //! Sets the active hints which should be used during tree building.
             void setActiveHints(ObserverHints* active_hints);
-            void setOriginThread(QThread* thread);
 
         signals:
             //! Emitted when build is completed.

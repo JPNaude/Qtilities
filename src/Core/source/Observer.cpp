@@ -110,31 +110,31 @@ Qtilities::Core::Observer::~Observer() {
                LOG_TRACE(QString("Object \"%1\" (aliased as %2 in this context) is owned by this observer, it will be deleted.").arg(obj->objectName()).arg(subjectNameInContext(obj)));
                if (!i.hasNext()) {
                    deleteObject(obj);
-                   QCoreApplication::processEvents();
+                   //QCoreApplication::processEvents();
                    break;
                } else {
                    deleteObject(obj);
-                   QCoreApplication::processEvents();
+                   //QCoreApplication::processEvents();
                }
             } else if ((subject_ownership_variant.toInt() == ObserverScopeOwnership) && (parentCount(obj) == 1)) {
                 LOG_TRACE(QString("Object \"%1\" (aliased as %2 in this context) with ObserverScopeOwnership went out of scope, it will be deleted.").arg(obj->objectName()).arg(subjectNameInContext(obj)));
                 if (!i.hasNext()) {
                     deleteObject(obj);
-                    QCoreApplication::processEvents();
+                    //QCoreApplication::processEvents();
                     break;
                 } else {
                     deleteObject(obj);
-                    QCoreApplication::processEvents();
+                    //QCoreApplication::processEvents();
                 }
            } else if ((subject_ownership_variant.toInt() == OwnedBySubjectOwnership) && (parentCount(obj) == 1)) {
                 LOG_TRACE(QString("Object \"%1\" (aliased as %2 in this context) with OwnedBySubjectOwnership went out of scope, it will be deleted.").arg(obj->objectName()).arg(subjectNameInContext(obj)));
                 if (!i.hasNext()) {
                     deleteObject(obj);
-                    QCoreApplication::processEvents();
+                    //QCoreApplication::processEvents();
                     break;
                 } else {
                     deleteObject(obj);
-                    QCoreApplication::processEvents();
+                    //QCoreApplication::processEvents();
                 }
             } else {
                 detachSubject(obj);

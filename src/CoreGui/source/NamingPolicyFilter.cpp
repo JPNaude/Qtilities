@@ -1208,10 +1208,14 @@ void Qtilities::CoreGui::NamingPolicyDelegate::setObserverContext(Observer* obse
         for (int i = 0; i < observer->subjectFilters().count(); ++i) {
             // Check if it is a naming policy subject filter
             NamingPolicyFilter* naming_filter = qobject_cast<NamingPolicyFilter*> (observer->subjectFilters().at(i));
-            if (naming_filter)
+            if (naming_filter) {
                 d->naming_filter = naming_filter;
+                return;
+            }
         }
     }
+
+    d->naming_filter = 0;
 }
 
 Qtilities::Core::Observer* Qtilities::CoreGui::NamingPolicyDelegate::observerContext() const {
