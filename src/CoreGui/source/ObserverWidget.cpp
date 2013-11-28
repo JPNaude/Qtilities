@@ -1067,6 +1067,7 @@ void Qtilities::CoreGui::ObserverWidget::initializeFollowSelectionActivityFilter
         if (d->activity_filter)
             d->activity_filter->disconnect(this);
         d->activity_filter = 0;
+        emit selectedObjectsChanged(QList<QObject*>(),0);
     }
 }
 
@@ -3580,8 +3581,10 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
             }
             if (mapped_indexes.count() > 0)
                 d->table_view->selectionModel()->setCurrentIndex(mapped_indexes.front(),QItemSelectionModel::Current);
-        } else
+        } else {
             d->table_view->selectionModel()->clear();
+            emit selectedObjectsChanged(QList<QObject*>(),0);
+        }
 
         connect(d->table_view->selectionModel(),SIGNAL(selectionChanged(QItemSelection,QItemSelection)),this,SLOT(handleSelectionModelChange()));
     } else if (d->tree_view && d->tree_model && d->display_mode == TreeView && d->tree_proxy_model) {
@@ -3622,8 +3625,10 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
             }
             if (mapped_indexes.count() > 0)
                 d->tree_view->selectionModel()->setCurrentIndex(mapped_indexes.front(),QItemSelectionModel::Current);
-        } else
+        } else {
             d->tree_view->selectionModel()->clear();
+            emit selectedObjectsChanged(QList<QObject*>(),0);
+        }
 
         connect(d->tree_view->selectionModel(),SIGNAL(selectionChanged(QItemSelection,QItemSelection)),this,SLOT(handleSelectionModelChange()));
     }
