@@ -66,6 +66,7 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     [*] Fixed "> working directory does not exist, process might fail to start" printing wrongly in
         some cases when using QtilitiesProcess.
     [*] Fixed FileUtils::findFilesUnderDir() matching against directories which are more than one level deep from the search dir.
+    [*] Fixed Task::setLastErrorMessagesStackSize() not updating the stack size correctly.
 
     ============================
     QtilitiesCoreGui:

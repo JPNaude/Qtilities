@@ -246,8 +246,10 @@ void Task::setLastErrorMessagesStackSize(int size) {
     if (size < 0)
         return;
 
-    if (d->last_error_messages_count != size)
+    if (d->last_error_messages_count != size) {
+        d->last_error_messages_count = size;
         d->last_error_messages.resize(size);
+    }
 }
 
 int Task::lastErrorMessagesStackSize() const {
