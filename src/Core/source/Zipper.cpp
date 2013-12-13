@@ -63,7 +63,7 @@ bool Qtilities::Core::Zipper::executeCommand(QStringList arguments) {
     QString error_msg = QString("Could not start %1. Make sure this application is located in your application's installation path. If it is not, a reinstallating of %2 or installing 7-zip manually will solve the problem.").arg(d->path_7za).arg(QCoreApplication::applicationName());
     result = d->zip_process->startProcess("7za",arguments);
     #else
-    QString error_msg = QString("Could not start %1 which is needed to perform archiving operations. Installing 7za through your package manager will solve the problem.").arg(d->path_7za));
+    QString error_msg = QString("Could not start %1 which is needed to perform archiving operations. Installing 7za through your package manager will solve the problem.").arg(d->path_7za);
     result = d->zip_process->startProcess("7za",arguments);
     #endif
 
