@@ -56,7 +56,7 @@ namespace Qtilities {
             Q_DECLARE_FLAGS(ExportItemFlags, ExportItem)
             Q_FLAGS(ExportItemFlags)
 
-            ObserverData(Observer* obs, const QString& observer_name) : IExportable(), subject_limit(-1),
+            ObserverData(Observer* obs, const QString& observer_name) : IObjectBase(), IExportable(), subject_limit(-1),
                 subject_id_counter(0),
                 filter_subject_events_lock(true),
                 filter_subject_events_enabled(false),
@@ -76,7 +76,7 @@ namespace Qtilities {
                 subject_list.setObjectName(observer_name);
             }
 
-            ObserverData(const ObserverData &other) : IExportable(), subject_list(other.subject_list),
+            ObserverData(const ObserverData &other) : IObjectBase(), IExportable(), subject_list(other.subject_list),
                 subject_filters(other.subject_filters),
                 subject_limit(other.subject_limit),
                 subject_id_counter(0),

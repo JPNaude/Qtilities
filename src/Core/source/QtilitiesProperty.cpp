@@ -24,7 +24,7 @@ using namespace Qtilities::Core::Properties;
 // QtilitiesProperty
 // ------------------------------------------
 
-Qtilities::Core::QtilitiesProperty::QtilitiesProperty(const QString& property_name) {
+Qtilities::Core::QtilitiesProperty::QtilitiesProperty(const QString& property_name) : IObjectBase(), IExportable() {
     if (property_name.isNull())
         name = QString("");
     else
@@ -36,7 +36,7 @@ Qtilities::Core::QtilitiesProperty::QtilitiesProperty(const QString& property_na
     read_only = false;
 }
 
-Qtilities::Core::QtilitiesProperty::QtilitiesProperty(const char* property_name) {
+Qtilities::Core::QtilitiesProperty::QtilitiesProperty(const char* property_name) : IObjectBase(), IExportable() {
     if (property_name)
         name = QString::fromUtf8(property_name);
     else
@@ -48,7 +48,7 @@ Qtilities::Core::QtilitiesProperty::QtilitiesProperty(const char* property_name)
     read_only = false;
 }
 
-Qtilities::Core::QtilitiesProperty::QtilitiesProperty(const QtilitiesProperty& property) : name(property.propertyNameString()) {
+Qtilities::Core::QtilitiesProperty::QtilitiesProperty(const QtilitiesProperty& property) : IObjectBase(), IExportable(), name(property.propertyNameString()) {
     is_reserved = property.isReserved();
     is_removable = property.isRemovable();
     supports_change_notifications = property.supportsChangeNotifications();
