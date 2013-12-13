@@ -32,15 +32,15 @@ namespace Qtilities {
          */
         class QTILIITES_CORE_SHARED_EXPORT CategoryLevel : public IExportable {
         public:
-            CategoryLevel(QDataStream& stream, Qtilities::ExportVersion version) : IExportable() {
+            CategoryLevel(QDataStream& stream, Qtilities::ExportVersion version) : IObjectBase(), IExportable() {
                 QList<QPointer<QObject> > import_list;
                 setExportVersion(version);
                 importBinary(stream,import_list);
             }
-            CategoryLevel(const QString& name = QString()) : IExportable() {
+            CategoryLevel(const QString& name = QString()) : IObjectBase(), IExportable() {
                 d_name = name;
             }
-            CategoryLevel(const CategoryLevel& ref) : IExportable() {
+            CategoryLevel(const CategoryLevel& ref) : IObjectBase(), IExportable() {
                 d_name = ref.d_name;
             }
             CategoryLevel& operator=(const CategoryLevel& ref) {
@@ -168,12 +168,12 @@ sure that categories are handled the same way everywhere. Some usages in %Qtilit
             QtilitiesCategory(const QString& category_levels, const QString& seperator);
             //! Creates a QtilitiesCategory object from a QStringList.
             QtilitiesCategory(const QStringList& category_name_list);
-            QtilitiesCategory(QDataStream &ds, Qtilities::ExportVersion version) : IExportable() {
+            QtilitiesCategory(QDataStream &ds, Qtilities::ExportVersion version) : IObjectBase(), IExportable() {
                 QList<QPointer<QObject> > import_list;
                 setExportVersion(version);
                 importBinary(ds,import_list);
             }
-            QtilitiesCategory(const QtilitiesCategory& category) : IExportable() {
+            QtilitiesCategory(const QtilitiesCategory& category) : IObjectBase(), IExportable() {
                 d_category_levels = category.d_category_levels;
                 d_access_mode = category.d_access_mode;
             }
