@@ -53,6 +53,8 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     [#] FileUtils::makeLocalCopyOfResource() will also create the local_path directory using QDir::mkpath() if it does not exist.
     [#] FileUtils::makeLocalCopyOfResource()'s errorMsg parameter is no longer compulsory.
     [#] Assign default -1 value to Task::lastErrorMessages()'s count parameter.
+	[#] Improved error reporting in QtilitiesProcess. When the working directory of the process does not exist, it will 
+	    tell you this instead of telling you that the executable does not exist when the process fails with QProcess::FailedToStart.
 
     [*] Fixed bug in Observer::handle_deletedSubject() where application can sometimes
         crash with "Detected QWeakPointer creation in a QObject being deleted".

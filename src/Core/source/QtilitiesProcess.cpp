@@ -149,7 +149,7 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program,
     d->process->start(native_program, arguments, mode);
 
     if (!d->process->waitForStarted(wait_for_started_msecs)) {
-        logMessage("Failed to start " + native_program + ". Make sure the executable is visible in your system's paths.", Logger::Error);
+        logMessage("Failed to start \"" + native_program + "\".", Logger::Error);
         if (state() == ITask::TaskBusy)
             completeTask();
 
@@ -206,8 +206,15 @@ void Qtilities::Core::QtilitiesProcess::procError(QProcess::ProcessError error) 
     switch (error)
     {
         case QProcess::FailedToStart:
-            logMessage("Process \"" + taskName() + "\" failed to start. Either the invoked program is missing, or you may have insufficient permissions to invoke the program.",Logger::Error);
+        {
+            // If the working directory of the process does not exist, we will get in here as well. So handle that case specifically to give a more descriptive message:
+            QDir working_dir(d->process->workingDirectory());
+            if (working_dir.exists())
+                logMessage("Process \"" + taskName() + "\" failed to start. Either the invoked program is missing, or you may have insufficient permissions to invoke the program.",Logger::Error);
+            else
+                logMessage("Process \"" + taskName() + "\" failed to start. The working directory of the process does not exist at: " + d->process->workingDirectory(),Logger::Error);
             break;
+        }
         case QProcess::Crashed:
             logMessage("Process \"" + taskName() + "\" crashed some time after starting successfully.",Logger::Error);
             break;
