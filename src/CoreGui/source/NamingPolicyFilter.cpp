@@ -254,7 +254,7 @@ Qtilities::CoreGui::NamingPolicyFilter::NameValidity Qtilities::CoreGui::NamingP
         do_uniqueness_test = false;
 
     if (do_uniqueness_test && (d->uniqueness_policy == ProhibitDuplicateNames || d->uniqueness_policy == ProhibitDuplicateNamesCaseSensitive)) {
-        Qt::CaseSensitivity case_sensitivity;
+        Qt::CaseSensitivity case_sensitivity = Qt::CaseSensitive;
         if (d->uniqueness_policy == ProhibitDuplicateNames)
             case_sensitivity = Qt::CaseInsensitive;
         else if (d->uniqueness_policy == ProhibitDuplicateNamesCaseSensitive)
