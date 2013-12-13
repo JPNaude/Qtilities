@@ -32,6 +32,8 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     ============================
     QtilitiesCore:
     ============================
+    [+] Added new Zipper class which is a thin Qt-api based wrapper around the command line utility
+        from the 7-zip project called 7za.
     [+] Added new generic property related classes: GenericProperty, GenericPropertyManager.
     [+] Added QtilitiesProcess::setProcessBufferMessageTypeHint(). Also, added new
         class ProcessBufferMessageTypeHint used in this function.

@@ -121,19 +121,19 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program,
             // Check if program.bat exists:
             QFileInfo fi3(program + ".bat");
             if (!fi3.exists() && fi3.isAbsolute())
-                logWarning(QString(tr("Failed to find application \"%1\". An attempt to launch it will still be made.")).arg(program));
+                logWarning(QString("Failed to find application \"%1\". An attempt to launch it will still be made.").arg(program));
         }
     }
 
     QString native_program = FileUtils::toNativeSeparators(program);
     logMessage(tr("Executing Process: ") + native_program + " " + arguments.join(" "));
     if (d->process->workingDirectory().isEmpty()) {
-        logMessage(tr("> working directory of process: %1").arg(QDir::current().path()));
+        logMessage(QString("> working directory of process: %1").arg(QDir::current().path()));
     } else {
-        logMessage(tr("> working directory of process: %1").arg(d->process->workingDirectory()));
+        logMessage(QString("> working directory of process: %1").arg(d->process->workingDirectory()));
         QDir dir(d->process->workingDirectory());
         if (!dir.exists())
-            logWarning(tr("> working directory does not exist, process might fail to start."));
+            logWarning("> working directory does not exist, process might fail to start.");
     }
 
     QTimer timer;
@@ -141,7 +141,7 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program,
         timer.setSingleShot(true);
         timer.start(timeout_msecs);
         connect(&timer,SIGNAL(timeout()),SLOT(stop()));
-        logMessage(tr("A %1 msec timeout was specified for this process. It will be stopped if not completed before the timeout was reached.").arg(timeout_msecs));
+        logMessage(QString("A %1 msec timeout was specified for this process. It will be stopped if not completed before the timeout was reached.").arg(timeout_msecs));
     }
 
     logMessage("");

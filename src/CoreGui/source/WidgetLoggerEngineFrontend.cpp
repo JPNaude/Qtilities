@@ -178,6 +178,7 @@ QString Qtilities::CoreGui::MessagesPlainTextEditTab::globalMetaType() const {
 void Qtilities::CoreGui::MessagesPlainTextEditTab::appendMessage(const QString& message) {
     d->txtLog.appendHtml(message);
     d->txtLog.verticalScrollBar()->setValue(d->txtLog.verticalScrollBar()->maximum());
+    // Note: d->txtLog.ensureCursorVisible() does not work becuase the log is read only and we don't have a cursor.
 }
 
 void Qtilities::CoreGui::MessagesPlainTextEditTab::handle_FindPrevious() {

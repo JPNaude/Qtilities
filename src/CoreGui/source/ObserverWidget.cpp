@@ -3755,7 +3755,7 @@ void Qtilities::CoreGui::ObserverWidget::handleTreeRebuildCompleted(bool emit_tr
 
 void Qtilities::CoreGui::ObserverWidget::updateSelectionFromActivityFilter(QList<QObject *> objects) {
     if (d->disable_view_selection_update_from_activity_filter) {
-        qDebug() << "Filtering view selection update from activity filter";
+        //qDebug() << "Filtering view selection update from activity filter";
         return;
     }
 

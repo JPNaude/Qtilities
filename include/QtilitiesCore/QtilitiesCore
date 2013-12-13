@@ -47,6 +47,7 @@
 #include "IAvailablePropertyProvider.h"
 #include "GenericProperty.h"
 #include "GenericPropertyManager.h"
+#include "Zipper.h"
 
 //! Namespace which encapsulates all namespaces and sub namespaces for the Core module.
 namespace QtilitiesCore { 
