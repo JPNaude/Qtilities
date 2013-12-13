@@ -86,6 +86,7 @@ namespace Qtilities {
                 }
             protected:
                 IIterator() {}
+                virtual ~IIterator() {}
             };
 
             /*!

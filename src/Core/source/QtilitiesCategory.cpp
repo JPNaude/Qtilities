@@ -76,14 +76,14 @@ Qtilities::Core::IExportable::ExportResultFlags Qtilities::Core::CategoryLevel::
 // QtilitiesCategory
 // -----------------------------------------
 
-Qtilities::Core::QtilitiesCategory::QtilitiesCategory(const QString& category_level_name)  {
+Qtilities::Core::QtilitiesCategory::QtilitiesCategory(const QString& category_level_name) : IExportable()  {
     if (!category_level_name.isEmpty())
         addLevel(category_level_name);
     d_access_mode = 3;
     //d_category_icon = 0;
 }
 
-Qtilities::Core::QtilitiesCategory::QtilitiesCategory(const QString& category_levels, const QString& seperator) {
+Qtilities::Core::QtilitiesCategory::QtilitiesCategory(const QString& category_levels, const QString& seperator) : IExportable() {
     QStringList category_name_list = category_levels.split(seperator,QString::SkipEmptyParts);
     foreach(QString level,category_name_list) {
         if (level.trimmed().length() > 0)
@@ -93,7 +93,7 @@ Qtilities::Core::QtilitiesCategory::QtilitiesCategory(const QString& category_le
     //d_category_icon = 0;
 }
 
-Qtilities::Core::QtilitiesCategory::QtilitiesCategory(const QStringList& category_name_list) {
+Qtilities::Core::QtilitiesCategory::QtilitiesCategory(const QStringList& category_name_list) : IExportable() {
     foreach(QString level,category_name_list)
         addLevel(level);
     d_access_mode = 3;

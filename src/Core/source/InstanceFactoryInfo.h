@@ -68,6 +68,8 @@ namespace Qtilities {
                 d_description = ref.d_description;
                 d_icon_path = ref.d_icon_path;
             }
+            virtual ~InstanceFactoryInfo() {}
+
             bool operator==(const InstanceFactoryInfo& ref) {
                 if (d_factory_tag != ref.d_factory_tag)
                     return false;

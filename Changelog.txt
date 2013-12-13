@@ -14,6 +14,7 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     ============================
     [#] All .pro files no longer use CONFIG += ordered. Proper dependencies are now defined, allowing
         parralel compilation to be done.
+	[#] Fixed numerous warnings produced by older versions of gcc (specifically, gcc (GCC) 4.1.2 20080704).
 
     ============================
     QtilitiesLogging:
