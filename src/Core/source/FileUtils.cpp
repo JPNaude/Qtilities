@@ -292,6 +292,8 @@ bool FileUtils::comparePaths(const QString &path1, const QString &path2, Qt::Cas
     #ifdef Q_OS_WIN
     if (cs == Qt::CaseSensitive)
         do_easy_compare = false;
+    #else
+    Q_UNUSED(cs)
     #endif
 
     if (fi1.exists() && fi2.exists() && do_easy_compare)
