@@ -176,7 +176,7 @@ settings.endGroup();
               */
             bool categorizedTabDisplay() const;
 
-       signals:
+        signals:
             //! Signal emitted whenever a config page is applied.
             void appliedPage(IConfigPage* conig_page);
 

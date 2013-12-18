@@ -340,13 +340,14 @@ void Qtilities::CoreGui::ConfigurationWidget::handleActiveItemChanges(QList<QObj
         if (d->active_widget)
             d->active_widget->hide();
 
-        if (d->apply_all_pages) {
-            if (d->config_pages.subjectCount() == 1)
-                ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(config_page->supportsApply());
-            else
-                ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
-        } else
-            ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(config_page->supportsApply());
+//        if (d->apply_all_pages) {
+//            if (d->config_pages.subjectCount() == 1)
+//                ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(config_page->supportsApply());
+//            else
+//                ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
+//        } else
+//        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(config_page->supportsApply());
+        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
         ui->buttonBox->button(QDialogButtonBox::Help)->setEnabled(!config_page->configPageHelpID().isEmpty());
         ui->buttonBox->button(QDialogButtonBox::RestoreDefaults)->setEnabled(config_page->supportsRestoreDefaults());
         ui->lblPageHeader->setText(config_page->configPageTitle());
@@ -383,10 +384,11 @@ void Qtilities::CoreGui::ConfigurationWidget::handleActiveGroupedPageChanged(ICo
     if (d->activity_filter->activeSubjects().front() != sender())
         return;
 
-    if (d->apply_all_pages)
-        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
-    else
-        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(new_active_grouped_page->supportsApply());
+//    if (d->apply_all_pages)
+//        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
+//    else
+//        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(new_active_grouped_page->supportsApply());
+    ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
     ui->buttonBox->button(QDialogButtonBox::Help)->setEnabled(!new_active_grouped_page->configPageHelpID().isEmpty());
     ui->buttonBox->button(QDialogButtonBox::RestoreDefaults)->setEnabled(new_active_grouped_page->supportsRestoreDefaults());
 }
@@ -462,7 +464,7 @@ Qtilities::CoreGui::Interfaces::IConfigPage* Qtilities::CoreGui::ConfigurationWi
 }
 
 void Qtilities::CoreGui::ConfigurationWidget::on_buttonBox_clicked(QAbstractButton *button) {
-    if (ui->buttonBox->button(QDialogButtonBox::Apply) == button) {
+    if (ui->buttonBox->button(QDialogButtonBox::Apply) == button || ui->buttonBox->button(QDialogButtonBox::Ok) == button) {
         if (d->apply_all_pages) {
             for (int i = 0; i < d->config_pages.subjectCount(); ++i) {
                 IConfigPage* config_page = qobject_cast<IConfigPage*> (d->config_pages.subjectAt(i));
@@ -478,6 +480,9 @@ void Qtilities::CoreGui::ConfigurationWidget::on_buttonBox_clicked(QAbstractButt
                 emit appliedPage(config_page);
             }
         }
+
+        if (ui->buttonBox->button(QDialogButtonBox::Ok) == button)
+            close();
     } else if (ui->buttonBox->button(QDialogButtonBox::RestoreDefaults) == button) {
         if (d->activity_filter->activeSubjects().count() == 1) {
             IConfigPage* config_page = qobject_cast<IConfigPage*> (d->activity_filter->activeSubjects().front());
