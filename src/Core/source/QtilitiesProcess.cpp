@@ -136,13 +136,6 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program,
             logWarning("> working directory does not exist, process might fail to start.");
     }
 
-    QTimer timer;
-    if (timeout_msecs > 0) {
-        timer.setSingleShot(true);
-        timer.start(timeout_msecs);
-        connect(&timer,SIGNAL(timeout()),SLOT(stop()));
-        logMessage(QString("A %1 msec timeout was specified for this process. It will be stopped if not completed before the timeout was reached.").arg(timeout_msecs));
-    }
 
     logMessage("");
     clearLastRunBuffer();
@@ -155,6 +148,15 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program,
 
         d->process->waitForFinished();
         return false;
+    } else {
+        QTimer* timer = new QTimer;
+        if (timeout_msecs > 0) {
+            timer->setSingleShot(true);
+            timer->start(timeout_msecs);
+            connect(timer,SIGNAL(timeout()),SLOT(stop()));
+            connect(d->process,SIGNAL(finished(int)),timer,SLOT(deleteLater()));
+            logMessage(QString("A %1 msec timeout was specified for this process. It will be stopped if not completed before the timeout was reached.").arg(timeout_msecs));
+        }
     }
 
     return true;

@@ -109,6 +109,7 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     [#] ObserverWidget will no longer register all its actions by default, only when ActionHints are specified on the
         displayed observer and the ObserverWidget is set to use its observer hints, instead of custom hints.
     [#] ObserverWidget::setUseObserverHints() will now refresh the hints on the widget when toggled.
+	[#] Improved ConfigurationWidget's control of when Apply button is shown and also add an OK button.
 
     [-] Removed ObserverWidget::writeSettings() and ObserverWidget::readSettings().
     [-] Removed the functionality in ObserverWidget where it will append the contexts of any selected objects

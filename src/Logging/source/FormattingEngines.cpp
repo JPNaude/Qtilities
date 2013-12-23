@@ -15,7 +15,7 @@
 // Default Formatting Engine
 // -----------------------------------
 QString Qtilities::Logging::FormattingEngine_Default::initializeString() const {
-    return QString(tr("%1 Session Log:\nDate: %2\n")).arg(QCoreApplication::applicationName()).arg(QDateTime::currentDateTime().toString());
+    return QString("%1 Session Log:\nDate: %2\n").arg(QCoreApplication::applicationName()).arg(QDateTime::currentDateTime().toString());
 }
 
 QString Qtilities::Logging::FormattingEngine_Default::formatMessage(Logger::MessageType message_type, const QList<QVariant>& messages) const {
@@ -42,14 +42,14 @@ QString Qtilities::Logging::FormattingEngine_Default::formatMessage(Logger::Mess
 }
 
 QString Qtilities::Logging::FormattingEngine_Default::finalizeString() const {
-    return tr("\nEnd of session log.\n%1").arg(QDateTime::currentDateTime().toString());
+    return QString("\nEnd of session log.\n%1").arg(QDateTime::currentDateTime().toString());
 }
 
 // -----------------------------------
 // Rich Text Formatting Engine
 // -----------------------------------
  QString Qtilities::Logging::FormattingEngine_Rich_Text::initializeString() const {
-    return tr("%1 Session Log:<br>Date: %2<br>").arg(QCoreApplication::applicationName()).arg(QDateTime::currentDateTime().toString());
+    return QString("%1 Session Log:<br>Date: %2<br>").arg(QCoreApplication::applicationName()).arg(QDateTime::currentDateTime().toString());
  }
 
 QString Qtilities::Logging::FormattingEngine_Rich_Text::formatMessage(Logger::MessageType message_type, const QList<QVariant>& messages) const {
@@ -132,7 +132,7 @@ QString Qtilities::Logging::FormattingEngine_Rich_Text::formatMessage(Logger::Me
 }
 
 QString Qtilities::Logging::FormattingEngine_Rich_Text::finalizeString() const {
-    return QString(tr("<br>End of session log.<br>%1")).arg(QDateTime::currentDateTime().toString());
+    return QString("<br>End of session log.<br>%1").arg(QDateTime::currentDateTime().toString());
 }
 
 // -----------------------------------
@@ -213,7 +213,7 @@ QString Qtilities::Logging::FormattingEngine_HTML::formatMessage(Logger::Message
 }
 
 QString Qtilities::Logging::FormattingEngine_HTML::finalizeString() const {
-    return QString(tr("</table><br>End of session log: %1</body></html>\n")).arg(QDateTime::currentDateTime().toString());
+    return QString("</table><br>End of session log: %1</body></html>\n").arg(QDateTime::currentDateTime().toString());
 }
 
 // -----------------------------------
@@ -227,7 +227,7 @@ QString Qtilities::Logging::FormattingEngine_QtMsgEngineFormat::formatMessage(Lo
     Q_UNUSED(message_type)
 
     QString message = QString();
-    message.append(QString("%1").arg(messages.front().toString()));
+    message.append(messages.front().toString());
     return message;
 }
 

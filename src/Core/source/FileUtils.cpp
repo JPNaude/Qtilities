@@ -316,6 +316,7 @@ bool FileUtils::pathStartsWith(const QString &child_path, const QString &parent_
     #ifdef Q_OS_WIN
     return toNativeSeparators(QDir::cleanPath(child_path)).startsWith(toNativeSeparators(QDir::cleanPath(parent_path)),cs);
     #else
+    Q_UNUSED(cs)
     return toNativeSeparators(QDir::cleanPath(child_path)).startsWith(toNativeSeparators(QDir::cleanPath(parent_path)),Qt::CaseSensitive);
     #endif
 }
