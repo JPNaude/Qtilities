@@ -322,7 +322,7 @@ namespace Qtilities {
               */
             QString description() const;
             //! Sets the description of the property.
-            void setDesription(const QString& description);
+            void setDescription(const QString& description);
             //! Gets the note of the property.
             /*!
               Used as part of the tooltip for the property.

@@ -476,7 +476,7 @@ QString GenericProperty::description() const {
     return d->description;
 }
 
-void GenericProperty::setDesription(const QString &description) {
+void GenericProperty::setDescription(const QString &description) {
     if (d->description != description) {
         d->description = description;
         setModificationState(true);
