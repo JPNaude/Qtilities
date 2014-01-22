@@ -423,5 +423,4 @@ QString FileUtils::readTextFile(const QString &file_path, bool *ok, QString *err
     if (ok)
         *ok = true;
     return contents;
-
 }

@@ -12,6 +12,8 @@
 #include "GenericPropertyTypeManagers.h"
 #include "QtilitiesApplication.h"
 
+#ifdef QTILITIES_PROPERTY_BROWSER
+
 namespace Qtilities {
 namespace CoreGui {
 
@@ -245,6 +247,7 @@ void FileEditorFactory::slotSetValue(const QString &value) {
     }
 }
 
+}
+}
 
-}
-}
+#endif

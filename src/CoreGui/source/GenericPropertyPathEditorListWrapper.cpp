@@ -12,6 +12,8 @@
 #include "GenericPropertyPathEditorListWrapper.h"
 #include "ui_GenericPropertyPathEditorListWrapper.h"
 
+#ifdef QTILITIES_PROPERTY_BROWSER
+
 namespace Qtilities {
 namespace CoreGui {
 
@@ -43,3 +45,5 @@ void GenericPropertyPathEditorListWrapper::on_buttonBox_rejected() {
 
 }
 }
+
+#endif

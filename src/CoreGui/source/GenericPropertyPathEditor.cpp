@@ -11,6 +11,9 @@
 
 #include "GenericPropertyPathEditor.h"
 #include "ui_GenericPropertyPathEditor.h"
+
+#ifdef QTILITIES_PROPERTY_BROWSER
+
 #include "GenericPropertyPathEditorListWrapper.h"
 #include "QtilitiesApplication.h"
 #include "QtilitiesCoreGuiConstants.h"
@@ -133,3 +136,5 @@ void GenericPropertyPathEditor::handleValueChanged(const QString &value) {
 
 }
 }
+
+#endif

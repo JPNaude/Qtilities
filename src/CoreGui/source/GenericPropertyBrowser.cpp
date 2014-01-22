@@ -329,8 +329,8 @@ void GenericPropertyBrowser::handlePropertyValueChanged(GenericProperty *propert
         if (!display_property)
             return;
 
-        if (display_property == d->current_edited_property)
-            return;
+//        if (display_property == d->current_edited_property)
+//            return;
 
         // Now we must get the correct manager for it:
         d->ignore_build_display_side_property_changes = true;
