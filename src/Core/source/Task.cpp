@@ -312,7 +312,7 @@ void Qtilities::Core::Task::logMessage(const QString& message, Logger::MessageTy
     if (d->task_state == ITask::TaskBusy || d->task_state == ITask::TaskPaused)
         updateBusyState(type);
 
-    if (d->task_state == ITask::TaskBusy) {
+    if (d->task_state == ITask::TaskBusy && d->last_error_messages_count > 0) {
         if (type == Logger::Error) {
             if (d->last_error_messages.count() == d->last_error_messages_count)
                 d->last_error_messages.pop_back();

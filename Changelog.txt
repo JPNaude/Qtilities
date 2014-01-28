@@ -72,6 +72,8 @@ https://github.com/JPNaude/Qtilities/issues/milestones
         some cases when using QtilitiesProcess.
     [*] Fixed FileUtils::findFilesUnderDir() matching against directories which are more than one level deep from the search dir.
     [*] Fixed Task::setLastErrorMessagesStackSize() not updating the stack size correctly.
+	[*] Fixed VersionNumber > and < operators which returned wrong result in some situations.
+	[*] Fixed bug where Task.cpp was still logging errors even when the last error message count was set to 0.
 
     ============================
     QtilitiesCoreGui:

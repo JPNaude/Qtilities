@@ -102,18 +102,10 @@ Qtilities::Core::VersionNumber& Qtilities::Core::VersionNumber::operator=(const 
 }
 
 bool Qtilities::Core::VersionNumber::operator>(const VersionNumber& ref) {
-    if (d->version_major > ref.versionMajor())
-        return true;
-    if (d->is_version_minor_used) {
-        if (d->version_minor > ref.versionMinor())
-            return true;
-    }
-    if (d->is_version_revision_used) {
-        if (d->version_revision > ref.versionRevision())
-            return true;
-    }
-
-    return false;
+    if (*this == ref)
+        return false;
+    else
+        return !(*this < ref);
 }
 
 bool Qtilities::Core::VersionNumber::operator>=(const VersionNumber& ref) {
@@ -124,26 +116,29 @@ bool Qtilities::Core::VersionNumber::operator>=(const VersionNumber& ref) {
 }
 
 bool Qtilities::Core::VersionNumber::operator<(const VersionNumber& ref) {
+    if (*this == ref)
+        return false;
+
     if (d->is_version_revision_used) {
-        // Handle case: 2.5.3 < 1.5.3
+        // Handle case: 1.5.3 < 2.5.3
         if (d->version_major < ref.versionMajor())
             return true;
-        // Handle case: 1.4.3 < 1.5.3
-        if (d->version_minor < ref.versionMinor())
+        // Handle case: 1.4.3 < 1.5.3 and 2.4.3 < 1.5.3
+        if (d->version_minor < ref.versionMinor() && d->version_major == ref.versionMajor())
             return true;
-        // Handle case: 1.5.2 < 1.5.3
-        if (d->version_revision < ref.versionRevision())
+        // Handle case: 1.5.2 < 1.5.3 and 2.5.2 < 1.5.3 and 2.6.2 < 1.5.3
+        if (d->version_revision < ref.versionRevision() && d->version_minor == ref.versionMinor() && d->version_major == ref.versionMajor())
             return true;
         // All other cases
         return false;
     }
 
     if (d->is_version_minor_used) {
-        // Handle case: 2.5.3 < 1.5.3
+        // Handle case: 1.5.3 < 2.5.3
         if (d->version_major < ref.versionMajor())
             return true;
-        // Handle case: 1.4.3 < 1.5.3
-        if (d->version_minor < ref.versionMinor())
+        // Handle case: 1.4.3 < 1.5.3 and 2.4.3 < 1.5.3
+        if (d->version_minor < ref.versionMinor() && d->version_major == ref.versionMajor())
             return true;
         // All other cases
         return false;
