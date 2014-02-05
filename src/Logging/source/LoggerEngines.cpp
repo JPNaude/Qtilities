@@ -47,7 +47,7 @@ Qtilities::Logging::FileLoggerEngine::~FileLoggerEngine()
 
 bool Qtilities::Logging::FileLoggerEngine::initialize() {
     if (file_name.isEmpty()) {
-        LOG_ERROR(QString(tr("Failed to initialize file logger engine (%1): File name is empty...").arg(objectName())));
+        LOG_ERROR(QString("Failed to initialize file logger engine (%1): File name is empty...").arg(objectName()));
         return false;
     }
 
@@ -59,7 +59,7 @@ bool Qtilities::Logging::FileLoggerEngine::initialize() {
         if (!formatting_engine_inst) {
             // We assign a default formatting engine:
             abstractLoggerEngineData->formatting_engine = Log->formattingEngineReference(qti_def_FORMATTING_ENGINE_DEFAULT);
-            LOG_INFO(QString(tr("Assigning default formatting engine to file logger engine (%1).").arg(objectName())));
+            LOG_DEBUG(QString("Assigning default formatting engine to file logger engine (%1).").arg(objectName()));
         } else {
             abstractLoggerEngineData->formatting_engine = formatting_engine_inst;
         }
@@ -73,7 +73,7 @@ bool Qtilities::Logging::FileLoggerEngine::initialize() {
 
     QFile file(file_name);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        LOG_ERROR(QString(tr("Failed to initialize file logger engine (%1): Can't open the specified file (%2) for writing...")).arg(objectName()).arg(file_name));
+        LOG_ERROR(QString("Failed to initialize file logger engine (%1): Can't open the specified file (%2) for writing...").arg(objectName()).arg(file_name));
         return false;
     }
 
@@ -112,15 +112,14 @@ QString Qtilities::Logging::FileLoggerEngine::status() const {
             return QString("Logging in progress to output file: %1").arg(file_name);
         else
             return "Ready but inactive.";
-    } else {
+    } else
         return "Not initialized.";
-    }
 }
 
 void Qtilities::Logging::FileLoggerEngine::clearLog() {
     QFile file(file_name);
     if (!file.open(QIODevice::WriteOnly)) {
-        qWarning() << tr("Failed to clear file logger engine:") << file_name;
+        qWarning() << "Failed to clear file logger engine:" << file_name;
         return;
     }
     file.close();
@@ -189,14 +188,11 @@ Qtilities::Logging::QtMsgLoggerEngine* Qtilities::Logging::QtMsgLoggerEngine::in
     return m_Instance;
 }
 
-Qtilities::Logging::QtMsgLoggerEngine::QtMsgLoggerEngine() : AbstractLoggerEngine()
-{
+Qtilities::Logging::QtMsgLoggerEngine::QtMsgLoggerEngine() : AbstractLoggerEngine() {
     setName("Qt Message Logger Engine");
 }
 
-Qtilities::Logging::QtMsgLoggerEngine::~QtMsgLoggerEngine()
-{
-}
+Qtilities::Logging::QtMsgLoggerEngine::~QtMsgLoggerEngine() {}
 
 bool Qtilities::Logging::QtMsgLoggerEngine::initialize() {
     abstractLoggerEngineData->is_initialized = true;
@@ -293,9 +289,8 @@ QString Qtilities::Logging::ConsoleLoggerEngine::status() const {
             return "Logging in progress...";
         else
             return "Ready but inactive.";
-    } else {
+    } else
         return "Not initialized.";
-    }
 }
 
 void ConsoleLoggerEngine::resetConsoleEscapeCodes() {
@@ -306,11 +301,10 @@ void ConsoleLoggerEngine::resetConsoleEscapeCodes() {
 
 void Qtilities::Logging::ConsoleLoggerEngine::logMessage(const QString& message, Logger::MessageType message_type) {
 #ifdef Q_OS_WIN
-    if (message_type == Logger::Error || message_type == Logger::Fatal) {
+    if (message_type == Logger::Error || message_type == Logger::Fatal)
         fprintf(stderr, "%s\n", qPrintable(message));
-    } else {
+    else
         fprintf(stdout, "%s\n", qPrintable(message));
-    }
 #else
     if (color_formatting_enabled) {
         // For more info see: //http://en.wikipedia.org/wiki/ANSI_escape_code
@@ -325,9 +319,8 @@ void Qtilities::Logging::ConsoleLoggerEngine::logMessage(const QString& message,
             fprintf(stderr, qPrintable(QString("%1%s\n%2").arg(message_colors[Logger::Error]).arg(CONSOLE_RESET)), qPrintable(message));
         } else if (message_type == Logger::Fatal) {
             fprintf(stderr, qPrintable(QString("%1%s\n%2").arg(message_colors[Logger::Fatal]).arg(CONSOLE_RESET)), qPrintable(message));
-        } else {
+        } else
             fprintf(stdout, "%s\n", qPrintable(message));
-        }
     } else
         fprintf(stdout, "%s\n", qPrintable(message));
 #endif

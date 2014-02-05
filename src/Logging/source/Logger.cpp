@@ -493,10 +493,12 @@ void Qtilities::Logging::Logger::enableAllLoggerEngines() {
 }
 
 void Qtilities::Logging::Logger::deleteEngine(const QString& engine_name) {
-    QObject* engine = loggerEngineReference(engine_name);
+    AbstractLoggerEngine* engine = loggerEngineReference(engine_name);
 
     if (!engine)
         return;
+//    else
+//        engine->finalize();
 
     delete engine;
 }
@@ -544,6 +546,38 @@ Qtilities::Logging::AbstractLoggerEngine* Qtilities::Logging::Logger::loggerEngi
                 return d->logger_engines.at(i);
         }
     }
+    return 0;
+}
+
+Qtilities::Logging::AbstractLoggerEngine *Qtilities::Logging::Logger::loggerEngineReferenceForFile(const QString &file_path) {
+    for (int i = 0; i < d->logger_engines.count(); ++i) {
+        if (d->logger_engines.at(i)) {
+            FileLoggerEngine* fe = qobject_cast<FileLoggerEngine*> (d->logger_engines.at(i));
+            if (fe) {
+                bool is_match = false;
+                QFileInfo fi1(fe->getFileName());
+                QFileInfo fi2(file_path);
+                if (fi1.exists() && fi2.exists())
+                    is_match = (fi1 == fi2);
+                else {
+                    QString cleaned_1 = QDir::cleanPath(fe->getFileName());
+                    QString cleaned_2 = QDir::cleanPath(file_path);
+                    if (cleaned_1.size() == cleaned_2.size()) {
+                        #ifdef Q_OS_WIN
+                        is_match = (QDir::toNativeSeparators(cleaned_1).compare(QDir::toNativeSeparators(cleaned_2),Qt::CaseInsensitive) == 0);
+                        #else
+                        is_match = (QDir::toNativeSeparators(cleaned_1).compare(QDir::toNativeSeparators(cleaned_2),Qt::CaseSensitive) == 0);
+                        #endif
+                    } else
+                        is_match = false;
+                }
+
+                if (is_match)
+                    return fe;
+            }
+        }
+    }
+
     return 0;
 }
 

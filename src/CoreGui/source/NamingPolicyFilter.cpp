@@ -1201,6 +1201,9 @@ Qtilities::CoreGui::NamingPolicyDelegate::NamingPolicyDelegate(QObject *parent) 
 }
 
 void Qtilities::CoreGui::NamingPolicyDelegate::setObserverContext(Observer* observer) {
+    if (d->observer == observer)
+        return;
+
     d->observer = observer;
 
     if (d->observer) {

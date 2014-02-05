@@ -145,7 +145,7 @@ log_engine->setMessageContexts(Logger::EngineSpecificMessages);
                 - The widget has its Qt::WA_QuitOnClose attribute set to false, thus if the temporary widget is still open when the application is closed it will be destructed
                   and the application will close. Note that this depends on the way widgets are managed in your application, by default the mentioned behavior will happen.
 
-                \param engine_name The name of the engine.
+                \param engine_name The name of the engine. If an engine with the same name already exists this function will assign an unique name to the new widget by appending a number to \p engine_name.
                 \param message_displays_flag The message display flags indicating which message tabs should be shown in the logger widget.
                 \param window_title The created window's title. By default an empty string is passed which will result in the engine_name being used.
                 \param message_types The message types which must be logged in this log widget.
@@ -187,7 +187,7 @@ log_engine->setMessageContexts(Logger::EngineSpecificMessages);
             /*!
                 This function is similar to createLogWidget() but it wraps the widget produced by createLogWidget() with a QDockWidget().
 
-                \param engine_name The name of the engine.
+                \param engine_name The name of the engine. If an engine with the same name already exists this function will assign an unique name to the new widget by appending a number to \p engine_name.
                 \param message_displays_flag The message display flags indicating which message tabs should be shown in the logger widget.
                 \param window_title The created window's title. By default an empty string is passed which will result in the engine_name being used.
                 \param is_active Indicates if the engine must be active after it was created.

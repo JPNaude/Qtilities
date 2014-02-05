@@ -155,6 +155,28 @@ my_process.addProcessBufferMessageTypeHint(message_hint_error);
                                       int wait_for_started_msecs = 30000,
                                       int timeout_msecs = -1);
 
+            //! Assigns a file logger engine to the process, causing all messages from the process to be logged to the specified file.
+            /*!
+             * This function assigns a file logger engine to the process and forwards all log messages received from the backend process to
+             * this file. This is achieved by calling ITask::setCustomLoggerEngine() on the process.
+             *
+             * \param file_path The file path of the file to log to.
+             * \param log_only_to_file When true, all messages will only be logged to this file instead of to this file and the system wide context. Setting this
+             * parameter to true is equivalent to setting the log context (see ITask::setLogContext()) of the process to Logger::EngineSpecificMessages, as well
+             * as calling ITask::setCustomLoggerEngine() with its use_only_engine_parameter to true. When setting parameter to false however, the log context of the process is left untouched.
+             * \param engine_name The engine name used to create a new engine. The function will first check if any existing engines log to the specified file,
+             * and if an existing engine already logs to the specified file, the existing engine will be used and the \p engine_name parameter will be ignored. Alternatively
+             * a new file engine will be created for the process using the engine name when specified, if not specified the base name of the file will be used as the engine name.
+             * If an engine with the same name already exists this function will assign an unique name to the new widget by appending a number to \p engine_name.
+             *
+             * \note Call this function before starting the process.
+             * \note When creating a new file logger engine, the process will take ownership of the new engine and
+             * delete it when the process is deleted.
+             *
+             * <i>This function was added in %Qtilities v1.5.</i>
+             */
+            void assignFileLoggerEngineToProcess(const QString &file_path, bool log_only_to_file = false, QString *engine_name = 0);
+
             //! Access to the QProcess instance contained and used within this object.
             QProcess* process();
 

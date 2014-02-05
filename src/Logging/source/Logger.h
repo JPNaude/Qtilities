@@ -292,6 +292,13 @@ namespace Qtilities {
             int attachedLoggerEngineCount() const;
             //! Returns a reference to the logger known by the specified name.
             AbstractLoggerEngine* loggerEngineReference(const QString& engine_name);
+            //! Returns a reference to the FileLoggerEngine logging to the specified file name.
+            /*!
+             * \note If no FileLoggerEngine exists which currently logs to the specified file name, 0 is returned.
+             *
+             * <i>This function was added in %Qtilities v1.5.</i>
+             */
+            AbstractLoggerEngine *loggerEngineReferenceForFile(const QString& file_path);
             //! Returns a reference to the logger engine at a specific position.
             AbstractLoggerEngine* loggerEngineReferenceAt(int index);
             //! Creates a new logger with the parameters specified.

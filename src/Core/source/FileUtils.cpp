@@ -334,7 +334,7 @@ bool FileUtils::makeLocalCopyOfResource(const QString &resource_path, const QStr
     QFile resource_file(resource_path);
     if (!resource_file.exists()) {
         if (errorMsg)
-            *errorMsg = QString(tr("Resource file does not exist at path: %1. It will not be copied.")).arg(resource_file.fileName());
+            *errorMsg = QString("Resource file does not exist at path: %1. It will not be copied.").arg(resource_file.fileName());
         return false;
     }
 
@@ -343,7 +343,7 @@ bool FileUtils::makeLocalCopyOfResource(const QString &resource_path, const QStr
     if (!dir.exists()) {
         if (!dir.mkpath(fi.path())) {
             if (errorMsg)
-                *errorMsg = QString(tr("Failed to create target directory: %1. Resource file will not be copied.")).arg(fi.path());
+                *errorMsg = QString("Failed to create target directory: %1. Resource file will not be copied.").arg(fi.path());
             return false;
         }
     }
@@ -352,18 +352,18 @@ bool FileUtils::makeLocalCopyOfResource(const QString &resource_path, const QStr
     if (local_file.exists()) {
         if (!local_file.remove()) {
             if (errorMsg)
-                *errorMsg = QString(tr("Failed to remove existing local file at: %1. Resource file will not be copied.")).arg(local_path);
+                *errorMsg = QString("Failed to remove existing local file at: %1. Resource file will not be copied.").arg(local_path);
             return false;
         }
     }
     if (!resource_file.copy(local_path)) {
         if (errorMsg)
-            *errorMsg = QString(tr("Failed to create a copy of resource file: %1 -> %2")).arg(resource_path).arg(local_path);
+            *errorMsg = QString("Failed to create a copy of resource file: %1 -> %2").arg(resource_path).arg(local_path);
         return false;
     } else {
         if (!QFile::setPermissions(local_path, local_permissions)) {
             if (errorMsg)
-                *errorMsg = QString(tr("Failed to set file permissions on copied resource file at path: %1.")).arg(local_path);
+                *errorMsg = QString("Failed to set file permissions on copied resource file at path: %1.").arg(local_path);
             return false;
         }
     }

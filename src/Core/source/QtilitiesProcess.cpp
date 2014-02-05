@@ -16,7 +16,7 @@
 #include <QRegExp>
 
 #include <Logger>
-
+#include <LoggerEngines.h>
 using namespace Qtilities::Logging;
 
 struct Qtilities::Core::QtilitiesProcessPrivateData {
@@ -160,6 +160,42 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program,
     }
 
     return true;
+}
+
+void Qtilities::Core::QtilitiesProcess::assignFileLoggerEngineToProcess(const QString &file_path, bool log_only_to_file, QString *engine_name) {
+    if (file_path.isEmpty())
+        return;
+
+    // First check if any existing engines use this file path:
+    AbstractLoggerEngine* engine = Log->loggerEngineReferenceForFile(file_path);
+    FileLoggerEngine* fe = qobject_cast<FileLoggerEngine*> (engine);
+    if (!engine || !fe) {
+        QString new_logger_name;
+        if (!engine_name) {
+            QFileInfo fi(file_path);
+            new_logger_name = fi.baseName();
+        } else
+            new_logger_name = *engine_name;
+
+        int logger_count = -1;
+        QStringList attached_logger_engine_names = Log->attachedLoggerEngineNames();
+        while (attached_logger_engine_names.contains(new_logger_name)) {
+            if (logger_count > -1)
+                new_logger_name.chop(3 + QString::number(logger_count).length());
+            ++logger_count;
+            new_logger_name.append(" (" + QString::number(logger_count) + ")");
+        }
+
+        engine = Log->newFileEngine(new_logger_name,file_path);
+        engine->setMessageContexts(Logger::EngineSpecificMessages);
+    }
+
+    // Set the log context:
+    if (log_only_to_file)
+        setLogContext(Logger::EngineSpecificMessages);
+
+    // Set the custom log engine of the process:
+    setCustomLoggerEngine(engine,log_only_to_file);
 }
 
 void Qtilities::Core::QtilitiesProcess::stopProcess() {
