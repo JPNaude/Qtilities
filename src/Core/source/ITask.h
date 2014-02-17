@@ -543,6 +543,7 @@ namespace Qtilities {
                   \param message A message which describes the completion of the task.
 
                   \note This function must be a signal in your interface implementation.
+                  \note Do not delete the task in the implementation of this signal. Instead, set the task's lifetime flags using Task::setTaskLifeTimeFlags().
                   */
                 virtual void taskCompleted(ITask::TaskResult result, const QString& message = QString(), Logger::MessageType type = Logger::Info) const = 0;
                 //! Signal emitted when the task is paused.

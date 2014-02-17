@@ -76,7 +76,8 @@ namespace Qtilities {
                 LifeTimeDestroyWhenSuccessful               = 2,  /*!< The task will destroy itself when it completed succesfully (without any warnings). */
                 LifeTimeDestroyWhenSuccessfullWithWarnings  = 4,  /*!< The task will destroy itself when it completed succesfully (with warnings). */
                 LifeTimeDestroyWhenStopped                  = 8,  /*!< The task will destroy itself when stopped. */
-                LifeTimeDestroyWhenFailed                   = 16  /*!< The task will destroy itself when it failed. */
+                LifeTimeDestroyWhenFailed                   = 16, /*!< The task will destroy itself when it failed. */
+                LifeTimeDestroyWhenCompleted                = LifeTimeDestroyWhenSuccessful | LifeTimeDestroyWhenSuccessfullWithWarnings | LifeTimeDestroyWhenStopped | LifeTimeDestroyWhenFailed  /*!< The task will destroy itself when completed, independent of the state if completed in. */
             };
             Q_DECLARE_FLAGS(TaskLifeTimeFlags, TaskLifeTime)
             Q_FLAGS(TaskLifeTimeFlags)
