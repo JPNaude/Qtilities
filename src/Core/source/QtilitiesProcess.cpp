@@ -149,8 +149,8 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program,
         d->process->waitForFinished();
         return false;
     } else {
-        QTimer* timer = new QTimer;
         if (timeout_msecs > 0) {
+            QTimer* timer = new QTimer;
             timer->setSingleShot(true);
             timer->start(timeout_msecs);
             connect(timer,SIGNAL(timeout()),SLOT(stop()));
