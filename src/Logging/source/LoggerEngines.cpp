@@ -294,9 +294,9 @@ QString Qtilities::Logging::ConsoleLoggerEngine::status() const {
 }
 
 void ConsoleLoggerEngine::resetConsoleEscapeCodes() {
-#ifndef Q_OS_WIN
-    fprintf(stdout, qPrintable(QString("%1").arg(CONSOLE_RESET)));
-#endif
+    #ifndef Q_OS_WIN
+    fprintf(stdout, CONSOLE_RESET);
+    #endif
 }
 
 void Qtilities::Logging::ConsoleLoggerEngine::logMessage(const QString& message, Logger::MessageType message_type) {

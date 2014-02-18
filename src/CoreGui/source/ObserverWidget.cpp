@@ -107,12 +107,12 @@ struct Qtilities::CoreGui::ObserverWidgetData {
         table_name_column_delegate(0),
         tree_name_column_delegate(0),
         activity_filter(0),
-        top_level_observer(0),
-        notify_selected_objects_changed(true),
-        initialized(false),
-        read_only(false),
         disable_view_selection_update_from_activity_filter(false),
         disable_activity_filter_update_from_view_selection_change(false),
+        top_level_observer(0),
+        notify_selected_objects_changed(true),       
+        initialized(false),
+        read_only(false),
         is_expand_collapse_visible(true),
         hints_selection_parent(0),
         use_observer_hints(true),
@@ -3278,7 +3278,6 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
     // IMPORTANT: In TreeView, the selection parent might have changed, resulting in
     //            initialize() being called to init hints for new parent. Therefore we
     //            only refresh actions, property browser etc here in TableView mode.
-    Observer* selection_parent = 0;
     if (d->display_mode == TableView) {
         // Only refresh the property browser in table view mode here. In tree view mode it is refreshed in
         // the setTreeSelectionParent slot.
@@ -3286,8 +3285,6 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
         refreshPropertyBrowser();
         refreshDynamicPropertyBrowser();
         #endif
-
-        selection_parent = d_observer;
 
         if (d->activity_filter && !d->disable_activity_filter_update_from_view_selection_change) {
             // Check if the observer has a FollowSelection activity policy:
@@ -3350,7 +3347,7 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
     } else if (d->display_mode == TreeView) {
         // Set the selection parent in the tree:
         // Note: The above line will cause setTreeSelectionParent() to be called.
-        selection_parent = d->tree_model->calculateSelectionParent(selectedIndexes());
+        d->tree_model->calculateSelectionParent(selectedIndexes());
     }
 }
 
