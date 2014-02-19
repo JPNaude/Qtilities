@@ -44,14 +44,13 @@ contains(DEFINES, QTILITIES_PROPERTY_BROWSER) {
     DEPENDPATH += $$PROPERTY_EDITOR_BASE/src
     INCLUDEPATH += $$PROPERTY_EDITOR_BASE/src
     CONFIG(debug, debug|release) {
-        win32::win32-g++:LIBS += $$PROPERTY_EDITOR_BASE/lib/libQtSolutions_PropertyBrowser-headd.a
-        win32::win32-msvc*:LIBS += $$PROPERTY_EDITOR_BASE/lib/QtSolutions_PropertyBrowser-headd.lib
+        # Note: Because the property browser uses $$qtLibraryTarget(QtSolutions_PropertyBrowser-head)
+        # as its output file name, it ends up with a trailing 'd' on Windows, but not on Unix.
+        win32::LIBS += -L$$PROPERTY_EDITOR_BASE/lib -lQtSolutions_PropertyBrowser-headd
         unix::LIBS += -L$$PROPERTY_EDITOR_BASE/lib -lQtSolutions_PropertyBrowser-head
     }
     else {
-        win32::win32-g++:LIBS += $$PROPERTY_EDITOR_BASE/lib/libQtSolutions_PropertyBrowser-head.a
-        win32::win32-msvc*:LIBS += $$PROPERTY_EDITOR_BASE/lib/QtSolutions_PropertyBrowser-head.lib
-        unix::LIBS += -L$$PROPERTY_EDITOR_BASE/lib -lQtSolutions_PropertyBrowser-head
+        LIBS += -L$$PROPERTY_EDITOR_BASE/lib -lQtSolutions_PropertyBrowser-head
     }
 }
 
@@ -91,14 +90,10 @@ contains(DEFINES, QTILITIES_CONAN) {
     INCLUDEPATH += $$CONAN_BASE/include
 
     CONFIG(debug, debug|release) {
-        win32::win32-g++:LIBS += $$CONAN_BASE/lib/libConand1.a
-        win32::win32-msvc*:LIBS += $$CONAN_BASE/lib/Conand1.lib
-        unix::LIBS += -L$$CONAN_BASE/lib -lConand
+        LIBS += -L$$CONAN_BASE/lib -lConand
     }
     else {
-        win32::win32-g++:LIBS += $$CONAN_BASE/lib/libConan1.a
-        win32::win32-msvc*:LIBS += $$CONAN_BASE/lib/Conan1.lib
-        unix::LIBS += -L$$CONAN_BASE/lib -lConan
+        LIBS += -L$$CONAN_BASE/lib -lConan
     }
 }
 

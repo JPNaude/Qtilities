@@ -64,7 +64,7 @@ include(Dependencies.pri)
 #   When defined, the CoreGui library does not contain the HELP_MANAGER,
 #   removing the dependency on QtHelp. Also, the Help Plugin does not
 #   contain anything when defined.
-#   DEFINES += QTILITIES_NO_HELP
+DEFINES += QTILITIES_NO_HELP
 #****************************************************************************
 
 #****************************************************************************
