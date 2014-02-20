@@ -31,7 +31,8 @@ namespace CoreGui {
 
 
 struct GenericPropertyBrowserPrivateData {
-    GenericPropertyBrowserPrivateData() : read_only(false) {}
+    GenericPropertyBrowserPrivateData() : current_edited_property(0),
+        read_only(false) {}
     ~GenericPropertyBrowserPrivateData() {
         if (property_browser)
             delete property_browser;
