@@ -856,9 +856,11 @@ bool Qtilities::Core::ObjectManager::setSharedProperty(QObject* obj, const char*
 
 bool ObjectManager::setSharedProperty(QObject *obj, PropertySpecification property_specification) {
     SharedProperty* sp = ObjectManager::constructPropertyFromSpecification(property_specification);
-    if (sp)
-        return ObjectManager::setSharedProperty(obj,*sp);
-    else
+    if (sp) {
+        bool result = ObjectManager::setSharedProperty(obj,*sp);
+        delete sp;
+        return result;
+    } else
         return false;
 }
 
