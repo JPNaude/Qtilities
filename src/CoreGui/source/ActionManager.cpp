@@ -216,7 +216,7 @@ Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPl
             showed_warning = true;
         }
         #else
-            LOG_WARNING(tr("QtilitiesApplication::mainWindow() is required when registering actions in the action manager.<br><br>Proxy actions will not work as intended."));
+            LOG_DEBUG(tr("QtilitiesApplication::mainWindow() is required when registering actions in the action manager.<br><br>Proxy actions will not work as intended."));
         #endif
     } else
         QtilitiesApplication::mainWindow()->addAction(frontend_action);

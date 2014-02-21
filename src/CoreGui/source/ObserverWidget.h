@@ -65,7 +65,7 @@ namespace Qtilities {
 
           The \ref page_observer_widgets article provides a comprehensive overview of the different ways that the observer widget can be used.
           */
-        class QTILITIES_CORE_GUI_SHARED_EXPORT ObserverWidget : public QMainWindow, public ObserverAwareBase, public IContext {
+        class QTILITIES_CORE_GUI_SHARED_EXPORT ObserverWidget : public QMainWindow, public IContext {
             Q_OBJECT
             Q_INTERFACES(Qtilities::Core::Interfaces::IContext)
 
@@ -110,6 +110,13 @@ categorized_widget->show();
             void constructPrivate(DisplayMode display_mode = TreeView, Observer* observer_context = 0);
 
         public:
+            //! Sets the observer context.
+            bool setObserverContext(Observer* observer_ptr);
+            //! Gets a pointer to the observer context.
+            Observer* observerContext() const;
+            //! Provides a pointer to the current selection's parent. If no objects are selected, 0 is returned.
+            Observer* selectionParent() const;
+
             //! The possible refresh modes of an ObserverWidget.
             /*!
              * Controls how ObserverWidget handles changes to the underlying Observer in TreeView mode.
@@ -147,8 +154,6 @@ categorized_widget->show();
              */
             RefreshMode refreshMode() const;
 
-            //! Implementation of virtual function ObserverAwareBase::setObserverContext().
-            bool setObserverContext(Observer* observer);
             //! Enables/disables lazy initialization.
             /*!
               Lazy initialization means that the internal item view model won't initialize itself during the initialize() call. Its usefull when
@@ -659,8 +664,6 @@ categorized_widget->show();
               <i>This function was added in %Qtilities v1.1.</i>
               */
             bool selectedObjectsHintsMatch() const;
-            //! Provides a pointer to the current selection's parent. If no objects are selected, 0 is returned.
-            Observer* selectionParent() const;
             //! Provides a list of QModelIndexes which are currently selected. Use this call instead of the item model selection's selectedIndexes() call since this function will map the indexes from the proxy model's indexes to the real model's indexes.
             QModelIndexList selectedIndexes() const;
             //! Function to set the default height used for the table view when this widget is used in TableView mode.

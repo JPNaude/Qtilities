@@ -107,6 +107,12 @@ https://github.com/JPNaude/Qtilities/issues/milestones
         Previously this could have only been done using the names of items, which obviously caused issues when
         duplicate names were present in a tree.
 
+	[#] IMPORTANT: ObserverWidget::observerContext() return value changed in tree mode. Previously, this function 
+	    returned the selection parent observer context in tree view mode when there was a selection. This is wrong, 
+		it should return the root observer context as the selection parent context is available through
+		ObserverWidget::selectionParent() already and observerContext() should be consistent between TableView and
+        TreeView modes. If you used observerContext() to get hold of the parent selection, please make the 
+        necessary changes to use selectionParent() instead.		
     [#] Slightly improved layout in SingleTaskWidget.
     [#] Big performance improvements in ObserverWidget, especially when doing collapsing and expansion of
         many nodes, and when using the FollowSelection activity filter hint.
