@@ -281,10 +281,12 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerShortcut
 }
 
 void ActionManager::unregisterCommandsForContext(int context) {
+    if (d->observer_commands.subjectCount() == 0)
+        return;
+
     // Loop through all commands and remove this context on them:
     Command* command = qobject_cast<Command*> (d->observer_commands.subjectAt(0));
-    SubjectIterator<Qtilities::CoreGui::Command> command_itr(command,
-                                                             &d->observer_commands);
+    SubjectIterator<Qtilities::CoreGui::Command> command_itr(command,&d->observer_commands);
 
     if (command_itr.current())
         command_itr.current()->unregisterContext(context);
