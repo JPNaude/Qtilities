@@ -217,14 +217,24 @@ QtilitiesApplication::initialize();
               present the user with a message box saying that the application is busy.
 
               This function is thread-safe.
+
+              \sa busyStateChanged()
               */
             static void setApplicationBusy(bool is_busy);
             //! Gets if the application is busy, thus it cannot be closed.
+            /*!
+             * \sa busyStateChanged()
+             */
             static bool applicationBusy();
 
         signals:
             //! Signal which broadcasts that settings identified by the \p request_id changed and requires updating.
             void settingsUpdateRequest(const QString& request_id);
+            //! Signal which broadcasts changes to the application's busy state.
+            /*!
+             * <i>This function was added in %Qtilities v1.5.</i>
+             */
+            void busyStateChanged(bool is_busy);
 
         public slots:
             //! Returns a Qtilities::CoreGui::AboutWindow with information about the Qtilities libraries.

@@ -27,8 +27,9 @@ Qtilities::Core::QtilitiesCoreApplication* Qtilities::Core::QtilitiesCoreApplica
 Qtilities::Core::QtilitiesCoreApplication::QtilitiesCoreApplication(int &argc, char ** argv) : QCoreApplication(argc, argv) {
     if (!m_Instance) {
         m_Instance = this;
+        connect(QtilitiesCoreApplicationPrivate::instance(),SIGNAL(busyStateChanged(bool)),this,SIGNAL(busyStateChanged(bool)));
     } else {
-        qWarning() << QString(tr("An instance was already created for QtilitiesCoreApplication"));
+        qWarning() << QString("An instance was already created for QtilitiesCoreApplication");
     }
 }
 

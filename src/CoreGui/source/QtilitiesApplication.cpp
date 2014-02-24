@@ -54,11 +54,12 @@ Qtilities::CoreGui::QtilitiesApplication::QtilitiesApplication(int &argc, char *
         qRegisterMetaType<QList<QPointer<QObject> > >("QList<QPointer<QObject> >");
 
         connect(OBJECT_MANAGER,SIGNAL(newObjectAdded(QObject*)),TaskManagerGui::instance(),SLOT(handleObjectPoolAddition(QObject*)));
+        connect(QtilitiesCoreApplicationPrivate::instance(),SIGNAL(busyStateChanged(bool)),this,SIGNAL(busyStateChanged(bool)));
 
         // Organization name not set here yet, thus we can't do this:
         // applicationSessionPath();
     } else {
-        qWarning() << QString(tr("An instance was already created for QtilitiesApplication"));
+        qWarning() << QString("An instance was already created for QtilitiesApplication");
     }
 }
 

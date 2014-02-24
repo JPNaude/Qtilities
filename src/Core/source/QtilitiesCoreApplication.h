@@ -176,14 +176,24 @@ QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::
               This function uses a stacked approach, thus your setApplicationBusy(false) calls must match the number of setApplicationBusy(true) calls.
 
               For more information on this type of stacked approach, see Qtilities::Core::Observer::startProcessingCycle().
+
+              \sa busyStateChanged()
               */
             static void setApplicationBusy(bool is_busy);
             //! Gets if the application is busy, thus it cannot be closed.
+            /*!
+             * \sa busyStateChanged()
+             */
             static bool applicationBusy();
 
         signals:
             //! Signal which broadcasts that settings identified by the \p request_id changed and requires updating.
             void settingsUpdateRequest(const QString& request_id);   
+            //! Signal which broadcasts changes to the application's busy state.
+            /*!
+             * <i>This function was added in %Qtilities v1.5.</i>
+             */
+            void busyStateChanged(bool is_busy);
 
         private:
             Q_DISABLE_COPY(QtilitiesCoreApplication)
