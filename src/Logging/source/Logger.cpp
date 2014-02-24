@@ -471,9 +471,9 @@ QStringList Qtilities::Logging::Logger::allMessageContextStrings() const {
 
 void Qtilities::Logging::Logger::deleteAllLoggerEngines() {
     // Delete all logger engines
-    for (int i = 0; i << d->logger_engines.count(); ++i) {
-        if (d->logger_engines.at(0))
-            delete d->logger_engines.at(0);
+    for (int i = 0; i < d->logger_engines.count(); ++i) {
+        if (d->logger_engines.at(i))
+            delete d->logger_engines.at(i);
     }
     d->logger_engines.clear();
 }

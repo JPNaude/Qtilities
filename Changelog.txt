@@ -31,6 +31,7 @@ https://github.com/JPNaude/Qtilities/issues/milestones
 
     [#] All debug and trace logging macros (LOG_DEBUG, LOG_DEBUG_P etc.) are now defined as noop's ((void)0) in release mode.
     [#] Formatting engine change detected messages are now debug messages, not normal log messages anymore.
+	[#] Fixed issues where Logger::deleteAllLoggerEngines() did not loop through all logger engines properly.
 
     ============================
     QtilitiesCore:
