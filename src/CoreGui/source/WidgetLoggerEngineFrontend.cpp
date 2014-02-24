@@ -152,6 +152,25 @@ Qtilities::CoreGui::MessagesPlainTextEditTab::MessagesPlainTextEditTab(QWidget *
 }
 
 Qtilities::CoreGui::MessagesPlainTextEditTab::~MessagesPlainTextEditTab() {
+    if (d->actionCopy)
+        delete d->actionCopy;
+    if (d->actionSelectAll)
+        delete d->actionSelectAll;
+    if (d->actionClear)
+        delete d->actionClear;
+    if (d->actionPrint)
+        delete d->actionPrint;
+    if (d->actionPrintPDF)
+        delete d->actionPrintPDF;
+    if (d->actionPrintPreview)
+        delete d->actionPrintPreview;
+    if (d->actionSave)
+        delete d->actionSave;
+    if (d->actionFind)
+        delete d->actionFind;
+    if (d->actionSettings)
+        delete d->actionSettings;
+
     delete d;
 }
 
