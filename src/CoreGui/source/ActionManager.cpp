@@ -210,13 +210,13 @@ Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPl
         #ifndef QT_NO_DEBUG
         // Show a message box since action manager will always be used in QtGui application.
         if (!showed_warning) {
-            QString warning_msg = QString(tr("QtilitiesApplication::mainWindow() is required when registering actions in the action manager.<br><br>Proxy actions will not work as intended."));
+            QString warning_msg = QString("QtilitiesApplication::mainWindow() is required when registering actions in the action manager.<br><br>Proxy actions will not work as intended.");
             qWarning() << warning_msg;
             LOG_WARNING(warning_msg);
             showed_warning = true;
         }
         #else
-            LOG_DEBUG(tr("QtilitiesApplication::mainWindow() is required when registering actions in the action manager.<br><br>Proxy actions will not work as intended."));
+            LOG_DEBUG("QtilitiesApplication::mainWindow() is required when registering actions in the action manager.<br><br>Proxy actions will not work as intended.");
         #endif
     } else
         QtilitiesApplication::mainWindow()->addAction(frontend_action);

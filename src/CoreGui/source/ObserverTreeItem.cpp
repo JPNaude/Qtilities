@@ -48,11 +48,17 @@ Qtilities::CoreGui::ObserverTreeItem::ObserverTreeItem(const ObserverTreeItem& r
 }
 
 Qtilities::CoreGui::ObserverTreeItem::~ObserverTreeItem() {
-    int count = childItemList.count();
-    for (int i = count-1; i >= 0; i--) {
-        if (childItemList.at(i))
-            delete childItemList.at(i);
+    QListIterator<QPointer<ObserverTreeItem> > itr(childItemList);
+    while (itr.hasNext()) {
+        QPointer<ObserverTreeItem> item = itr.next();
+        if (item)
+            delete item;
     }
+//    int count = childItemList.count();
+//    for (int i = count-1; i >= 0; i--) {
+//        if (childItemList.at(i))
+//            delete childItemList.at(i);
+//    }
 }
 
 void Qtilities::CoreGui::ObserverTreeItem::appendChild(ObserverTreeItem *child_item) {

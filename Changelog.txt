@@ -78,6 +78,7 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     [*] Fixed Task::setLastErrorMessagesStackSize() not updating the stack size correctly.
 	[*] Fixed VersionNumber > and < operators which returned wrong result in some situations.
 	[*] Fixed bug where Task.cpp was still logging errors even when the last error message count was set to 0.
+	[*] Fixed memory leak in Observer.
 
     ============================
     QtilitiesCoreGui:
@@ -137,6 +138,9 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     [*] Fixed ObserverWidget not respecting the ObserverHints::ItemViewColumnFlags of new selections in TreeView mode.
     [*] Fixed ObserverWidget not keeping its selection when refreshing while using the ObserverHints::RootIndexHide hint.
     [*] Fixed ObserverWidget not keeping its expanded nodes when refreshing while using the ObserverHints::RootIndexHide hint.
+	[*] Fixed crash in ActionManager::unregisterCommandsForContext() when there was not command registered in the action manager.
+	[*] Fixed memory leak in WidgetLoggerEngineFrontend.
+	[*] Fixed memory leak in SearchBoxWidget.
 
     ============================
     QtilitiesExtensionSystem:

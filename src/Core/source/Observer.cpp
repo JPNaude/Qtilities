@@ -145,10 +145,9 @@ Qtilities::Core::Observer::~Observer() {
     // Delete subject filters
     LOG_TRACE("Deleting subject filters.");
     int filter_count = observerData->subject_filters.count();
-    for (int i = 0; i < filter_count; ++i) {
+    for (int i = 0; i < filter_count; ++i)
         delete observerData->subject_filters.at(0);
-        observerData->subject_filters.pop_front();
-    }
+    observerData->subject_filters.clear();
 
     if (objectName() != QLatin1String(qti_def_GLOBAL_OBJECT_POOL)) {
         LOG_TRACE("Removing any trace of this observer from remaining children.");
@@ -160,7 +159,9 @@ Qtilities::Core::Observer::~Observer() {
         }
     }
 
-    // We do not need to delete observerData here since it is a QSharedDataPointer.
+    if (observerData->display_hints)
+        delete observerData->display_hints;
+    delete observerData;
     LOG_TRACE(QString("Done with destruction of observer \"%1\".").arg(objectName()));
 }
 

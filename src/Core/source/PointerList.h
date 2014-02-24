@@ -36,10 +36,9 @@ namespace Qtilities {
             virtual void removeThisObject(QObject * obj) = 0;
 
         public:
-            //! Constructor.
             PointerListDeleter() : QObject() {}
-            //! Copy constructor.
             PointerListDeleter(const PointerListDeleter & other) : QObject() { Q_UNUSED(other) }
+            ~PointerListDeleter() {}
 
         signals:
             //! Signal which is emitted when an object is removed.

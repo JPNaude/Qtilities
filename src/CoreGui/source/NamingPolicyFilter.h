@@ -460,6 +460,7 @@ if (ObjectManager::propertyExists(obj,qti_prop_NAME)) {
 
          public:
              NamingPolicyDelegate(QObject *parent = 0);
+             ~NamingPolicyDelegate();
 
             //! Sets the observer context for this delegate.
             void setObserverContext(Observer* observer);

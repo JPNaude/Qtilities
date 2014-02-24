@@ -1200,6 +1200,10 @@ Qtilities::CoreGui::NamingPolicyDelegate::NamingPolicyDelegate(QObject *parent) 
     d->obj = 0;
 }
 
+Qtilities::CoreGui::NamingPolicyDelegate::~NamingPolicyDelegate() {
+    delete d;
+}
+
 void Qtilities::CoreGui::NamingPolicyDelegate::setObserverContext(Observer* observer) {
     if (d->observer == observer)
         return;

@@ -130,10 +130,11 @@ SearchBoxWidget::SearchBoxWidget(SearchOptions search_options, WidgetMode mode, 
     ui->txtReplaceString->setFont(normal_font);
 }
 
-SearchBoxWidget::~SearchBoxWidget()
-{
-    delete d;
+SearchBoxWidget::~SearchBoxWidget() {
     delete ui;
+    if (d->searchOptionsMenu)
+        delete d->searchOptionsMenu;
+    delete d;
 }
 
 QString SearchBoxWidget::currentSearchString() const {
