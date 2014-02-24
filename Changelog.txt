@@ -143,6 +143,8 @@ https://github.com/JPNaude/Qtilities/issues/milestones
 	[*] Fixed crash in ActionManager::unregisterCommandsForContext() when there was not command registered in the action manager.
 	[*] Fixed memory leak in WidgetLoggerEngineFrontend.
 	[*] Fixed memory leak in SearchBoxWidget.
+	[*] Fixed ObserverTreeModel::handleContextDataChanged(Observer* observer) not refreshing the context of the specified observer,
+	    but of its parent context.
 
     ============================
     QtilitiesExtensionSystem:

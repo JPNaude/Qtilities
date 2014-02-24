@@ -1407,17 +1407,47 @@ void Qtilities::CoreGui::ObserverTreeModel::handleContextDataChanged(Observer* o
         return;
     }
 
-    handleContextDataChanged(findObject(observer));
+    QModelIndex parent_index = findObject(observer);
+    bool parent_index_valid = parent_index.isValid();
+    if (!parent_index_valid)
+        return;
+
+    QModelIndex top_left = index(0,0,parent_index);
+    bool top_left_valid = top_left.isValid();
+    if (!top_left_valid)
+        return;
+
+    int column_count = columnCount()-1;
+    int row_count = rowCount(parent_index) - 1;
+    QModelIndex bottom_right = index(row_count-1,column_count-1,parent_index);
+    bool bottom_right_valid = bottom_right.isValid();
+    if (!bottom_right_valid)
+        return;
+
+    if (hasIndex(row_count,column_count,parent_index))
+        emit dataChanged(top_left,bottom_right);
 }
 
 void Qtilities::CoreGui::ObserverTreeModel::handleContextDataChanged(const QModelIndex &set_data_index) {
     // We get the indexes for the complete context since activity of many objects might change:
     // Warning: This is not going to work for categorized hierarchy observers.
     QModelIndex parent_index = parent(set_data_index);
-    int column_count = columnVisiblePosition(ColumnLast);
-    int row_count = rowCount(parent_index) - 1;
+    bool parent_index_valid = parent_index.isValid();
+    if (!parent_index_valid)
+        return;
+
     QModelIndex top_left = index(0,0,parent_index);
+    bool top_left_valid = top_left.isValid();
+    if (!top_left_valid)
+        return;
+
+    int column_count = columnCount()-1;
+    int row_count = rowCount(parent_index) - 1;
     QModelIndex bottom_right = index(row_count-1,column_count-1,parent_index);
+    bool bottom_right_valid = bottom_right.isValid();
+    if (!bottom_right_valid)
+        return;
+
     if (hasIndex(row_count,column_count,parent_index))
         emit dataChanged(top_left,bottom_right);
 }
