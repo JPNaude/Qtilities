@@ -43,17 +43,19 @@ using namespace Qtilities::CoreGui::Constants;
 
 struct Qtilities::CoreGui::MessagesPlainTextEditTabPrivateData {
     MessagesPlainTextEditTabPrivateData() : searchBoxWidget(0),
-    txtLog(0),
-    actionCopy(0),
-    actionSelectAll(0),
-    actionClear(0),
-    actionPrint(0),
-    actionPrintPDF(0),
-    actionPrintPreview(0),
-    actionSave(0),
-    actionFind(0),
-    actionSettings(0),
-    central_widget(0) {}
+        txtLog(0),
+        actionCopy(0),
+        actionSelectAll(0),
+        actionClear(0),
+        actionPrint(0),
+        actionPrintPDF(0),
+        actionPrintPreview(0),
+        actionSave(0),
+        actionFind(0),
+        actionSettings(0),
+        sep1(0),
+        sep2(0),
+        central_widget(0) {}
 
     SearchBoxWidget* searchBoxWidget;
     QPlainTextEdit txtLog;
@@ -66,6 +68,8 @@ struct Qtilities::CoreGui::MessagesPlainTextEditTabPrivateData {
     QAction* actionSave;
     QAction* actionFind;
     QAction* actionSettings;
+    QAction* sep1;
+    QAction* sep2;
 
     //! The IActionProvider interface implementation.
     ActionProvider* action_provider;
@@ -170,6 +174,10 @@ Qtilities::CoreGui::MessagesPlainTextEditTab::~MessagesPlainTextEditTab() {
         delete d->actionFind;
     if (d->actionSettings)
         delete d->actionSettings;
+    if (d->sep1)
+        delete d->sep1;
+    if (d->sep2)
+        delete d->sep2;
 
     delete d;
 }
@@ -418,13 +426,13 @@ void Qtilities::CoreGui::MessagesPlainTextEditTab::constructActions() {
     // Add actions to text edit.
     d->txtLog.addAction(d->actionClear);
     d->txtLog.addAction(d->actionSave);
-    QAction* sep1 = new QAction("",0);
-    sep1->setSeparator(true);
-    d->txtLog.addAction(sep1);
+    d->sep1 = new QAction("",0);
+    d->sep1->setSeparator(true);
+    d->txtLog.addAction(d->sep1);
     d->txtLog.addAction(d->actionFind);
-    QAction* sep2 = new QAction("",0);
-    sep2->setSeparator(true);
-    d->txtLog.addAction(sep2);
+    d->sep2 = new QAction("",0);
+    d->sep2->setSeparator(true);
+    d->txtLog.addAction(d->sep2);
     //d->txtLog.addAction(d->actionSettings);
     d->txtLog.setContextMenuPolicy(Qt::ActionsContextMenu);
 
