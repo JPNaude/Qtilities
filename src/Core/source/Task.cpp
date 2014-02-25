@@ -71,8 +71,6 @@ struct Qtilities::Core::TaskPrivateData {
     QPointer<QObject>               parent_task_base;
 };
 
-static int ref_count = 0;
-
 Qtilities::Core::Task::Task(const QString& task_name, bool enable_logging, QObject* parent) : QObject(parent), ITask() {
     d = new TaskPrivateData;
     d->task_name = task_name;
@@ -82,13 +80,9 @@ Qtilities::Core::Task::Task(const QString& task_name, bool enable_logging, QObje
     connect(&d->elapsed_time_notification_timer,SIGNAL(timeout()),SLOT(broadcastElapsedTimeChanged()));
 
     QtilitiesCoreApplication::taskManager()->assignIdToTask(this);
-    ++ref_count;
-    LOG_DEBUG("++ Task::Task() " + QString::number(ref_count));
 }
 
 Qtilities::Core::Task::~Task() {
-    --ref_count;
-    LOG_DEBUG("-- Task::Task() " + QString::number(ref_count));
     delete d;
 }
 

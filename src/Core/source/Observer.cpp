@@ -97,6 +97,7 @@ Qtilities::Core::Observer::~Observer() {
 
         QMutableListIterator<QObject*> i = observerData->subject_list.iterator();
         while (i.hasNext()) {
+            QCoreApplication::processEvents();
             QObject* obj = i.next();
             // If it is an observer we start a processing cycle on it:
             Observer* obs = qobject_cast<Observer*> (obj);
