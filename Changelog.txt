@@ -69,6 +69,8 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     [#] FileUtils::makeLocalCopyOfResource() will also create the local_path directory using QDir::mkpath() if it does not exist.
     [#] FileUtils::makeLocalCopyOfResource()'s errorMsg parameter is no longer compulsory.
     [#] Assign default -1 value to Task::lastErrorMessages()'s count parameter.
+	[#] When expanding/collapsing nodes in ObserverWidget, a busy cursor will be set on the ObserverWidget. 
+	    For big trees, there might be a slight delay which requires this.
 
     [*] Fixed bug in Observer::handle_deletedSubject() where application can sometimes
         crash with "Detected QWeakPointer creation in a QObject being deleted".

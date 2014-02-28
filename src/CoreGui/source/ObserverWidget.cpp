@@ -3832,21 +3832,26 @@ void Qtilities::CoreGui::ObserverWidget::handleExpanded(const QModelIndex &index
     if (!index.isValid())
         return;
 
+    d->current_cursor = cursor();
+    setCursor(QCursor(Qt::WaitCursor));
     resizeColumns();
-
     updateLastExpandedResults();
     emit expandedNodesChanged(lastExpandedItemsResults());
     emit expandedObjectsChanged(lastExpandedObjectsResults());
+    setCursor(d->current_cursor);
 }
 
 void Qtilities::CoreGui::ObserverWidget::handleCollapsed(const QModelIndex &index) {
     if (!index.isValid())
         return;
 
+    d->current_cursor = cursor();
+    setCursor(QCursor(Qt::WaitCursor));
     resizeColumns();
     updateLastExpandedResults();
     emit expandedNodesChanged(lastExpandedItemsResults());
     emit expandedObjectsChanged(lastExpandedObjectsResults());
+    setCursor(d->current_cursor);
 }
 
 void Qtilities::CoreGui::ObserverWidget::expandNodes(const QStringList &node_names) {
