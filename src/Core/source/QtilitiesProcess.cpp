@@ -22,7 +22,9 @@ using namespace Qtilities::Logging;
 struct Qtilities::Core::QtilitiesProcessPrivateData {
     QtilitiesProcessPrivateData() : process(0),
         read_process_buffers(false),
-        last_run_buffer_enabled(false) { }
+        last_run_buffer_enabled(false),
+        process_info_messages_enabled(true),
+        message_disabler_active(false) {}
 
     QProcess* process;
     QString default_qprocess_error_string;
@@ -30,6 +32,8 @@ struct Qtilities::Core::QtilitiesProcessPrivateData {
     bool read_process_buffers;
     QByteArray last_run_buffer;
     bool last_run_buffer_enabled;
+    bool process_info_messages_enabled;
+    bool message_disabler_active;
 };
 
 Qtilities::Core::QtilitiesProcess::QtilitiesProcess(const QString& task_name,
@@ -78,6 +82,14 @@ void Qtilities::Core::QtilitiesProcess::addProcessBufferMessageTypeHint(ProcessB
     d->buffer_message_type_hints.append(hint);
 }
 
+void Qtilities::Core::QtilitiesProcess::setProcessInfoMessagesEnabled(bool is_enabled) {
+    d->process_info_messages_enabled = is_enabled;
+}
+
+bool Qtilities::Core::QtilitiesProcess::processInfoMessagesEnabled() const {
+    return d->process_info_messages_enabled;
+}
+
 void Qtilities::Core::QtilitiesProcess::setLastRunBufferEnabled(bool is_enabled) {
     d->last_run_buffer_enabled = is_enabled;
 }
@@ -112,37 +124,41 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program,
     if (state() != ITask::TaskBusy)
         startTask();
 
-    // Check if program exists:
-    QFileInfo fi1(program);
-    if (!fi1.exists() && fi1.isAbsolute()) {
-        // Check if program.exe exists:
-        QFileInfo fi2(program + ".exe");
-        if (!fi2.exists() && fi2.isAbsolute()) {
-            // Check if program.bat exists:
-            QFileInfo fi3(program + ".bat");
-            if (!fi3.exists() && fi3.isAbsolute())
-                logWarning(QString("Failed to find application \"%1\". An attempt to launch it will still be made.").arg(program));
-        }
-    }
-
     QString native_program = FileUtils::toNativeSeparators(program);
-    logMessage(tr("Executing Process: ") + native_program + " " + arguments.join(" "));
-    if (d->process->workingDirectory().isEmpty()) {
-        logMessage(QString("> working directory of process: %1").arg(QDir::current().path()));
-    } else {
-        logMessage(QString("> working directory of process: %1").arg(d->process->workingDirectory()));
-        QDir dir(d->process->workingDirectory());
-        if (!dir.exists())
-            logWarning("> working directory does not exist, process might fail to start.");
+    if (d->process_info_messages_enabled) {
+        // Check if program exists:
+        QFileInfo fi1(program);
+        if (!fi1.exists() && fi1.isAbsolute()) {
+            // Check if program.exe exists:
+            QFileInfo fi2(program + ".exe");
+            if (!fi2.exists() && fi2.isAbsolute()) {
+                // Check if program.bat exists:
+                QFileInfo fi3(program + ".bat");
+                if (!fi3.exists() && fi3.isAbsolute())
+                    logWarning(QString("Failed to find application \"%1\". An attempt to launch it will still be made.").arg(program));
+            }
+        }
+
+        logMessage(tr("Executing Process: ") + native_program + " " + arguments.join(" "));
+        if (d->process->workingDirectory().isEmpty()) {
+            logMessage(QString("> working directory of process: %1").arg(QDir::current().path()));
+        } else {
+            logMessage(QString("> working directory of process: %1").arg(d->process->workingDirectory()));
+            QDir dir(d->process->workingDirectory());
+            if (!dir.exists())
+                logWarning("> working directory does not exist, process might fail to start.");
+        }
+
+
+        logMessage("");
     }
 
-
-    logMessage("");
     clearLastRunBuffer();
     d->process->start(native_program, arguments, mode);
 
     if (!d->process->waitForStarted(wait_for_started_msecs)) {
-        logMessage("Failed to start \"" + native_program + "\".", Logger::Error);
+        if (d->process_info_messages_enabled)
+            logMessage("Failed to start \"" + native_program + "\".", Logger::Error);
         if (state() == ITask::TaskBusy)
             completeTask();
 
@@ -155,7 +171,8 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program,
             timer->start(timeout_msecs);
             connect(timer,SIGNAL(timeout()),SLOT(stop()));
             connect(d->process,SIGNAL(finished(int)),timer,SLOT(deleteLater()));
-            logMessage(QString("A %1 msec timeout was specified for this process. It will be stopped if not completed before the timeout was reached.").arg(timeout_msecs));
+            if (d->process_info_messages_enabled)
+                logMessage(QString("A %1 msec timeout was specified for this process. It will be stopped if not completed before the timeout was reached.").arg(timeout_msecs));
         }
     }
 
@@ -198,6 +215,10 @@ void Qtilities::Core::QtilitiesProcess::assignFileLoggerEngineToProcess(const QS
     setCustomLoggerEngine(engine,log_only_to_file);
 }
 
+bool Qtilities::Core::QtilitiesProcess::processBackendProcessBuffersEnabled() const {
+    return d->read_process_buffers;
+}
+
 void Qtilities::Core::QtilitiesProcess::stopProcess() {
     d->process->terminate();
     d->process->waitForFinished(3000);
@@ -230,10 +251,12 @@ void Qtilities::Core::QtilitiesProcess::procFinished(int exit_code, QProcess::Ex
         if (error_string != d->default_qprocess_error_string)
             logError(error_string);
 
-        if (exit_status == QProcess::NormalExit)
-            logMessage("Process " + taskName() + " exited normal with code " + QString::number(exit_code),Logger::Error);
-        else if (exit_status == QProcess::CrashExit)
-            logMessage("Process " + taskName() + " crashed with code " + QString::number(exit_code),Logger::Error);
+        if (d->process_info_messages_enabled) {
+            if (exit_status == QProcess::NormalExit)
+                logMessage("Process " + taskName() + " exited normal with code " + QString::number(exit_code),Logger::Error);
+            else if (exit_status == QProcess::CrashExit)
+                logMessage("Process " + taskName() + " crashed with code " + QString::number(exit_code),Logger::Error);
+        }
     }
 
     if (state() == ITask::TaskBusy || state() == ITask::TaskPaused)
@@ -241,6 +264,9 @@ void Qtilities::Core::QtilitiesProcess::procFinished(int exit_code, QProcess::Ex
 }
 
 void Qtilities::Core::QtilitiesProcess::procError(QProcess::ProcessError error) {
+    if (!d->process_info_messages_enabled)
+        return;
+
     switch (error)
     {
         case QProcess::FailedToStart:
@@ -292,35 +318,57 @@ void Qtilities::Core::QtilitiesProcess::readStandardError() {
 }
 
 void Qtilities::Core::QtilitiesProcess::processSingleBufferMessage(const QString &buffer_message, Logger::MessageType msg_type) {
-    if (d->buffer_message_type_hints.isEmpty())
-        logMessage(buffer_message,msg_type);
-    else {
-        bool found_match = false;
-        // Get all hints that match the message:
-        QListIterator<ProcessBufferMessageTypeHint> itr(d->buffer_message_type_hints);
-        int highest_matching_hint_priority = -1;
-        QList<ProcessBufferMessageTypeHint> matching_hints;
-        while (itr.hasNext()) {
-            ProcessBufferMessageTypeHint hint = itr.next();
-            if (hint.d_regexp.exactMatch(buffer_message)) {
-                if (hint.d_priority >= highest_matching_hint_priority) {
-                    highest_matching_hint_priority = hint.d_priority;
-                    matching_hints << hint;
+    // If logging is disabled, we can skip the processing of the buffer message altogether:
+    if (loggingEnabled()) {
+        if (d->buffer_message_type_hints.isEmpty())
+            logMessage(buffer_message,msg_type);
+        else {
+            bool found_match = false;
+            // Get all hints that match the message:
+            QListIterator<ProcessBufferMessageTypeHint> itr(d->buffer_message_type_hints);
+            int highest_matching_hint_priority = -1;
+            QList<ProcessBufferMessageTypeHint> matching_hints;
+            while (itr.hasNext()) {
+                ProcessBufferMessageTypeHint hint = itr.next();
+                if (hint.d_regexp.exactMatch(buffer_message)) {
+                    if (hint.d_priority >= highest_matching_hint_priority) {
+                        highest_matching_hint_priority = hint.d_priority;
+                        matching_hints << hint;
+                    }
                 }
             }
-        }
 
-        // Next, log the message using all hints that match the highest_matching_hint_priority:
-        QListIterator<ProcessBufferMessageTypeHint> itr_log(matching_hints);
-        while (itr_log.hasNext()) {
-            ProcessBufferMessageTypeHint hint = itr_log.next();
-            if (hint.d_priority == highest_matching_hint_priority) {
-                found_match = true;
-                logMessage(buffer_message,hint.d_message_type);
+            // Next, log the message using all hints that match the highest_matching_hint_priority:
+            QListIterator<ProcessBufferMessageTypeHint> itr_log(matching_hints);
+            while (itr_log.hasNext()) {
+                ProcessBufferMessageTypeHint hint = itr_log.next();
+
+                bool log_this_message = !d->message_disabler_active;
+                if (d->message_disabler_active) {
+                    // When a message disabler is active:
+                    if (hint.d_is_enabler) {
+                        d->message_disabler_active = false;
+                        log_this_message = hint.d_is_enabler_log_match;
+                    }
+                } else {
+                    // When a message disabler is not active:
+                    if (hint.d_is_disabler) {
+                        d->message_disabler_active = true;
+                        log_this_message = hint.d_is_disabler_log_match;
+                    }
+                }
+
+                if (log_this_message) {
+                    if (hint.d_priority == highest_matching_hint_priority) {
+                        found_match = true;
+                        if (hint.d_message_type != Logger::None)
+                            logMessage(buffer_message,hint.d_message_type);
+                    }
+                }
             }
-        }
 
-        if (!found_match)
-            logMessage(buffer_message,msg_type);
+            if (!found_match && !d->message_disabler_active)
+                logMessage(buffer_message,msg_type);
+        }
     }
 }

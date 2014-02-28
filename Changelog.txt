@@ -16,6 +16,8 @@ https://github.com/JPNaude/Qtilities/issues/milestones
         parallel compilation to be done.
 	[#] Fixed numerous warnings produced by older versions of gcc (specifically, gcc (GCC) 4.1.2 20080704).
 	[#] QTILITIES_NO_HELP is now defined by default.
+	[#] Documentation for QtilitiesProcess rewritten and much clearer in terms of describing the benefits of 
+	    QtilitiesProcess over just using QProcess.
 
     ============================
     QtilitiesLogging:
@@ -39,8 +41,6 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     [+] Added new Zipper class which is a thin Qt-api based wrapper around the command line utility
         from the 7-zip project called 7za.
     [+] Added new generic property related classes: GenericProperty, GenericPropertyManager.
-    [+] Added QtilitiesProcess::setProcessBufferMessageTypeHint(). Also, added new
-        class ProcessBufferMessageTypeHint used in this function.
     [+] Added FileUtils::toUnixPath().
     [+] Added FileUtils::writeTextFile().
     [+] Added FileUtils::readTextFile().
@@ -48,20 +48,27 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     [+] QtilitiesProcess now has the ability to store all buffered messages from a process for you in something
         called a last run buffer. See the new QtilitiesProcess::lastRunBuffer() and related functions for more information.
 	[+] Added QtilitiesProcess::assignFileLoggerEngineToProcess().
+	[+] Added QtilitiesProcess::processBackendProcessBuffersEnabled().
+	[+] Added QtilitiesProcess::setProcessInfoMessagesEnabled().
+	[+] Added QtilitiesProcess::processInfoMessagesEnabled().
+	[+] Added QtilitiesProcess::setProcessBufferMessageTypeHint(). Also, added new
+        class ProcessBufferMessageTypeHint used in this function. This class uses a regular expression to identify messages
+		and then assign a message type to them (warning, error, info etc.) or to filter the matched messages.
 	[+] Added Task::LifeTimeDestroyWhenCompleted to Task::TaskLifeTime.
 
 	[#] Expose busyStateChanged() from private class on QtilitiesCoreApplication and QtilitiesApplication.
     [#] QtilitiesProcess::logProgressOutput() and QtilitiesProcess::logProgressError() are now protected slots, allowing
         subclasses to reimplement its functionality. Also, bunch of improvements internally in QtilitiesProcess and
-        detailed documentation how messages from the backend process are buffered was added.
+        detailed documentation how messages from the backend process are buffered was added. 
+	[#] Improved error reporting in QtilitiesProcess. When the working directory of the process does not exist, it will 
+	    tell you this instead of telling you that the executable does not exist when the process fails with QProcess::FailedToStart.
+		
     [#] Changed debug messages in Observer's destructor to trace messages.
     [#] QtilitiesProperty is now properly documented.
     [#] Moved registration of Logger::MessageType and Logger::MessageContext from ITask to Logger's constructor.
     [#] FileUtils::makeLocalCopyOfResource() will also create the local_path directory using QDir::mkpath() if it does not exist.
     [#] FileUtils::makeLocalCopyOfResource()'s errorMsg parameter is no longer compulsory.
     [#] Assign default -1 value to Task::lastErrorMessages()'s count parameter.
-	[#] Improved error reporting in QtilitiesProcess. When the working directory of the process does not exist, it will 
-	    tell you this instead of telling you that the executable does not exist when the process fails with QProcess::FailedToStart.
 
     [*] Fixed bug in Observer::handle_deletedSubject() where application can sometimes
         crash with "Detected QWeakPointer creation in a QObject being deleted".

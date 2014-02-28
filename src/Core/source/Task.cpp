@@ -520,7 +520,7 @@ bool Task::pauseTask(const QString &message, Logger::MessageType type) {
 
     d->task_state = Task::TaskPaused;
 
-    logMessage(QString(tr("Task paused (%1).")).arg(elapsedTimeString()));
+    logMessage(QString("Task paused (%1).").arg(elapsedTimeString()));
 
     emit taskPaused();
     emit stateChanged(state(),current_state);
@@ -551,7 +551,7 @@ void Qtilities::Core::Task::addCompletedSubTasks(int number_of_sub_tasks, const 
     emit taskSubTaskAboutToComplete();
 
     if (d->sub_task_performance_indication == ITask::SubTaskTimeFromTaskStart)
-        logMessage(QString(tr("Subtask completed (%1).")).arg(elapsedTimeString(d->timer.elapsed())));
+        logMessage(QString("Subtask completed (%1).").arg(elapsedTimeString(d->timer.elapsed())));
 
     //qDebug() << "addCompletedSubTasks() progress on task " << taskName() << " with " << number_of_sub_tasks << " new, " << d->current_progress << " current, " << d->number_of_sub_tasks << " total.";
     d->current_progress = d->current_progress + number_of_sub_tasks;
@@ -601,14 +601,17 @@ bool Qtilities::Core::Task::completeTask(ITask::TaskResult result, const QString
     d->last_run_time = d->timer.elapsed();
 
     // Log information about the result of the task:
+    QString task_name_to_log;
+    if (!taskName().isEmpty())
+        task_name_to_log = QString("\"%1\" ").arg(taskName());
     if (d->task_result == ITask::TaskSuccessful) {
-        logMessage(QString(tr("Task \"%1\" completed successfully (%2).")).arg(taskName()).arg(elapsedTimeString()));
+        logMessage(QString("Task %1completed successfully (%2).").arg(task_name_to_log).arg(elapsedTimeString()));
     } else if (d->task_result == ITask::TaskSuccessfulWithErrors) {
-        logMessage(QString(tr("Task \"%1\" completed successfully but some warnings and/or errors were logged while the task was busy. See the task log for more information (%2).")).arg(taskName()).arg(elapsedTimeString()),Logger::Warning);
+        logMessage(QString("Task %1completed successfully but some warnings and/or errors were logged while the task was busy. See the task log for more information (%2).").arg(task_name_to_log).arg(elapsedTimeString()),Logger::Warning);
     } else if (d->task_result == ITask::TaskSuccessfulWithWarnings) {
-        logMessage(QString(tr("Task \"%1\" completed successfully but some warnings were logged while the task was busy. See the task log for more information (%2).")).arg(taskName()).arg(elapsedTimeString()),Logger::Warning);
+        logMessage(QString("Task %1completed successfully but some warnings were logged while the task was busy. See the task log for more information (%2).").arg(task_name_to_log).arg(elapsedTimeString()),Logger::Warning);
     } else if (d->task_result == ITask::TaskFailed) {
-        logMessage(QString(tr("Task \"%1\" failed. See the task log for more information (%2).")).arg(taskName()).arg(elapsedTimeString()),Logger::Error);
+        logMessage(QString("Task %1failed. See the task log for more information (%2).").arg(task_name_to_log).arg(elapsedTimeString()),Logger::Error);
     }
 
     emit taskCompleted(d->task_result,message,type);
