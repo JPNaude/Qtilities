@@ -86,6 +86,12 @@ CONFIG              += exceptions rtti
 # See https://github.com/JPNaude/Qtilities/issues/91 for more details.
 win32-msvc* {
     CONFIG += msvc_mp
+
+    # The following makes sure .pdb files are generated in release mode in
+    # order to debug stack traces in release mode. Comment this if not desired.
+    QMAKE_LFLAGS_RELEASE += /MAP
+    QMAKE_CFLAGS_RELEASE += /Zi
+    QMAKE_LFLAGS_RELEASE += /debug /opt:ref
 }
 
 #****************************************************************************

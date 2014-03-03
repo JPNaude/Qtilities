@@ -15,6 +15,8 @@ https://github.com/JPNaude/Qtilities/issues/milestones
 	[#] Changed the output names of the Qtilities libraries on Linux. We don't append 'd' any more 
 	    for debug builds. The qmake LIBS += directive does not use a 'd' on Linux as it does on Windows. 
 		Therefore, having the 'd' on Linux breaks it.
+	[#] Qtilities will now make sure .pdb files are generated in release mode as well when using MSVC in order
+	    order to debug using stack traces in release mode. Comment this if not desired in Qtilities.pri.
     [#] All .pro files no longer use CONFIG += ordered. Proper dependencies are now defined, allowing
         parallel compilation to be done.
 	[#] Fixed numerous warnings produced by older versions of gcc (specifically, gcc (GCC) 4.1.2 20080704).
