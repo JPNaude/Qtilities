@@ -33,9 +33,14 @@ QTILITIES_FILE_VER      = -$${QTILITIES_VERSION_MAJOR}.$${QTILITIES_VERSION_MINO
 #****************************************************************************
 # Library Postfix
 #****************************************************************************
-CONFIG(debug, debug|release) {
-    QTILITIES_LIB_POSTFIX = d$${QTILITIES_FILE_VER}
-} else {
+win32 {
+    CONFIG(debug, debug|release) {
+        QTILITIES_LIB_POSTFIX = d$${QTILITIES_FILE_VER}
+    } else {
+        QTILITIES_LIB_POSTFIX = $${QTILITIES_FILE_VER}
+    }
+}
+unix {
     QTILITIES_LIB_POSTFIX = $${QTILITIES_FILE_VER}
 }
 
