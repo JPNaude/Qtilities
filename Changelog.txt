@@ -12,6 +12,9 @@ https://github.com/JPNaude/Qtilities/issues/milestones
 
     General:
     ============================
+	[#] Changed the output names of the Qtilities libraries on Linux. We don't append 'd' any more 
+	    for debug builds. The qmake LIBS += directive does not use a 'd' on Linux as it does on Windows. 
+		Therefore, having the 'd' on Linux breaks it.
     [#] All .pro files no longer use CONFIG += ordered. Proper dependencies are now defined, allowing
         parallel compilation to be done.
 	[#] Fixed numerous warnings produced by older versions of gcc (specifically, gcc (GCC) 4.1.2 20080704).
