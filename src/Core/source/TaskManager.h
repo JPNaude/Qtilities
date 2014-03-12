@@ -78,20 +78,67 @@ namespace Qtilities {
               */
             QString taskName(const int task_id, bool* ok = 0) const;
 
-            //! Sets if tasks should forward messages logged to them to the qtMsgEngineActive() on the Logger.
+            //! Sets if tasks should forward messages logged to the Qtilities::Logging::QtMsgLoggerEngine.
             /*!
              * Disabled by default.
+             *
+             * \note Each task also has the ability to disable/enable message forwarding to Qtilities::Logging::QtMsgLoggerEngine which
+             * is enabled by default. Thus, this function can be used to disable/enable application wide forwarding to this engine. When
+             * enabled, individual engines can be enabled/disables for fine grained control.
+             *
+             * \note The qt message logger engine must be enabled for messages to appear on the console. See Qtilities::Logging::Logger::toggleQtMsgEngine().
+             *
+             * \sa forwardTaskMessagesToQtMsgEngine(), Qtilities::Core::Interfaces::ITask::loggingToQtMsgEngineEnabled()
              *
              * <i>This function was added in %Qtilities v1.3.</i>
              */
             void setForwardTaskMessagesToQtMsgEngine(bool is_enabled);
-            //! Gets if tasks should forward messages logged to them to the qtMsgEngineActive() on the Logger.
+            //! Gets if tasks should forward messages logged to the Qtilities::Logging::QtMsgLoggerEngine.
             /*!
              * Disabled by default.
+             *
+             * \note Each task also has the ability to disable/enable message forwarding to Qtilities::Logging::QtMsgLoggerEngine which
+             * is enabled by default. Thus, this function can be used to disable/enable application wide forwarding to this engine. When
+             * enabled, individual engines can be enabled/disables for fine grained control.
+             *
+             * \note The qt message logger engine must be enabled for messages to appear on the console. See Qtilities::Logging::Logger::toggleQtMsgEngine().
+             *
+             * \sa setForwardTaskMessagesToQtMsgEngine(), Qtilities::Core::Interfaces::ITask::setLoggingToQtMsgEngineEnabled()
              *
              * <i>This function was added in %Qtilities v1.3.</i>
              */
             bool forwardTaskMessagesToQtMsgEngine() const;
+
+            //! Sets if tasks should forward messages logged to the Qtilities::Logging::ConsoleLoggerEngine.
+            /*!
+             * Disabled by default.
+             *
+             * \note Each task also has the ability to disable/enable message forwarding to Qtilities::Logging::ConsoleLoggerEngine which
+             * is enabled by default. Thus, this function can be used to disable/enable application wide forwarding to this engine. When
+             * enabled, individual engines can be enabled/disables for fine grained control.
+             *
+             * \sa forwardTaskMessagesToConsole(), Qtilities::Core::Interfaces::ITask::loggingToConsoleEnabled()
+             *
+             * \note The console logger engine must be enabled for messages to appear on the console. See Qtilities::Logging::Logger::toggleConsoleEngine().
+             *
+             * <i>This function was added in %Qtilities v1.5.</i>
+             */
+            void setForwardTaskMessagesToConsole(bool is_enabled);
+            //! Gets if tasks should forward messages logged to the Qtilities::Logging::ConsoleLoggerEngine.
+            /*!
+             * Disabled by default.
+             *
+             * \note Each task also has the ability to disable/enable message forwarding to Qtilities::Logging::ConsoleLoggerEngine which
+             * is enabled by default. Thus, this function can be used to disable/enable application wide forwarding to this engine. When
+             * enabled, individual engines can be enabled/disables for fine grained control.
+             *
+             * \note The console logger engine must be enabled for messages to appear on the console. See Qtilities::Logging::Logger::toggleConsoleEngine().
+             *
+             * \sa setForwardTaskMessagesToConsole(), Qtilities::Core::Interfaces::ITask::setloggingToConsoleEnabled()
+             *
+             * <i>This function was added in %Qtilities v1.5.</i>
+             */
+            bool forwardTaskMessagesToConsole() const;
             //! Function which can be used to assign an ID to a new task.
             /*!
              * New tasks does not have a unique ID by default. The standard way to assign tasks IDs are to register them

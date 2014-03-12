@@ -318,21 +318,29 @@ namespace Qtilities {
             AbstractLoggerEngine* newFileEngine(const QString& engine_name, const QString& file_name, const QString& formatting_engine = QString());
             //! Convenience function to enable a Qt Message engine which pipes messages through to the Qt Debugging System.
             /*!
-              Only one qt message engine can be created. This engine can be enabled/disabled using this function.
-            */
+             * \sa qtMessageEngineActive()
+             *
+             * Only one qt message engine exists for every application. This engine can be enabled/disabled using this function.
+             */
             void toggleQtMsgEngine(bool toggle);
             //! Convenience function to check if the QtMsgEngine is active.
             /*!
+             * \sa toggleQtMsgEngine()
+             *
              * <i>This function was added in %Qtilities v1.3.</i>
              */
             bool qtMsgEngineActive() const;
             //! Convenience function to enable a console engine.
             /*!
-              Only one console engine can be created. This engine can be enabled/disabled using this function.
-            */
+             * \sa consoleEngineActive()
+             *
+             * Only one console engine exists for every application. This engine can be enabled/disabled using this function.
+             */
             void toggleConsoleEngine(bool toggle);
             //! Convenience function to check if the ConsoleEngine is active.
             /*!
+             * \sa toggleConsoleEngine()
+             *
              * <i>This function was added in %Qtilities v1.3.</i>
              */
             bool consoleEngineActive() const;

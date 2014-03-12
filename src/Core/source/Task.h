@@ -162,6 +162,10 @@ namespace Qtilities {
             void logWarning(const QString& message);
             void setClearLogOnStart(bool clear_log_on_start = true) const;
 
+            bool loggingToQtMsgEngineEnabled() const;
+            void setLoggingToQtMsgEngineEnabled(bool enabled);
+            bool loggingToConsoleEnabled() const;
+            void setLoggingToConsoleEnabled(bool enabled);
             bool loggingEnabled() const;
             AbstractLoggerEngine* loggerEngine() const;
             void setLoggerEngine(AbstractLoggerEngine* engine);

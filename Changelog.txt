@@ -45,7 +45,8 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     ============================
     [+] Added new Zipper class which is a thin Qt-api based wrapper around the command line utility
         from the 7-zip project called 7za.
-    [+] Added new generic property related classes: GenericProperty, GenericPropertyManager.
+    [+] Added new generic property related classes: GenericProperty, GenericPropertyManager as well 
+	    as a new example demonstrating their use.
     [+] Added FileUtils::toUnixPath().
     [+] Added FileUtils::writeTextFile().
     [+] Added FileUtils::readTextFile().
@@ -57,16 +58,21 @@ https://github.com/JPNaude/Qtilities/issues/milestones
 	[+] Added QtilitiesProcess::setProcessInfoMessagesEnabled().
 	[+] Added QtilitiesProcess::processInfoMessagesEnabled().
 	[+] Added QtilitiesProcess::setProcessBufferMessageTypeHint(). Also, added new
-        class ProcessBufferMessageTypeHint used in this function. This class uses a regular expression to identify messages
-		and then assign a message type to them (warning, error, info etc.) or to filter the matched messages.
+        ProcessBufferMessageTypeHint class used in this function. This class uses a regular expression to identify 
+		messages and then assign a message type to them (warning, error, info etc.) or to filter the matched messages.
 	[+] Added Task::LifeTimeDestroyWhenCompleted to Task::TaskLifeTime.
+	[+] Added Task::loggingToQtMsgLoggerEngineEnabled() and setLoggingToQtMsgLoggerEngineEnabled().
+	[+] Added Task::loggingToConsoleLoggerEnabled() and setLoggingToConsoleEnabled().
+	[+] Added TaskManager::forwardTaskMessagesToConsoleEngine() and setForwardTaskMessagesToConsoleEngine(). Previously 
+	    forwarding of task messages to the console was controlled by TaskManager::forwardTaskMessagesToQtMsgEngine().
 
 	[#] Expose busyStateChanged() from private class on QtilitiesCoreApplication and QtilitiesApplication.
     [#] QtilitiesProcess::logProgressOutput() and QtilitiesProcess::logProgressError() are now protected slots, allowing
         subclasses to reimplement its functionality. Also, bunch of improvements internally in QtilitiesProcess and
         detailed documentation how messages from the backend process are buffered was added. 
 	[#] Improved error reporting in QtilitiesProcess. When the working directory of the process does not exist, it will 
-	    tell you this instead of telling you that the executable does not exist when the process fails with QProcess::FailedToStart.
+	    tell you this instead of telling you that the executable does not exist when the process fails 
+		with QProcess::FailedToStart.
 		
     [#] Changed debug messages in Observer's destructor to trace messages.
     [#] QtilitiesProperty is now properly documented.
@@ -83,8 +89,8 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     [*] Fixed potential crash in ~QtilitiesProcess() when it was run in a different thread. Now using deleteLater()
         on backend process.
     [*] Removed buffering done in QtilitiesProcess. See issue #99 for details. This led to the removal of
-        QtilitiesProcess::setLineBreakStrings(), QtilitiesProcess::lineBreakString(), QtilitiesProcess::newStandardOutputMessage()
-        and QtilitiesProcess::newStandardErrorMessage().
+        QtilitiesProcess::setLineBreakStrings(), QtilitiesProcess::lineBreakString(), 
+		QtilitiesProcess::newStandardOutputMessage() and QtilitiesProcess::newStandardErrorMessage().
     [*] Fixed Task::completeTask() not always emitting with the correct result. For example, it would
         be emitted with the result set to TaskResultFromBusyStateFailOnError instead of TaskFailed.
     [*] Fixed wrong path printed in FileUtils::makeLocalCopyOfResource() error message when resource file does not exist.
@@ -101,7 +107,8 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     ============================
     [+] ObserverWidget/TreeWidget now has a new refresh mode which makes refreshes much smoother than
         previously. The new mode will update the tree very smoothly when the backend tree structure
-        changes. The old behaviour is still around to use if you prefer to use it. See ObseverWidget::RefreshMode for more details.
+        changes. The old behaviour is still around to use if you prefer to use it. See ObseverWidget::RefreshMode 
+		for more details.
     [+] Added access functions to ObserverWidget to get hold of expanded objects and categories separately. Internally
         ObserverWidget and ObserverTreeModel also uses objects and categories instead of the previously
         used list of names in order to more accurately restore the expansion state of your tree when

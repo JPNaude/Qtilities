@@ -35,6 +35,8 @@ struct Qtilities::Core::TaskPrivateData {
         can_pause(false),
         log_context(Logger::EngineSpecificMessages),
         logging_enabled(true),
+        logging_enabled_to_qt_msg_engine(true),
+        logging_enabled_to_console(true),
         clear_log_on_start(true),
         last_run_time(-1),
         parent_task(0) {}
@@ -61,6 +63,8 @@ struct Qtilities::Core::TaskPrivateData {
     QPointer<AbstractLoggerEngine>  log_engine;
     QPointer<AbstractLoggerEngine>  custom_log_engine;
     bool                            logging_enabled;
+    bool                            logging_enabled_to_qt_msg_engine;
+    bool                            logging_enabled_to_console;
     bool                            clear_log_on_start;
 
     QTime                           timer;
@@ -284,6 +288,22 @@ void Qtilities::Core::Task::setClearLogOnStart(bool clear_log_on_start) const {
     d->clear_log_on_start = clear_log_on_start;
 }
 
+bool Task::loggingToQtMsgEngineEnabled() const {
+    return d->logging_enabled_to_qt_msg_engine;
+}
+
+void Task::setLoggingToQtMsgEngineEnabled(bool enabled) {
+    d->logging_enabled_to_qt_msg_engine = enabled;
+}
+
+bool Task::loggingToConsoleEnabled() const {
+    return d->logging_enabled_to_console;
+}
+
+void Task::setLoggingToConsoleEnabled(bool enabled) {
+    d->logging_enabled_to_console = enabled;
+}
+
 bool Qtilities::Core::Task::clearLogOnStart() const {
     return d->clear_log_on_start;
 }
@@ -340,15 +360,11 @@ void Qtilities::Core::Task::logMessage(const QString& message, Logger::MessageTy
             do_console_output_once = false;
         }
 
-        if (do_console_output_once && QtilitiesCoreApplication::taskManager()->forwardTaskMessagesToQtMsgEngine()) {
-            if (Log->qtMsgEngineActive()) {
-                // Log the message to the QtMsgEngine as well:
+        if (do_console_output_once) {
+            if (Log->qtMsgEngineActive() && d->logging_enabled_to_qt_msg_engine && QtilitiesCoreApplication::taskManager()->forwardTaskMessagesToQtMsgEngine())
                 QtMsgLoggerEngine::instance()->logMessage(message,type);
-            }
-            if (Log->consoleEngineActive()) {
-                // Log the message to the ConsoleLoggerEngine as well:
+            if (Log->consoleEngineActive() && d->logging_enabled_to_console && QtilitiesCoreApplication::taskManager()->forwardTaskMessagesToConsole())
                 ConsoleLoggerEngine::instance()->logMessage(message,type);
-            }
         }
     }
 }

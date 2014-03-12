@@ -383,6 +383,64 @@ namespace Qtilities {
                 virtual bool loggingEnabled() const {
                     return false;
                 }
+                //! Gets if the activities of this task is logged to Qtilities::Logging::QtMsgLoggerEngine in addition to loggerEngine().
+                /*!
+                 * True by default.
+                 *
+                 * \note Qtilities::Core::TaskManager::setForwardTaskMessagesToQtMsgEngine() must also be true, allowing
+                 * the task manager to disable the forwarding of messages to the console for all tasks.
+                 * \note The console logger engine must be enabled for messages to appear on the qt message engine. See Qtilities::Logging::Logger::toggleQtMsgEngine().
+                 *
+                 * \sa setLoggingToQtMsgEngineEnabled(), Qtilities::Core::TaskManager::setForwardTaskMessagesToQtMsgEngine()
+                 *
+                 * <i>This function was added in %Qtilities v1.5.</i>
+                 */
+                virtual bool loggingToQtMsgEngineEnabled() const {
+                    return true;
+                }
+                //! Sets if the activities of this task is logged to Qtilities::Logging::QtMsgLoggerEngine in addition to loggerEngine().
+                /*!
+                 *
+                 * \note Qtilities::Core::TaskManager::setForwardTaskMessagesToQtMsgEngine() must also be true, allowing
+                 * the task manager to disable the forwarding of messages to the console for all tasks.
+                 * \note The console logger engine must be enabled for messages to appear on the qt message engine. See Qtilities::Logging::Logger::toggleQtMsgEngine().
+                 *
+                 * \sa loggingToQtMsgEngineEnabled(), Qtilities::Core::TaskManager::setForwardTaskMessagesToQtMsgEngine()
+                 *
+                 * <i>This function was added in %Qtilities v1.5.</i>
+                 */
+                virtual void setLoggingToQtMsgEngineEnabled(bool enabled) {
+                    Q_UNUSED(enabled);
+                }
+                //! Gets if the activities of this task is logged to Qtilities::Logging::ConsoleLoggerEngine in addition to loggerEngine().
+                /*!
+                 * True by default.
+                 *
+                 * \note Qtilities::Core::TaskManager::setForwardTaskMessagesToConsole() must also be true, allowing
+                 * the task manager to disable the forwarding of messages to the console for all tasks.
+                 * \note The console logger engine must be enabled for messages to appear on the console. See Qtilities::Logging::Logger::toggleConsoleEngine().
+                 *
+                 * \sa setloggingToConsoleEnabled(), Qtilities::Core::TaskManager::setForwardTaskMessagesToConsole()
+                 *
+                 * <i>This function was added in %Qtilities v1.5.</i>
+                 */
+                virtual bool loggingToConsoleEnabled() const {
+                    return true;
+                }
+                //! Sets if the activities of this task is logged to Qtilities::Logging::ConsoleLoggerEngine in addition to loggerEngine().
+                /*!
+                 *
+                 * \note Qtilities::Core::TaskManager::setForwardTaskMessagesToConsole() must also be true, allowing
+                 * the task manager to disable the forwarding of messages to the console for all tasks.
+                 * \note The console logger engine must be enabled for messages to appear on the console. See Qtilities::Logging::Logger::toggleConsoleEngine().
+                 *
+                 * \sa loggingToConsoleEnabled(), Qtilities::Core::TaskManager::setForwardTaskMessagesToConsole()
+                 *
+                 * <i>This function was added in %Qtilities v1.5.</i>
+                 */
+                virtual void setLoggingToConsoleEnabled(bool enabled) {
+                    Q_UNUSED(enabled);
+                }
                 //! Returns a reference to the logger engine logging activities of this task. When loggingEnabled() is false, this function will always return 0.
                 /*!
                   \sa setLoggerEngine()

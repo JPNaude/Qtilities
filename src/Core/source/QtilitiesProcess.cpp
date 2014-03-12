@@ -221,7 +221,7 @@ bool Qtilities::Core::QtilitiesProcess::processBackendProcessBuffersEnabled() co
 
 void Qtilities::Core::QtilitiesProcess::stopProcess() {
     d->process->terminate();
-    d->process->waitForFinished(3000);
+    //d->process->waitForFinished(3000);
     d->process->kill();
     d->process->waitForFinished(3000);
 
