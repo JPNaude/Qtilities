@@ -3754,9 +3754,8 @@ void Qtilities::CoreGui::ObserverWidget::handleTreeRebuildCompleted(bool emit_tr
                  if (d->searchBoxWidget && d->search_box_visible_before_refresh)
                      ui->widgetSearchBox->show();
             }
-
-            setCursor(d->current_cursor);
         }
+        setCursor(d->current_cursor);
     }
 
     if (emit_tree_build_completed)
