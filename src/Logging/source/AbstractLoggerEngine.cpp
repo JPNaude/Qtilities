@@ -101,6 +101,9 @@ void Qtilities::Logging::AbstractLoggerEngine::newMessages(const QString& engine
     if (!(abstractLoggerEngineData->message_contexts & message_context))
         return;
 
+    static QMutex mutex;
+    mutex.lock();
+
     // Check if active
     if (abstractLoggerEngineData->is_enabled) {
         // Check if there is a formatting engine present
@@ -110,6 +113,8 @@ void Qtilities::Logging::AbstractLoggerEngine::newMessages(const QString& engine
                 logMessage(abstractLoggerEngineData->formatting_engine->formatMessage(message_type,messages),message_type);
         }
     }
+
+    mutex.unlock();
 }
 
 bool Qtilities::Logging::AbstractLoggerEngine::removable() const {

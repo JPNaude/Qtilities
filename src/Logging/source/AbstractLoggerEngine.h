@@ -69,6 +69,8 @@ namespace Qtilities {
               Messages arrives at logger engines through the newMessages() slot which will format the messages and validate if they must be logged.
               If so, this function will be called with a formatted message. If you wish to handle the message formatting manually, you can reimplement the
               newMessages() function.
+
+              \note When calling this function directly on an engine, the formatting engine will be bypassed.
               */
             virtual void logMessage(const QString& message, Logger::MessageType message_type = Logger::Info) = 0;
             //! Clears the log currently hold by the logger engine.

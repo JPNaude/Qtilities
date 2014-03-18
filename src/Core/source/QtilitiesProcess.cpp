@@ -34,6 +34,7 @@ struct Qtilities::Core::QtilitiesProcessPrivateData {
     bool last_run_buffer_enabled;
     bool process_info_messages_enabled;
     bool message_disabler_active;
+    QMutex read_buffer_mutex;
 };
 
 Qtilities::Core::QtilitiesProcess::QtilitiesProcess(const QString& task_name,
@@ -300,21 +301,45 @@ void Qtilities::Core::QtilitiesProcess::procError(QProcess::ProcessError error) 
 }
 
 void Qtilities::Core::QtilitiesProcess::readStandardOutput() {
+    if (!d->read_buffer_mutex.tryLock())
+        return;
+
+    int msg_count = 0;
     while (d->process->canReadLine()) {
+        ++msg_count;
+        if (msg_count > 20) {
+            msg_count = 0;
+            // To keep GUI applications responsive in case the backend process dumps tons of data for us.
+            QCoreApplication::processEvents(QEventLoop::ExcludeSocketNotifiers);
+        }
+
         QByteArray ba = d->process->readLine();
         processSingleBufferMessage(ba,Logger::Info);
         if (d->last_run_buffer_enabled)
             d->last_run_buffer.append(ba);
     }
+    d->read_buffer_mutex.unlock();
 }
 
 void Qtilities::Core::QtilitiesProcess::readStandardError() {
+    if (!d->read_buffer_mutex.tryLock())
+        return;
+
+    int msg_count = 0;
     while (d->process->canReadLine()) {
+        ++msg_count;
+        if (msg_count > 20) {
+            msg_count = 0;
+            // To keep GUI applications responsive in case the backend process dumps tons of data for us.
+            QCoreApplication::processEvents(QEventLoop::ExcludeSocketNotifiers);
+        }
+
         QByteArray ba = d->process->readLine();
         processSingleBufferMessage(ba,Logger::Error);
         if (d->last_run_buffer_enabled)
             d->last_run_buffer.append(ba);
     }
+    d->read_buffer_mutex.unlock();
 }
 
 void Qtilities::Core::QtilitiesProcess::processSingleBufferMessage(const QString &buffer_message, Logger::MessageType msg_type) {
