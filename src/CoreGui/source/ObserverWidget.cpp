@@ -3833,7 +3833,7 @@ void Qtilities::CoreGui::ObserverWidget::handleExpanded(const QModelIndex &index
         return;
 
     bool restore_cursor = false;
-    if (cursor() != QCursor(Qt::WaitCursor)) {
+    if (cursor().shape() != Qt::WaitCursor) {
         d->current_cursor = cursor();
         setCursor(QCursor(Qt::WaitCursor));
         restore_cursor = true;
@@ -3853,7 +3853,7 @@ void Qtilities::CoreGui::ObserverWidget::handleCollapsed(const QModelIndex &inde
         return;
 
     bool restore_cursor = false;
-    if (cursor() != QCursor(Qt::WaitCursor)) {
+    if (cursor().shape() != Qt::WaitCursor) {
         d->current_cursor = cursor();
         setCursor(QCursor(Qt::WaitCursor));
         restore_cursor = true;
