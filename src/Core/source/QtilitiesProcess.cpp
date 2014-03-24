@@ -24,7 +24,8 @@ struct Qtilities::Core::QtilitiesProcessPrivateData {
         read_process_buffers(false),
         last_run_buffer_enabled(false),
         process_info_messages_enabled(true),
-        message_disabler_active(false) {}
+        message_disabler_active(false),
+        ignore_read_buffer_slot(false) {}
 
     QProcess* process;
     QString default_qprocess_error_string;
@@ -34,7 +35,7 @@ struct Qtilities::Core::QtilitiesProcessPrivateData {
     bool last_run_buffer_enabled;
     bool process_info_messages_enabled;
     bool message_disabler_active;
-    QMutex read_buffer_mutex;
+    bool ignore_read_buffer_slot;
 };
 
 Qtilities::Core::QtilitiesProcess::QtilitiesProcess(const QString& task_name,
@@ -236,14 +237,24 @@ void Qtilities::Core::QtilitiesProcess::procFinished(int exit_code, QProcess::Ex
         QString msg = d->process->readAllStandardOutput();
         if (!msg.isEmpty()) {
             QStringList splits = msg.split("\n");
-            foreach (const QString& split, splits)
+            foreach (const QString& split, splits) {
                 processSingleBufferMessage(split,Logger::Info);
+                if (d->last_run_buffer_enabled) {
+                    d->last_run_buffer.append(split.toUtf8());
+                    d->last_run_buffer.append("\n");
+                }
+            }
         }
         msg = d->process->readAllStandardError();
         if (!msg.isEmpty()) {
             QStringList splits = msg.split("\n");
-            foreach (const QString& split, splits)
+            foreach (const QString& split, splits) {
                 processSingleBufferMessage(split,Logger::Info);
+                if (d->last_run_buffer_enabled) {
+                    d->last_run_buffer.append(split.toUtf8());
+                    d->last_run_buffer.append("\n");
+                }
+            }
         }
     }
 
@@ -301,7 +312,7 @@ void Qtilities::Core::QtilitiesProcess::procError(QProcess::ProcessError error) 
 }
 
 void Qtilities::Core::QtilitiesProcess::readStandardOutput() {
-    if (!d->read_buffer_mutex.tryLock())
+    if (d->ignore_read_buffer_slot)
         return;
 
     int msg_count = 0;
@@ -310,7 +321,9 @@ void Qtilities::Core::QtilitiesProcess::readStandardOutput() {
         if (msg_count > 20) {
             msg_count = 0;
             // To keep GUI applications responsive in case the backend process dumps tons of data for us.
+            d->ignore_read_buffer_slot = true;
             QCoreApplication::processEvents(QEventLoop::ExcludeSocketNotifiers);
+            d->ignore_read_buffer_slot = false;
         }
 
         QByteArray ba = d->process->readLine();
@@ -318,11 +331,10 @@ void Qtilities::Core::QtilitiesProcess::readStandardOutput() {
         if (d->last_run_buffer_enabled)
             d->last_run_buffer.append(ba);
     }
-    d->read_buffer_mutex.unlock();
 }
 
 void Qtilities::Core::QtilitiesProcess::readStandardError() {
-    if (!d->read_buffer_mutex.tryLock())
+    if (d->ignore_read_buffer_slot)
         return;
 
     int msg_count = 0;
@@ -331,7 +343,9 @@ void Qtilities::Core::QtilitiesProcess::readStandardError() {
         if (msg_count > 20) {
             msg_count = 0;
             // To keep GUI applications responsive in case the backend process dumps tons of data for us.
+            d->ignore_read_buffer_slot = true;
             QCoreApplication::processEvents(QEventLoop::ExcludeSocketNotifiers);
+            d->ignore_read_buffer_slot = false;
         }
 
         QByteArray ba = d->process->readLine();
@@ -339,7 +353,6 @@ void Qtilities::Core::QtilitiesProcess::readStandardError() {
         if (d->last_run_buffer_enabled)
             d->last_run_buffer.append(ba);
     }
-    d->read_buffer_mutex.unlock();
 }
 
 void Qtilities::Core::QtilitiesProcess::processSingleBufferMessage(const QString &buffer_message, Logger::MessageType msg_type) {
