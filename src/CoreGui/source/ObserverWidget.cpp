@@ -1064,6 +1064,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(QList<QPointer<QObject> > in
 
         if (current_select_and_expand_enabled)
             enableAutoSelectAndExpand();
+        resizeColumns(); // Note that we do it here since expanded objects etc. will change the items in the columns.
 
         handleTreeRebuildCompleted();
     }

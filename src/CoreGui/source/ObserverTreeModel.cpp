@@ -1411,6 +1411,10 @@ void Qtilities::CoreGui::ObserverTreeModel::handleContextDataChanged(Observer* o
     bool parent_index_valid = parent_index.isValid();
     if (!parent_index_valid)
         return;
+    else {
+        // Refresh the parent as well since the code below will only refresh the children of the parent.
+        emit dataChanged(parent_index,parent_index);
+    }
 
     QModelIndex top_left = index(0,0,parent_index);
     bool top_left_valid = top_left.isValid();
