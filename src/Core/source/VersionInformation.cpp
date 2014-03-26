@@ -25,8 +25,8 @@ struct Qtilities::Core::VersionNumberPrivateData {
           field_width_minor(-1),
           field_width_revision(-1),
           is_version_minor_used(true),
-          development_stage(VersionNumber::DevelopmentStageNone),
           is_version_revision_used(true),
+          development_stage(VersionNumber::DevelopmentStageNone),
           version_development_stage(-1) {}
 
     int         version_major;
