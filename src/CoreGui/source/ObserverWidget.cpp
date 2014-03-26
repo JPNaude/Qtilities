@@ -109,7 +109,6 @@ struct Qtilities::CoreGui::ObserverWidgetData {
         activity_filter(0),
         disable_view_selection_update_from_activity_filter(false),
         disable_activity_filter_update_from_view_selection_change(false),
-        root_observer_context(0),
         notify_selected_objects_changed(true),       
         initialized(false),
         read_only(false),
