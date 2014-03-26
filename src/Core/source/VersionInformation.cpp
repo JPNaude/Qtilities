@@ -75,6 +75,15 @@ Qtilities::Core::VersionNumber::VersionNumber(const VersionNumber& ref)  {
     d->version_major = ref.versionMajor();
     d->version_minor = ref.versionMinor();
     d->version_revision = ref.versionRevision();
+
+    d->field_width_minor = ref.fieldWidthMinor();
+    d->field_width_revision = ref.fieldWidthRevision();
+    d->is_version_minor_used = ref.isVersionMinorUsed();
+    d->is_version_revision_used = ref.isVersionRevisionUsed();
+
+    d->development_stage = ref.developmentStage();
+    d->development_stage_identifier = ref.developmentStageIdentifier();
+    d->version_development_stage = ref.versionDevelopmentStage();
 }
 
 Qtilities::Core::VersionNumber::~VersionNumber() {
