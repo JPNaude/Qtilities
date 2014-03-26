@@ -65,6 +65,8 @@ https://github.com/JPNaude/Qtilities/issues/milestones
 	[+] Added Task::loggingToConsoleLoggerEnabled() and setLoggingToConsoleEnabled().
 	[+] Added TaskManager::forwardTaskMessagesToConsoleEngine() and setForwardTaskMessagesToConsoleEngine(). Previously 
 	    forwarding of task messages to the console was controlled by TaskManager::forwardTaskMessagesToQtMsgEngine().
+	[+] VersionNumber now supports the ability to specify a development stage version number. Current stages 
+	    include alpha, beta, release candidate and service packs (Issue #9).
 
 	[#] Expose busyStateChanged() from private class on QtilitiesCoreApplication and QtilitiesApplication.
     [#] QtilitiesProcess::logProgressOutput() and QtilitiesProcess::logProgressError() are now protected slots, allowing

@@ -28,12 +28,18 @@ namespace Qtilities {
 
         /*!
         \class VersionNumber
-        \brief VersionNumber represents a single version number.
+        \brief VersionNumber makes it easy to work with version numbers.
+
+        The VersionNumber class makes it easy to work with version numbers. It allows functions to compare versions
+        with each other, functions to parse version strings and to control which parts of the version number should be used.
 
         The VersionNumber class represents a version on three levels:
         - Major
         - Minor
         - Revision
+        - Service Packs
+        - Release Candidates
+        - Betas
 
         For example, to construct a version number for v1.0.3 you would do something like this:
 
@@ -47,11 +53,9 @@ number.toString();
 number.setFieldWidthRevision(3);
 number.toString();
 
-// If we want to use the version number in a file name, it might be usefull to print it like: 1_0_003
+// If we want to use the version number in a file name, it might be usefull to print it like this: 1_0_003
 number.toString("_");
 \endcode
-
-        For Minor and Revision numbers you can specify the fieldWidth using setFieldWidthMinor() and setFieldWidthRevision() respectively.
 
         VersionNumber provides a range of functions to compare version numbers with each other. For example:
 \code
@@ -66,6 +70,39 @@ bool is_smaller_and_equal = (ver0 <= ver1); // True
 bool is_smaller = (ver0 < ver1); // True
 \endcode
 
+        For Minor and Revision numbers you can specify the fieldWidth of the QString::number() conversion used using setFieldWidthMinor() and setFieldWidthRevision() respectively. It is also
+        possible to control which parts of a version number is used using setIsVersionMinorUsed() and setIsVersionRevisionUsed().
+
+        \subsection Development Stages
+
+        Since %Qtilities v1.5, VersionNumber allows development stages to be included as part of the version number. Note that any version number can only have one development stage associated with it.
+        The development stages are defined by the DevelopmentStage enumeration, supporting the following development stages:
+
+        - None
+        - Alpha
+        - Beta
+        - Release Candidate
+        - Service Pack
+
+        When considering string representations of version numbers, VersionNumber will assume that the development stage is mentioned at the end of the version number. For
+        example: v1.1.1-b2 is considered to be v1.1.1 beta 2, or v1.1-rc1 will be considered v1.1 release candidate 1 (note that the revision number is not used in this case using
+        setIsVersionRevisionUsed() set to false).
+
+        The following examples show how different VersionNumber object with indications of development stages can be constructed:
+\code
+# Example 1: To represent v1.5.1-rc2
+VersionNumber example1(1,5,1,2,DevelopmentStageReleaseCandidate);
+VersionNumber example1_from_string("1.5.1-rc2",".",DevelopmentStageReleaseCandidate); # Note VersionNumber will use the default string identifier '-rc' to determine the development stage version.
+
+# Example 2: To represent v1.5sp2 (v1.5 Service Pack 1)
+VersionNumber example2(1,5,0,2,DevelopmentStageServicePack);
+example2.setIsVersionRevisionUsed(false);
+example2.setDevelopmentStageIdentifier("sp"); # Note that we are not using the default '-sp' service pack idenfier, therefore we must specify 'sp'.
+
+VersionNumber example2_from_string("1.5sp2",".",DevelopmentStageServicePack,"sp"); # Note that we are not using the default '-sp' service pack idenfier, therefore we must specify 'sp'.
+example2_from_string.setIsVersionRevisionUsed(false);
+\endcode
+
         \sa VersionInformation
 
         <i>This class was added in %Qtilities v1.0.</i>
@@ -73,9 +110,30 @@ bool is_smaller = (ver0 < ver1); // True
         class QTILIITES_CORE_SHARED_EXPORT VersionNumber
         {
         public:
+            /*!
+             * \brief The DevelopmentStage enum defines the type of development stages which can be associated with a version number represented using a VersionNumber object.
+             *
+             * \note When comparing if a version number with a development stage is bigger than another version with a development stage, the order of the items in the enum
+             * is used, where DevelopmentStageAlpha is considered the earliest release, and the DevelopmentStageServicePack the latest release. For example, v1.1-a1 is smaller
+             * than v1.1-rc1, or v1.1 is bigger than v1.1-rc1. In addition, v1.1-sp1 is bigger then v1.1 etc.
+             */
+            enum DevelopmentStage {
+                DevelopmentStageAlpha,              /*!< The version number represents an alpha release. Default string identifier is '-a'. */
+                DevelopmentStageBeta,               /*!< The version number represents a beta release. Default string identifier is '-b'. */
+                DevelopmentStageReleaseCandidate,   /*!< The version number represents a release candidate. Default string identifier is '-rc'. */
+                DevelopmentStageNone,               /*!< No development stage is associated with the version number (the default). */
+                DevelopmentStageServicePack         /*!< The version number represents a service pack candidate. Default string identifier is '-sp'. */
+            };
+
             VersionNumber();
-            VersionNumber(int major, int minor = 0, int revision = 0);
-            VersionNumber(const QString& version, const QString& seperator = ".");
+            /*!
+             * Constructs a version number given a major, minor and revision number combination. In addition, a string identifier number and type can be specified.
+             * \param major The major version number.
+             * \param minor The minor version number.
+             * \param revision The revision number.
+             */
+            VersionNumber(int major, int minor = 0, int revision = 0, int stage_version = 0, DevelopmentStage development_stage = DevelopmentStageNone);
+            VersionNumber(const QString& version, const QString& seperator = ".", DevelopmentStage develoment_stage = DevelopmentStageNone, const QString& stage_identifier = QString());
             VersionNumber(const VersionNumber& ref);
             virtual ~VersionNumber();
 
@@ -131,6 +189,28 @@ bool is_smaller = (ver0 < ver1); // True
             //! Sets if the minor version is part of the version.
             void setIsVersionRevisionUsed(bool is_used);
 
+            //! Gets the development stage string identifier used for the developmentStage() of this version number.
+            /*!
+             * \sa setDevelopmentStageIdentifer(), defaultDevelopmentStageIdentifer()
+             */
+            QString developmentStageIdentifier() const;
+            //! Sets the development stage string identifier used for the developmentStage() of this version number.
+            /*!
+             * \sa developmentStageIdentifer(), defaultDevelopmentStageIdentifer()
+             */
+            void setDevelopmentStageIdentifier(const QString& identifier);
+            //! Returns the default development stage identifier for specified development stage
+            QString defaultDevelopmentStageIdentifer(DevelopmentStage stage) const;
+
+            //! Gets the development stage of this version number.
+            DevelopmentStage developmentStage() const;
+            //! Sets the development stage of this version number.
+            void setDevelopmentStage(DevelopmentStage stage);
+            //! Gets the development stage version.
+            int versionDevelopmentStage() const;
+            //! Sets the development stage version.
+            void setVersionDevelopmentStage(int version);
+
             //! Returns a string represenation of the complete VersionNumber, thus the major, minor and revision parts of the version.
             /*!
               \param seperator By default this is a point, thus ".". In some cases it is desirable to use a custom field seperator. For example as an underscore "_" can be desirable when the version information must be appended to a file name.
@@ -143,7 +223,7 @@ bool is_smaller = (ver0 < ver1); // True
 
               This function keeps the used parts of the version, thus it does not change that.
               */
-            virtual void fromString(const QString& version, const QString& seperator = ".");
+            virtual void fromString(const QString& version, const QString& seperator = ".", const QString& stage_identifier = QString(), DevelopmentStage stage_type = DevelopmentStageNone);
 
         private:
             VersionNumberPrivateData* d;
