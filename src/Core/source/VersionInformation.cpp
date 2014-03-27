@@ -190,10 +190,10 @@ bool Qtilities::Core::VersionNumber::operator<(const VersionNumber& ref) {
     }
 
     if (d->is_version_minor_used) {
-        // Handle case: 1.5.3 < 2.5.3
+        // Handle case: 1.5 < 2.5
         if (d->version_major < ref.versionMajor())
             return true;
-        // Handle case: 1.4.3 < 1.5.3 and 2.4.3 < 1.5.3
+        // Handle case: 1.4 < 1.5 and 2.4 < 1.5
         if (d->version_minor < ref.versionMinor() && d->version_major == ref.versionMajor())
             return true;
         // All other cases
@@ -277,7 +277,7 @@ void Qtilities::Core::VersionNumber::setDevelopmentStageIdentifier(const QString
     d->development_stage_identifier = identifier;
 }
 
-QString Qtilities::Core::VersionNumber::defaultDevelopmentStageIdentifer(Qtilities::Core::VersionNumber::DevelopmentStage stage) const {
+QString Qtilities::Core::VersionNumber::defaultDevelopmentStageIdentifer(VersionNumber::DevelopmentStage stage) {
     if (stage == DevelopmentStageAlpha)
         return "-a";
     else if (stage == DevelopmentStageBeta)
@@ -301,7 +301,11 @@ Qtilities::Core::VersionNumber::DevelopmentStage Qtilities::Core::VersionNumber:
 }
 
 void Qtilities::Core::VersionNumber::setDevelopmentStage(Qtilities::Core::VersionNumber::DevelopmentStage stage) {
-    d->development_stage = stage;
+    if (d->development_stage != stage) {
+        if (d->development_stage_identifier == defaultDevelopmentStageIdentifer(d->development_stage))
+            d->development_stage_identifier = defaultDevelopmentStageIdentifer(stage);
+        d->development_stage = stage;
+    }
 }
 
 int Qtilities::Core::VersionNumber::versionDevelopmentStage() const {

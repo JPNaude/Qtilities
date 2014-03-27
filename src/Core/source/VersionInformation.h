@@ -200,7 +200,7 @@ example2_from_string.setIsVersionRevisionUsed(false);
              */
             void setDevelopmentStageIdentifier(const QString& identifier);
             //! Returns the default development stage identifier for specified development stage
-            QString defaultDevelopmentStageIdentifer(DevelopmentStage stage) const;
+            static QString defaultDevelopmentStageIdentifer(DevelopmentStage stage);
 
             //! Gets the development stage of this version number.
             /*!

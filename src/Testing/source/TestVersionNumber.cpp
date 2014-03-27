@@ -105,6 +105,10 @@ void Qtilities::Testing::TestVersionNumber::testOperatorSmaller() {
     QVERIFY(ver4 < ver1);
     VersionNumber ver5(4,5,5);
     QVERIFY(ver5 < ver1);
+    VersionNumber ver6(6,5,4);
+    QVERIFY(!(ver6 < ver1));
+    VersionNumber ver13(6,4,5);
+    QVERIFY(!(ver13 < ver1));
 
     VersionNumber ver7(5,5,4);
     ver7.setIsVersionRevisionUsed(false);
@@ -128,6 +132,41 @@ void Qtilities::Testing::TestVersionNumber::testOperatorSmaller() {
     ver12.setIsVersionRevisionUsed(false);
     ver12.setIsVersionMinorUsed(false);
     QVERIFY(ver12 < ver1);
+
+    VersionNumber ver_dev_stage_1(5,5,5,1,VersionNumber::DevelopmentStageBeta);
+    VersionNumber ver_dev_stage_2(5,5,5,2,VersionNumber::DevelopmentStageBeta);
+    QVERIFY(ver_dev_stage_1 < ver_dev_stage_2);
+    VersionNumber ver_dev_stage_3(4,5,5,1,VersionNumber::DevelopmentStageBeta);
+    QVERIFY(!(ver_dev_stage_1 < ver_dev_stage_3));
+    VersionNumber ver_dev_stage_4(5,4,5,1,VersionNumber::DevelopmentStageBeta);
+    QVERIFY(!(ver_dev_stage_1 < ver_dev_stage_4));
+    ver_dev_stage_4.setIsVersionMinorUsed(false);
+    QVERIFY(!(ver_dev_stage_1 < ver_dev_stage_4));
+    ver_dev_stage_4.setIsVersionMinorUsed(true);
+    ver_dev_stage_4.setIsVersionRevisionUsed(false);
+    QVERIFY(!(ver_dev_stage_1 < ver_dev_stage_4));
+    ver_dev_stage_4.setIsVersionMinorUsed(false);
+    ver_dev_stage_4.setIsVersionRevisionUsed(false);
+    QVERIFY(!(ver_dev_stage_1 < ver_dev_stage_4));
+    VersionNumber ver_dev_stage_5(5,5,4,1,VersionNumber::DevelopmentStageBeta);
+    QVERIFY(!(ver_dev_stage_1 < ver_dev_stage_5));
+    VersionNumber ver_dev_stage_6(5,5,5,0,VersionNumber::DevelopmentStageBeta);
+    QVERIFY(ver_dev_stage_1 < ver_dev_stage_6);
+
+    VersionNumber ver_dev_stage_8(5,5,5,1,VersionNumber::DevelopmentStageAlpha);
+    QVERIFY(!(ver_dev_stage_1 < ver_dev_stage_8));
+    VersionNumber ver_dev_stage_12(5,5,5,2,VersionNumber::DevelopmentStageBeta);
+    QVERIFY(ver_dev_stage_1 < ver_dev_stage_12);
+    VersionNumber ver_dev_stage_9(5,5,5,1,VersionNumber::DevelopmentStageReleaseCandidate);
+    QVERIFY(ver_dev_stage_1 < ver_dev_stage_9);
+    VersionNumber ver_dev_stage_7(5,5,5,1,VersionNumber::DevelopmentStageNone);
+    QVERIFY(ver_dev_stage_1 < ver_dev_stage_7);
+    VersionNumber ver_dev_stage_10(5,5,5,1,VersionNumber::DevelopmentStageServicePack);
+    QVERIFY(ver_dev_stage_1 < ver_dev_stage_10);
+    VersionNumber ver_dev_stage_11(5,5,5,0,VersionNumber::DevelopmentStageServicePack);
+    QVERIFY(ver_dev_stage_1 < ver_dev_stage_11);
+    VersionNumber ver_dev_stage_13(5,5,5,0,VersionNumber::DevelopmentStageServicePack);
+    QVERIFY(!(ver_dev_stage_11 < ver_dev_stage_13));
 }
 
 void Qtilities::Testing::TestVersionNumber::testOperatorSmallerEqual() {
@@ -147,6 +186,14 @@ void Qtilities::Testing::TestVersionNumber::testOperatorSmallerEqual() {
 void Qtilities::Testing::TestVersionNumber::testToString() {
     VersionNumber ver(1,2,3);
     QVERIFY(ver.toString().compare("1.2.3") == 0);
+    ver.setDevelopmentStage(VersionNumber::DevelopmentStageServicePack);
+    ver.setVersionDevelopmentStage(1);
+    QVERIFY(ver.toString().compare(QString("1.2.3%1%2").arg(VersionNumber::defaultDevelopmentStageIdentifer(VersionNumber::DevelopmentStageServicePack)).arg(ver.versionDevelopmentStage())) == 0);
+    ver.setDevelopmentStage(VersionNumber::DevelopmentStageReleaseCandidate);
+    ver.setDevelopmentStageIdentifier(" Release Candidate ");
+    ver.setVersionDevelopmentStage(2);
+    QVERIFY(ver.toString().compare("1.2.3 Release Candidate 2") == 0);
+    ver.setVersionDevelopmentStage(0);
     ver.setFieldWidthMinor(3);
     QVERIFY(ver.toString().compare("1.002.3") == 0);
     ver.setFieldWidthRevision(3);
