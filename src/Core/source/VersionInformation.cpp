@@ -148,39 +148,60 @@ bool Qtilities::Core::VersionNumber::operator<(const VersionNumber& ref) {
     if (*this == ref)
         return false;
 
-    // Handle case: 1.5.3 < 2.5.3
-    if (d->version_major < ref.versionMajor())
-        return true;
-
-    if (d->is_version_minor_used) {
+    if (developmentStage(true) != DevelopmentStageNone || ref.developmentStage(true) != DevelopmentStageNone) {
+        // Handle case: 1.5.3 < 2.5.3
+        if (d->version_major < ref.versionMajor())
+            return true;
         // Handle case: 1.4.3 < 1.5.3 and 2.4.3 < 1.5.3
         if (d->version_minor < ref.versionMinor() && d->version_major == ref.versionMajor())
             return true;
-    }
-
-    if (d->is_version_revision_used) {
         // Handle case: 1.5.2 < 1.5.3 and 2.5.2 < 1.5.3 and 2.6.2 < 1.5.3
         if (d->version_revision < ref.versionRevision() && d->version_minor == ref.versionMinor() && d->version_major == ref.versionMajor())
             return true;
-    }
 
-    if (d->is_version_revision_used) {
-        // Handle case: 1.5.2 < 1.5.3 and 2.5.2 < 1.5.3 and 2.6.2 < 1.5.3
-        if (d->version_revision < ref.versionRevision() && d->version_minor == ref.versionMinor() && d->version_major == ref.versionMajor())
-            return true;
-    }
-
-    if (developmentStage(true) != DevelopmentStageNone || ref.developmentStage(true) != DevelopmentStageNone) {
-        if (developmentStage(true) == ref.developmentStage(true)) {
-            // We need to check if the development stage was defined first:
-            if (d->version_development_stage < ref.versionDevelopmentStage() && d->version_revision == ref.versionRevision() && d->version_minor == ref.versionMinor() && d->version_major == ref.versionMajor())
-                return true;
-        } else {
-            // In this case consider the development stage order:
-            if ((int) developmentStage(true) < (int) ref.developmentStage(true) && d->version_revision == ref.versionRevision() && d->version_minor == ref.versionMinor() && d->version_major == ref.versionMajor())
-                return true;
+        // If we get here, we know the major, minor and revision version is NOT smaller. Thus, we check if they are the same if and
+        // they are we know we can check the development stage versions:
+        if (d->version_revision == ref.versionRevision() && d->version_minor == ref.versionMinor() && d->version_major == ref.versionMajor()) {
+            if (developmentStage(true) == ref.developmentStage(true)) {
+                if (d->version_development_stage < ref.versionDevelopmentStage())
+                    return true;
+            } else {
+                // In this case consider the development stage order:
+                if ((int) developmentStage(true) < (int) ref.developmentStage(true))
+                    return true;
+            }
         }
+
+        return false;
     }
+
+    if (d->is_version_revision_used) {
+        // Handle case: 1.5.3 < 2.5.3
+        if (d->version_major < ref.versionMajor())
+            return true;
+        // Handle case: 1.4.3 < 1.5.3 and 2.4.3 < 1.5.3
+        if (d->version_minor < ref.versionMinor() && d->version_major == ref.versionMajor())
+            return true;
+        // Handle case: 1.5.2 < 1.5.3 and 2.5.2 < 1.5.3 and 1.6.2 < 1.5.3
+        if (d->version_revision < ref.versionRevision() && d->version_minor == ref.versionMinor() && d->version_major == ref.versionMajor())
+            return true;
+        // All other cases
+        return false;
+    }
+
+    if (d->is_version_minor_used) {
+        // Handle case: 1.5.3 < 2.5.3
+        if (d->version_major < ref.versionMajor())
+            return true;
+        // Handle case: 1.4.3 < 1.5.3 and 2.4.3 < 1.5.3
+        if (d->version_minor < ref.versionMinor() && d->version_major == ref.versionMajor())
+            return true;
+        // All other cases
+        return false;
+    }
+
+    if (d->version_major < ref.versionMajor())
+        return true;
 
     return false;
 }
