@@ -170,14 +170,14 @@ bool Qtilities::Core::VersionNumber::operator<(const VersionNumber& ref) {
             return true;
     }
 
-    if (develpmentStage(true) != DevelopmentStageNone || ref.developmentStage(true) != DevelopmentStageNone) {
-        if (develpmentStage(true) == ref.developmentStage(true)) {
+    if (developmentStage(true) != DevelopmentStageNone || ref.developmentStage(true) != DevelopmentStageNone) {
+        if (developmentStage(true) == ref.developmentStage(true)) {
             // We need to check if the development stage was defined first:
             if (d->version_development_stage < ref.versionDevelopmentStage() && d->version_revision == ref.versionRevision() && d->version_minor == ref.versionMinor() && d->version_major == ref.versionMajor())
                 return true;
         } else {
             // In this case consider the development stage order:
-            if ((int) develpmentStage(true) < (int) ref.developmentStage(true) && d->version_revision == ref.versionRevision() && d->version_minor == ref.versionMinor() && d->version_major == ref.versionMajor())
+            if ((int) developmentStage(true) < (int) ref.developmentStage(true) && d->version_revision == ref.versionRevision() && d->version_minor == ref.versionMinor() && d->version_major == ref.versionMajor())
                 return true;
         }
     }
