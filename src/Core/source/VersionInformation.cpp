@@ -27,7 +27,7 @@ struct Qtilities::Core::VersionNumberPrivateData {
           is_version_minor_used(true),
           is_version_revision_used(true),
           development_stage(VersionNumber::DevelopmentStageNone),
-          version_development_stage(-1) {}
+          version_development_stage(0) {}
 
     int         version_major;
     int         version_minor;
@@ -170,14 +170,14 @@ bool Qtilities::Core::VersionNumber::operator<(const VersionNumber& ref) {
             return true;
     }
 
-    if (d->development_stage != DevelopmentStageNone || ref.developmentStage() != DevelopmentStageNone) {
-        if (d->development_stage == ref.developmentStage()) {
-            // In this case consider the development stage version:
+    if (develpmentStage(true) != DevelopmentStageNone || ref.developmentStage(true) != DevelopmentStageNone) {
+        if (develpmentStage(true) == ref.developmentStage(true)) {
+            // We need to check if the development stage was defined first:
             if (d->version_development_stage < ref.versionDevelopmentStage() && d->version_revision == ref.versionRevision() && d->version_minor == ref.versionMinor() && d->version_major == ref.versionMajor())
                 return true;
         } else {
             // In this case consider the development stage order:
-            if ((int) d->development_stage < (int) ref.developmentStage() && d->version_revision == ref.versionRevision() && d->version_minor == ref.versionMinor() && d->version_major == ref.versionMajor())
+            if ((int) develpmentStage(true) < (int) ref.developmentStage(true) && d->version_revision == ref.versionRevision() && d->version_minor == ref.versionMinor() && d->version_major == ref.versionMajor())
                 return true;
         }
     }
@@ -269,8 +269,14 @@ QString Qtilities::Core::VersionNumber::defaultDevelopmentStageIdentifer(Qtiliti
     return QString();
 }
 
-Qtilities::Core::VersionNumber::DevelopmentStage Qtilities::Core::VersionNumber::developmentStage() const {
-    return d->development_stage;
+Qtilities::Core::VersionNumber::DevelopmentStage Qtilities::Core::VersionNumber::developmentStage(bool check_if_valid) const {
+    if (check_if_valid) {
+        if (d->version_development_stage != 0)
+            return d->development_stage;
+        else
+            return DevelopmentStageNone;
+    } else
+        return d->development_stage;
 }
 
 void Qtilities::Core::VersionNumber::setDevelopmentStage(Qtilities::Core::VersionNumber::DevelopmentStage stage) {
@@ -304,7 +310,7 @@ QString Qtilities::Core::VersionNumber::toString(const QString& seperator) const
     } else if (!d->is_version_minor_used && !d->is_version_revision_used)
         version = QString::number(d->version_major);
 
-    if (d->development_stage != DevelopmentStageNone && d->version_development_stage != -1) {
+    if (d->development_stage != DevelopmentStageNone && d->version_development_stage != 0) {
         version.append(d->development_stage_identifier);
         version.append(QString::number(d->version_development_stage));
     }

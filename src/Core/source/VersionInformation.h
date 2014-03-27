@@ -203,7 +203,15 @@ example2_from_string.setIsVersionRevisionUsed(false);
             QString defaultDevelopmentStageIdentifer(DevelopmentStage stage) const;
 
             //! Gets the development stage of this version number.
-            DevelopmentStage developmentStage() const;
+            /*!
+             * \param check_if_valid When true, versionDevelopmentStage() needs to be valid in order for the associated development stage
+             * to be returned. If versionDevelopmentStage() is not valid (version == 0) DevelopmentStageNone will be returned. When false
+             * the development stage set using setDevelopmentStage() or set using one of the constructors will be returned even if no valid
+             * development stage have been set. This parameter allows you to check the validity of the development stage associated with
+             * the version number.
+             * \return The development stage associated with this version number.
+             */
+            DevelopmentStage developmentStage(bool check_if_valid = false) const;
             //! Sets the development stage of this version number.
             void setDevelopmentStage(DevelopmentStage stage);
             //! Gets the development stage version.
