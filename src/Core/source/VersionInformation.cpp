@@ -304,7 +304,7 @@ QString Qtilities::Core::VersionNumber::toString(const QString& seperator) const
     } else if (!d->is_version_minor_used && !d->is_version_revision_used)
         version = QString::number(d->version_major);
 
-    if (d->development_stage != DevelopmentStageNone) {
+    if (d->development_stage != DevelopmentStageNone && d->version_development_stage != -1) {
         version.append(d->development_stage_identifier);
         version.append(QString::number(d->version_development_stage));
     }
