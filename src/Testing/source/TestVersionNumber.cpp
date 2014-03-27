@@ -110,6 +110,13 @@ void Qtilities::Testing::TestVersionNumber::testOperatorSmaller() {
     VersionNumber ver13(6,4,5);
     QVERIFY(!(ver13 < ver1));
 
+    VersionNumber ver14(11,0,0);
+    ver14.setDevelopmentStage(VersionNumber::DevelopmentStageServicePack);
+    VersionNumber ver15(13,1,1);
+//    ver15.setDevelopmentStage(VersionNumber::DevelopmentStageServicePack);
+    QVERIFY(!(ver15 < ver14));
+    QVERIFY(!(ver15 < ver15));
+
     VersionNumber ver7(5,5,4);
     ver7.setIsVersionRevisionUsed(false);
     QVERIFY(!(ver7 < ver1));

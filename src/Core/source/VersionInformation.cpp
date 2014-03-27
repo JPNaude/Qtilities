@@ -93,18 +93,18 @@ Qtilities::Core::VersionNumber::~VersionNumber() {
 bool Qtilities::Core::VersionNumber::operator==(const VersionNumber& ref) const {
     if (d->version_major != ref.versionMajor())
         return false;
-    if (d->is_version_minor_used) {
+    if (d->is_version_minor_used && ref.isVersionMinorUsed()) {
         if (d->version_minor != ref.versionMinor())
             return false;
     }
-    if (d->is_version_revision_used) {
+    if (d->is_version_revision_used && ref.isVersionRevisionUsed()) {
         if (d->version_revision != ref.versionRevision())
             return false;
     }
-    if (d->development_stage != ref.developmentStage())
+    if (developmentStage(true) != ref.developmentStage())
         return false;
-    // We can just check d->stage since we already know ref has the same stage:
-    if (d->development_stage != DevelopmentStageNone) {
+    // We can just check developmentStage(true) since we already know ref has the same stage:
+    if (developmentStage(true) != DevelopmentStageNone) {
         if (d->version_development_stage != ref.versionDevelopmentStage())
             return false;
     }
@@ -175,13 +175,15 @@ bool Qtilities::Core::VersionNumber::operator<(const VersionNumber& ref) {
         return false;
     }
 
-    if (d->is_version_revision_used) {
+    if (d->is_version_revision_used && ref.isVersionRevisionUsed()) {
         // Handle case: 1.5.3 < 2.5.3
         if (d->version_major < ref.versionMajor())
             return true;
-        // Handle case: 1.4.3 < 1.5.3 and 2.4.3 < 1.5.3
-        if (d->version_minor < ref.versionMinor() && d->version_major == ref.versionMajor())
-            return true;
+        if (d->is_version_minor_used && ref.isVersionMinorUsed()) {
+            // Handle case: 1.4.3 < 1.5.3 and 2.4.3 < 1.5.3
+            if (d->version_minor < ref.versionMinor() && d->version_major == ref.versionMajor())
+                return true;
+        }
         // Handle case: 1.5.2 < 1.5.3 and 2.5.2 < 1.5.3 and 1.6.2 < 1.5.3
         if (d->version_revision < ref.versionRevision() && d->version_minor == ref.versionMinor() && d->version_major == ref.versionMajor())
             return true;
@@ -189,7 +191,7 @@ bool Qtilities::Core::VersionNumber::operator<(const VersionNumber& ref) {
         return false;
     }
 
-    if (d->is_version_minor_used) {
+    if (d->is_version_minor_used && ref.isVersionMinorUsed()) {
         // Handle case: 1.5 < 2.5
         if (d->version_major < ref.versionMajor())
             return true;

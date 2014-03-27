@@ -138,18 +138,36 @@ example2_from_string.setIsVersionRevisionUsed(false);
             virtual ~VersionNumber();
 
             //! Operator overload to compare two VersionNumber objects with each other.
+            /*!
+             * \note Minor and revision numbers are only considered if both VersionNumbers use them.
+             */
             bool operator==(const VersionNumber& ref) const;
             //! Operator overload to compare two VersionNumber objects are not equal.
+            /*!
+             * \note Minor and revision numbers are only considered if both VersionNumbers use them.
+             */
             bool operator!=(const VersionNumber& ref) const;
             //! Operator overload to assign one VersionNumber to another VersionNumber.
             VersionNumber& operator=(const VersionNumber& ref);
             //! Operator overload to check if one VersionNumber to bigger than another VersionNumber.
+            /*!
+             * \note Minor and revision numbers are only considered if both VersionNumbers use them.
+             */
             bool operator>(const VersionNumber& ref);
             //! Operator overload to check if one VersionNumber to bigger than or equal to another VersionNumber.
+            /*!
+             * \note Minor and revision numbers are only considered if both VersionNumbers use them.
+             */
             bool operator>=(const VersionNumber& ref);
             //! Operator overload to check if one VersionNumber to smaller than another VersionNumber.
+            /*!
+             * \note Minor and revision numbers are only considered if both VersionNumbers use them.
+             */
             bool operator<(const VersionNumber& ref);
             //! Operator overload to check if one VersionNumber to smaller than or equal to another VersionNumber.
+            /*!
+             * \note Minor and revision numbers are only considered if both VersionNumbers use them.
+             */
             bool operator<=(const VersionNumber& ref);
 
             //! Gets the major version.

@@ -97,7 +97,7 @@ namespace Qtilities {
             Q_INTERFACES(Qtilities::Core::Interfaces::IModificationNotifier)
 
         public:
-            //! Possible process property types.
+            //! Possible property types.
             enum PropertyType {
                 TypeUndefined = 0,
                 TypeInteger = 1,
@@ -112,7 +112,7 @@ namespace Qtilities {
                 TypeListBased = TypeFileList | TypePathList
             };
             Q_ENUMS(PropertyType)
-            //! Possible process property levels.
+            //! Possible property levels.
             enum PropertyLevel {
                 LevelStandard = 0,
                 LevelAdvanced = 1

@@ -90,7 +90,7 @@ QString Qtilities::Logging::AbstractLoggerEngine::formattingEngineName() {
     if (abstractLoggerEngineData->formatting_engine)
         return abstractLoggerEngineData->formatting_engine->objectName();
     else
-        return tr("None");
+        return "None";
 }
 
 void Qtilities::Logging::AbstractLoggerEngine::newMessages(const QString& engine_name, Logger::MessageType message_type, Logger::MessageContextFlags message_context, const QList<QVariant>& messages) {
