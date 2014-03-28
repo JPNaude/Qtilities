@@ -40,7 +40,6 @@ struct Qtilities::Core::VersionNumberPrivateData {
     VersionNumber::DevelopmentStage development_stage;
     QString                         development_stage_identifier;
     int                             version_development_stage;
-
 };
 
 Qtilities::Core::VersionNumber::VersionNumber() {
@@ -101,7 +100,7 @@ bool Qtilities::Core::VersionNumber::operator==(const VersionNumber& ref) const 
         if (d->version_revision != ref.versionRevision())
             return false;
     }
-    if (developmentStage(true) != ref.developmentStage())
+    if (developmentStage(true) != ref.developmentStage(true))
         return false;
     // We can just check developmentStage(true) since we already know ref has the same stage:
     if (developmentStage(true) != DevelopmentStageNone) {
