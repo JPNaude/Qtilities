@@ -222,13 +222,19 @@ bool Qtilities::Core::QtilitiesProcess::processBackendProcessBuffersEnabled() co
 }
 
 void Qtilities::Core::QtilitiesProcess::stopProcess() {
+    // New implementation:
     d->process->terminate();
-    //d->process->waitForFinished(3000);
     d->process->kill();
-    d->process->waitForFinished(3000);
 
-    if (state() == ITask::TaskBusy)
-        completeTask();
+    // Old implementation which resulted in race conditions because procFinished() would
+    // have been called as well when the process was stopped:
+//    d->process->terminate();
+//    d->process->waitForFinished(3000);
+//    d->process->kill();
+//    d->process->waitForFinished(3000);
+
+//    if (state() == ITask::TaskBusy)
+//        completeTask();
 }
 
 void Qtilities::Core::QtilitiesProcess::procFinished(int exit_code, QProcess::ExitStatus exit_status) {
