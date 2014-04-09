@@ -55,26 +55,13 @@ Zipper zipper("/opt/7zip/7za",ignore_list);
 
 // Now copy all the contents:
 QString tmp_file = QtilitiesApplication::applicationSessionPath() + "/tmp.zip";
-QString source_folder = "c:/source_folder";
-QString destination_folder = "c:/destination_folder";
-if (zipper.moveFolderContents(source_folder,destination_folder,tmp_file)) {
-    while (zipper.busy())
-        QApplication::processEvents();
-
-    // Now check the last exit status:
-    if (zipper.lastExitStatus() == QProcess::NormalExit) {
-        if (zipper.exitCode() == 0)
-            LOG_INFO("Successfully moved folder contents from \"" + source_folder + "\" to destination folder \"" + destination_folder + "\".");
-        else
-            LOG_ERROR("The zip process failed with error code " + QString::number(zipper.exitCode()) + ". Error: " + zipper.recordedMessage());
-    } else {
-        LOG_ERROR(zipper.lastProcessErrorMsg());
-        return false;
-    }
-} else {
-    LOG_ERROR(zipper.lastProcessErrorMsg());
-    return false;
-}
+QString src_folder = "c:/source_folder";
+QString dest_folder = "c:/destination_folder";
+QString errorMsg;
+if (zipper.moveFolderContents(src_folder,dest_folder,tmp_file,&errorMsg))
+    LOG_INFO("Successfully moved folder contents from \"" + src_folder + "\" to destination folder \"" + dest_folder + "\".");
+else
+    LOG_ERROR(errorMsg);
 \endcode
 
 The zipper will by default register a global %Qtilities task in the global object pool in order to provide progress information.
@@ -96,57 +83,22 @@ class QTILIITES_CORE_SHARED_EXPORT Zipper : public QObject
 public:
     /*!
      * \param path_7za The path to the 7za executable.
-     * \param ignore_list An ignore list to use when performing archiving operations. Can be set at a later time using setIgnoreList().
+     * \param ignore_list A space seperated ignore list to use when performing archiving operations.
      * \param temp_dir In some situations (for example, moving folders) the zipper creates temporary files in this path. If not specified, QtilitiesCoreApplication::applicationSessionPath() will be used.
      * \param parent The Zipper's parent object.
      */
     explicit Zipper(const QString& path_7za, const QString& ignore_list = QString(), const QString& temp_dir = QString(), QObject *parent = 0);
     ~Zipper();
 
-    //! The possible zip modes.
-    enum ZipMode {
-        CopyMode = 0,       /*!< Only do a copy, uses the -mx0 switch. */
-        CompressMode = 1    /*!< Does a compression, uses the default settings. */
-    };
-
-    //! Function to access the zipper task.
-    ITask* task();
-
-    //! Function which returns true if the zip operation have been completed.
-    bool busy();
-    //! Returns the recorded message.
-    QString recordedMessage() const;
-    //! Clears the current recorded message.
-    void clearRecordedMessage();
     //! Sets the ignore list used by the zipper.
     void setIgnoreList(const QString& ignore_list);
-
-    //! Gives the exit code of the last time the zip process was launched.
-    /*!
-      \returns When 0, the zipper indicated that it exited successfully, if not it failed. You should study the log messages received from the zipper
-      to figure out why it failed.
-      */
-    int exitCode() const;
-    //! Gives the exit status of the last time the zip process was launched.
-    /*!
-      When lastExitStatus() returns CrashExit, the process error can be found through lastProcessError().
-
-      When it returns NormalExit, you must check the exitCode() function to see if the zip process indicated that it performed the zip operation successfully.
-      */
-    QProcess::ExitStatus lastExitStatus() const;
-    //! Gives the process error the last time the zip process was launched.
-    /*!
-      \sa lastExitStatus(), lastProcessErrorMsg()
-      */
-    QProcess::ProcessError lastProcessError() const;
-    //! Gives an error message for the lastProcessError() error that occured.
-    /*!
-      \sa lastExitStatus(), lastProcessError()
-      */
-    QString lastProcessErrorMsg() const;
+    //! Gets the ignore list used by the zipper.
+    QString ignoreList() const;
+    //! Function to access the zipper process.
+    QtilitiesProcess* zipProcess();
 
     // -------------------------
-    // Static Functions
+    // Archive Types
     // -------------------------
     //! Returns a list of valid ArchiveTypes
     static QList<ArchiveType> validArchiveTypes();
@@ -162,7 +114,18 @@ public:
     // -------------------------
     // Zip Process Evoking Functions
     // -------------------------
-public slots:
+    //! Convenience function to zip a list of files.
+    /*!
+     * \note This function will automatically prepend and append " characters to the path in order to support paths with spaces. Thus do not do this manually, the Zipper will do it for you.
+     * \returns True if the operation completed successfully, false otherwise.
+     */
+    bool zipFiles(const QStringList& files, const QString& output_file, QStringList* errorMsgs = 0);
+
+    //! The possible zip modes applicable to archiving folders.
+    enum ZipMode {
+        CopyMode = 0,       /*!< Only do a copy, uses the -mx0 switch. */
+        CompressMode = 1    /*!< Does a compression, uses the default settings. */
+    };
     //! Convenience function to zip a folder to a file.
     /*!
      * It is possible to control whether the filenames in the archive will contain the folder_path prefix. For example:
@@ -180,14 +143,14 @@ public slots:
      *
      * \returns True if the operation completed successfully, false otherwise.
      */
-    bool zipFolder(const QString& folder_path, const QString& output_file, ZipMode mode = CompressMode);
+    bool zipFolder(const QString& folder_path, const QString& output_file, ZipMode mode = CompressMode, QStringList* errorMsgs = 0);
     //! Convenience function to unzip a file to a folder.
     /*!
         \note This function will automatically prepend and append " characters to the path in order to support paths with spaces. Thus do not do this manually, the Zipper will do it for you.
 
         \returns True if the operation completed successfully, false otherwise.
       */
-    bool unzipFolder(const QString& input_file, const QString& destination_path);
+    bool unzipFolder(const QString& source_path, const QString& destination_path, QStringList* errorMsgs = 0);
     //! Convenience function to move a folder from one location to another.
     /*!
         The complete source_path folder will be moved to destination_path. Thus destination_path will contain source_path, not its' contents. For that functionality see moveFolderContents().
@@ -196,14 +159,14 @@ public slots:
 
         \returns True if the operation completed successfully, false otherwise.
       */
-    bool moveFolder(const QString& source_path, const QString& destination_path);
+    bool moveFolder(const QString& source_path, const QString& destination_path, QStringList* errorMsgs = 0);
     //! Convenience function to move the contents of a folder from one location to another.
     /*!
         \note This function will automatically prepend and append " characters to the path in order to support paths with spaces. Thus do not do this manually, the Zipper will do it for you.
 
         \returns True if the operation completed successfully, false otherwise.
       */
-    bool moveFolderContents(const QString& source_path, const QString& destination_path);
+    bool moveFolderContents(const QString& source_path, const QString& destination_path, QStringList* errorMsgs = 0);
     //! Convenience function to copy a folder from one location to another.
     /*!
         The complete source_path folder will be copied to destination_path. Thus destination_path will contain source_path, not its' contents. For that functionality see copyFolderContents().
@@ -212,39 +175,28 @@ public slots:
 
         \returns True if the operation completed successfully, false otherwise.
       */
-    bool copyFolder(const QString& source_path, const QString& destination_path);
+    bool copyFolder(const QString& source_path, const QString& destination_path, QStringList* errorMsgs = 0);
     //! Convenience function to copy the contents a folder from one location to another.
     /*!
         \note This function will automatically prepend and append " characters to the path in order to support paths with spaces. Thus do not do this manually, the Zipper will do it for you.
 
         \returns True if the operation completed successfully, false otherwise.
       */
-    bool copyFolderContents(const QString& source_path, const QString& destination_path);
+    bool copyFolderContents(const QString& source_path, const QString& destination_path, QStringList* errorMsgs = 0);
     //! Function to list the information about an archive, using the \p l command.
     /*!
-        \returns The information of the archive.
-      */
-    QString zipInfo(const QString& file_path);
+     * \param file_path The archive.
+     * \param ok Indicates if the information returned is valid. When true, the error that occured can be obtained through lastProcessErrorMsg().
+     * \returns The information of the archive. If the information could not be obtained, returns an empty string and sets ok to false.
+     */
+    QString zipInfo(const QString& file_path, bool *ok, QStringList* errorMsgs = 0);
 
-private slots:
-    void getNewMessageLogged(const QString& message, Logger::MessageType);
-
-private:
-    bool zipFolderPrivate(const QString& folder_path, const QString& output_file, ZipMode mode = CompressMode);
-    bool unzipFolderPrivate(const QString& input_file, const QString& destination_path);
-    bool copyFolderPrivate(const QString& source_path, const QString& destination_path, const QString& tmp_file);
-    bool copyFolderContentsPrivate(const QString& source_path, const QString& destination_path, const QString& tmp_file);
-    bool zipInfoPrivate(const QString& file_path);
-
-private slots:
-    void processCompleted();
-    void processStarted();
-
-private:
+protected:
     //! Executes a zip command with the given arguments.
-    bool executeCommand(QStringList arguments);
+    virtual bool executeCommand(QStringList arguments, QStringList *errorMsgs = 0);
 
-    ZipperPrivateData*      d;
+private:
+    ZipperPrivateData* d;
 };
 
 }

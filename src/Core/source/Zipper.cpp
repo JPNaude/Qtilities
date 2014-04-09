@@ -12,16 +12,10 @@
 #include "QtilitiesFileInfo.h"
 
 struct Qtilities::Core::ZipperPrivateData {
-    ZipperPrivateData() : is_completed(true) {}
+    ZipperPrivateData() : zip_process("zipper") {}
 
-    QString                 recorded_message;
     QString                 ignore_list;
-    QString                 last_error_message;
-    bool                    is_completed;
-    bool                    exit_code;
-    QtilitiesProcess*       zip_process;
-    QProcess::ExitStatus    last_status;
-    QProcess::ProcessError  last_error;
+    QtilitiesProcess        zip_process;
     QString                 path_7za;
     QString                 temp_dir;
 };
@@ -36,254 +30,143 @@ Qtilities::Core::Zipper::Zipper(const QString& path_7za, const QString& ignore_l
         d->temp_dir = QtilitiesCoreApplication::applicationSessionPath();
     else
         d->temp_dir = temp_dir;
-
-    d->zip_process = new QtilitiesProcess("zipper",true,this);
-    d->zip_process->setTaskStopAction(ITask::TaskDoNothingWhenStopped);
-    d->zip_process->setTaskRemoveAction(ITask::TaskHideWhenRemoved);
-    connect(d->zip_process,SIGNAL(newMessageLogged(QString,Logger::MessageType)),SLOT(getNewMessageLogged(QString,Logger::MessageType)));
-    OBJECT_MANAGER->registerObject(d->zip_process);
-
-    connect(d->zip_process,SIGNAL(taskCompleted(ITask::TaskResult,QString,Logger::MessageType)),SLOT(processCompleted()));
-    connect(d->zip_process,SIGNAL(taskStarted()),SLOT(processStarted()));
 }
 
 Qtilities::Core::Zipper::~Zipper() {
-    if (d->zip_process)
-        delete d->zip_process;
     delete d;
 }
 
-ITask* Qtilities::Core::Zipper::task() {
-    return d->zip_process;
+void Qtilities::Core::Zipper::setIgnoreList(const QString& ignore_list) {
+    d->ignore_list = ignore_list;
 }
 
-bool Qtilities::Core::Zipper::executeCommand(QStringList arguments) {
-    bool result;
-    #ifdef Q_OS_WIN
-    QString error_msg = QString("Could not start %1. Make sure this application is located in your application's installation path. If it is not, a reinstallating of %2 or installing 7-zip manually will solve the problem.").arg(d->path_7za).arg(QCoreApplication::applicationName());
-    result = d->zip_process->startProcess("7za",arguments);
-    #else
-    QString error_msg = QString("Could not start %1 which is needed to perform archiving operations. Installing 7za through your package manager will solve the problem.").arg(d->path_7za);
-    result = d->zip_process->startProcess("7za",arguments);
-    #endif
-
-    d->last_error_message = error_msg;
-
-    return result;
+QString Zipper::ignoreList() const {
+    return d->ignore_list;
 }
 
-// -----------------------------------------------------------
-// Convenience Functions To Perform Common Zip Operations
-// -----------------------------------------------------------
-QString Qtilities::Core::Zipper::zipInfo(const QString& file_path) {
-    // List the contents of the package in the info widget.
-    if (zipInfoPrivate(file_path)) {
-        while (busy())
-            QCoreApplication::processEvents();
-
-        // Query the zipper process:
-        if (lastExitStatus() == QProcess::NormalExit) {
-            if (exitCode() == 0) {
-                LOG_INFO("Successfully retreived information about archive at \"" + file_path + "\".");
-                return recordedMessage();
-            } else {
-                LOG_ERROR("The zip process failed with error code " + QString::number(exitCode()) + ". Study the log for more information.");
-                return "The zip process failed to get zip info with error code " + QString::number(exitCode()) + ". Study the log for more information.";
-            }
-        } else {
-            LOG_ERROR(lastProcessErrorMsg());
-            return lastProcessErrorMsg();
-        }
-    } else {
-        LOG_ERROR(lastProcessErrorMsg());
-        return lastProcessErrorMsg();
-    }
+QtilitiesProcess* Qtilities::Core::Zipper::zipProcess() {
+    return &d->zip_process;
 }
 
-void Qtilities::Core::Zipper::getNewMessageLogged(const QString& message, Logger::MessageType) {
-    d->recorded_message.append(message);
-}
-
-bool Qtilities::Core::Zipper::zipFolder(const QString& folder_path, const QString& output_file, ZipMode mode) {
-    if (zipFolderPrivate(folder_path,output_file,mode)) {
-        while (busy())
-            QCoreApplication::processEvents();
-
-        // Now check the last exit status:
-        if (lastExitStatus() == QProcess::NormalExit) {
-            if (exitCode() == 0) {
-                LOG_INFO("Successfully archived folder contents from \"" + folder_path + "/*" + "\" to destination file \"" + output_file + "\".");
-                return true;
-            } else {
-                LOG_ERROR("The zip process failed with error code " + QString::number(exitCode()) + ". Study the log for more information.");
-                return false;
-            }
-        } else {
-            LOG_ERROR(lastProcessErrorMsg());
-            return false;
-        }
-    } else {
-        LOG_ERROR(lastProcessErrorMsg());
-        return false;
-    }
-}
-
-bool Qtilities::Core::Zipper::unzipFolder(const QString& input_file, const QString& destination_path) {
-    if (unzipFolderPrivate(input_file,destination_path)) {
-        while (busy())
-            QCoreApplication::processEvents();
-
-        // Now check the last exit status:
-        if (lastExitStatus() == QProcess::NormalExit) {
-            if (exitCode() == 0) {
-                LOG_INFO("Successfully extracted archive \"" + input_file + "\" to destination folder \"" + destination_path + "\".");
-                return true;
-            } else {
-                LOG_ERROR("The zip extraction process failed with error code " + QString::number(exitCode()) + ". Study the log for more information.");
-                return false;
-            }
-        } else {
-            LOG_ERROR(lastProcessErrorMsg());
-            return false;
-        }
-    } else {
-        LOG_ERROR(lastProcessErrorMsg());
-        return false;
-    }
-}
-
-bool Qtilities::Core::Zipper::moveFolder(const QString& source_path, const QString& destination_path) {
-    if (copyFolder(source_path,destination_path)) {
-        if (FileUtils::removeDir(source_path))
-            return true;
-        else {
-            LOG_ERROR("Failed to remove source path during folder move operation at path: " + source_path);
-            return false;
-        }
-    } else
-        return false;
-}
-
-bool Qtilities::Core::Zipper::moveFolderContents(const QString& source_path, const QString& destination_path) {
-    if (copyFolderContents(source_path,destination_path)) {
-        if (FileUtils::removeDir(source_path))
-            return true;
-        else {
-            LOG_ERROR("Failed to remove source path during folder contents move operation at path: " + source_path);
-            return false;
-        }
-    } else
-        return false;
-}
-
-bool Qtilities::Core::Zipper::copyFolder(const QString& source_path, const QString& destination_path) {
-    QString tmp_file = d->temp_dir + "/tmp.zip";
-
-    if (copyFolderPrivate(source_path,destination_path,tmp_file)) {
-        while (busy())
-            QCoreApplication::processEvents();
-
-        // Now check the last exit status:
-        if (lastExitStatus() == QProcess::NormalExit) {
-            if (exitCode() == 0) {
-                LOG_INFO("Successfully moved folder from \"" + source_path + "\" to destination folder \"" + destination_path + "\".");
-                return true;
-            } else {
-                LOG_ERROR("The zip process failed to move folder with error code " + QString::number(exitCode()) + ". Study the log for more information.");
-                return false;
-            }
-        } else {
-            return false;
-        }
-    } else {
-        LOG_ERROR(lastProcessErrorMsg());
-        return false;
-    }
-
-    return false;
-}
-
-bool Qtilities::Core::Zipper::copyFolderContents(const QString& source_path, const QString& destination_path) {
-    QString tmp_file = d->temp_dir + "/tmp.zip";
-    if (copyFolderContentsPrivate(source_path,destination_path,tmp_file)) {
-        while (busy())
-            QCoreApplication::processEvents();
-
-        // Now check the last exit status:
-        if (lastExitStatus() == QProcess::NormalExit) {
-            if (exitCode() == 0) {
-                LOG_INFO("Successfully moved folder contents from \"" + source_path + "\" to destination folder \"" + destination_path + "\".");
-                return true;
-            } else {
-                LOG_ERROR("The zip process failed to move folder contents with error code " + QString::number(exitCode()) + ". Study the log for more information.");
-                return false;
-            }
-        } else {
-            return false;
-        }
-    } else {
-        LOG_ERROR(lastProcessErrorMsg());
-        return false;
-    }
-}
-
-// -----------------------------------------------------------
-// Private Zip Functionality
-// -----------------------------------------------------------
-bool Qtilities::Core::Zipper::zipInfoPrivate(const QString& file_path) {
+// -------------------------
+// Zip Process Evoking Functions
+// -------------------------
+QString Qtilities::Core::Zipper::zipInfo(const QString& file_path, bool *ok, QStringList* errorMsgs) {
     if (file_path.isEmpty()) {
-        d->last_error_message = "Zipper::zipInfo() got an empty file_path parameter.";
-        getNewMessageLogged(d->last_error_message,Logger::Error);
-        return false;
+        if (errorMsgs)
+            errorMsgs->append("Empty archive path specified.");
+        if (ok)
+            *ok = false;
+        return QString();
     }
 
     QFileInfo fi(file_path);
     if (!fi.exists()) {
-        d->last_error_message = "Zipper::zipInfo() cannot get information for input file, it does not exist: " + file_path;
-        getNewMessageLogged(d->last_error_message,Logger::Error);
-        return false;
+        if (errorMsgs)
+            errorMsgs->append("Specified archive does not exist: " + file_path);
+        if (ok)
+            *ok = false;
+        return QString();
     }
 
     QStringList arguments;
     arguments << "l";
     arguments << file_path;
-    clearRecordedMessage();
-    LOG_INFO("Executing Process: 7za " + arguments.join(" "));
-    d->is_completed = false;
-    if (!d->zip_process->startProcess(d->path_7za,arguments))
-        return false;
-    else {
-        while (busy())
-            QCoreApplication::processEvents();
-        return true;
-    }
+
+    bool current_use_run_buffer = d->zip_process.lastRunBufferEnabled();
+    d->zip_process.setLastRunBufferEnabled(true);
+    bool result = executeCommand(arguments,errorMsgs);
+    if (ok)
+        *ok = result;
+    QString buffer = d->zip_process.lastRunBuffer();
+    d->zip_process.setLastRunBufferEnabled(current_use_run_buffer);
+    return buffer;
 }
 
-bool Qtilities::Core::Zipper::zipFolderPrivate(const QString& folder_path, const QString& output_file, ZipMode mode) {
-    if (folder_path.isEmpty()) {
-        d->last_error_message = "Zipper::zipFolder() got an empty folder_path parameter.";
-        getNewMessageLogged(d->last_error_message,Logger::Error);
+bool Zipper::zipFiles(const QStringList &files, const QString &output_file, QStringList *errorMsgs) {
+    if (files.isEmpty()) {
+        if (errorMsgs)
+            errorMsgs->append("No files specified.");
         return false;
     }
 
     if (output_file.isEmpty()) {
-        d->last_error_message = "Zipper::zipFolder() got an empty output_file parameter.";
-        getNewMessageLogged(d->last_error_message,Logger::Error);
+        if (errorMsgs)
+            errorMsgs->append("Empty destination file specified.");
         return false;
     }
-
-    d->is_completed = false;
 
     QFile output_file_del(output_file);
     if (output_file_del.exists()) {
         if (!output_file_del.remove()) {
-            d->last_error_message = "Zipper::zipFolder() failed to remove existing output file at path: " + output_file;
-            getNewMessageLogged(d->last_error_message,Logger::Error);
+            if (errorMsgs)
+                errorMsgs->append("Failed to remove existing destination path at: " + output_file);
             return false;
         }
     }
 
-    QFileInfo file_info(folder_path);
+    QFileInfo file_info(output_file);
+    QStringList arguments;
+    arguments << "a";
+    if (file_info.completeSuffix().isEmpty())
+        arguments << "-tzip";
+    else
+        arguments << "-t" + file_info.completeSuffix();
+    arguments << output_file;
+
+    // Build up the ignore list in 7zip format:
+    QStringList ignore_list_items = d->ignore_list.split(" ",QString::SkipEmptyParts);
+    foreach (const QString& ignore_token, ignore_list_items)
+        arguments << "-xr!" + ignore_token;
+
+    arguments << "-w" + d->temp_dir;
+
+    // Because of limits on command line arguments, we add files 10 at a time:
+    bool archive_success = true;
+    int count = 0;
+    QStringListIterator itr(files);
+    while (itr.hasNext()) {
+        arguments << itr.next();
+        ++count;
+
+        if (count == 10) {
+            archive_success = executeCommand(arguments,errorMsgs);
+            if (!archive_success)
+                break;
+            else {
+                count = 0;
+                for (int i = 0; i < 10; i++)
+                    arguments.pop_back();
+            }
+        }
+    }
+
+    return archive_success;
+}
+
+bool Qtilities::Core::Zipper::zipFolder(const QString& source_path, const QString& output_file, ZipMode mode, QStringList* errorMsgs) {
+    if (source_path.isEmpty()) {
+        if (errorMsgs)
+            errorMsgs->append("Empty source path specified.");
+        return false;
+    }
+
+    if (output_file.isEmpty()) {
+        if (errorMsgs)
+            errorMsgs->append("Empty destination file specified.");
+        return false;
+    }
+
+    QFile output_file_del(output_file);
+    if (output_file_del.exists()) {
+        if (!output_file_del.remove()) {
+            if (errorMsgs)
+                errorMsgs->append("Failed to remove existing destination path at: " + output_file);
+            return false;
+        }
+    }
+
+    QFileInfo file_info(output_file);
 
     QStringList arguments;
     arguments << "a";
@@ -292,7 +175,7 @@ bool Qtilities::Core::Zipper::zipFolderPrivate(const QString& folder_path, const
     else
         arguments << "-t" + file_info.completeSuffix();
     arguments << output_file;
-    arguments << folder_path;
+    arguments << source_path;
     // Build up the ignore list in 7zip format:
     QStringList ignore_list_items = d->ignore_list.split(" ",QString::SkipEmptyParts);
     foreach (const QString& ignore_token, ignore_list_items)
@@ -301,127 +184,109 @@ bool Qtilities::Core::Zipper::zipFolderPrivate(const QString& folder_path, const
     if (mode == CopyMode)
         arguments << "-mx0";
     arguments << "-w" + d->temp_dir;
-    return executeCommand(arguments);
+    return executeCommand(arguments,errorMsgs);
 }
 
-bool Qtilities::Core::Zipper::unzipFolderPrivate(const QString& input_file, const QString& destination_path) {
-    if (input_file.isEmpty()) {
-        d->last_error_message = "Zipper::unzipFolder() got an empty input_file parameter.";
-        getNewMessageLogged(d->last_error_message,Logger::Error);
+bool Qtilities::Core::Zipper::unzipFolder(const QString& source_path, const QString& destination_path, QStringList *errorMsgs) {
+    if (source_path.isEmpty()) {
+        if (errorMsgs)
+            errorMsgs->append("Empty source path specified.");
         return false;
     }
 
     if (destination_path.isEmpty()) {
-        d->last_error_message = "Zipper::unzipFolder() got an empty destination_path parameter.";
-        getNewMessageLogged(d->last_error_message,Logger::Error);
+        if (errorMsgs)
+            errorMsgs->append("Empty destination path specified.");
         return false;
     }
 
     QDir dest_path(destination_path);
     if (!dest_path.mkpath(destination_path)) {
-        d->last_error_message = "Failed to create destination unzip folder at: " + destination_path;
-        getNewMessageLogged(d->last_error_message,Logger::Error);
+        if (errorMsgs)
+            errorMsgs->append("Failed to create destination folder at: " + destination_path);
         return false;
     }
 
-    d->is_completed = false;
     QStringList arguments;
     arguments << "x";
-    arguments << input_file;
+    arguments << source_path;
     arguments << "-o" + destination_path;
     arguments << "-aoa";
     arguments << "-w" + d->temp_dir;
-    return executeCommand(arguments);
+    return executeCommand(arguments,errorMsgs);
 }
 
-bool Qtilities::Core::Zipper::copyFolderPrivate(const QString& source_path, const QString& destination_path, const QString& tmp_file) {
+bool Qtilities::Core::Zipper::moveFolder(const QString& source_path, const QString& destination_path, QStringList *errorMsgs) {
+    if (copyFolder(source_path,destination_path,errorMsgs)) {
+        if (FileUtils::removeDir(source_path))
+            return true;
+        else {
+            if (errorMsgs)
+                errorMsgs->append(QString("Failed to remove source path at: %1.").arg(source_path));
+        }
+    }
+    return false;
+}
+
+bool Qtilities::Core::Zipper::moveFolderContents(const QString& source_path, const QString& destination_path, QStringList *errorMsgs) {
+    if (copyFolderContents(source_path,destination_path,errorMsgs)) {
+        if (FileUtils::removeDir(source_path))
+            return true;
+        else {
+            if (errorMsgs)
+                errorMsgs->append(QString("Failed to remove source path at: %1.").arg(source_path));
+        }
+    }
+    return false;
+}
+
+bool Qtilities::Core::Zipper::copyFolder(const QString& source_path, const QString& destination_path, QStringList *errorMsgs) {
     if (source_path.isEmpty()) {
-        d->last_error_message = "Zipper::moveFolder() got an empty source_path parameter.";
-        getNewMessageLogged(d->last_error_message,Logger::Error);
+        if (errorMsgs)
+            errorMsgs->append("Empty source path specified.");
         return false;
     }
 
     if (destination_path.isEmpty()) {
-        d->last_error_message = "Zipper::moveFolder() got an empty destination_path parameter.";
-        getNewMessageLogged(d->last_error_message,Logger::Error);
+        if (errorMsgs)
+            errorMsgs->append("Empty destination path specified.");
         return false;
     }
 
-    if (tmp_file.isEmpty()) {
-        d->last_error_message = "Zipper::moveFolder() got an empty tmp_file parameter.";
-        getNewMessageLogged(d->last_error_message,Logger::Error);
-        return false;
-    }
-
-    if (!QtilitiesFileInfo::isValidFilePath(destination_path)) {
-        d->last_error_message = "Zipper::moveFolder() got a destination path which contains invalid characters: " + QtilitiesFileInfo::invalidFilePathCharacters();
-        getNewMessageLogged(d->last_error_message,Logger::Error);
-        return false;
-    }
-
+    QString tmp_file = d->temp_dir + "/tmp.zip";
     QFile tmp_file_del(tmp_file);
     if (tmp_file_del.exists()) {
         if (!tmp_file_del.remove()) {
-            d->last_error_message = "Failed to remove an old temporary file at path: " + tmp_file;
-            getNewMessageLogged(d->last_error_message,Logger::Error);
+            if (errorMsgs)
+                errorMsgs->append("Failed to remove old temporary file at path: " + tmp_file);
             return false;
         }
     }
 
-    LOG_DEBUG("Zipper is using the following temp file: " + tmp_file);
-
-    if (!zipFolder(source_path,tmp_file,CopyMode)) {
-        d->is_completed = true;
+    if (!zipFolder(source_path,tmp_file,CopyMode,errorMsgs))
         return false;
-    } 
 
-    if (!unzipFolder(tmp_file,destination_path)) {
-        d->is_completed = true;
+    if (!unzipFolder(tmp_file,destination_path,errorMsgs))
         return false;
-    }
 
     if (tmp_file_del.exists()) {
         if (!tmp_file_del.remove()) {
-            d->last_error_message = "Failed to remove newly created temporary file at path: " + tmp_file;
-            getNewMessageLogged(d->last_error_message,Logger::Error);
+            if (errorMsgs)
+                errorMsgs->append("Failed to remove newly created temporary file at path: " + tmp_file);
+            return false;
         }
     }
 
-    // In this case, check lastExitStatus() for the result.
     return true;
 }
 
-bool Qtilities::Core::Zipper::copyFolderContentsPrivate(const QString& source_path, const QString& destination_path, const QString& tmp_file) {
-    if (source_path.isEmpty()) {
-        d->last_error_message = "Zipper::moveFolderContents() got an empty source_path parameter.";
-        getNewMessageLogged(d->last_error_message,Logger::Error);
-        return false;
-    }
-
-    if (destination_path.isEmpty()) {
-        d->last_error_message = "Zipper::moveFolderContents() got an empty destination_path parameter.";
-        getNewMessageLogged(d->last_error_message,Logger::Error);
-        return false;
-    }
-
-    return copyFolderPrivate(source_path + "/*",destination_path,tmp_file);
+bool Qtilities::Core::Zipper::copyFolderContents(const QString& source_path, const QString& destination_path, QStringList *errorMsgs) {
+    return copyFolder(source_path + "/*",destination_path,errorMsgs);
 }
 
-void Qtilities::Core::Zipper::processCompleted() {
-    d->zip_process->process()->waitForFinished(3000);
-
-    d->is_completed = true;
-    d->last_status = d->zip_process->process()->exitStatus();
-    if (d->zip_process->result() == ITask::TaskSuccessful || d->zip_process->result() == ITask::TaskSuccessfulWithWarnings)
-        d->exit_code = 0;
-    else if (d->zip_process->result() == ITask::TaskFailed)
-        d->exit_code = d->zip_process->process()->exitCode();
-}
-
-void Qtilities::Core::Zipper::processStarted() {
-    d->is_completed = false;
-}
-
+// -------------------------
+// Archive Types
+// -------------------------
 Qtilities::Core::ArchiveType Qtilities::Core::Zipper::newArchiveType(const QString& type,const QString& description ,const QString& argument ,const QString& extension){
     ArchiveType archiveType;
     archiveType.type = type;
@@ -443,63 +308,64 @@ Qtilities::Core::ArchiveType Qtilities::Core::Zipper::newArchiveType(const QStri
     valid_archive_types.append(newArchiveType("ISO","http://en.wikipedia.org/wiki/ISO_image","-tiso","iso"));
     valid_archive_types.append(newArchiveType("UDF","http://en.wikipedia.org/wiki/Universal_Disk_Format","-tudf","udf"));
     return valid_archive_types;
- }
+}
 
- QMap<QString,QString> Qtilities::Core::Zipper::validExtensionTypeMap() {
-     QMap<QString,QString> map;
-     QList<ArchiveType> archive_types = Zipper::validArchiveTypes();
-     for (int i = 0; i < archive_types.count(); ++i) {
-         map[archive_types.at(i).extension] = archive_types.at(i).type;
+QMap<QString,QString> Qtilities::Core::Zipper::validExtensionTypeMap() {
+    QMap<QString,QString> map;
+    QList<ArchiveType> archive_types = Zipper::validArchiveTypes();
+    for (int i = 0; i < archive_types.count(); ++i) {
+        map[archive_types.at(i).extension] = archive_types.at(i).type;
+    }
+    return map;
+}
+
+bool Qtilities::Core::Zipper::isValidExtensionTypeCombination(const QString& extension, const QString& type) {
+     QMap<QString,QString> map = Zipper::validExtensionTypeMap();
+     if (map.contains(extension)) {
+         if (map.value(extension) == type)
+             return true;
      }
-     return map;
- }
-
- bool Qtilities::Core::Zipper::isValidExtensionTypeCombination(const QString& extension, const QString& type) {
-      QMap<QString,QString> map = Zipper::validExtensionTypeMap();
-      if (map.contains(extension)) {
-          if (map.value(extension) == type)
-              return true;
-      }
-
-      return false;
- }
-
- bool Qtilities::Core::Zipper::isValidExtension(const QString& extension) {
-      QMap<QString,QString> map = Zipper::validExtensionTypeMap();
-      if (map.contains(extension))
-          return true;
-
-      return false;
- }
-
-bool Qtilities::Core::Zipper::busy() {
-    return !d->is_completed;
+     return false;
 }
 
-QString Qtilities::Core::Zipper::recordedMessage() const {
-    return d->recorded_message;
+bool Qtilities::Core::Zipper::isValidExtension(const QString& extension) {
+     QMap<QString,QString> map = Zipper::validExtensionTypeMap();
+     if (map.contains(extension))
+         return true;
+     return false;
 }
 
-void Qtilities::Core::Zipper::clearRecordedMessage() {
-    d->recorded_message.clear();
-}
+bool Qtilities::Core::Zipper::executeCommand(QStringList arguments, QStringList* errorMsgs) {
+    int polling_interval = 10;
+    if (d->zip_process.startProcess(d->path_7za,arguments)) {
+        if (polling_interval != -1) {
+            while (d->zip_process.state() == ITask::TaskBusy) {
+                QEventLoop loop;
+                QTimer t;
 
-void Qtilities::Core::Zipper::setIgnoreList(const QString& ignore_list) {
-    d->ignore_list = ignore_list;
-}
+                connect(d->zip_process.process(),SIGNAL(finished(int)),&loop,SLOT(quit()));
+                if (polling_interval > 0) {
+                    t.start(polling_interval);
+                    connect(&t,SIGNAL(timeout()),&loop, SLOT(quit()));
+                }
 
-int Qtilities::Core::Zipper::exitCode() const {
-    return d->exit_code;
-}
+                loop.exec();
+                QCoreApplication::processEvents();
+            }
+        } else {
+            while (d->zip_process.state() == ITask::TaskBusy)
+                QCoreApplication::processEvents();
+        }
 
-QProcess::ExitStatus Qtilities::Core::Zipper::lastExitStatus() const {
-    return d->last_status;
-}
-
-QProcess::ProcessError Qtilities::Core::Zipper::lastProcessError() const {
-    return d->last_error;
-}
-
-QString Qtilities::Core::Zipper::lastProcessErrorMsg() const {
-    return d->last_error_message;
+        if (d->zip_process.result() == ITask::TaskFailed) {
+            if (errorMsgs)
+                *errorMsgs = d->zip_process.lastErrorMessages();
+            return false;
+        } else
+            return true;
+    } else {
+        if (errorMsgs)
+            errorMsgs->append(QString("Failed to start process for command \"%1\".").arg(d->path_7za));
+        return false;
+    }
 }

@@ -150,8 +150,6 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program,
             if (!dir.exists())
                 logWarning("> working directory does not exist, process might fail to start.");
         }
-
-
         logMessage("");
     }
 
