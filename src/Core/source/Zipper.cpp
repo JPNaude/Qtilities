@@ -174,32 +174,29 @@ bool Qtilities::Core::Zipper::zipFolder(const QString& source_path, const QStrin
     return executeCommand(arguments,errorMsgs);
 }
 
-bool Qtilities::Core::Zipper::unzipFolder(const QString& source_path, const QString& destination_path, QStringList *errorMsgs) {
+bool Qtilities::Core::Zipper::unzipFolder(const QString& source_path, const QString& destination_path, const QStringList& additional_arguments, QStringList *errorMsgs) {
     if (source_path.isEmpty()) {
         if (errorMsgs)
             errorMsgs->append("Empty source path specified.");
         return false;
     }
 
-    if (destination_path.isEmpty()) {
-        if (errorMsgs)
-            errorMsgs->append("Empty destination path specified.");
-        return false;
-    }
-
-    QDir dest_path(destination_path);
-    if (!dest_path.mkpath(destination_path)) {
-        if (errorMsgs)
-            errorMsgs->append("Failed to create destination folder at: " + destination_path);
-        return false;
+    if (!destination_path.isEmpty()) {
+        QDir dest_path(destination_path);
+        if (!dest_path.mkpath(destination_path)) {
+            if (errorMsgs)
+                errorMsgs->append("Failed to create destination folder at: " + destination_path);
+            return false;
+        }
     }
 
     QStringList arguments;
     arguments << "x";
     arguments << source_path;
-    arguments << "-o" + destination_path;
-    arguments << "-aoa";
+    if (!destination_path.isEmpty())
+        arguments << "-o" + destination_path;
     arguments << "-w" + d->temp_dir;
+    arguments << additional_arguments;
     return executeCommand(arguments,errorMsgs);
 }
 
@@ -253,7 +250,7 @@ bool Qtilities::Core::Zipper::copyFolder(const QString& source_path, const QStri
     if (!zipFolder(source_path,tmp_file,CopyMode,errorMsgs))
         return false;
 
-    if (!unzipFolder(tmp_file,destination_path,errorMsgs))
+    if (!unzipFolder(tmp_file,destination_path,QStringList("-aoa"),errorMsgs))
         return false;
 
     if (tmp_file_del.exists()) {

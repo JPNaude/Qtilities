@@ -150,7 +150,7 @@ public:
 
         \returns True if the operation completed successfully, false otherwise.
       */
-    bool unzipFolder(const QString& source_path, const QString& destination_path, QStringList* errorMsgs = 0);
+    bool unzipFolder(const QString& source_path, const QString& destination_path, const QStringList &additional_arguments = QStringList(), QStringList* errorMsgs = 0);
     //! Convenience function to move a folder from one location to another.
     /*!
         The complete source_path folder will be moved to destination_path. Thus destination_path will contain source_path, not its' contents. For that functionality see moveFolderContents().
