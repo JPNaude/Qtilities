@@ -121,27 +121,14 @@ bool Zipper::zipFiles(const QStringList &files, const QString &output_file, QStr
 
     arguments << "-w" + d->temp_dir;
 
-    // Because of limits on command line arguments, we add files 10 at a time:
-    bool archive_success = true;
-    int count = 0;
-    QStringListIterator itr(files);
-    while (itr.hasNext()) {
-        arguments << itr.next();
-        ++count;
+    // Create a filelist d->temp_dir and use that to archive:
+    QString tmp_file_path = d->temp_dir + "/" + QString::number(QDateTime::currentDateTime().toTime_t());
+    FileUtils::writeTextFile(tmp_file_path,files.join("\n"));
+    arguments << "@" + tmp_file_path;
 
-        if (count == 10) {
-            archive_success = executeCommand(arguments,errorMsgs);
-            if (!archive_success)
-                break;
-            else {
-                count = 0;
-                for (int i = 0; i < 10; i++)
-                    arguments.pop_back();
-            }
-        }
-    }
-
-    return archive_success;
+    bool success = executeCommand(arguments,errorMsgs);
+    QFile::remove(tmp_file_path);
+    return success;
 }
 
 bool Qtilities::Core::Zipper::zipFolder(const QString& source_path, const QString& output_file, ZipMode mode, QStringList* errorMsgs) {
