@@ -231,9 +231,10 @@ bool Qtilities::Core::FileUtils::removeDir(const QString& dirName) {
 
     if (dir.exists(dirName)) {
         foreach (const QFileInfo& info, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::AllDirs | QDir::Files, QDir::DirsFirst)) {
-            if (info.isDir())
+            if (info.isDir()) {
+                QCoreApplication::processEvents();
                 result = removeDir(info.absoluteFilePath());
-            else
+            } else
                 result = QFile::remove(info.absoluteFilePath());
 
             if (!result)
