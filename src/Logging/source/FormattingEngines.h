@@ -33,10 +33,7 @@ namespace Qtilities {
         class FormattingEngine_Default : virtual public AbstractFormattingEngine
         {           
         public:
-            static FormattingEngine_Default & instance() {
-                static FormattingEngine_Default* theInstance = new FormattingEngine_Default();
-                return *theInstance;
-            }
+            static FormattingEngine_Default *instance();
             ~FormattingEngine_Default() {}
 
         protected:
@@ -51,6 +48,8 @@ namespace Qtilities {
             QString fileExtension() const { return "log"; }
             QString name() const { return qti_def_FORMATTING_ENGINE_DEFAULT; }
             QString endOfLineChar() const { return "\n"; }
+        private:
+            static FormattingEngine_Default* formattingEngine_Default_Instance;
         };
 
         //! Rich Text Formatting Engine.
@@ -69,16 +68,12 @@ namespace Qtilities {
         class FormattingEngine_Rich_Text : virtual public AbstractFormattingEngine
         {
         public:
-            static FormattingEngine_Rich_Text & instance() {
-                static FormattingEngine_Rich_Text* theInstance = new FormattingEngine_Rich_Text();
-                return *theInstance;
-            }
+            static FormattingEngine_Rich_Text *instance();
             ~FormattingEngine_Rich_Text() {}
         protected:
             FormattingEngine_Rich_Text() : AbstractFormattingEngine() {
                 setObjectName(name());
             }
-
         public:
             QString initializeString() const;
             QString finalizeString() const;
@@ -86,6 +81,8 @@ namespace Qtilities {
             QString fileExtension() const { return QString(); }
             QString name() const { return qti_def_FORMATTING_ENGINE_RICH_TEXT; }
             QString endOfLineChar() const { return "<br>"; }
+        private:
+            static FormattingEngine_Rich_Text* formattingEngine_Rich_Text_Instance;
         };
 
         //! XML Formatting Engine.
@@ -101,10 +98,7 @@ namespace Qtilities {
         class FormattingEngine_XML : virtual public AbstractFormattingEngine
         {
         public:
-            static FormattingEngine_XML & instance() {
-                static FormattingEngine_XML* theInstance = new FormattingEngine_XML();
-                return *theInstance;
-            }
+            static FormattingEngine_XML *instance();
             ~FormattingEngine_XML() {}
         protected:
             FormattingEngine_XML() : AbstractFormattingEngine() {
@@ -118,6 +112,8 @@ namespace Qtilities {
             QString fileExtension() const { return "xml"; }
             QString name() const { return qti_def_FORMATTING_ENGINE_XML; }
             QString endOfLineChar() const { return "\n"; }
+        private:
+            static FormattingEngine_XML* formattingEngine_XML_Instance;
         };
 
         //! HTML Formatting Engine.
@@ -133,10 +129,7 @@ namespace Qtilities {
         class FormattingEngine_HTML : virtual public AbstractFormattingEngine
         {
         public:
-            static FormattingEngine_HTML & instance() {
-                static FormattingEngine_HTML* theInstance = new FormattingEngine_HTML();
-                return *theInstance;
-            }
+            static FormattingEngine_HTML* instance();
             ~FormattingEngine_HTML() {}
         protected:
             FormattingEngine_HTML() : AbstractFormattingEngine() {
@@ -150,6 +143,8 @@ namespace Qtilities {
             QString fileExtension() const { return "html"; }
             QString name() const { return qti_def_FORMATTING_ENGINE_HTML; }
             QString endOfLineChar() const { return "<br>"; }
+        private:
+            static FormattingEngine_HTML* formattingEngine_HTML_Instance;
         };
 
         //! A formatting engine used to format messages for the QtMsgLoggerEngine.
@@ -168,10 +163,7 @@ namespace Qtilities {
         class FormattingEngine_QtMsgEngineFormat : virtual public AbstractFormattingEngine
         {
         public:
-            static FormattingEngine_QtMsgEngineFormat & instance() {
-                static FormattingEngine_QtMsgEngineFormat* theInstance = new FormattingEngine_QtMsgEngineFormat();
-                return *theInstance;
-            }
+            static FormattingEngine_QtMsgEngineFormat *instance();
             ~FormattingEngine_QtMsgEngineFormat() {}
         protected:
             FormattingEngine_QtMsgEngineFormat() : AbstractFormattingEngine() {
@@ -185,6 +177,8 @@ namespace Qtilities {
             QString fileExtension() const { return QString(); }
             QString name() const { return qti_def_FORMATTING_ENGINE_QT_MSG; }
             QString endOfLineChar() const { return "\n"; }
+        private:
+            static FormattingEngine_QtMsgEngineFormat* formattingEngine_QtMsgEngineFormat_Instance;
         };
     }
 }

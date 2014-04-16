@@ -179,9 +179,12 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program,
     return true;
 }
 
-void Qtilities::Core::QtilitiesProcess::assignFileLoggerEngineToProcess(const QString &file_path, bool log_only_to_file, QString *engine_name) {
-    if (file_path.isEmpty())
-        return;
+bool Qtilities::Core::QtilitiesProcess::assignFileLoggerEngineToProcess(const QString &file_path, bool log_only_to_file, QString *engine_name, QString* errorMsg) {
+    if (file_path.isEmpty()) {
+        if (errorMsg)
+            *errorMsg = "Empty log file path specified.";
+        return false;
+    }
 
     // First check if any existing engines use this file path:
     AbstractLoggerEngine* engine = Log->loggerEngineReferenceForFile(file_path);
@@ -204,6 +207,12 @@ void Qtilities::Core::QtilitiesProcess::assignFileLoggerEngineToProcess(const QS
         }
 
         engine = Log->newFileEngine(new_logger_name,file_path);
+        if (!engine) {
+            if (errorMsg)
+                *errorMsg = "Failed to create new file engine for the given log file path.";
+            return false;
+        }
+
         engine->setMessageContexts(Logger::EngineSpecificMessages);
     }
 
@@ -213,6 +222,7 @@ void Qtilities::Core::QtilitiesProcess::assignFileLoggerEngineToProcess(const QS
 
     // Set the custom log engine of the process:
     setCustomLoggerEngine(engine,log_only_to_file);
+    return true;
 }
 
 bool Qtilities::Core::QtilitiesProcess::processBackendProcessBuffersEnabled() const {

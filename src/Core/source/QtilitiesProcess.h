@@ -218,9 +218,11 @@ my_process.addProcessBufferMessageTypeHint(message_hint_error);
              * \note When creating a new file logger engine, the process will take ownership of the new engine and
              * delete it when the process is deleted.
              *
+             * \returns True when successfull, false otherwise with the reason why it failed available on errorMsg.
+             *
              * <i>This function was added in %Qtilities v1.5.</i>
              */
-            void assignFileLoggerEngineToProcess(const QString &file_path, bool log_only_to_file = false, QString *engine_name = 0);
+            bool assignFileLoggerEngineToProcess(const QString &file_path, bool log_only_to_file = false, QString *engine_name = 0, QString* errorMsg = 0);
 
             // --------------------------------------------------------
             // Process Buffer

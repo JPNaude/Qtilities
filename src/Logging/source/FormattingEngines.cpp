@@ -14,6 +14,23 @@
 // -----------------------------------
 // Default Formatting Engine
 // -----------------------------------
+Qtilities::Logging::FormattingEngine_Default* Qtilities::Logging::FormattingEngine_Default::formattingEngine_Default_Instance = 0;
+
+Qtilities::Logging::FormattingEngine_Default *Qtilities::Logging::FormattingEngine_Default::instance() {
+    static QMutex mutex;
+    if (!formattingEngine_Default_Instance)
+    {
+        mutex.lock();
+
+        if (!formattingEngine_Default_Instance)
+            formattingEngine_Default_Instance = new FormattingEngine_Default;
+
+        mutex.unlock();
+    }
+
+    return formattingEngine_Default_Instance;
+}
+
 QString Qtilities::Logging::FormattingEngine_Default::initializeString() const {
     return QString("%1 Session Log:\nDate: %2\n").arg(QCoreApplication::applicationName()).arg(QDateTime::currentDateTime().toString());
 }
@@ -48,9 +65,26 @@ QString Qtilities::Logging::FormattingEngine_Default::finalizeString() const {
 // -----------------------------------
 // Rich Text Formatting Engine
 // -----------------------------------
- QString Qtilities::Logging::FormattingEngine_Rich_Text::initializeString() const {
+Qtilities::Logging::FormattingEngine_Rich_Text* Qtilities::Logging::FormattingEngine_Rich_Text::formattingEngine_Rich_Text_Instance = 0;
+
+Qtilities::Logging::FormattingEngine_Rich_Text* Qtilities::Logging::FormattingEngine_Rich_Text::instance() {
+    static QMutex mutex;
+    if (!formattingEngine_Rich_Text_Instance)
+    {
+        mutex.lock();
+
+        if (!formattingEngine_Rich_Text_Instance)
+            formattingEngine_Rich_Text_Instance = new FormattingEngine_Rich_Text;
+
+        mutex.unlock();
+    }
+
+    return formattingEngine_Rich_Text_Instance;
+}
+
+QString Qtilities::Logging::FormattingEngine_Rich_Text::initializeString() const {
     return QString("%1 Session Log:<br>Date: %2<br>").arg(QCoreApplication::applicationName()).arg(QDateTime::currentDateTime().toString());
- }
+}
 
 QString Qtilities::Logging::FormattingEngine_Rich_Text::formatMessage(Logger::MessageType message_type, const QList<QVariant>& messages) const {
     QString message;
@@ -138,6 +172,23 @@ QString Qtilities::Logging::FormattingEngine_Rich_Text::finalizeString() const {
 // -----------------------------------
 // XML Formatting Engine
 // -----------------------------------
+Qtilities::Logging::FormattingEngine_XML* Qtilities::Logging::FormattingEngine_XML::formattingEngine_XML_Instance = 0;
+
+Qtilities::Logging::FormattingEngine_XML* Qtilities::Logging::FormattingEngine_XML::instance() {
+    static QMutex mutex;
+    if (!formattingEngine_XML_Instance)
+    {
+        mutex.lock();
+
+        if (!formattingEngine_XML_Instance)
+            formattingEngine_XML_Instance = new FormattingEngine_XML;
+
+        mutex.unlock();
+    }
+
+    return formattingEngine_XML_Instance;
+}
+
 QString Qtilities::Logging::FormattingEngine_XML::initializeString() const {
     return QString("<Session Context=\"%1\" Date=\"%2\">").arg(QCoreApplication::applicationName()).arg(QDateTime::currentDateTime().toString());
 }
@@ -162,11 +213,28 @@ QString Qtilities::Logging::FormattingEngine_XML::finalizeString() const {
 // -----------------------------------
 // HTML Formatting Engine
 // -----------------------------------
+Qtilities::Logging::FormattingEngine_HTML* Qtilities::Logging::FormattingEngine_HTML::formattingEngine_HTML_Instance = 0;
+
+Qtilities::Logging::FormattingEngine_HTML *Qtilities::Logging::FormattingEngine_HTML::instance() {
+    static QMutex mutex;
+    if (!formattingEngine_HTML_Instance)
+    {
+        mutex.lock();
+
+        if (!formattingEngine_HTML_Instance)
+            formattingEngine_HTML_Instance = new FormattingEngine_HTML;
+
+        mutex.unlock();
+    }
+
+    return formattingEngine_HTML_Instance;
+}
+
 QString Qtilities::Logging::FormattingEngine_HTML::initializeString() const {
     return QString("<html>"
-                    "<font face=\"Arial\">"
-                    "<body><h2>%1 - %2</h2>\n"
-                    "<table width=100% style=\"table-layout:auto; margin: auto; border-width:thin thin thin thin; border-color:#000000;>\n"
+                   "<font face=\"Arial\">"
+                   "<body><h2>%1 - %2</h2>\n"
+                   "<table width=100% style=\"table-layout:auto; margin: auto; border-width:thin thin thin thin; border-color:#000000;>\n"
                     "<tr><td width=10%><b>Time</b></td><td><b>Message</b></td></tr>\n</font>")
                     .arg(QCoreApplication::applicationName())
                     .arg(QDate::currentDate().toString());
@@ -219,6 +287,23 @@ QString Qtilities::Logging::FormattingEngine_HTML::finalizeString() const {
 // -----------------------------------
 // Qt Message Formatting Engine
 // -----------------------------------
+Qtilities::Logging::FormattingEngine_QtMsgEngineFormat* Qtilities::Logging::FormattingEngine_QtMsgEngineFormat::formattingEngine_QtMsgEngineFormat_Instance = 0;
+
+Qtilities::Logging::FormattingEngine_QtMsgEngineFormat* Qtilities::Logging::FormattingEngine_QtMsgEngineFormat::instance() {
+    static QMutex mutex;
+    if (!formattingEngine_QtMsgEngineFormat_Instance)
+    {
+        mutex.lock();
+
+        if (!formattingEngine_QtMsgEngineFormat_Instance)
+            formattingEngine_QtMsgEngineFormat_Instance = new FormattingEngine_QtMsgEngineFormat;
+
+        mutex.unlock();
+    }
+
+    return formattingEngine_QtMsgEngineFormat_Instance;
+}
+
 QString Qtilities::Logging::FormattingEngine_QtMsgEngineFormat::initializeString() const {
     return QString();
 }

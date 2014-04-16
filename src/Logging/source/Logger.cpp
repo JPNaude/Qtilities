@@ -83,11 +83,11 @@ void Qtilities::Logging::Logger::initialize(const QString& configuration_file_na
     // qDebug() << tr("Qtilities Logging Framework, initialization started...");
 
     // Register the formatting engines that comes as part of the Qtilities Logging Framework
-    d->formatting_engines << &FormattingEngine_Default::instance();
-    d->formatting_engines << &FormattingEngine_Rich_Text::instance();
-    d->formatting_engines << &FormattingEngine_XML::instance();
-    d->formatting_engines << &FormattingEngine_HTML::instance();
-    d->formatting_engines << &FormattingEngine_QtMsgEngineFormat::instance();
+    d->formatting_engines << FormattingEngine_Default::instance();
+    d->formatting_engines << FormattingEngine_Rich_Text::instance();
+    d->formatting_engines << FormattingEngine_XML::instance();
+    d->formatting_engines << FormattingEngine_HTML::instance();
+    d->formatting_engines << FormattingEngine_QtMsgEngineFormat::instance();
     d->default_formatting_engine = QString(qti_def_FORMATTING_ENGINE_DEFAULT);
 
     // Register the logger enigines that comes as part of the Qtilities Logging Framework
@@ -98,12 +98,12 @@ void Qtilities::Logging::Logger::initialize(const QString& configuration_file_na
 
     // Attach a QtMsgLoggerEngine and a ConsoleLoggerEngine and disable them both.
     AbstractLoggerEngine* tmp_engine_ptr = QtMsgLoggerEngine::instance();
-    tmp_engine_ptr->installFormattingEngine(&FormattingEngine_QtMsgEngineFormat::instance());
+    tmp_engine_ptr->installFormattingEngine(FormattingEngine_QtMsgEngineFormat::instance());
     attachLoggerEngine(tmp_engine_ptr, true);
     toggleQtMsgEngine(false);
 
     tmp_engine_ptr = qobject_cast<AbstractLoggerEngine*> (ConsoleLoggerEngine::instance());
-    tmp_engine_ptr->installFormattingEngine(&FormattingEngine_Default::instance());
+    tmp_engine_ptr->installFormattingEngine(FormattingEngine_Default::instance());
     attachLoggerEngine(tmp_engine_ptr, true);
     toggleConsoleEngine(false);
 
@@ -783,21 +783,19 @@ Qtilities::Logging::AbstractLoggerEngine* Qtilities::Logging::Logger::newFileEng
     file_engine->setFileName(file_name);
 
     // Install a formatting engine for the new logger engine
-    if (formattingEngineReference(formatting_engine)) {
-        AbstractFormattingEngine* formatting_engine_inst = formattingEngineReference(formatting_engine);
-        if (!formatting_engine_inst) {
-            delete new_engine;
-            return 0;
-        }
+    AbstractFormattingEngine* formatting_engine_inst = formattingEngineReference(formatting_engine);
+    if (formatting_engine_inst)
         new_engine->installFormattingEngine(formatting_engine_inst);
-    } else {
+    else {
         // Attempt to get the formatting engine with the specified file format.
         QFileInfo fi(file_name);
-        QString extension = fi.fileName().split(".").last();
-        AbstractFormattingEngine* formatting_engine_inst = formattingEngineReferenceFromExtension(extension);
+        AbstractFormattingEngine* formatting_engine_inst = formattingEngineReferenceFromExtension(fi.completeSuffix());
         if (!formatting_engine_inst) {
-            delete new_engine;
-            return 0;
+            if (!formatting_engine_inst) {
+                // In this case, revert back to the default engine and log warning:
+                LOG_WARNING(QString("Failed to find formatting engine \"%1\", or default engine for file extension \"%2\". Using default formatting engine for log file \"%3\"").arg(formatting_engine).arg(fi.completeSuffix()).arg(file_name));
+                formatting_engine_inst = FormattingEngine_Default::instance();
+            }
         }
         new_engine->installFormattingEngine(formatting_engine_inst);
     }
