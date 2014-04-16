@@ -36,9 +36,13 @@ https://github.com/JPNaude/Qtilities/issues/milestones
     [+] Added Logger::registerFormattingEngine().
 	[+] Added Logger::loggerEngineReferenceForFile().
 
+	[#] Logger::newFileEngine() will fall back to the default formatting engine when a suitable formatting 
+	    engine cannot be found for the new file, instead of just failing and returning 0. A warning will be 
+		logged in this case.
     [#] All debug and trace logging macros (LOG_DEBUG, LOG_DEBUG_P etc.) are now defined as noop's ((void)0) in release mode.
     [#] Formatting engine change detected messages are now debug messages, not normal log messages anymore.
 	[#] Fixed issues where Logger::deleteAllLoggerEngines() did not loop through all logger engines properly.
+	[#] Changed built-in formatting engines to use singletons properly.
 
     ============================
     QtilitiesCore:
