@@ -25,7 +25,8 @@ struct Qtilities::Core::QtilitiesProcessPrivateData {
         last_run_buffer_enabled(false),
         process_info_messages_enabled(true),
         message_disabler_active(false),
-        ignore_read_buffer_slot(false) {}
+        ignore_read_buffer_slot(false),
+        refresh_frequency(0) {}
 
     QProcess* process;
     QString default_qprocess_error_string;
@@ -36,6 +37,7 @@ struct Qtilities::Core::QtilitiesProcessPrivateData {
     bool process_info_messages_enabled;
     bool message_disabler_active;
     bool ignore_read_buffer_slot;
+    int refresh_frequency;
 };
 
 Qtilities::Core::QtilitiesProcess::QtilitiesProcess(const QString& task_name,
@@ -222,11 +224,20 @@ bool Qtilities::Core::QtilitiesProcess::assignFileLoggerEngineToProcess(const QS
 
     // Set the custom log engine of the process:
     setCustomLoggerEngine(engine,log_only_to_file);
+    connect(this,SIGNAL(destroyed()),engine,SLOT(deleteLater()));
     return true;
 }
 
 bool Qtilities::Core::QtilitiesProcess::processBackendProcessBuffersEnabled() const {
     return d->read_process_buffers;
+}
+
+void Qtilities::Core::QtilitiesProcess::setGuiRefreshFrequency(int refresh_frequency) {
+    d->refresh_frequency = refresh_frequency;
+}
+
+int Qtilities::Core::QtilitiesProcess::guiRefreshFrequency() const {
+    return d->refresh_frequency;
 }
 
 void Qtilities::Core::QtilitiesProcess::stopProcess() {
@@ -331,8 +342,9 @@ void Qtilities::Core::QtilitiesProcess::readStandardOutput() {
 
     int msg_count = 0;
     while (d->process->canReadLine()) {
-        ++msg_count;
-        if (msg_count > 20) {
+        if (d->refresh_frequency > 0)
+            ++msg_count;
+        if (msg_count > d->refresh_frequency) {
             msg_count = 0;
             // To keep GUI applications responsive in case the backend process dumps tons of data for us.
             d->ignore_read_buffer_slot = true;
@@ -353,8 +365,9 @@ void Qtilities::Core::QtilitiesProcess::readStandardError() {
 
     int msg_count = 0;
     while (d->process->canReadLine()) {
-        ++msg_count;
-        if (msg_count > 20) {
+        if (d->refresh_frequency > 0)
+            ++msg_count;
+        if (msg_count > d->refresh_frequency) {
             msg_count = 0;
             // To keep GUI applications responsive in case the backend process dumps tons of data for us.
             d->ignore_read_buffer_slot = true;

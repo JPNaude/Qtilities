@@ -262,6 +262,23 @@ my_process.addProcessBufferMessageTypeHint(message_hint_error);
              * <i>This function was added in %Qtilities v1.5.</i>
              */
             bool processBackendProcessBuffersEnabled() const;
+            //! Sets the backend buffer UI refresh frequency.
+            /*!
+             * In cases where the backend buffer dumps large amounts of data into its STDOUT or STDERR buffers,
+             * the message processing hint based processing of the dump can cause applications where QtilitiesProcess
+             * lives in the GUI process to become unresponsive for short periods. To counter this, it is possible
+             * to set the buffer UI refresh frequency which is the number of lines to process in the buffer before
+             * issuing an UI refresh as shown below:
+             *
+             * \code
+             * QCoreApplication::processEvents(QEventLoop::ExcludeSocketNotifiers);
+             * \endcode
+             *
+             * To disable any UI refreshes, set the refresh frequency to 0. By default, refreshing is disabled.
+             */
+            void setGuiRefreshFrequency(int refresh_frequency);
+            //! Gets the backend buffer UI refresh frequency.
+            int guiRefreshFrequency() const;
 
             // --------------------------------------------------------
             // Process Information Messages
