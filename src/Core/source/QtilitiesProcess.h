@@ -215,14 +215,14 @@ my_process.addProcessBufferMessageTypeHint(message_hint_error);
              * If an engine with the same name already exists this function will assign an unique name to the new widget by appending a number to \p engine_name.
              *
              * \note Call this function before starting the process.
-             * \note When creating a new file logger engine, the process will take ownership of the new engine and
-             * delete it when the process is deleted.
+             * \note When creating a new file logger engine, the process DOES NOT take ownership of the new engine. Connect the destroyed() signal
+             * from the QtilitiesProcess object to the deleteLater() signal on the returned engine if this behaviour is required.
              *
-             * \returns True when successfull, false otherwise with the reason why it failed available on errorMsg.
+             * \returns A reference to the newly constructed logger engine when successfull, 0 otherwise with the reason why it failed available using errorMsg.
              *
              * <i>This function was added in %Qtilities v1.5.</i>
              */
-            bool assignFileLoggerEngineToProcess(const QString &file_path, bool log_only_to_file = false, QString *engine_name = 0, QString* errorMsg = 0);
+            AbstractLoggerEngine* assignFileLoggerEngineToProcess(const QString &file_path, bool log_only_to_file = false, QString *engine_name = 0, QString* errorMsg = 0);
 
             // --------------------------------------------------------
             // Process Buffer

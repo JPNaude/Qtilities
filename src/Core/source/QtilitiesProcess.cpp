@@ -181,7 +181,7 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program,
     return true;
 }
 
-bool Qtilities::Core::QtilitiesProcess::assignFileLoggerEngineToProcess(const QString &file_path, bool log_only_to_file, QString *engine_name, QString* errorMsg) {
+AbstractLoggerEngine* Qtilities::Core::QtilitiesProcess::assignFileLoggerEngineToProcess(const QString &file_path, bool log_only_to_file, QString *engine_name, QString* errorMsg) {
     if (file_path.isEmpty()) {
         if (errorMsg)
             *errorMsg = "Empty log file path specified.";
@@ -224,8 +224,7 @@ bool Qtilities::Core::QtilitiesProcess::assignFileLoggerEngineToProcess(const QS
 
     // Set the custom log engine of the process:
     setCustomLoggerEngine(engine,log_only_to_file);
-    connect(this,SIGNAL(destroyed()),engine,SLOT(deleteLater()));
-    return true;
+    return engine;
 }
 
 bool Qtilities::Core::QtilitiesProcess::processBackendProcessBuffersEnabled() const {
