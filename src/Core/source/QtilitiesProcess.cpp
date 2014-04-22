@@ -26,7 +26,8 @@ struct Qtilities::Core::QtilitiesProcessPrivateData {
         process_info_messages_enabled(true),
         message_disabler_active(false),
         ignore_read_buffer_slot(false),
-        refresh_frequency(0) {}
+        refresh_frequency(0),
+        timeout(-1) {}
 
     QProcess* process;
     QString default_qprocess_error_string;
@@ -38,6 +39,7 @@ struct Qtilities::Core::QtilitiesProcessPrivateData {
     bool message_disabler_active;
     bool ignore_read_buffer_slot;
     int refresh_frequency;
+    int timeout;
 };
 
 Qtilities::Core::QtilitiesProcess::QtilitiesProcess(const QString& task_name,
@@ -168,10 +170,11 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program,
         return false;
     } else {
         if (timeout_msecs > 0) {
+            d->timeout = timeout_msecs;
             QTimer* timer = new QTimer;
             timer->setSingleShot(true);
             timer->start(timeout_msecs);
-            connect(timer,SIGNAL(timeout()),SLOT(stop()));
+            connect(timer,SIGNAL(timeout()),SLOT(stopTimedOut()));
             connect(d->process,SIGNAL(finished(int)),timer,SLOT(deleteLater()));
             if (d->process_info_messages_enabled)
                 logMessage(QString("A %1 msec timeout was specified for this process. It will be stopped if not completed before the timeout was reached.").arg(timeout_msecs));
@@ -315,9 +318,10 @@ void Qtilities::Core::QtilitiesProcess::procError(QProcess::ProcessError error) 
                 logMessage("Process \"" + taskName() + "\" failed to start. The working directory of the process does not exist at: " + d->process->workingDirectory(),Logger::Error);
             break;
         }
-        case QProcess::Crashed:
-            logMessage("Process \"" + taskName() + "\" crashed some time after starting successfully.",Logger::Error);
-            break;
+        // Don't give crashed message, procFinished() will properly log the exit code.
+//        case QProcess::Crashed:
+//            logMessage("Process \"" + taskName() + "\" crashed some time after starting successfully.",Logger::Error);
+//            break;
         case QProcess::Timedout:
             logMessage("The last waitFor...() function of process \"" + taskName() + "\" timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.",Logger::Error);
             break;
@@ -331,8 +335,20 @@ void Qtilities::Core::QtilitiesProcess::procError(QProcess::ProcessError error) 
             logMessage("Process \"" + taskName() + "\" failed with an unknown error.",Logger::Error);
             break;
         default:
-            logMessage("Process \"" + taskName() + "\" failed with an unknown error.",Logger::Error);
+        {
+        }
+//            logMessage("Process \"" + taskName() + "\" failed with an unknown error.",Logger::Error);
     }
+}
+
+void Qtilities::Core::QtilitiesProcess::stopTimedOut() {
+    if (d->timeout > 86400000)
+        logMessage("This process ran longer than the timeout period specified for it.",Logger::Error);
+    else {
+        QTime time(0, 0, 0);
+        logMessage(QString("This process ran longer than the timeout period (%1) specified for it.").arg(time.addMSecs(d->timeout).toString("hh:mm:ss")),Logger::Error);
+    }
+    stop();
 }
 
 void Qtilities::Core::QtilitiesProcess::readStandardOutput() {

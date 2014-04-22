@@ -368,6 +368,7 @@ my_process.addProcessBufferMessageTypeHint(message_hint_error);
         private slots:
             void procFinished(int exit_code, QProcess::ExitStatus exit_status);
             void procError(QProcess::ProcessError error);
+            void stopTimedOut();
 
         public slots:
             //! Stops the process.
