@@ -275,11 +275,18 @@ void Qtilities::Logging::Logger::registerFormattingEngine(Qtilities::Logging::Ab
 }
 
 Qtilities::Logging::AbstractFormattingEngine* Qtilities::Logging::Logger::formattingEngineReferenceFromExtension(const QString& file_extension) {
+    AbstractFormattingEngine* engine = 0;
+    uint highest_priority = 0;
     for (int i = 0; i < d->formatting_engines.count(); ++i) {
-        if (file_extension == d->formatting_engines.at(i)->fileExtension())
-            return d->formatting_engines.at(i);
+        if (file_extension == d->formatting_engines.at(i)->fileExtension()) {
+            if (d->formatting_engines.at(i)->priority() > highest_priority) {
+                highest_priority = d->formatting_engines.at(i)->priority();
+                engine = d->formatting_engines.at(i);
+            }
+        }
     }
-    return 0;
+
+    return engine;
 }
 
 Qtilities::Logging::AbstractFormattingEngine* Qtilities::Logging::Logger::formattingEngineReferenceAt(int index) {

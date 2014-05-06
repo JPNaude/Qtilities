@@ -35,6 +35,8 @@ https://github.com/JPNaude/Qtilities/issues/milestones
         Note that this does not work on Windows.
     [+] Added Logger::registerFormattingEngine().
 	[+] Added Logger::loggerEngineReferenceForFile().
+	[+] Added AbstractFormattingEngine::priority() which can be used to control which formatting engine
+	    is used in cases where multiple formatting engines with the same file extension are installed.
 
 	[#] Logger::newFileEngine() will fall back to the default formatting engine when a suitable formatting 
 	    engine cannot be found for the new file, instead of just failing and returning 0. A warning will be 
