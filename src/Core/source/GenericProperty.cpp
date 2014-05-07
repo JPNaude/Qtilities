@@ -459,7 +459,8 @@ bool GenericProperty::setDefaultValueString(const QString &value, QString* error
         }
 
         return set;
-    }
+    } else
+        d->default_value_set = true;
 
     return true;
 }
