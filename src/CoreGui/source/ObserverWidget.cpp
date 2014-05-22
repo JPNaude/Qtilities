@@ -3626,8 +3626,10 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
 
             QItemSelectionModel *selection_model = d->tree_view->selectionModel();
             QItemSelection item_selection;
-            for (int i = 0; i < mapped_indexes.count(); ++i)
+            for (int i = 0; i < mapped_indexes.count(); ++i) {
                 item_selection.select(mapped_indexes.at(i),mapped_indexes.at(i));
+                d->tree_view->expand(mapped_indexes.at(i));
+            }
 
             selection_model->clearSelection();
             if (d->tree_view->selectionBehavior() == QTableView::SelectRows) {
