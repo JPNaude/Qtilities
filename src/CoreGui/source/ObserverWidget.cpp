@@ -3293,7 +3293,7 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
     // IMPORTANT: In TreeView, the selection parent might have changed, resulting in
     //            initialize() being called to init hints for new parent. Therefore we
     //            only refresh actions, property browser etc here in TableView mode.
-    if (d->display_mode == TableView) {
+    if (d->display_mode == TableView && d->table_view) {
         // Only refresh the property browser in table view mode here. In tree view mode it is refreshed in
         // the setTreeSelectionParent slot.
         #ifdef QTILITIES_PROPERTY_BROWSER
@@ -3359,7 +3359,7 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
             refreshActionToolBar();
 
         emit selectedObjectsChanged(object_list, d->selection_parent_observer_context);
-    } else if (d->display_mode == TreeView) {
+    } else if (d->display_mode == TreeView && d->tree_model) {
         // Set the selection parent in the tree:
         // Note: The above line will cause setTreeSelectionParent() to be called.
         d->tree_model->calculateSelectionParent(selectedIndexes());
@@ -3626,10 +3626,10 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
 
             QItemSelectionModel *selection_model = d->tree_view->selectionModel();
             QItemSelection item_selection;
-            for (int i = 0; i < mapped_indexes.count(); ++i) {
-                item_selection.select(mapped_indexes.at(i),mapped_indexes.at(i));
+            for (int i = 0; i < mapped_indexes.count(); ++i)
                 d->tree_view->expand(mapped_indexes.at(i));
-            }
+            for (int i = 0; i < mapped_indexes.count(); ++i)
+                item_selection.select(mapped_indexes.at(i),mapped_indexes.at(i));
 
             selection_model->clearSelection();
             if (d->tree_view->selectionBehavior() == QTableView::SelectRows) {
