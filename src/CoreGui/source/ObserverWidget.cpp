@@ -2273,9 +2273,9 @@ void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observ
             if (!d->activity_filter->setActiveSubjects(selectedObjects())) {
                 // If the selection was rejected by the activity filter, we need to revert the selection to whatever the activity filter allowed:
                 // We don't want this function to be called again in the line below, so we temporarily disconnect the slot:
-                disconnect(d->table_view->selectionModel(),SIGNAL(selectionChanged(QItemSelection,QItemSelection)),this,SLOT(handleSelectionModelChange()));
+                disconnect(d->tree_view->selectionModel(),SIGNAL(selectionChanged(QItemSelection,QItemSelection)),this,SLOT(handleSelectionModelChange()));
                 selectObjects(d->activity_filter->activeSubjects());
-                connect(d->table_view->selectionModel(),SIGNAL(selectionChanged(QItemSelection,QItemSelection)),this,SLOT(handleSelectionModelChange()));
+                connect(d->tree_view->selectionModel(),SIGNAL(selectionChanged(QItemSelection,QItemSelection)),this,SLOT(handleSelectionModelChange()));
             }
             d->disable_view_selection_update_from_activity_filter = false;
         }
