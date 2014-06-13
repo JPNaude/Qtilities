@@ -157,10 +157,15 @@ bool Qtilities::Core::Zipper::zipFolder(const QString& source_path, const QStrin
 
     QStringList arguments;
     arguments << "a";
-    if (file_info.completeSuffix().isEmpty())
-        arguments << "-tzip";
-    else
-        arguments << "-t" + file_info.completeSuffix();
+    if (file_info.completeSuffix().endsWith("zip")) { // Do this to support .SOMETHING_ELSE.zip etc.
+        arguments << "-tzip"; //
+    } else {
+        if (file_info.completeSuffix().isEmpty())
+            arguments << "-tzip";
+        else
+            arguments << "-t" + file_info.completeSuffix();
+    }
+
     arguments << output_file;
     arguments << source_path;
     // Build up the ignore list in 7zip format:
