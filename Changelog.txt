@@ -154,6 +154,8 @@ https://github.com/JPNaude/Qtilities/issues/milestones
         displayed observer and the ObserverWidget is set to use its observer hints, instead of custom hints.
     [#] ObserverWidget::setUseObserverHints() will now refresh the hints on the widget when toggled.
 	[#] Improved ConfigurationWidget's control of when Apply button is shown and also add an OK button.
+	[#] GenericPropertyBrowser's refresh(), toggleSwitchNames() and toggleAdvancedSettings() methods are now public slots 
+	    instead of private slots.
 
     [-] Removed ObserverWidget::writeSettings() and ObserverWidget::readSettings().
     [-] Removed the functionality in ObserverWidget where it will append the contexts of any selected objects
