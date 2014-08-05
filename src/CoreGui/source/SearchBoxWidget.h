@@ -106,17 +106,19 @@ searchBoxWidget->setPlainTextEditor(myTextEdit);
             };
             //! An enumeration which is used to indicate which buttons should be visible in the widget.
             enum ButtonFlag {
-                NoButtons = 0,          /*!< No buttons will be visible in the widget. */
-                NextButtons = 1,        /*!< The next buttons will be visible in the widget. */
-                PreviousButtons = 2,    /*!< The previous buttons will be visible in the widget. */
-                HideButtonUp = 4,       /*!< The button to hide the search box will be visible in the widget as a down arrow. */
-                HideButtonDown = 8,     /*!< The button to hide the search box will be visible in the widget as an up arrow. */
-                AllButtons = NextButtons | PreviousButtons | HideButtonDown
+                NoButtons = 0,              /*!< No buttons will be visible in the widget. */
+                NextButtons = 1,            /*!< The next buttons will be visible in the widget. */
+                PreviousButtons = 2,        /*!< The previous buttons will be visible in the widget. */
+                HideButtonUp = 4,           /*!< The button to hide the search box will be visible in the widget as a down arrow. */
+                HideButtonDown = 8,         /*!< The button to hide the search box will be visible in the widget as an up arrow. */
+                SearchOptionsButton = 16,   /*!< The search options button with its associated popup menu. */
+                AllButtons = NextButtons | PreviousButtons | HideButtonDown | SearchOptionsButton
             };
             Q_DECLARE_FLAGS(ButtonFlags, ButtonFlag)
             Q_FLAGS(ButtonFlags)
             //! An enumeration which indicates which search options must be present in the widget.
             enum SearchOption {
+                NoSearchOption = 0,     /*!< Indicates that no search options must be visible. */
                 CaseSensitive = 1,      /*!< Indicates that an action to toggle case sensitivity must be present. */
                 WholeWordsOnly = 2,     /*!< Indicates that an action to toggle whole words only must be present. */
                 RegEx = 4,              /*!< Indicates that an action to toggle regular expressions must be present. */

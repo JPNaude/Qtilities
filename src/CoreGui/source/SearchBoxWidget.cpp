@@ -128,6 +128,8 @@ SearchBoxWidget::SearchBoxWidget(SearchOptions search_options, WidgetMode mode, 
     normal_font = ui->txtReplaceString->font();
     normal_font.setWeight(QFont::Normal);
     ui->txtReplaceString->setFont(normal_font);
+
+    ui->lblSearchIcon->setPixmap(QIcon(qti_icon_FIND_16x16).pixmap(16,16));
 }
 
 SearchBoxWidget::~SearchBoxWidget() {
@@ -153,8 +155,7 @@ void SearchBoxWidget::setCurrentReplaceString(const QString& replace_string) {
     ui->txtReplaceString->setText(replace_string);
 }
 
-void SearchBoxWidget::changeEvent(QEvent *e)
-{
+void SearchBoxWidget::changeEvent(QEvent *e) {
     QWidget::changeEvent(e);
     switch (e->type()) {
     case QEvent::LanguageChange:
@@ -254,6 +255,7 @@ void SearchBoxWidget::setButtonFlags(ButtonFlags button_flags) {
     } else {
         ui->btnClose->hide();
     }
+    ui->btnSearchOptions->setVisible(d->button_flags & SearchOptionsButton);
 }
 
 SearchBoxWidget::ButtonFlags SearchBoxWidget::buttonFlags() const {
@@ -276,15 +278,9 @@ void SearchBoxWidget::setSearchOptions(SearchOptions search_options) {
         d->searchOptionWholeWordsOnly->setVisible(false);
     }
 
-    if (d->search_options & RegEx) {
-        d->searchOptionRegEx->setVisible(true);
-    }
-    if (d->search_options & RegWildcard) {
-        d->searchOptionWildcard->setVisible(true);
-    }
-    if (d->search_options & RegFixedString) {
-        d->searchOptionFixedString->setVisible(true);
-    }
+    d->searchOptionRegEx->setVisible(d->search_options & RegEx);
+    d->searchOptionWildcard->setVisible(d->search_options & RegWildcard);
+    d->searchOptionFixedString->setVisible(d->search_options & RegFixedString);
 }
 
 SearchBoxWidget::SearchOptions SearchBoxWidget::searchOptions() const {

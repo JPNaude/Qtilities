@@ -299,15 +299,17 @@ bool Qtilities::CoreGui::TreeNode::addNodeFromFile(QString file_name, const Qtil
 bool Qtilities::CoreGui::TreeNode::addItem(TreeItemBase* item, const QtilitiesCategory& category) {
     if (!item)
         return false;
+    bool attach_success = attachSubject(item,Observer::ObserverScopeOwnership);
     item->setCategory(category,this);
-    return attachSubject(item,Observer::ObserverScopeOwnership);
+    return attach_success;
 }
 
 bool Qtilities::CoreGui::TreeNode::addNode(TreeNode* node, const QtilitiesCategory& category) {
     if (!node)
         return false;
+    bool attach_success = attachSubject(node,Observer::ObserverScopeOwnership);
     node->setCategory(category,this);
-    return attachSubject(node,Observer::ObserverScopeOwnership);
+    return attach_success;
 }
 
 bool Qtilities::CoreGui::TreeNode::removeItem(const QString& name) {
