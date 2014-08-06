@@ -312,13 +312,14 @@ bool GenericProperty::setValueString(const QString &value, QString *errorMsg) {
         // Validate the new value according to the type of property:
         if (d->type == TypeInteger) {
             bool valid_int;
+            blockSignals(true);
             setIntValue(value.toInt(&valid_int));
+            blockSignals(false);
             if (!valid_int) {
                 if (errorMsg)
                     *errorMsg = "The specified value " + value + " is not a valid integer.";
-            } else {
+            } else
                 set = true;
-            }
         } else if (d->type == TypeEnum) {
             if (d->enum_possible_values_displayed.contains(value)) {
                 d->value = value;
@@ -330,10 +331,14 @@ bool GenericProperty::setValueString(const QString &value, QString *errorMsg) {
         } else if (d->type == TypeBool) {
             // In here we check against known bool string representations:
             if (value.compare("YES",Qt::CaseInsensitive) == 0 || value.compare("TRUE",Qt::CaseInsensitive) == 0 || value.compare("1",Qt::CaseInsensitive) == 0) {
+                blockSignals(true);
                 setBoolValue(true);
+                blockSignals(false);
                 set = true;
             } else if (value.compare("NO",Qt::CaseInsensitive) == 0 || value.compare("FALSE",Qt::CaseInsensitive) == 0 || value.compare("0",Qt::CaseInsensitive) == 0) {
+                blockSignals(true);
                 setBoolValue(false);
+                blockSignals(false);
                 set = true;
             } else {
                 if (errorMsg)
