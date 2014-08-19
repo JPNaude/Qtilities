@@ -300,8 +300,13 @@ bool Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> ob
 
     // Check the number of objects in the list against the policies of this filter.
     if (objects.count() == 0) {
-        if (d->minimum_activity_policy == ActivityPolicyFilter::ProhibitNoneActive)
-            return false;
+        if (d->minimum_activity_policy == ActivityPolicyFilter::ProhibitNoneActive) {
+            // If the observer context is still empty, this selection must be allowed:
+            if (observerContext()->subjectCount() == 0)
+                return true;
+            else
+                return false;
+        }
     }
     if (objects.count() > 1) {
         if (d->activity_policy == ActivityPolicyFilter::UniqueActivity)

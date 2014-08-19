@@ -147,8 +147,6 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     //! The root observer context set using setObserverContext() and returned using observerContext().
     /*!
      * In table mode, this is always the root observer.
-     * However, for tree mode this will refer to the current observer context which is the selection parent context when there is
-     * a selection. However, when there is no selection this is the root observer.
      */
     QPointer<Observer> root_observer_context;
 
@@ -733,7 +731,6 @@ void Qtilities::CoreGui::ObserverWidget::initializePrivate(bool hints_only) {
     if (!d->initialized) {
         // Setup some flags and attributes for this widget the first time it is constructed.
         setAttribute(Qt::WA_DeleteOnClose, true);
-        // Register contextString in the context manager.
         OBJECT_MANAGER->registerObject(this,QtilitiesCategory("GUI::Observer Widgets","::"));
     }
 
@@ -752,8 +749,12 @@ void Qtilities::CoreGui::ObserverWidget::initializePrivate(bool hints_only) {
 
     // Set the title and name of the observer widget.
     // Here we need to check if we must use d->selection_parent_observer_context inside a specific context
-    setWindowTitle(d->selection_parent_observer_context->observerName());
-    setObjectName("ObserverWidget: " + d->selection_parent_observer_context->observerName());
+    #ifndef QT_NO_DEBUG
+    if (d->selection_parent_observer_context) {
+        setWindowTitle(d->selection_parent_observer_context->observerName());
+        setObjectName("ObserverWidget: " + d->selection_parent_observer_context->observerName());
+    }
+    #endif
     ui->navigationBarWidget->setVisible(false);
 
     // Get hints from d->selection_parent_observer_context:
@@ -1085,10 +1086,11 @@ void Qtilities::CoreGui::ObserverWidget::initializeFollowSelectionActivityFilter
                 d->activity_filter = filter;
 
                 // Connect to the activity change signal (to update activity on observer widget side):
-                connect(d->activity_filter,SIGNAL(activeSubjectsChanged(QList<QObject*>,QList<QObject*>)),SLOT(updateSelectionFromActivityFilter(QList<QObject*>)));
+                connect(d->activity_filter,SIGNAL(activeSubjectsChanged(QList<QObject*>,QList<QObject*>)),SLOT(updateSelectionFromActivityFilter(QList<QObject*>)),Qt::UniqueConnection);
 
                 if (inherit_activity_filter_activity_selection) {
                     QList<QObject*> active_subjects = d->activity_filter->activeSubjects();
+                    d->disable_activity_filter_update_from_view_selection_change = false;
                     selectObjects(active_subjects);
                 }
                 break;
@@ -2209,11 +2211,10 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
 }
 
 void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observer) {
+    // This function will only be entered in TreeView mode.
+    // It is a slot connected to the selection parent changed signal in the tree model.
     if (d->display_mode == Qtilities::TreeView && d->tree_view) {              
-        // This function will only be entered in TreeView mode.
-        // It is a slot connected to the selection parent changed signal in the tree model.
         bool valid_selection_parent_hints = true;
-        //qDebug() << "Selection parent received:" << observer;
 
         // We will typically get an invalid observer when:
         // - The selection does not have a parent (root)
@@ -2230,17 +2231,6 @@ void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observ
 
             observer = d->root_observer_context;
         }
-
-        // Do some hints debugging (note this debugging code does not cater for multiple selections yet:
-    //    if (observer) {
-    //        qDebug() << "New selection parent: " << observer << " with display hints. Valid selection parent:" << valid_selection_parent_hints;
-    //        if (observer->displayHints()) {
-    //            ObserverHints::DisplayFlags flags = observer->displayHints()->displayFlagsHint();
-    //            qDebug() << flags;
-    //        }
-    //    } else {
-    //        qDebug() << "New selection parent: " << observer << " with NO display hints.";
-    //    }
 
         bool current_notify_selected_objects_changed = d->notify_selected_objects_changed;
         d->notify_selected_objects_changed = false;
@@ -2269,6 +2259,7 @@ void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observ
             // Initialize selection activity filter, importantly without changing the selection in the view.
             initializeFollowSelectionActivityFilter(false);
             // Next, set the activity in the filter to the active subject list and disable the view updating when the filter changes:
+            bool current_disable_view_selection_update_from_activity_filter = d->disable_view_selection_update_from_activity_filter;
             d->disable_view_selection_update_from_activity_filter = true;
             if (!d->activity_filter->setActiveSubjects(selectedObjects())) {
                 // If the selection was rejected by the activity filter, we need to revert the selection to whatever the activity filter allowed:
@@ -2277,7 +2268,7 @@ void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observ
                 selectObjects(d->activity_filter->activeSubjects());
                 connect(d->tree_view->selectionModel(),SIGNAL(selectionChanged(QItemSelection,QItemSelection)),this,SLOT(handleSelectionModelChange()));
             }
-            d->disable_view_selection_update_from_activity_filter = false;
+            d->disable_view_selection_update_from_activity_filter = current_disable_view_selection_update_from_activity_filter;
         }
 
         emit selectedObjectsChanged(selectedObjects(),observer);

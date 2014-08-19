@@ -282,7 +282,7 @@ int main(int argc, char *argv[])
     // Big Table Shown Using Fetch More Implementation
     // ------------------------------------
     TreeNode* bigTableObserver = new TreeNode("Big Table");
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 400; i++) {
         bigTableObserver->addItem("Item " + QString::number(i));
     }
 
@@ -434,6 +434,54 @@ int main(int argc, char *argv[])
     ++current_example;
     progress.setValue(current_example);
     QApplication::processEvents();
+
+    // ----------------------------------
+    // Follow Selection Activity
+    // ----------------------------------
+    TreeNode* rootNodeFollowSelection = new TreeNode("Root");
+    rootNodeFollowSelection->enableActivityControl(ObserverHints::CheckboxActivityDisplay,
+                                                   ObserverHints::FollowSelection);
+
+    rootNodeFollowSelection->addItem("Child 1");
+    rootNodeFollowSelection->addItem("Child 2");
+    rootNodeFollowSelection->addItem("Child 3");
+    rootNodeFollowSelection->addItem("Child 4");
+    rootNodeFollowSelection->addItem("Child 5");
+    rootNodeFollowSelection->addItem("Child 6");
+    rootNodeFollowSelection->addItem("Child 7");
+    rootNodeFollowSelection->addItem("Child 8");
+    rootNodeFollowSelection->addItem("Child 9");
+    rootNodeFollowSelection->addItem("Child 10");
+    rootNodeFollowSelection->addItem("Child 11");
+    rootNodeFollowSelection->addItem("Child 12");
+    rootNodeFollowSelection->addItem("Child 13");
+    rootNodeFollowSelection->addItem("Child 14");
+    rootNodeFollowSelection->addItem("Child 15");
+
+    QWidget* combined_follow_selection_widget = new QWidget;
+    if (combined_follow_selection_widget->layout())
+        delete combined_follow_selection_widget->layout();
+    QHBoxLayout* combined_follow_selection_layout = new QHBoxLayout(combined_follow_selection_widget);
+    combined_follow_selection_layout->setMargin(0);
+
+    TreeWidget* follow_selection_tree_view = new TreeWidget(rootNodeFollowSelection);
+    follow_selection_tree_view->treeView()->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    combined_follow_selection_layout->addWidget(follow_selection_tree_view);
+    follow_selection_tree_view->show();
+
+    ObserverWidget* follow_selection_table_view = new ObserverWidget(rootNodeFollowSelection,Qtilities::TableView);
+    combined_follow_selection_layout->addWidget(follow_selection_table_view);
+    follow_selection_table_view->show();
+
+    tab_widget->addTab(combined_follow_selection_widget,QIcon(),"Activity Follow Selection Tree");
+
+    ++current_example;
+    progress.setValue(current_example);
+    QApplication::processEvents();
+
+    // ----------------------------------
+    // The End
+    // ----------------------------------
     progress.hide();
 
     tab_widget->show();

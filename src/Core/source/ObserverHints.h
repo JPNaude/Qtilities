@@ -225,7 +225,7 @@ namespace Qtilities {
                 ActionCopyItem = 4096,            /*!< Allow copy operations which will add details about the selected items in the view to the clipboard using the ObserverMimeData class. */
                 ActionCutItem = 8192,             /*!< Allow cut operations similar to the copy operation, the items are just detached from the current context when added to a new context. */
                 ActionPasteItem = 16384,          /*!< Allow pasting of ObserverMimeData into the observer context presented to the user. */
-                ActionFindItem = 32768,          /*!< Allow finding/searching in the observer context presented to the user. */
+                ActionFindItem = 32768,           /*!< Allow finding/searching in the observer context presented to the user. */
                 ActionAllHints = ActionRemoveItem | ActionRemoveAll | ActionDeleteItem | ActionDeleteAll | ActionNewItem | ActionRefreshView | ActionPushUp | ActionPushUpNew | ActionPushDown | ActionPushDownNew | ActionSwitchView | ActionCopyItem | ActionCutItem | ActionPasteItem | ActionFindItem /*!< All actions. */
             };
             Q_DECLARE_FLAGS(ActionHints, ActionItem)
