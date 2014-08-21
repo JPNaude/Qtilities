@@ -292,9 +292,9 @@ void GenericPropertyBrowser::updatePropertyValue(QtProperty *property, const QVa
         return;
 
     d->current_edited_property = property;
-    prop->setValue(value);
-    property->setModified(!prop->matchesDefault());
     property->setToolTip(getToolTipText(prop));
+
+    prop->setValue(value);
 
     // When changed from the display side and its a macro, we should
     // set the macro's mode as MacroExpandedCustom:
