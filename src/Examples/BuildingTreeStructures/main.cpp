@@ -440,7 +440,11 @@ int main(int argc, char *argv[])
     // ----------------------------------
     TreeNode* rootNodeFollowSelection = new TreeNode("Root");
     rootNodeFollowSelection->enableActivityControl(ObserverHints::CheckboxActivityDisplay,
-                                                   ObserverHints::FollowSelection);
+                                                   ObserverHints::FollowSelection,
+                                                   ActivityPolicyFilter::MultipleActivity,
+                                                   ActivityPolicyFilter::ParentIgnoreActivity,
+                                                   ActivityPolicyFilter::ProhibitNoneActive,
+                                                   ActivityPolicyFilter::SetNewInactive);
 
     rootNodeFollowSelection->addItem("Child 1");
     rootNodeFollowSelection->addItem("Child 2");
