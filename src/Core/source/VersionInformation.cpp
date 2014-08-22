@@ -214,6 +214,10 @@ bool Qtilities::Core::VersionNumber::operator<=(const VersionNumber& ref) {
         return (*this < ref);
 }
 
+bool Qtilities::Core::VersionNumber::isNull() const {
+    return (d->version_major == 0 && d->version_minor == 0 && d->version_revision == 0 && d->version_development_stage == 0);
+}
+
 int Qtilities::Core::VersionNumber::versionMajor() const {
     return d->version_major;
 }
