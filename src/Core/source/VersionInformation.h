@@ -170,6 +170,9 @@ example2_from_string.setIsVersionRevisionUsed(false);
              */
             bool operator<=(const VersionNumber& ref);
 
+            //! Is null means the version is 0.0.0, this will be the case when object is constructed with default constructor.
+            bool isNull() const;
+
             //! Gets the major version.
             int versionMajor() const;
             //! Sets the major version.
