@@ -60,7 +60,7 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::setActiveHints(ObserverHints*
 void Qtilities::CoreGui::ObserverTreeModelBuilder::startBuild() {
     d->build_lock.lock();
 
-    QApplication::processEvents();
+    //QApplication::processEvents();
     buildRecursive(d->root_item);
 
     d->build_lock.unlock();
@@ -84,7 +84,7 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::buildRecursive(ObserverTreeIt
                     // Now add all items belonging to this category
                     int cat_count = category_objects.count();
                     for (int i = 0; i < cat_count; ++i) {
-                        QApplication::processEvents();
+                        //QApplication::processEvents();
                         // Storing all information in the data vector here can improve performance
                         QPointer<QObject> object = category_objects.at(i);
                         if (object) {
@@ -131,7 +131,7 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::buildRecursive(ObserverTreeIt
                 QSet<QString> categories = category_map.values().toSet();
 
                 foreach (const QString& category_string, categories) {
-                    QApplication::processEvents();
+                    //QApplication::processEvents();
                     QtilitiesCategory category = QtilitiesCategory(category_string,"::");
                     // Check the category against the displayed category list:
                     bool valid_category = true;
@@ -216,7 +216,7 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::buildRecursive(ObserverTreeIt
                 QStringList uncat_names = observer->subjectNamesByCategory(QtilitiesCategory());
                 int uncat_list_count = uncat_list.count();
                 for (int i = 0; i < uncat_list_count; ++i) {
-                    QApplication::processEvents();
+                    //QApplication::processEvents();
                     QObject* obj_at = uncat_list.at(i);
                     Observer* obs = qobject_cast<Observer*> (obj_at);
                     QVector<QVariant> column_data;
@@ -235,7 +235,7 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::buildRecursive(ObserverTreeIt
             } else {
                 int count = observer->subjectCount();
                 for (int i = 0; i < count; ++i) {
-                    QApplication::processEvents();
+                    //QApplication::processEvents();
                     QObject* obj_at = observer->subjectAt(i);
                     Observer* obs = qobject_cast<Observer*> (obj_at);
                     QVector<QVariant> column_data;

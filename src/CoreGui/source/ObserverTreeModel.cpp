@@ -1225,7 +1225,7 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
     d->tree_builder.setRootItem(item_to_send_to_builder);
     d->tree_builder.setUseObserverHints(model->use_observer_hints);
     d->tree_builder.setActiveHints(activeHints());
-    QApplication::processEvents();
+    //QApplication::processEvents();
     d->tree_builder.startBuild();
     QApplication::processEvents();
 }
