@@ -415,7 +415,7 @@ categorized_widget->show();
 
         private:
             //! Function used internally by findExpandedObjects() and findExpandedItems() to avoid doing duplicate work.
-            void updateLastExpandedResults();
+            void updateLastExpandedResults(const QModelIndex& to_add = QModelIndex(), const QModelIndex& to_remove = QModelIndex());
 
             // --------------------------------
             // Factory Interface Implementation

@@ -573,10 +573,15 @@ Qtilities::CoreGui::ObserverTreeModel* Qtilities::CoreGui::ObserverWidget::treeM
 }
 
 QAbstractProxyModel* Qtilities::CoreGui::ObserverWidget::proxyModel() const {
-    if (d->display_mode == Qtilities::TreeView)
+    if (d->display_mode == Qtilities::TreeView) {
+        if (d->custom_tree_proxy_model)
+            return d->custom_tree_proxy_model;
         return d->tree_proxy_model;
-    else if (d->display_mode == Qtilities::TableView)
+    } else if (d->display_mode == Qtilities::TableView) {
+        if (d->custom_table_proxy_model)
+            return d->custom_table_proxy_model;
         return d->table_proxy_model;
+    }
 
     return 0;
 }
@@ -662,68 +667,114 @@ QStringList Qtilities::CoreGui::ObserverWidget::lastExpandedCategoriesResults() 
     return d->last_expanded_categories_result;
 }
 
-void Qtilities::CoreGui::ObserverWidget::updateLastExpandedResults() {
-    if (d->display_mode == Qtilities::TreeView && d->tree_model && d->tree_view && d->tree_proxy_model) {
-        d->last_expanded_names_result.clear();
-        d->last_expanded_objects_result.clear();
-        d->last_expanded_categories_result.clear();
+void Qtilities::CoreGui::ObserverWidget::updateLastExpandedResults(const QModelIndex& to_add, const QModelIndex& to_remove) {
+    if (d->display_mode == Qtilities::TreeView && d->tree_model && d->tree_view) {
+        if (to_add.isValid()) {
+            QModelIndex mapped_source_index;
+            if (proxyModel())
+                mapped_source_index = proxyModel()->mapToSource(to_add);
+            else
+                mapped_source_index = to_add;
 
-        QModelIndexList all_indexes = d->tree_model->getAllIndexes();
-        foreach (QModelIndex index, all_indexes) {
-            QApplication::processEvents();
-            ObserverTreeItem* item = d->tree_model->getItem(index);
+            ObserverTreeItem* item = d->tree_model->getItem(mapped_source_index);
             if (!item)
-                continue;
+                return;
 
-            if (item->itemType() == ObserverTreeItem::CategoryItem || item->itemType() == ObserverTreeItem::TreeNode) {
-                // If it has no children, we don't consider it as expanded:
-                if (item->childCount() == 0)
+            QString item_text = d->tree_model->data(mapped_source_index,Qt::DisplayRole).toString();
+            if (item_text.endsWith("*"))
+                item_text.chop(1);
+            if (item->itemType() == ObserverTreeItem::CategoryItem)
+                d->last_expanded_categories_result << item_text;
+            else if (item->itemType() == ObserverTreeItem::TreeNode)
+                d->last_expanded_names_result << item_text;
+            QObject* obj = d->tree_model->getObject(mapped_source_index);
+            if (obj)
+                d->last_expanded_objects_result << obj;
+        } else if (to_remove.isValid()) {
+            QModelIndex mapped_source_index;
+            if (proxyModel())
+                mapped_source_index = proxyModel()->mapToSource(to_remove);
+            else
+                mapped_source_index = to_remove;
+
+            ObserverTreeItem* item = d->tree_model->getItem(mapped_source_index);
+            if (!item)
+                return;
+
+            QString item_text = d->tree_model->data(mapped_source_index,Qt::DisplayRole).toString();
+            if (item_text.endsWith("*"))
+                item_text.chop(1);
+            if (item->itemType() == ObserverTreeItem::CategoryItem)
+                d->last_expanded_categories_result.removeOne(item_text);
+            else if (item->itemType() == ObserverTreeItem::TreeNode)
+                d->last_expanded_names_result.removeOne(item_text);
+            QObject* obj = d->tree_model->getObject(mapped_source_index);
+            if (obj)
+                d->last_expanded_objects_result.removeOne(obj);
+        } else {
+            // Refresh all:
+            d->last_expanded_names_result.clear();
+            d->last_expanded_objects_result.clear();
+            d->last_expanded_categories_result.clear();
+
+            QModelIndexList indexes_to_add = d->tree_model->getAllIndexes();
+            // Add required indexes:
+            foreach (QModelIndex source_index, indexes_to_add) {
+                QApplication::processEvents();
+                ObserverTreeItem* item = d->tree_model->getItem(source_index);
+                if (!item)
                     continue;
 
-                QModelIndex mapped_index;
-                if (d->tree_proxy_model)
-                    mapped_index = d->tree_proxy_model->mapFromSource(index);
-                else
-                    mapped_index = index;
+                if (item->itemType() == ObserverTreeItem::CategoryItem || item->itemType() == ObserverTreeItem::TreeNode) {
+                    // If it has no children, we don't consider it as expanded:
+                    if (item->childCount() == 0)
+                        continue;
 
-                // For categories we check if the parent observer is already in the list of expanded items before we add it:
-                if (activeHints()->rootIndexDisplayHint() == ObserverHints::RootIndexHide) {
-                    Observer* obs = d->tree_model->parentOfIndex(index);
-                    if (obs) {
-                        if (obs != d->root_observer_context) {
+                    // For categories we check if the parent observer is already in the list of expanded items before we add it:
+                    if (activeHints()->rootIndexDisplayHint() == ObserverHints::RootIndexHide) {
+                        Observer* obs = d->tree_model->parentOfIndex(source_index);
+                        if (obs) {
+                            if (obs != d->root_observer_context) {
+                                if (!d->last_expanded_objects_result.contains(obs)) {
+                                    //qDebug() << "Not adding expanded item" << item->objectName() << "to list of expanded items. Its parent node is not expanded. Parent:" << obs->observerName() << ", Observer context:" << d->root_observer_context;
+                                    continue;
+                                }
+                            }
+                        }
+                    } else {
+                        Observer* obs = d->tree_model->parentOfIndex(source_index);
+                        if (obs) {
                             if (!d->last_expanded_objects_result.contains(obs)) {
-                                //qDebug() << "Not adding expanded item" << item->objectName() << "to list of expanded items. Its parent node is not expanded. Parent:" << obs->observerName() << ", Observer context:" << d->root_observer_context;
+                                //qDebug() << "Not adding expanded item" << item->objectName() << "to list of expanded items. Its parent node is not expanded. Parent: " << obs->observerName();
                                 continue;
                             }
                         }
                     }
-                } else {
-                    Observer* obs = d->tree_model->parentOfIndex(index);
-                    if (obs) {
-                        if (!d->last_expanded_objects_result.contains(obs)) {
-                            //qDebug() << "Not adding expanded item" << item->objectName() << "to list of expanded items. Its parent node is not expanded. Parent: " << obs->observerName();
-                            continue;
-                        }
-                    }
-                }
 
-                if (d->tree_view->isExpanded(mapped_index)) {
-                    QString item_text = d->tree_model->data(index,Qt::DisplayRole).toString();
-                    if (item_text.endsWith("*"))
-                        item_text.chop(1);
-                    if (item->itemType() == ObserverTreeItem::CategoryItem)
-                        d->last_expanded_categories_result << item_text;
-                    else if (item->itemType() == ObserverTreeItem::TreeNode)
-                        d->last_expanded_names_result << item_text;
-                    QObject* obj = d->tree_model->getObject(index);
-                    if (obj)
-                        d->last_expanded_objects_result << obj;
+                    QModelIndex mapped_proxy_index;
+                    if (proxyModel())
+                        mapped_proxy_index = proxyModel()->mapFromSource(source_index);
+                    else
+                        mapped_proxy_index = source_index;
+
+                    if (d->tree_view->isExpanded(mapped_proxy_index)) {
+                        QString item_text = d->tree_model->data(source_index,Qt::DisplayRole).toString();
+                        if (item_text.endsWith("*"))
+                            item_text.chop(1);
+                        if (item->itemType() == ObserverTreeItem::CategoryItem)
+                            d->last_expanded_categories_result << item_text;
+                        else if (item->itemType() == ObserverTreeItem::TreeNode)
+                            d->last_expanded_names_result << item_text;
+                        QObject* obj = d->tree_model->getObject(source_index);
+                        if (obj)
+                            d->last_expanded_objects_result << obj;
+                    }
                 }
             }
         }
-
-        //qDebug() << Q_FUNC_INFO << d->last_expanded_names_result.count() << d->last_expanded_names_result.join(",");
     }
+
+    //qDebug() << Q_FUNC_INFO << d->last_expanded_names_result.count() << d->last_expanded_names_result.join(",");
 }
 
 void Qtilities::CoreGui::ObserverWidget::initializePrivate(bool hints_only) {
@@ -1228,13 +1279,8 @@ void Qtilities::CoreGui::ObserverWidget::toggleUseObserverHints(bool toggle) {
         // Important: We need to change the table proxy filters as well.
         // Note that we don't change the tree proxy filters since the tree model builder
         // does not build the tree for filtered categories.
-        if (d->table_proxy_model) {
-            ObserverTableModelProxyFilter* obs_proxy_model = qobject_cast<ObserverTableModelProxyFilter*> (d->table_proxy_model);
-            if (obs_proxy_model)
-                obs_proxy_model->toggleUseObserverHints(toggle);
-        }
-        if (d->custom_table_proxy_model) {
-            ObserverTableModelProxyFilter* obs_proxy_model = qobject_cast<ObserverTableModelProxyFilter*> (d->custom_table_proxy_model);
+        if (proxyModel()) {
+            ObserverTableModelProxyFilter* obs_proxy_model = qobject_cast<ObserverTableModelProxyFilter*> (proxyModel());
             if (obs_proxy_model)
                 obs_proxy_model->toggleUseObserverHints(toggle);
         }
@@ -1263,13 +1309,8 @@ bool Qtilities::CoreGui::ObserverWidget::setCustomHints(ObserverHints* custom_hi
     // Important: We need to change the table proxy filters as well.
     // Note that we don't change the tree proxy filters since the tree model builder
     // does not build the tree for filtered categories.
-    if (d->table_proxy_model) {
-        ObserverTableModelProxyFilter* obs_proxy_model = qobject_cast<ObserverTableModelProxyFilter*> (d->table_proxy_model);
-        if (obs_proxy_model)
-            obs_proxy_model->setCustomHints(custom_hints);
-    }
-    if (d->custom_table_proxy_model) {
-        ObserverTableModelProxyFilter* obs_proxy_model = qobject_cast<ObserverTableModelProxyFilter*> (d->custom_table_proxy_model);
+    if (proxyModel()) {
+        ObserverTableModelProxyFilter* obs_proxy_model = qobject_cast<ObserverTableModelProxyFilter*> (proxyModel());
         if (obs_proxy_model)
             obs_proxy_model->setCustomHints(custom_hints);
     }
@@ -1291,8 +1332,8 @@ QList<QObject*> Qtilities::CoreGui::ObserverWidget::selectedObjects() const {
                 QModelIndex index = selected_indexes.at(i);
                 if (index.column() == 1) {
                     QModelIndex mapped_idx = index;
-                    if (d->table_proxy_model)
-                        mapped_idx = d->table_proxy_model->mapToSource(index);
+                    if (proxyModel())
+                        mapped_idx = proxyModel()->mapToSource(index);
                     QObject* obj = d->table_model->getObject(mapped_idx);
                     smart_selected_objects << obj;
                     selected_objects << obj;
@@ -1313,8 +1354,8 @@ QList<QObject*> Qtilities::CoreGui::ObserverWidget::selectedObjects() const {
                 QModelIndex index = selected_indexes.at(i);
                 if (index.column() == 0) {
                     QModelIndex mapped_idx = index;
-                    if (d->tree_proxy_model)
-                        mapped_idx = d->tree_proxy_model->mapToSource(index);
+                    if (proxyModel())
+                        mapped_idx = proxyModel()->mapToSource(index);
                     QObject* obj = d->tree_model->getObject(mapped_idx);
                     ObserverTreeItem* tree_item = d->tree_model->getItem(mapped_idx);
                     if (tree_item->itemType() == ObserverTreeItem::CategoryItem)
@@ -1397,7 +1438,7 @@ QModelIndexList Qtilities::CoreGui::ObserverWidget::selectedIndexes() const {
     QModelIndexList selected_indexes;
 
     if (d->display_mode == TableView) {
-        if (!d->table_view || !d->table_model || !d->table_proxy_model)
+        if (!d->table_view || !d->table_model || !proxyModel())
             return selected_indexes;
 
         if (d->table_view->selectionModel()) {
@@ -1405,11 +1446,11 @@ QModelIndexList Qtilities::CoreGui::ObserverWidget::selectedIndexes() const {
             for (int i = 0; i < selected_indexes_tmp.count(); ++i) {
                 QModelIndex index = selected_indexes_tmp.at(i);
                 if (index.column() == 1)
-                    selected_indexes << d->table_proxy_model->mapToSource(index);
+                    selected_indexes << proxyModel()->mapToSource(index);
             }
         }
     } else if (d->display_mode == TreeView) {
-        if (!d->tree_view || !d->tree_model || !d->tree_proxy_model)
+        if (!d->tree_view || !d->tree_model || !proxyModel())
             return selected_indexes;
 
         if (d->tree_view->selectionModel()) {
@@ -1417,7 +1458,7 @@ QModelIndexList Qtilities::CoreGui::ObserverWidget::selectedIndexes() const {
             for (int i = 0; i < selected_indexes_tmp.count(); ++i) {
                 QModelIndex index = selected_indexes_tmp.at(i);
                 if (index.column() == 0)
-                    selected_indexes << d->tree_proxy_model->mapToSource(index);
+                    selected_indexes << proxyModel()->mapToSource(index);
             }
         }
     }
@@ -3048,6 +3089,7 @@ void Qtilities::CoreGui::ObserverWidget::viewCollapseAll() {
 
         d->last_expanded_names_result.clear();
         d->last_expanded_objects_result.clear();
+        d->last_expanded_categories_result.clear();
 
         d->do_column_resizing = current_do_column_resizing;
         resizeColumns();
@@ -3058,13 +3100,7 @@ void Qtilities::CoreGui::ObserverWidget::viewExpandAll() {
     if (d->tree_view && d->display_mode == TreeView) {
         bool current_do_column_resizing = d->do_column_resizing;
         d->do_column_resizing = false;
-
-        disconnect(d->tree_view,SIGNAL(expanded(QModelIndex)),this,SLOT(handleExpanded(QModelIndex)));
         d->tree_view->expandAll();
-        connect(d->tree_view,SIGNAL(expanded(QModelIndex)),SLOT(handleExpanded(QModelIndex)),Qt::UniqueConnection);
-
-        updateLastExpandedResults();
-
         d->do_column_resizing = current_do_column_resizing;
         resizeColumns();
     }
@@ -3254,8 +3290,8 @@ Qtilities::CoreGui::ObserverTreeItem::TreeItemTypeFlags Qtilities::CoreGui::Obse
 
 void Qtilities::CoreGui::ObserverWidget::handleSearchItemTypesChanged() {
     // Only do something in tree view
-    if (d->display_mode == TreeView && d->tree_proxy_model) {
-        ObserverTreeModelProxyFilter* proxy = dynamic_cast<ObserverTreeModelProxyFilter*> (d->tree_proxy_model);
+    if (d->display_mode == TreeView && proxyModel()) {
+        ObserverTreeModelProxyFilter* proxy = dynamic_cast<ObserverTreeModelProxyFilter*> (proxyModel());
         if (proxy) {
             ObserverTreeItem::TreeItemTypeFlags flags = 0;
             if (d->actionFilterNodes->isChecked())
@@ -3484,15 +3520,15 @@ void Qtilities::CoreGui::ObserverWidget::selectObject(QObject* object) {
 void Qtilities::CoreGui::ObserverWidget::selectCategories(QList<QtilitiesCategory> categories) {
     if (categories.count() > 0) {
         // Handle for the table view
-        if (d->tree_view && d->tree_model && d->display_mode == TreeView && d->tree_proxy_model) {
+        if (d->tree_view && d->tree_model && d->display_mode == TreeView) {
             QModelIndexList mapped_indexes;
             QModelIndex index;
             for (int i = 0; i < categories.count(); ++i) {
                 index = d->tree_model->findCategory(categories.at(i));
                 if (index.isValid()) {
                     QModelIndex mapped_index;
-                    if (d->tree_proxy_model) {
-                        mapped_index = d->tree_proxy_model->mapFromSource(index);
+                    if (proxyModel()) {
+                        mapped_index = proxyModel()->mapFromSource(index);
                     } else
                         mapped_index = index;
 
@@ -3546,7 +3582,7 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QPointer<QObject> >
 
 void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) {
     // Handle for the table view
-    if (d->table_view && d->table_model && d->display_mode == TableView && d->table_proxy_model) {
+    if (d->table_view && d->table_model && d->display_mode == TableView) {
         if (!d->table_view->selectionModel())
             return;
 
@@ -3558,8 +3594,8 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
                 index = d->table_model->getIndex(objects.at(i));
                 if (index.isValid()) {
                     QModelIndex mapped_index;
-                    if (d->table_proxy_model) {
-                        mapped_index = d->table_proxy_model->mapFromSource(index);
+                    if (proxyModel()) {
+                        mapped_index = proxyModel()->mapFromSource(index);
                     } else
                         mapped_index = index;
 
@@ -3590,7 +3626,7 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
         }
 
         connect(d->table_view->selectionModel(),SIGNAL(selectionChanged(QItemSelection,QItemSelection)),this,SLOT(handleSelectionModelChange()));
-    } else if (d->tree_view && d->tree_model && d->display_mode == TreeView && d->tree_proxy_model) {
+    } else if (d->tree_view && d->tree_model && d->display_mode == TreeView) {
         if (!d->tree_view->selectionModel())
             return;
 
@@ -3602,8 +3638,8 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
                 index = d->tree_model->findObject(objects.at(i));
                 if (index.isValid()) {
                     QModelIndex mapped_index;
-                    if (d->tree_proxy_model) {
-                        mapped_index = d->tree_proxy_model->mapFromSource(index);
+                    if (proxyModel()) {
+                        mapped_index = proxyModel()->mapFromSource(index);
                     } else
                         mapped_index = index;
 
@@ -3649,10 +3685,8 @@ void Qtilities::CoreGui::ObserverWidget::handleSearchStringChanged(const QString
     //qDebug() << observerContext() << "filter_string" << filter_string;
     QSortFilterProxyModel* model = 0;
 
-    if (d->table_view && d->table_model && d->display_mode == TableView && d->table_proxy_model)
-         model = qobject_cast<QSortFilterProxyModel*> (d->table_proxy_model);
-    else if (d->tree_view && d->tree_model && d->display_mode == TreeView && d->tree_proxy_model)
-         model = qobject_cast<QSortFilterProxyModel*> (d->tree_proxy_model);
+    if (proxyModel())
+         model = qobject_cast<QSortFilterProxyModel*> (proxyModel());
 
     // Check if the installed proxy model is a QSortFilterProxyModel:
     if (model) {
@@ -3824,40 +3858,20 @@ void Qtilities::CoreGui::ObserverWidget::handleExpanded(const QModelIndex &index
     if (!index.isValid())
         return;
 
-    bool restore_cursor = false;
-    if (cursor().shape() != Qt::WaitCursor) {
-        d->current_cursor = cursor();
-        setCursor(QCursor(Qt::WaitCursor));
-        restore_cursor = true;
-    }
-
     resizeColumns();
-    updateLastExpandedResults();
+    updateLastExpandedResults(index);
     emit expandedNodesChanged(lastExpandedItemsResults());
     emit expandedObjectsChanged(lastExpandedObjectsResults());
-
-    if (restore_cursor)
-        setCursor(d->current_cursor);
 }
 
 void Qtilities::CoreGui::ObserverWidget::handleCollapsed(const QModelIndex &index) {
     if (!index.isValid())
         return;
 
-    bool restore_cursor = false;
-    if (cursor().shape() != Qt::WaitCursor) {
-        d->current_cursor = cursor();
-        setCursor(QCursor(Qt::WaitCursor));
-        restore_cursor = true;
-    }
-
     resizeColumns();
-    updateLastExpandedResults();
+    updateLastExpandedResults(QModelIndex(),index);
     emit expandedNodesChanged(lastExpandedItemsResults());
     emit expandedObjectsChanged(lastExpandedObjectsResults());
-
-    if (restore_cursor)
-        setCursor(d->current_cursor);
 }
 
 void Qtilities::CoreGui::ObserverWidget::expandNodes(const QStringList &node_names) {
@@ -3894,27 +3908,24 @@ void Qtilities::CoreGui::ObserverWidget::expandNodes(QModelIndexList indexes) {
     if (!d->root_observer_context || !observerContext())
         return;
 
-    if (d->tree_view && d->tree_proxy_model && d->display_mode == Qtilities::TreeView) {
+    if (d->tree_view && d->display_mode == Qtilities::TreeView) {
         if (indexes.isEmpty()) {
             viewExpandAll();
             return;
         }
 
-        disconnect(d->tree_view,SIGNAL(expanded(QModelIndex)),this,SLOT(handleExpanded(QModelIndex)));
         bool current_do_column_resizing = d->do_column_resizing;
         d->do_column_resizing = false;
 
         d->tree_view->collapseAll();
         foreach (QModelIndex index, indexes) {
-            if (d->tree_proxy_model)
-                d->tree_view->setExpanded(d->tree_proxy_model->mapFromSource(index),true);
+            if (proxyModel())
+                d->tree_view->setExpanded(proxyModel()->mapFromSource(index),true);
             else
                 d->tree_view->setExpanded(index,true);
         }
-        updateLastExpandedResults();
 
         d->do_column_resizing = current_do_column_resizing;
-        connect(d->tree_view,SIGNAL(expanded(QModelIndex)),SLOT(handleExpanded(QModelIndex)),Qt::UniqueConnection);
         resizeColumns();
     }
 }
