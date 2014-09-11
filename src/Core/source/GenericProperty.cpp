@@ -14,6 +14,7 @@ using namespace Qtilities::Core::Constants;
 #include <QDomDocument>
 
 #include "limits.h"
+#include "float.h"
 
 namespace Qtilities {
 namespace Core {
@@ -35,6 +36,9 @@ struct GenericPropertyData {
         int_max(INT_MAX),
         int_min(INT_MIN),
         int_step(1),
+        double_max(INT_MAX),
+        double_min(INT_MIN),
+        double_step(1),
         file_name_filter("*.*"),
         macro_mode(GenericProperty::MacroUnexpanded),
         is_macro(false) { }
@@ -66,6 +70,9 @@ struct GenericPropertyData {
     int int_max;
     int int_min;
     int int_step;
+    int double_max;
+    int double_min;
+    int double_step;
     QStringList enum_possible_values_displayed;
     QStringList enum_possible_values_command_line;
     QRegExp string_reg_exp;
@@ -312,14 +319,28 @@ bool GenericProperty::setValueString(const QString &value, QString *errorMsg) {
         // Validate the new value according to the type of property:
         if (d->type == TypeInteger) {
             bool valid_int;
-            blockSignals(true);
-            setIntValue(value.toInt(&valid_int));
-            blockSignals(false);
+            int tmp_int = value.toInt(&valid_int);
             if (!valid_int) {
                 if (errorMsg)
                     *errorMsg = "The specified value " + value + " is not a valid integer.";
-            } else
+            } else {
+                blockSignals(true);
+                setIntValue(tmp_int);
+                blockSignals(false);
                 set = true;
+            }
+        } else if (d->type == TypeDouble) {
+            bool valid_double;
+            double tmp_dbl = value.toDouble(&valid_double);
+            if (!valid_double) {
+                if (errorMsg)
+                    *errorMsg = "The specified value " + value + " is not a valid double.";
+            } else {
+                blockSignals(true);
+                setDoubleValue(tmp_dbl);
+                blockSignals(false);
+                set = true;
+            }
         } else if (d->type == TypeEnum) {
             if (d->enum_possible_values_displayed.contains(value)) {
                 d->value = value;
@@ -420,6 +441,15 @@ bool GenericProperty::setDefaultValueString(const QString &value, QString* error
             if (!valid_int) {
                 if (errorMsg)
                     *errorMsg = "The specified value " + value + " is not a valid integer.";
+            } else {
+                set = true;
+            }
+        } else if (d->type == TypeDouble) {
+            bool valid_double;
+            value.toDouble(&valid_double);
+            if (!valid_double) {
+                if (errorMsg)
+                    *errorMsg = "The specified value " + value + " is not a valid double.";
             } else {
                 set = true;
             }
@@ -641,6 +671,43 @@ void GenericProperty::setIntStep(int new_value) {
     }
 }
 
+double GenericProperty::doubleMax() const {
+    return d->double_max;
+}
+
+void GenericProperty::setDoubleMax(double new_value) {
+    if (d->double_max != new_value) {
+        if (d->type == TypeDouble && d->value.toDouble() > new_value)
+            setValueString(QString::number(new_value));
+        d->double_max = new_value;
+        emit possibleValuesDisplayedChanged(this);
+    }
+}
+
+double GenericProperty::doubleMin() const {
+    return d->double_min;
+}
+
+void GenericProperty::setDoubleMin(double new_value) {
+    if (d->double_min != new_value) {
+        if (d->type == TypeDouble && d->value.toDouble() < new_value)
+            setValueString(QString::number(new_value));
+        d->double_min = new_value;
+        emit possibleValuesDisplayedChanged(this);
+    }
+}
+
+double GenericProperty::doubleStep() const {
+    return d->double_step;
+}
+
+void GenericProperty::setDoubleStep(double new_value) {
+    if (d->double_step != new_value) {
+        d->double_step = new_value;
+        emit possibleValuesDisplayedChanged(this);
+    }
+}
+
 QStringList GenericProperty::enumPossibleValuesDisplayed() const {
     return d->enum_possible_values_displayed;
 }
@@ -730,11 +797,14 @@ bool GenericProperty::boolValue() const {
 void GenericProperty::setIntValue(int value) {
     Q_ASSERT(type() == TypeInteger);
     if (type() == TypeInteger) {
+        QString value_str = QString::number(value);
+        if (d->value == value_str)
+            return;
         if (value < d->int_min)
             value = d->int_min;
         else if (value > d->int_max)
             value = d->int_max;
-        d->value = QString::number(value);
+        d->value = value_str;
         emit valueChanged(this);
     }
 }
@@ -743,6 +813,28 @@ int GenericProperty::intValue() const {
     Q_ASSERT(type() == TypeInteger);
     if (type() == TypeInteger)
         return valueString().toInt();
+    return -1;
+}
+
+void GenericProperty::setDoubleValue(double value) {
+    Q_ASSERT(type() == TypeDouble);
+    if (type() == TypeDouble) {
+        QString value_str = QString::number(value);
+        if (d->value == value_str)
+            return;
+        if (value < d->double_min)
+            value = d->double_min;
+        else if (value > d->double_max)
+            value = d->double_max;
+        d->value = value_str;
+        emit valueChanged(this);
+    }
+}
+
+double GenericProperty::doubleValue() const {
+    Q_ASSERT(type() == TypeDouble);
+    if (type() == TypeDouble)
+        return valueString().toDouble();
     return -1;
 }
 

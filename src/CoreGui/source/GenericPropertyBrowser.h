@@ -77,6 +77,8 @@ namespace Qtilities {
         private slots:
             //! Handles changes to int properties from the display side.
             void handle_intPropertyChanged(QtProperty *property, int value);
+            //! Handles changes to double properties from the display side.
+            void handle_doublePropertyChanged(QtProperty *property, double value);
             //! Handles changes to string properties from the display side.
             void handle_stringPropertyChanged(QtProperty *property, const QString & value);
             //! Handles changes to enum properties from the display side.

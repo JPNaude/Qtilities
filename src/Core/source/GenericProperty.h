@@ -109,6 +109,7 @@ namespace Qtilities {
                 TypePath = 64,
                 TypePathList = 128,
                 TypeVariant = 256,  /*!< Note that a variant's property values are never exported, displayed and can only be accessed through value() and setValue(). Variant property automatically have their category set to qti_def_GENERIC_PROPERTY_CATEGORY_INTERNAL. */
+                TypeDouble = 512,
                 TypeListBased = TypeFileList | TypePathList
             };
             Q_ENUMS(PropertyType)
@@ -136,6 +137,8 @@ namespace Qtilities {
             static QString propertyTypeToString(PropertyType property_type) {
                 if (property_type == TypeInteger) {
                     return "Int";
+                } else if (property_type == TypeDouble) {
+                    return "Double";
                 } else if (property_type == TypeString) {
                     return "String";
                 } else if (property_type == TypeEnum) {
@@ -159,6 +162,8 @@ namespace Qtilities {
             static QVariant::Type propertyTypeQVariantType(PropertyType property_type) {
                 if (property_type == TypeInteger) {
                     return QVariant::Int;
+                } else if (property_type == TypeDouble) {
+                    return QVariant::Double;
                 } else if (property_type == TypeString) {
                     return QVariant::String;
                 } else if (property_type == TypeEnum) {
@@ -182,6 +187,8 @@ namespace Qtilities {
             static PropertyType stringToPropertyType(const QString& property_type_string)  {
                 if (property_type_string == QLatin1String("Int")) {
                     return TypeInteger;
+                } else if (property_type_string == QLatin1String("Double")) {
+                    return TypeDouble;
                 } else if (property_type_string == QLatin1String("String")) {
                     return TypeString;
                 } else if (property_type_string == QLatin1String("Enum")) {
@@ -456,6 +463,20 @@ namespace Qtilities {
             int intStep() const;
             //! Sets the step value if this property is of type TypeInteger.
             void setIntStep(int new_value);
+
+            //! Gets the max value if this property is of type TypeDouble.
+            double doubleMax() const;
+            //! Sets the max value if this property is of type TypeDouble.
+            void setDoubleMax(double new_value);
+            //! Gets the min value if this property is of type TypeDouble.
+            double doubleMin() const;
+            //! Sets the min value if this property is of type TypeDouble.
+            void setDoubleMin(double new_value);
+            //! Gets the step value if this property is of type TypeDouble.
+            double doubleStep() const;
+            //! Sets the step value if this property is of type TypeDouble.
+            void setDoubleStep(double new_value);
+
             //! Gets the possible displayed values if this property is of type TypeEnum.
             QStringList enumPossibleValuesDisplayed() const;
             //! Sets the possible displayed values if this property is of type TypeEnum.
@@ -477,6 +498,8 @@ namespace Qtilities {
             bool boolValue() const;
             void setIntValue(int value);
             int intValue() const;
+            void setDoubleValue(double value);
+            double doubleValue() const;
             //! The value will be joined using the backend storage seperator which is , by default.
             void setFileList(const QStringList& list);
             //! Adds files to the current files in this property if it is of type TypeFileList.

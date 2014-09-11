@@ -91,6 +91,7 @@ int main(int argc, char *argv[])
     generic_property_manager.addProperty("Boolean",false);
     generic_property_manager.addProperty("String","Hello World");
     generic_property_manager.addProperty("Integer",5);
+    generic_property_manager.addProperty("Double",1.234);
 
     // Now, more advanced types:
     GenericProperty* gen_enum_prop = new GenericProperty("Enum");

@@ -189,6 +189,8 @@ GenericProperty *GenericPropertyManager::addProperty(const QString &property_nam
                     prop->setType(GenericProperty::TypeBool);
                 else if (value.type() == QVariant::Int)
                     prop->setType(GenericProperty::TypeInteger);
+                else if (value.type() == QVariant::Double)
+                    prop->setType(GenericProperty::TypeDouble);
                 else if (value.type() == QVariant::String)
                     prop->setType(GenericProperty::TypeString);
                 prop->setDefaultValueString(value.toString());

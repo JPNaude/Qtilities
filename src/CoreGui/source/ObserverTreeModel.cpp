@@ -340,7 +340,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
                         return return_string;
                 }
             } else {
-                // We might get in here when a view tries to repaint itself (for example when a message box dissapears above it) befire
+                // We might get in here when a view tries to repaint itself (for example when a message box dissapears above it) before
                 // the tree has been rebuilt properly.
                 return "Refreshing...";
             }
@@ -807,7 +807,10 @@ QModelIndex Qtilities::CoreGui::ObserverTreeModel::index(int row, int column, co
     if (!d->tree_model_up_to_date)
         return QModelIndex();
 
-    if (!hasIndex(row, column, parent) || !d->rootItem)
+    if (!d->rootItem)
+        return QModelIndex();
+
+    if (!hasIndex(row, column, parent))
         return QModelIndex();
 
     ObserverTreeItem *parentItem;
@@ -1227,7 +1230,7 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
     d->tree_builder.setActiveHints(activeHints());
     //QApplication::processEvents();
     d->tree_builder.startBuild();
-    QApplication::processEvents();
+    //QApplication::processEvents();
 }
 
 void Qtilities::CoreGui::ObserverTreeModel::receiveBuildObserverTreeItem(ObserverTreeItem* item) {

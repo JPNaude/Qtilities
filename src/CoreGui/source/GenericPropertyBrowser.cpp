@@ -40,6 +40,8 @@ struct GenericPropertyBrowserPrivateData {
             delete category_property_manager;
         if (int_property_manager)
             delete int_property_manager;
+        if (double_property_manager)
+            delete double_property_manager;
         if (enum_property_manager)
             delete enum_property_manager;
         if (bool_property_manager)
@@ -58,7 +60,9 @@ struct GenericPropertyBrowserPrivateData {
     QtVariantPropertyManager*               category_property_manager;
     // Int property manager:
     QtIntPropertyManager*                   int_property_manager;
-    // Int property manager:
+    // Double property manager:
+    QtDoublePropertyManager*                double_property_manager;
+    // Enum property manager:
     QtEnumPropertyManager*                  enum_property_manager;
     // Bool property manager:
     QtBoolPropertyManager*                  bool_property_manager;
@@ -109,6 +113,13 @@ GenericPropertyBrowser::GenericPropertyBrowser(GenericPropertyManager* property_
     d->property_browser->setFactoryForManager(d->int_property_manager, int_factory);
     connect(d->int_property_manager, SIGNAL(valueChanged(QtProperty *, int)),
                 this, SLOT(handle_intPropertyChanged(QtProperty*,int)));
+
+    // Create int property manager for editable properties:
+    d->double_property_manager = new QtDoublePropertyManager(this);
+    QtDoubleSpinBoxFactory *double_factory = new QtDoubleSpinBoxFactory(this);
+    d->property_browser->setFactoryForManager(d->double_property_manager, double_factory);
+    connect(d->double_property_manager, SIGNAL(valueChanged(QtProperty *, double)),
+                this, SLOT(handle_doublePropertyChanged(QtProperty*,double)));
 
     // Create enum property manager for editable properties:
     d->enum_property_manager = new QtEnumPropertyManager(this);
@@ -177,6 +188,7 @@ void GenericPropertyBrowser::clear() {
     // File property manager:
     d->path_property_manager->clear();
     d->int_property_manager->clear();
+    d->double_property_manager->clear();
     d->enum_property_manager->clear();
     d->bool_property_manager->clear();
     d->string_property_manager->clear();
@@ -247,6 +259,10 @@ bool GenericPropertyBrowser::readOnly() const {
 }
 
 void GenericPropertyBrowser::handle_intPropertyChanged(QtProperty *property, int value) {
+    updatePropertyValue(property,value);
+}
+
+void GenericPropertyBrowser::handle_doublePropertyChanged(QtProperty *property, double value) {
     updatePropertyValue(property,value);
 }
 
@@ -337,11 +353,13 @@ void GenericPropertyBrowser::handlePropertyValueChanged(GenericProperty *propert
         d->ignore_build_display_side_property_changes = true;
         if (property->type() == GenericProperty::TypeInteger)
             d->int_property_manager->setValue(display_property,property->intValue());
+        else if (property->type() == GenericProperty::TypeDouble)
+            d->double_property_manager->setValue(display_property,property->doubleValue());
         else if (property->type() == GenericProperty::TypeString)
             d->string_property_manager->setValue(display_property,property->valueString());
-        else if (property->type() == GenericProperty::TypeFile || property->type() == GenericProperty::TypeFileList || property->type() == GenericProperty::TypePath || property->type() == GenericProperty::TypePathList) {
+        else if (property->type() == GenericProperty::TypeFile || property->type() == GenericProperty::TypeFileList || property->type() == GenericProperty::TypePath || property->type() == GenericProperty::TypePathList)
             d->path_property_manager->notifyPropertyChanged(display_property);
-        } else if (property->type() == GenericProperty::TypeEnum)
+        else if (property->type() == GenericProperty::TypeEnum)
             d->enum_property_manager->setValue(display_property,property->enumPossibleValuesDisplayed().indexOf(property->valueString()));
         else if (property->type() == GenericProperty::TypeBool)
             d->bool_property_manager->setValue(display_property,property->boolValue());
@@ -397,6 +415,12 @@ void GenericPropertyBrowser::handlePropertyPossibleValuesChanged(GenericProperty
             d->int_property_manager->setMinimum(display_property,property->intMin());
             d->int_property_manager->setSingleStep(display_property,property->intStep());
             d->int_property_manager->setValue(display_property,current_value);
+        } else if (property->type() == GenericProperty::TypeDouble) {
+            int current_value = property->doubleValue();
+            d->double_property_manager->setMaximum(display_property,property->doubleMax());
+            d->double_property_manager->setMinimum(display_property,property->doubleMin());
+            d->double_property_manager->setSingleStep(display_property,property->doubleStep());
+            d->double_property_manager->setValue(display_property,current_value);
         }
 
         display_property->setModified(!property->matchesDefault());
@@ -449,6 +473,14 @@ void GenericPropertyBrowser::inspectPropertyManager() {
                 d->int_property_manager->setMaximum(sub_property,prop->intMax());
                 d->int_property_manager->setMinimum(sub_property,prop->intMin());
                 d->int_property_manager->setSingleStep(sub_property,prop->intStep());
+            }
+        } else if (prop->type() == GenericProperty::TypeDouble) {
+            sub_property = d->double_property_manager->addProperty(name);
+            if (sub_property) {
+                d->double_property_manager->setValue(sub_property,prop->doubleValue());
+                d->double_property_manager->setMaximum(sub_property,prop->doubleMax());
+                d->double_property_manager->setMinimum(sub_property,prop->doubleMin());
+                d->double_property_manager->setSingleStep(sub_property,prop->doubleStep());
             }
         } else if (prop->type() == GenericProperty::TypeString) {
             sub_property = d->string_property_manager->addProperty(name);

@@ -127,8 +127,6 @@ Qtilities::Testing::DebugWidget::DebugWidget(QWidget *parent) :
     connect(d->object_pool_widget,SIGNAL(doubleClickRequest(QObject*)),SLOT(handle_objectPoolDoubleClick(QObject*)));
     connect(d->object_pool_widget,SIGNAL(selectedObjectsChanged(QList<QObject*>)),SLOT(handle_objectPoolSelectionChanged(QList<QObject*>)));
 
-    OBJECT_MANAGER->objectPool()->endProcessingCycle();
-
     // Conan Widgets:
     ui->lblConanLabel->setText("Signal and slot analysis is done using the <a href=\"http://sourceforge.net/projects/conanforqt\">Conan</a> library.");
     #ifdef QTILITIES_CONAN
