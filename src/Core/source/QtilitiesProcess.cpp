@@ -27,7 +27,8 @@ struct Qtilities::Core::QtilitiesProcessPrivateData {
         message_disabler_active(false),
         ignore_read_buffer_slot(false),
         refresh_frequency(0),
-        timeout(-1) {}
+        timeout(-1),
+        was_stopped(false) {}
 
     QProcess* process;
     QString default_qprocess_error_string;
@@ -40,6 +41,7 @@ struct Qtilities::Core::QtilitiesProcessPrivateData {
     bool ignore_read_buffer_slot;
     int refresh_frequency;
     int timeout;
+    bool was_stopped;
 };
 
 Qtilities::Core::QtilitiesProcess::QtilitiesProcess(const QString& task_name,
@@ -123,7 +125,8 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program,
                                                      const QStringList& arguments,
                                                      QProcess::OpenMode mode,
                                                      int wait_for_started_msecs,
-                                                     int timeout_msecs) {
+                                                     int timeout_msecs)
+{
     if (state() == ITask::TaskPaused)
         return false;
 
@@ -158,6 +161,7 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program,
     }
 
     clearLastRunBuffer();
+    d->was_stopped = false;
     d->process->start(native_program, arguments, mode);
 
     if (!d->process->waitForStarted(wait_for_started_msecs)) {
@@ -243,6 +247,8 @@ int Qtilities::Core::QtilitiesProcess::guiRefreshFrequency() const {
 }
 
 void Qtilities::Core::QtilitiesProcess::stopProcess() {
+    d->was_stopped = true;
+
     // New implementation:
     d->process->terminate();
     d->process->kill();
@@ -260,7 +266,7 @@ void Qtilities::Core::QtilitiesProcess::stopProcess() {
 
 void Qtilities::Core::QtilitiesProcess::procFinished(int exit_code, QProcess::ExitStatus exit_status) {
     // Read whatever is in left in the process buffer:
-    if (d->read_process_buffers) {
+    if (d->read_process_buffers && !d->was_stopped) {
         QString msg = d->process->readAllStandardOutput();
         if (!msg.isEmpty()) {
             QStringList splits = msg.split("\n");
@@ -298,8 +304,12 @@ void Qtilities::Core::QtilitiesProcess::procFinished(int exit_code, QProcess::Ex
         }
     }
 
-    if (state() == ITask::TaskBusy || state() == ITask::TaskPaused)
-        completeTask();
+    if (state() == ITask::TaskBusy || state() == ITask::TaskPaused) {
+        if (d->was_stopped)
+            stopTask();
+        else
+            completeTask();
+    }
 }
 
 void Qtilities::Core::QtilitiesProcess::procError(QProcess::ProcessError error) {
@@ -357,6 +367,11 @@ void Qtilities::Core::QtilitiesProcess::readStandardOutput() {
 
     int msg_count = 0;
     while (d->process->canReadLine()) {
+        if (!(state() & TaskBusy))
+            break;
+        if (d->was_stopped)
+            break;
+
         if (d->refresh_frequency > 0)
             ++msg_count;
         if (msg_count > d->refresh_frequency) {
@@ -380,6 +395,11 @@ void Qtilities::Core::QtilitiesProcess::readStandardError() {
 
     int msg_count = 0;
     while (d->process->canReadLine()) {
+        if (!(state() & TaskBusy))
+            break;
+        if (d->was_stopped)
+            break;
+
         if (d->refresh_frequency > 0)
             ++msg_count;
         if (msg_count > d->refresh_frequency) {
@@ -393,7 +413,7 @@ void Qtilities::Core::QtilitiesProcess::readStandardError() {
         QByteArray ba = d->process->readLine();
         processSingleBufferMessage(ba,Logger::Error);
         if (d->last_run_buffer_enabled)
-            d->last_run_buffer.append(ba);
+            d->last_run_buffer.append(ba);  
     }
 }
 
@@ -404,6 +424,8 @@ void Qtilities::Core::QtilitiesProcess::processSingleBufferMessage(const QString
             logMessage(buffer_message,msg_type);
         else {
             bool found_match = false;
+            bool found_match_is_stopper = false;
+
             // Get all hints that match the message:
             QListIterator<ProcessBufferMessageTypeHint> itr(d->buffer_message_type_hints);
             int highest_matching_hint_priority = -1;
@@ -438,6 +460,11 @@ void Qtilities::Core::QtilitiesProcess::processSingleBufferMessage(const QString
                     }
                 }
 
+                if (hint.d_is_stopper) {
+                    log_this_message = hint.d_is_stopper_log_match;
+                    found_match_is_stopper = true;
+                }
+
                 if (log_this_message) {
                     if (hint.d_priority == highest_matching_hint_priority) {
                         found_match = true;
@@ -445,6 +472,12 @@ void Qtilities::Core::QtilitiesProcess::processSingleBufferMessage(const QString
                             logMessage(buffer_message,hint.d_message_type);
                     }
                 }
+            }
+
+            if (found_match_is_stopper) {
+                d->was_stopped = true;
+                stopProcess();
+                return;
             }
 
             if (!found_match && !d->message_disabler_active)

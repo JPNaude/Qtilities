@@ -517,12 +517,19 @@ bool Qtilities::Core::Task::startTask(int expected_subtasks, const QString& mess
 
 bool Task::stopTask(const QString &message, Logger::MessageType type) {
     emit taskAboutToStop();
+    emit taskAboutToComplete();
 
     if (!message.isEmpty())
         logMessage(message,type);
 
-    completeTask(ITask::TaskFailed,"Task Stopped");
+    ITask::TaskState old_state = d->task_state;
+    blockSignals(true);
+    completeTask(ITask::TaskFailed);
+    blockSignals(false);
+    d->task_state = ITask::TaskStopped;
+    emit stateChanged(d->task_state,old_state);
     emit taskStopped();
+    emit taskCompleted(ITask::TaskFailed);
     return true;
 }
 
@@ -627,7 +634,7 @@ bool Qtilities::Core::Task::completeTask(ITask::TaskResult result, const QString
     else if (d->task_result == ITask::TaskFailed)
         logMessage(QString("Task %1failed. See the task log for more information (%2).").arg(task_name_to_log).arg(elapsedTimeString()),Logger::Error);
 
-    emit stateChanged(ITask::TaskCompleted,old_state);
+    emit stateChanged(d->task_state,old_state);
 
     // Now we check if we must destroy the task:
     if (d->task_lifetime_flags == Task::LifeTimeManual)

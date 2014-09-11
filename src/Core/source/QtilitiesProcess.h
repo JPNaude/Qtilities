@@ -51,6 +51,8 @@ namespace Qtilities {
                 d_is_disabler = false;
                 d_is_enabler_log_match = false;
                 d_is_disabler_log_match = false;
+                d_is_stopper = false;
+                d_is_stopper_log_match = false;
             }
             ProcessBufferMessageTypeHint(const ProcessBufferMessageTypeHint& ref) {
                 d_message_type = ref.d_message_type;
@@ -60,6 +62,8 @@ namespace Qtilities {
                 d_is_disabler = ref.d_is_disabler;
                 d_is_enabler_log_match = ref.d_is_enabler_log_match;
                 d_is_disabler_log_match = ref.d_is_disabler_log_match;
+                d_is_stopper = ref.d_is_stopper;
+                d_is_stopper_log_match = ref.d_is_stopper_log_match;
             }
             ProcessBufferMessageTypeHint& operator=(const ProcessBufferMessageTypeHint& ref) {
                 if (this==&ref) return *this;
@@ -71,6 +75,8 @@ namespace Qtilities {
                 d_is_disabler = ref.d_is_disabler;
                 d_is_enabler_log_match = ref.d_is_enabler_log_match;
                 d_is_disabler_log_match = ref.d_is_disabler_log_match;
+                d_is_stopper = ref.d_is_stopper;
+                d_is_stopper_log_match = ref.d_is_stopper_log_match;
 
                 return *this;
             }
@@ -89,6 +95,10 @@ namespace Qtilities {
                     return false;
                 if (d_is_disabler_log_match != ref.d_is_disabler_log_match)
                     return false;
+                if (d_is_stopper != ref.d_is_stopper)
+                    return false;
+                if (d_is_stopper_log_match != ref.d_is_stopper_log_match)
+                    return false;
 
                 return true;
             }
@@ -103,6 +113,8 @@ namespace Qtilities {
             bool                        d_is_enabler_log_match;
             bool                        d_is_disabler;
             bool                        d_is_disabler_log_match;
+            bool                        d_is_stopper;
+            bool                        d_is_stopper_log_match;
         };
 
         /*!
