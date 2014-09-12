@@ -448,28 +448,24 @@ void Qtilities::Core::QtilitiesProcess::processSingleBufferMessage(const QString
                 bool log_this_message = !d->message_disabler_active;
                 if (d->message_disabler_active) {
                     // When a message disabler is active:
-                    if (hint.d_is_enabler) {
+                    if (hint.d_is_enabler)
                         d->message_disabler_active = false;
-                        log_this_message = hint.d_is_enabler_log_match;
-                    }
                 } else {
                     // When a message disabler is not active:
-                    if (hint.d_is_disabler) {
+                    if (hint.d_is_disabler)
                         d->message_disabler_active = true;
-                        log_this_message = hint.d_is_disabler_log_match;
-                    }
                 }
 
-                if (hint.d_is_stopper) {
-                    log_this_message = hint.d_is_stopper_log_match;
+                if (hint.d_is_stopper)
                     found_match_is_stopper = true;
-                }
 
                 if (log_this_message) {
                     if (hint.d_priority == highest_matching_hint_priority) {
                         found_match = true;
                         if (hint.d_message_type != Logger::None)
                             logMessage(buffer_message,hint.d_message_type);
+                        if (hint.d_is_stopper && !hint.d_stop_message.isEmpty() && hint.d_stop_message_type != Logger::None)
+                            logMessage(hint.d_stop_message,hint.d_stop_message_type);
                     }
                 }
             }

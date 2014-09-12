@@ -23,21 +23,26 @@ using namespace Qtilities::Logging;
 namespace Qtilities {
     namespace Core {
         /*!
-          \struct ProcessBufferMessageTypeHint
-          \brief The ProcessBufferMessageTypeHint structure is used to define custom hints for process buffer message processing in QtilitiesProcess.
-
-          A ProcessBufferMessageTypeHint contains the following information:
-          - d_regexp: The regular expression matched to the single message line after processing has been done by QtilitiesProcess (see \ref qtilities_process_buffering).
-          - d_message_type: The message type to assign to matched messages. When using Logger::None, the message will not be logged and filtered.
-          - d_priority: A priority for the match. If multiple hints match a message, the hint with the highest priority wil be used to log the message. If multiple hints match which have the same priority, the message will be linked using multiple times (where each logged message will be logged using the type specified by the applicable matching hint).
-          - d_is_disabler: When true, any message that matches this hint will cause QtilitiesProcess to ignore subsequent messages until a message
-            matching an enabler is received. This allows sections of messages to be skipped. The message type of a disabler is not used unless d_is_disabler_log_match is true. To control whether the disabler
-            message itself must be logged, set d_is_disabler_log_match to true to log the disabler message or false to omit the disabler message. By default
-            d_is_disabler_log_match is false.
-          - d_is_enabler: When true, any message that matches this hint will cause QtilitiesProcess to log subsequent messages. This allows sections of messages to be skipped.
-            The message type of an enabler is not used unless d_is_enabler_log_match is true. To control whether the enabler
-            message itself must be logged, set d_is_enabler_log_match to true to log the enabler message or false to omit the enabler message. By default
-            d_is_enabler_log_match is false.
+         * \struct ProcessBufferMessageTypeHint
+         * \brief The ProcessBufferMessageTypeHint structure is used to define custom hints for process buffer message processing in QtilitiesProcess.
+         *
+         * A ProcessBufferMessageTypeHint contains the following information:
+         * - d_regexp: The regular expression matched to the single message line after processing has been done by QtilitiesProcess (see \ref qtilities_process_buffering).
+         * - d_message_type: The message type to assign to matched messages. When using Logger::None, the message will not be logged and filtered.
+         * - d_priority: A priority for the match. If multiple hints match a message, the hint with the highest priority wil be used to log the message. If multiple hints match which have the same priority, the message will be linked using multiple times (where each logged message will be logged using the type specified by the applicable matching hint).
+         * - d_is_disabler: When true, any message that matches this hint will cause QtilitiesProcess to ignore subsequent messages until a message
+         *   matching an enabler is received. This allows sections of messages to be skipped. To control whether the disabler
+         *   message itself must be logged, either set the message_type to Logger::None in order to not log it, or any other message type to log the
+         *   message as that type of message.
+         * - d_is_enabler: When true, any message that matches this hint will cause QtilitiesProcess to log subsequent messages. This allows sections of messages to be skipped.
+         *   The message type of an enabler is not used unless d_is_enabler_log_match is true. To control whether the enabler
+         *   message itself must be logged, either set the message_type to Logger::None in order to not log it, or any other message type to log the
+         *   message as that type of message.
+         * - d_is_stopper: When true, the process will be stopped as soon as a message match the expression of the stopper hint. To control whether the stopper
+         *   message itself must be logged, either set the message_type to Logger::None in order to not log it, or any other message type to log the
+         *   message as that type of message. Using d_stop_message it is also possible to provide an additional message logged directly after the stopper message
+         *   to explain why the stopper caused the process to be stopped. The message type of the stopper message is determined by d_stop_message_type which is Logger::Error
+         *   by default.
          */
         struct ProcessBufferMessageTypeHint {
         public:
@@ -49,10 +54,8 @@ namespace Qtilities {
                 d_priority = priority;
                 d_is_enabler = false;
                 d_is_disabler = false;
-                d_is_enabler_log_match = false;
-                d_is_disabler_log_match = false;
                 d_is_stopper = false;
-                d_is_stopper_log_match = false;
+                d_stop_message_type = Logger::Error;
             }
             ProcessBufferMessageTypeHint(const ProcessBufferMessageTypeHint& ref) {
                 d_message_type = ref.d_message_type;
@@ -60,10 +63,9 @@ namespace Qtilities {
                 d_priority = ref.d_priority;
                 d_is_enabler = ref.d_is_enabler;
                 d_is_disabler = ref.d_is_disabler;
-                d_is_enabler_log_match = ref.d_is_enabler_log_match;
-                d_is_disabler_log_match = ref.d_is_disabler_log_match;
                 d_is_stopper = ref.d_is_stopper;
-                d_is_stopper_log_match = ref.d_is_stopper_log_match;
+                d_stop_message = ref.d_stop_message;
+                d_stop_message_type = ref.d_stop_message_type;
             }
             ProcessBufferMessageTypeHint& operator=(const ProcessBufferMessageTypeHint& ref) {
                 if (this==&ref) return *this;
@@ -73,10 +75,9 @@ namespace Qtilities {
                 d_priority = ref.d_priority;
                 d_is_enabler = ref.d_is_enabler;
                 d_is_disabler = ref.d_is_disabler;
-                d_is_enabler_log_match = ref.d_is_enabler_log_match;
-                d_is_disabler_log_match = ref.d_is_disabler_log_match;
                 d_is_stopper = ref.d_is_stopper;
-                d_is_stopper_log_match = ref.d_is_stopper_log_match;
+                d_stop_message = ref.d_stop_message;
+                d_stop_message_type = ref.d_stop_message_type;
 
                 return *this;
             }
@@ -91,13 +92,11 @@ namespace Qtilities {
                     return false;
                 if (d_is_disabler != ref.d_is_disabler)
                     return false;
-                if (d_is_enabler_log_match != ref.d_is_enabler_log_match)
-                    return false;
-                if (d_is_disabler_log_match != ref.d_is_disabler_log_match)
-                    return false;
                 if (d_is_stopper != ref.d_is_stopper)
                     return false;
-                if (d_is_stopper_log_match != ref.d_is_stopper_log_match)
+                if (d_stop_message != ref.d_stop_message)
+                    return false;
+                if (d_stop_message_type != ref.d_stop_message_type)
                     return false;
 
                 return true;
@@ -110,11 +109,10 @@ namespace Qtilities {
             Logger::MessageType         d_message_type;
             int                         d_priority;
             bool                        d_is_enabler;
-            bool                        d_is_enabler_log_match;
             bool                        d_is_disabler;
-            bool                        d_is_disabler_log_match;
             bool                        d_is_stopper;
-            bool                        d_is_stopper_log_match;
+            QString                     d_stop_message;
+            Logger::MessageType         d_stop_message_type;
         };
 
         /*!
