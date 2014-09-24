@@ -276,6 +276,26 @@ categorized_widget->show();
               \returns True if the model was successfully set.
               */
             bool setCustomTreeModel(ObserverTreeModel* tree_model);
+
+            //! Function which sets a custom table view to be used in this widget when its in TableView mode.
+            /*!
+              \note This function must be called before initializing the widget for the first time.
+
+              The observer widget will manage the lifetime of the custom model.
+
+              <i>This function was added in %Qtilities v1.5.</i>
+              */
+            void setCustomTableView(QTableView* table_view);
+            //! Function which sets a custom tree view to be used in this widget when its in TreeView mode.
+            /*!
+              The observer widget will manage the lifetime of the custom model.
+
+              \note This function must be called before initializing the widget for the first time.
+
+              <i>This function was added in %Qtilities v1.5.</i>
+              */
+            void setCustomTreeView(QTreeView *tree_view);
+
             //! Function which sets a custom table proxy model to be used in this widget when its in TableView mode.
             /*!
               By default the observer widget uses the Qtilities::CoreGui::ObserverTableModelProxyFilter as the proxy model for the table view.

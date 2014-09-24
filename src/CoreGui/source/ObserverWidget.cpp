@@ -194,9 +194,11 @@ struct Qtilities::CoreGui::ObserverWidgetData {
 
     Qtilities::DisplayMode display_mode;
     QPointer<QTableView> table_view;
+    QPointer<QTableView> custom_table_view;
     ObserverTableModel* table_model;
     QAbstractProxyModel* custom_table_proxy_model;
     QPointer<QTreeView> tree_view;
+    QPointer<QTreeView> custom_tree_view;
     ObserverTreeModel* tree_model;
     QAbstractProxyModel* custom_tree_proxy_model;
     QAbstractProxyModel* tree_proxy_model;
@@ -534,6 +536,16 @@ bool Qtilities::CoreGui::ObserverWidget::setCustomTreeModel(ObserverTreeModel* t
     return true;
 }
 
+void Qtilities::CoreGui::ObserverWidget::setCustomTableView(QTableView *table_view) {
+    if (!d->custom_table_view && !d->table_view)
+        d->custom_table_view = table_view;
+}
+
+void Qtilities::CoreGui::ObserverWidget::setCustomTreeView(QTreeView *tree_view) {
+    if (!d->custom_tree_view && !d->tree_view)
+        d->custom_tree_view = tree_view;
+}
+
 bool Qtilities::CoreGui::ObserverWidget::setCustomTableProxyModel(QAbstractProxyModel* proxy_model) {
     if (d->initialized)
         return false;
@@ -843,7 +855,12 @@ void Qtilities::CoreGui::ObserverWidget::initializePrivate(bool hints_only) {
 
             // Check if there is already a model.
             if (!d->tree_view) {
-                d->tree_view = new QTreeView(ui->itemParentWidget);
+                if (d->custom_tree_view) {
+                    d->tree_view = d->custom_tree_view;
+                    d->custom_tree_view->setParent(ui->itemParentWidget);
+                } else
+                    d->tree_view = new QTreeView(ui->itemParentWidget);
+
                 connect(d->tree_view,SIGNAL(expanded(QModelIndex)),SLOT(handleExpanded(QModelIndex)));
                 connect(d->tree_view,SIGNAL(collapsed(QModelIndex)),SLOT(handleCollapsed(QModelIndex)));
                 d->tree_view->setFocusPolicy(Qt::StrongFocus);
@@ -900,7 +917,7 @@ void Qtilities::CoreGui::ObserverWidget::initializePrivate(bool hints_only) {
             d->tree_name_column_delegate->setObserverContext(d->selection_parent_observer_context);
 
             // Setup proxy model:
-            if (!d->disable_proxy_models) {
+            if (!d->disable_proxy_models) {               
                 if (!d->custom_tree_proxy_model) {
                     if (!d->tree_proxy_model) {
                         QSortFilterProxyModel* new_model = new ObserverTreeModelProxyFilter(this);
@@ -947,8 +964,12 @@ void Qtilities::CoreGui::ObserverWidget::initializePrivate(bool hints_only) {
                 d->tree_view->hide();
 
             // Check if there is already a model.
-            if (!d->table_view) {
-                d->table_view = new QTableView();
+            if (!d->table_view)  {
+                if (d->custom_table_view)
+                    d->table_view = d->custom_table_view;
+                else
+                    d->table_view = new QTableView;
+
                 d->table_view->setFocusPolicy(Qt::StrongFocus);
                 d->table_view->setShowGrid(false);
                 d->table_view->setAcceptDrops(true);
@@ -974,6 +995,7 @@ void Qtilities::CoreGui::ObserverWidget::initializePrivate(bool hints_only) {
                 d->table_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
                 d->table_view->verticalHeader()->setVisible(false);
             }
+
 
             // TODO: We don't have to do this everytime... Only when mode changes and first init... (also in tree view side)
             if (ui->itemParentWidget->layout())
