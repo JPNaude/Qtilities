@@ -34,12 +34,10 @@ using namespace Qtilities::Logging;
 using namespace Qtilities::Logging::Constants;
 
 struct Qtilities::CoreGui::LoggerConfigWidgetPrivateData {
-    LoggerConfigWidgetPrivateData() : active_engine(0),
-        proxyModel(0) {}
+    LoggerConfigWidgetPrivateData() : active_engine(0) {}
 
     qti_private_LoggerEnginesTableModel logger_engine_model;
     AbstractLoggerEngine* active_engine;
-    QSortFilterProxyModel *proxyModel;
 };
 
 Qtilities::CoreGui::LoggerConfigWidget::LoggerConfigWidget(bool applyButtonVisisble, QWidget *parent) :
@@ -102,9 +100,7 @@ void Qtilities::CoreGui::LoggerConfigWidget::configPageInitialize() {
     ui->comboGlobalLogLevel->addItems(list);
 
     // Add logger engines:
-    d->proxyModel = new QSortFilterProxyModel(this);
-    d->proxyModel->setSourceModel(&d->logger_engine_model);
-    ui->tableViewLoggerEngines->setModel(d->proxyModel);
+    ui->tableViewLoggerEngines->setModel(&d->logger_engine_model);
     ui->tableViewLoggerEngines->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->tableViewLoggerEngines->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableViewLoggerEngines->setSortingEnabled(true);
@@ -159,13 +155,8 @@ void Qtilities::CoreGui::LoggerConfigWidget::handle_NewLoggerEngineRequest() {
 }
 
 void Qtilities::CoreGui::LoggerConfigWidget::handle_RemoveLoggerEngineRequest() {
-    if (Log->detachLoggerEngine(d->active_engine)) {
-        if (Log->attachedLoggerEngineCount() >= 1) {
-            ui->tableViewLoggerEngines->setCurrentIndex(d->proxyModel->mapFromSource(d->logger_engine_model.index(0,0)));
-            updateActiveEngine();
-            refreshLoggerEngineInformation();
-        }
-    }
+    if (Log->detachLoggerEngine(d->active_engine))
+        updateActiveEngine();
 }
 
 void Qtilities::CoreGui::LoggerConfigWidget::handle_LoggerEngineTableClicked(const QModelIndex& index) {
@@ -358,18 +349,20 @@ void Qtilities::CoreGui::LoggerConfigWidget::refreshLoggerEngineInformation() {
 }
 
 void Qtilities::CoreGui::LoggerConfigWidget::updateActiveEngine() {
-    if (!d->proxyModel) {
-        d->active_engine = 0;
-        return;
-    }
+//    if (!d->proxyModel) {
+//        d->active_engine = 0;
+//        return;
+//    }
 
     // Get the engine at the position:
-    QModelIndex mapped_index = d->proxyModel->mapToSource(ui->tableViewLoggerEngines->currentIndex());
-    if (!mapped_index.isValid())
-        d->active_engine = 0;
-    else {
-        d->active_engine = Log->loggerEngineReferenceAt(mapped_index.row());
-    }
+//    QModelIndex mapped_index = d->proxyModel->mapToSource(ui->tableViewLoggerEngines->currentIndex());
+//    if (!mapped_index.isValid())
+//        d->active_engine = 0;
+//    else {
+//        d->active_engine = Log->loggerEngineReferenceAt(mapped_index.row());
+//    }
+
+    d->active_engine = Log->loggerEngineReferenceAt(ui->tableViewLoggerEngines->currentIndex().row());
 
     //    qDebug() << "XXXXXXXXXXXXXXXX";
     //    for (int i = 0; i < Log->attachedLoggerEngineCount(); ++i)
