@@ -223,6 +223,7 @@ AbstractLoggerEngine* Qtilities::Core::QtilitiesProcess::assignFileLoggerEngineT
         }
 
         engine->setMessageContexts(Logger::EngineSpecificMessages);
+        connect(this,SIGNAL(destroyed()),engine,SLOT(deleteLater()));
     }
 
     // Set the log context:

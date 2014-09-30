@@ -225,8 +225,8 @@ my_process.addProcessBufferMessageTypeHint(message_hint_error);
              * If an engine with the same name already exists this function will assign an unique name to the new widget by appending a number to \p engine_name.
              *
              * \note Call this function before starting the process.
-             * \note When creating a new file logger engine, the process DOES NOT take ownership of the new engine. Connect the destroyed() signal
-             * from the QtilitiesProcess object to the deleteLater() signal on the returned engine if this behaviour is required.
+             * \note When creating a new file logger engine, the process takes ownership of the new engine. However, if a logger engine logging to this
+             * file is already in use, the process will not take ownership of the engine.
              *
              * \returns A reference to the newly constructed logger engine when successfull, 0 otherwise with the reason why it failed available using errorMsg.
              *
