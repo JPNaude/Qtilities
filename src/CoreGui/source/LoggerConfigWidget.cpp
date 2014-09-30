@@ -349,29 +349,7 @@ void Qtilities::CoreGui::LoggerConfigWidget::refreshLoggerEngineInformation() {
 }
 
 void Qtilities::CoreGui::LoggerConfigWidget::updateActiveEngine() {
-//    if (!d->proxyModel) {
-//        d->active_engine = 0;
-//        return;
-//    }
-
-    // Get the engine at the position:
-//    QModelIndex mapped_index = d->proxyModel->mapToSource(ui->tableViewLoggerEngines->currentIndex());
-//    if (!mapped_index.isValid())
-//        d->active_engine = 0;
-//    else {
-//        d->active_engine = Log->loggerEngineReferenceAt(mapped_index.row());
-//    }
-
     d->active_engine = Log->loggerEngineReferenceAt(ui->tableViewLoggerEngines->currentIndex().row());
-
-    //    qDebug() << "XXXXXXXXXXXXXXXX";
-    //    for (int i = 0; i < Log->attachedLoggerEngineCount(); ++i)
-    //        qDebug() << i << Log->attachedLoggerEngineNames().at(i);
-    //    qDebug() << "XXXXXXXXXXXXXXXX";
-    //    qDebug() << "Selected index (mapped to source)" << mapped_index.row() << "proxy index" << ui->tableViewLoggerEngines->currentIndex().row();
-    //    if (d->active_engine)
-    //        qDebug() << "Active logger engine name" << d->active_engine->name() << Log->attachedLoggerEngineNames().at(mapped_index.row());
-
     refreshLoggerEngineInformation();
 }
 
