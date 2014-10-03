@@ -192,7 +192,7 @@ AbstractLoggerEngine* Qtilities::Core::QtilitiesProcess::assignFileLoggerEngineT
     if (file_path.isEmpty()) {
         if (errorMsg)
             *errorMsg = "Empty log file path specified.";
-        return false;
+        return 0;
     }
 
     // First check if any existing engines use this file path:
@@ -219,7 +219,7 @@ AbstractLoggerEngine* Qtilities::Core::QtilitiesProcess::assignFileLoggerEngineT
         if (!engine) {
             if (errorMsg)
                 *errorMsg = "Failed to create new file engine for the given log file path.";
-            return false;
+            return 0;
         }
 
         engine->setMessageContexts(Logger::EngineSpecificMessages);
