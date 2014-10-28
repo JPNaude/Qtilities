@@ -28,6 +28,7 @@ struct Qtilities::CoreGui::ConfigurationWidgetPrivateData {
         activity_filter(0),
         active_widget(0),
         apply_all_pages(true),
+        apply_all_pages_visible(true),
         categorized_display(false) {}
 
     //! Observer widget which is used to display the categories of the config pages.
@@ -44,6 +45,8 @@ struct Qtilities::CoreGui::ConfigurationWidgetPrivateData {
     Qtilities::DisplayMode  display_mode;
     //! The apply all pages setting for this widget.
     bool                    apply_all_pages;
+    //! During initialization all pages are checked to see if they support Apply. This bool stores if any pages actually did support it.
+    bool                    apply_all_pages_visible;
     //! Indicates if this widgets uses a categorized display.
     bool                    categorized_display;
 };
@@ -53,6 +56,7 @@ Qtilities::CoreGui::ConfigurationWidget::ConfigurationWidget(DisplayMode display
     ui(new Ui::ConfigurationWidget)
 {
     ui->setupUi(this);
+    ui->widgetTopModeWidgetHolder->setVisible(false);
     setWindowTitle(QApplication::applicationName() + tr(" Settings"));
     d = new ConfigurationWidgetPrivateData;
     d->initialized = false;
@@ -102,6 +106,7 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
     }
 
     QApplication::setOverrideCursor(Qt::BusyCursor);
+    d->apply_all_pages_visible = false;
 
     // Figure out what the maximum sizes are in all pages.
     int max_width = -1;
@@ -128,7 +133,8 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
                         categories << current_category;
                     config_page_category_map[config_page] = current_category;
                 }
-
+                if (config_page->supportsApply())
+                    d->apply_all_pages_visible = true;
                 config_page->configPageInitialize();
                 initialized_pages << config_page;
             }
@@ -198,6 +204,9 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
 
                 addPageCategoryProperty(config_page);
                 addPageIconProperty(config_page);
+
+                if (config_page->supportsApply())
+                    d->apply_all_pages_visible = true;
 
                 if (d->config_pages.attachSubject(config_page->objectBase())) {
                     if (config_page->configPageWidget()->size().width() > max_width)
@@ -340,16 +349,13 @@ void Qtilities::CoreGui::ConfigurationWidget::handleActiveItemChanges(QList<QObj
         if (d->active_widget)
             d->active_widget->hide();
 
-//        if (d->apply_all_pages) {
-//            if (d->config_pages.subjectCount() == 1)
-//                ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(config_page->supportsApply());
-//            else
-//                ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
-//        } else
-//        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(config_page->supportsApply());
-        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
-        ui->buttonBox->button(QDialogButtonBox::Help)->setEnabled(!config_page->configPageHelpID().isEmpty());
-        ui->buttonBox->button(QDialogButtonBox::RestoreDefaults)->setEnabled(config_page->supportsRestoreDefaults());
+        if (d->apply_all_pages) {
+            ui->buttonBox->button(QDialogButtonBox::Apply)->setVisible(d->apply_all_pages_visible);
+        } else {
+            ui->buttonBox->button(QDialogButtonBox::Apply)->setVisible(config_page->supportsApply());
+        }
+        ui->buttonBox->button(QDialogButtonBox::Help)->setVisible(!config_page->configPageHelpID().isEmpty());
+        ui->buttonBox->button(QDialogButtonBox::RestoreDefaults)->setVisible(config_page->supportsRestoreDefaults());
         ui->lblPageHeader->setText(config_page->configPageTitle());
         if (!config_page->configPageIcon().isNull()) {
             ui->lblPageIcon->setPixmap(QPixmap(config_page->configPageIcon().pixmap(32,32)));
@@ -384,13 +390,12 @@ void Qtilities::CoreGui::ConfigurationWidget::handleActiveGroupedPageChanged(ICo
     if (d->activity_filter->activeSubjects().front() != sender())
         return;
 
-//    if (d->apply_all_pages)
-//        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
-//    else
-//        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(new_active_grouped_page->supportsApply());
-    ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
-    ui->buttonBox->button(QDialogButtonBox::Help)->setEnabled(!new_active_grouped_page->configPageHelpID().isEmpty());
-    ui->buttonBox->button(QDialogButtonBox::RestoreDefaults)->setEnabled(new_active_grouped_page->supportsRestoreDefaults());
+    if (d->apply_all_pages)
+        ui->buttonBox->button(QDialogButtonBox::Apply)->setVisible(d->apply_all_pages_visible);
+    else
+        ui->buttonBox->button(QDialogButtonBox::Apply)->setVisible(new_active_grouped_page->supportsApply());
+    ui->buttonBox->button(QDialogButtonBox::Help)->setVisible(!new_active_grouped_page->configPageHelpID().isEmpty());
+    ui->buttonBox->button(QDialogButtonBox::RestoreDefaults)->setVisible(new_active_grouped_page->supportsRestoreDefaults());
 }
 
 void Qtilities::CoreGui::ConfigurationWidget::changeEvent(QEvent *e)
