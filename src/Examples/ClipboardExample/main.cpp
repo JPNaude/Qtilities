@@ -40,6 +40,9 @@
 #include "ExtendedObserverTableModel.h"
 #include "ExtendedObserverTreeModel.h"
 
+#include "DebugWidget.h"
+using namespace Qtilities::Testing;
+
 using namespace Qtilities;
 using namespace Qtilities::Examples::Clipboard;
 
@@ -53,7 +56,10 @@ int main(int argc, char *argv[])
 
     QMainWindow* main_window = new QMainWindow;
     QtilitiesApplication::setMainWindow(main_window);
-    ConfigurationWidget* config_widget = new ConfigurationWidget(Qtilities::TreeView);
+    ConfigurationWidget* config_widget = new ConfigurationWidget(ConfigurationWidget::DisplayLeftModeWidgetView);
+    //ConfigurationWidget* config_widget = new ConfigurationWidget(Qtilities::TreeView);
+    //config_widget->setCategorizedTabDisplay(true);
+    config_widget->setApplyAllPages(false);
     QtilitiesApplication::setConfigWidget(config_widget);
 
     Log->setLoggerSessionConfigPath(QtilitiesApplication::applicationSessionPath());
@@ -267,8 +273,12 @@ int main(int argc, char *argv[])
     ACTION_MANAGER->loadShortcutMapping(shortcut_mapping_file);
 
     // Create a debug widget
-    //DebugWidget* debug_widget = new DebugWidget;
-    //debug_widget->modeWidget()->show();
+//    DebugWidget* debug_widget = new DebugWidget;
+//    debug_widget->modeWidget()->show();
+
+    // This shows how to change the active page of the configuration widget.
+    // -> Note that the config widget must have been initialized for this call to be effective.
+    config_widget->setActivePage(observer_config_widget.configPageTitle());
 
     int result = a.exec();
 

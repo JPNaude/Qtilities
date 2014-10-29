@@ -13,6 +13,7 @@
 #include "ObserverWidget.h"
 #include "GroupedConfigPage.h"
 #include "QtilitiesApplication.h"
+#include "QtilitiesMainWindow.h"
 
 #include <Logger>
 
@@ -20,21 +21,36 @@
 #include <QBoxLayout>
 #include <QDesktopWidget>
 #include <QPushButton>
+#include <QStatusBar>
 
 using namespace Qtilities::CoreGui::Interfaces;
-
 struct Qtilities::CoreGui::ConfigurationWidgetPrivateData {
-    ConfigurationWidgetPrivateData() : config_pages(QObject::tr("Application Settings")),
+    ConfigurationWidgetPrivateData() : config_pages_obs(QObject::tr("Application Settings")),
         activity_filter(0),
         active_widget(0),
         apply_all_pages(true),
         apply_all_pages_visible(true),
         categorized_display(false) {}
 
+    // --------------------------------------------
+    // Used by SideTableView and SideTreeView
+    // --------------------------------------------
     //! Observer widget which is used to display the categories of the config pages.
-    ObserverWidget          config_pages_widget;
+    ObserverWidget          obs_widget;
+
+    // --------------------------------------------
+    // Used by ModeWidget Modes
+    // --------------------------------------------
+    //! The mode widget.
+    QtilitiesMainWindow*    mode_widget;
+    //! Store all the wrappers.
+    QList<IMode*>           mode_wrappers;
+
+    // --------------------------------------------
+    // Shared Members
+    // --------------------------------------------
     //! The configuration pages observer.
-    Observer                config_pages;
+    Observer                config_pages_obs;
     //! Indicates if the page have been initialized.
     bool                    initialized;
     //! The activity policy filter for the pages observer.
@@ -42,7 +58,7 @@ struct Qtilities::CoreGui::ConfigurationWidgetPrivateData {
     //! Keeps track of the active widget.
     QPointer<QWidget>       active_widget;
     //! The display mode of this widget.
-    Qtilities::DisplayMode  display_mode;
+    ConfigurationWidget::DisplayMode display_mode;
     //! The apply all pages setting for this widget.
     bool                    apply_all_pages;
     //! During initialization all pages are checked to see if they support Apply. This bool stores if any pages actually did support it.
@@ -51,24 +67,87 @@ struct Qtilities::CoreGui::ConfigurationWidgetPrivateData {
     bool                    categorized_display;
 };
 
-Qtilities::CoreGui::ConfigurationWidget::ConfigurationWidget(DisplayMode display_mode, QWidget *parent) :
+Qtilities::CoreGui::ConfigurationWidget::ConfigurationWidget(Qtilities::DisplayMode display_mode, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ConfigurationWidget)
 {
+    d = new ConfigurationWidgetPrivateData;
+    if (display_mode == Qtilities::TreeView)
+        d->display_mode = DisplayLeftItemViewTree;
+    else if (display_mode == Qtilities::TableView)
+        d->display_mode = DisplayLeftItemViewTable;
+    sharedConstruct();
+}
+
+Qtilities::CoreGui::ConfigurationWidget::ConfigurationWidget(ConfigurationWidget::DisplayMode display_mode, QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::ConfigurationWidget)
+{
+    d = new ConfigurationWidgetPrivateData;
+    d->display_mode = display_mode;
+    sharedConstruct();
+}
+
+Qtilities::CoreGui::ConfigurationWidget::~ConfigurationWidget() {
+    delete ui;
+    if (d->activity_filter)
+        d->activity_filter->disconnect(this);
+    delete d;
+}
+
+void Qtilities::CoreGui::ConfigurationWidget::showEvent(QShowEvent* event) {
+    QWidget::showEvent(event);
+    QApplication::processEvents(); // Required for rect() to be updated before running the repositioning code below.
+
+    // Put the widget in the center of the screen again after being resized:
+    QRect qrect = QApplication::desktop()->availableGeometry(this);
+    move(qrect.center() - rect().center());
+}
+
+void Qtilities::CoreGui::ConfigurationWidget::sharedConstruct() {
     ui->setupUi(this);
     ui->widgetTopModeWidgetHolder->setVisible(false);
     setWindowTitle(QApplication::applicationName() + tr(" Settings"));
-    d = new ConfigurationWidgetPrivateData;
+
     d->initialized = false;
-    d->display_mode = display_mode;
 
-    // Layout and placement of observer widget:
-    if (ui->configPagesWidgetHolder->layout())
-        delete ui->configPagesWidgetHolder->layout();
+    if (d->display_mode & DisplayModeWidgetViews) {
+        ui->widgetTopModeWidgetHolder->setVisible(true);
+        ui->widgetObsWidgetHolder->setVisible(false);
 
-    QHBoxLayout* layout = new QHBoxLayout(ui->configPagesWidgetHolder);
-    layout->addWidget(&d->config_pages_widget);
-    layout->setMargin(0);
+        QtilitiesMainWindow::ModeLayout mode_layout;
+        if (d->display_mode == DisplayTopModeWidgetView)
+            mode_layout = QtilitiesMainWindow::ModesTop;
+        else if (d->display_mode == DisplayRightModeWidgetView)
+            mode_layout = QtilitiesMainWindow::ModesRight;
+        else if (d->display_mode == DisplayBottomModeWidgetView)
+            mode_layout = QtilitiesMainWindow::ModesBottom;
+        else if (d->display_mode == DisplayLeftModeWidgetView)
+            mode_layout = QtilitiesMainWindow::ModesLeft;
+        d->mode_widget = new QtilitiesMainWindow(mode_layout);
+        d->mode_widget->modeManager()->setMinimumItemSize(QSize(128,48));
+
+        // Layout and placement of observer widget:
+        if (ui->widgetTopModeWidgetHolder->layout())
+            delete ui->widgetTopModeWidgetHolder->layout();
+
+        QHBoxLayout* layout = new QHBoxLayout(ui->widgetTopModeWidgetHolder);
+        layout->addWidget(d->mode_widget);
+        layout->setMargin(0);
+        if (d->mode_widget->statusBar())
+            d->mode_widget->statusBar()->hide();
+    } else if (d->display_mode & DisplayLeftItemViews) {
+        ui->widgetTopModeWidgetHolder->setVisible(false);
+        ui->widgetObsWidgetHolder->setVisible(true);
+
+        // Layout and placement of observer widget:
+        if (ui->configPagesWidgetHolder->layout())
+            delete ui->configPagesWidgetHolder->layout();
+
+        QHBoxLayout* layout = new QHBoxLayout(ui->configPagesWidgetHolder);
+        layout->addWidget(&d->obs_widget);
+        layout->setMargin(0);
+    }
 
     // Put the widget in the center of the screen:
     QRect qrect = QApplication::desktop()->availableGeometry(this);
@@ -82,13 +161,6 @@ Qtilities::CoreGui::ConfigurationWidget::ConfigurationWidget(DisplayMode display
     #endif
 }
 
-Qtilities::CoreGui::ConfigurationWidget::~ConfigurationWidget() {
-    delete ui;
-    if (d->activity_filter)
-        d->activity_filter->disconnect(this);
-    delete d;
-}
-
 void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> config_pages, QList<IGroupedConfigPageInfoProvider*> grouped_page_info_providers) {
     if (!d->initialized) {
         // Add an activity policy filter to the config pages observer:
@@ -97,12 +169,15 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
         d->activity_filter->setMinimumActivityPolicy(ActivityPolicyFilter::ProhibitNoneActive);
         d->activity_filter->setNewSubjectActivityPolicy(ActivityPolicyFilter::SetNewInactive);
         connect(d->activity_filter,SIGNAL(activeSubjectsChanged(QList<QObject*>,QList<QObject*>)),SLOT(handleActiveItemChanges(QList<QObject*>)));
-        d->config_pages.installSubjectFilter(d->activity_filter);
-        d->config_pages.useDisplayHints();
-        d->config_pages.displayHints()->setActivityControlHint(ObserverHints::FollowSelection);
-        d->config_pages.displayHints()->setActivityDisplayHint(ObserverHints::NoActivityDisplay);
-        d->config_pages.displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
-        d->config_pages.displayHints()->setActionHints(ObserverHints::ActionFindItem);
+        d->config_pages_obs.installSubjectFilter(d->activity_filter);
+
+        if (d->display_mode & DisplayLeftItemViews) {
+            d->config_pages_obs.useDisplayHints();
+            d->config_pages_obs.displayHints()->setActivityControlHint(ObserverHints::FollowSelection);
+            d->config_pages_obs.displayHints()->setActivityDisplayHint(ObserverHints::NoActivityDisplay);
+            d->config_pages_obs.displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
+            d->config_pages_obs.displayHints()->setActionHints(ObserverHints::ActionFindItem);
+        }
     }
 
     QApplication::setOverrideCursor(Qt::BusyCursor);
@@ -115,7 +190,7 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
     QList<IConfigPage*> uncategorized_pages;
     QList<IConfigPage*> initialized_pages;
 
-    d->config_pages.startProcessingCycle();
+    d->config_pages_obs.startProcessingCycle();
     if (d->categorized_display) {
         QList<QtilitiesCategory>                    categories;
         QMap<IConfigPage*,QtilitiesCategory>        config_page_category_map;
@@ -184,12 +259,18 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
         uncategorized_pages = config_pages;
     }
 
+    // Wrap all config pages in ConfigPageModeWrapper if needed:
+    for (int i = 0; i < d->mode_wrappers.count(); i++) {
+        delete d->mode_wrappers.at(i);
+    }
+    d->mode_wrappers.clear();
+
     // Add all the pages to the config pages observer:
     for (int i = 0; i < uncategorized_pages.count(); ++i) {
         IConfigPage* config_page = uncategorized_pages.at(i);
         if (config_page) {
             if (config_page->configPageWidget()) {
-                if (d->config_pages.contains(uncategorized_pages.at(i)->objectBase())) {
+                if (d->config_pages_obs.contains(uncategorized_pages.at(i)->objectBase())) {
                     if (config_page->configPageWidget()->size().width() > max_width)
                         max_width = config_page->configPageWidget()->sizeHint().width();
                     if (config_page->configPageWidget()->size().height() > max_height)
@@ -208,11 +289,38 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
                 if (config_page->supportsApply())
                     d->apply_all_pages_visible = true;
 
-                if (d->config_pages.attachSubject(config_page->objectBase())) {
+                if (d->config_pages_obs.attachSubject(config_page->objectBase())) {
                     if (config_page->configPageWidget()->size().width() > max_width)
                         max_width = config_page->configPageWidget()->sizeHint().width();
                     if (config_page->configPageWidget()->size().height() > max_height)
                         max_height = config_page->configPageWidget()->sizeHint().height();
+                }
+
+                if (d->display_mode & DisplayModeWidgetViews) {
+                    if (config_page->configPageWidget()->layout()) {
+                        if (d->categorized_display && !config_page->configPageCategory().isEmpty()) {
+                            if (d->display_mode == DisplayTopModeWidgetView) {
+                                config_page->configPageWidget()->layout()->setContentsMargins(3,3,3,0);
+                            } else if (d->display_mode == DisplayRightModeWidgetView) {
+                                config_page->configPageWidget()->layout()->setContentsMargins(3,3,0,0);
+                            } else if (d->display_mode == DisplayBottomModeWidgetView) {
+                                config_page->configPageWidget()->layout()->setContentsMargins(3,0,3,3);
+                            } else if (d->display_mode == DisplayLeftModeWidgetView) {
+                                config_page->configPageWidget()->layout()->setContentsMargins(0,3,0,0);
+                            }
+                        } else {
+                            if (d->display_mode == DisplayTopModeWidgetView) {
+                                config_page->configPageWidget()->layout()->setContentsMargins(6,6,6,0);
+                            } else if (d->display_mode == DisplayRightModeWidgetView) {
+                                config_page->configPageWidget()->layout()->setContentsMargins(6,6,0,0);
+                            } else if (d->display_mode == DisplayBottomModeWidgetView) {
+                                config_page->configPageWidget()->layout()->setContentsMargins(6,0,6,0);
+                            } else if (d->display_mode == DisplayLeftModeWidgetView) {
+                                config_page->configPageWidget()->layout()->setContentsMargins(0,6,6,0);
+                            }
+                        }
+                    }
+                    d->mode_wrappers.append(new ConfigPageModeWrapper(config_page));
                 }
             } else {
                 LOG_DEBUG("Found configuration page \"" + config_page->configPageTitle() + "\" without a valid configuration widget. This page will not be shown.");
@@ -220,7 +328,7 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
         }
     }
 
-    d->config_pages.endProcessingCycle();
+    d->config_pages_obs.endProcessingCycle();
 
     // Check if the max sizes are bigger than the current size. If so we need to resize:
     int new_width = size().width();
@@ -231,30 +339,40 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
 //        new_heigth = max_height;
     resize(new_width,new_heigth);
 
-    // Put the widget in the center of the screen:
+    // Note: If its not yet show, the showEvent() override will reposition it.
+    QApplication::processEvents(); // Process in order for rect() to be updated before we move to center of the screen again.
     QRect qrect = QApplication::desktop()->availableGeometry(this);
     move(qrect.center() - rect().center());
 
-    // Set up the observer widget:
-    if (!d->initialized) {
-        d->config_pages_widget.setDisplayMode(d->display_mode);
-        d->config_pages_widget.setObserverContext(&d->config_pages);
-        d->config_pages_widget.initialize();
-        if (!d->config_pages_widget.searchBoxWidget()) {
-            d->config_pages_widget.toggleSearchBox();
-            d->config_pages_widget.searchBoxWidget()->setButtonFlags(SearchBoxWidget::NoButtons);
+    if (d->display_mode & DisplayModeWidgetViews) {
+        disconnect(d->mode_widget->modeManager(),SIGNAL(activeModeChanged(int,int)),this,SLOT(handleModeWidgetActiveModeChanged()));
+        d->mode_widget->modeManager()->addModes(d->mode_wrappers);
+        connect(d->mode_widget->modeManager(),SIGNAL(activeModeChanged(int,int)),this,SLOT(handleModeWidgetActiveModeChanged()),Qt::UniqueConnection);
+    } else if (d->display_mode & DisplayLeftItemViews) {
+        // Set up the observer widget:
+        if (!d->initialized) {
+            if (d->display_mode == DisplayLeftItemViewTable)
+                d->obs_widget.setDisplayMode(TableView);
+            else if (d->display_mode == DisplayLeftItemViewTree)
+                d->obs_widget.setDisplayMode(TreeView);
+            d->obs_widget.setObserverContext(&d->config_pages_obs);
+            d->obs_widget.initialize();
+            if (!d->obs_widget.searchBoxWidget()) {
+                d->obs_widget.toggleSearchBox();
+                d->obs_widget.searchBoxWidget()->setButtonFlags(SearchBoxWidget::NoButtons);
+            }
         }
-    }
 
-    d->config_pages_widget.resizeTableViewRows(22);
+        d->obs_widget.resizeTableViewRows(22);
 
-    // Set up the table or tree view:
-    if (d->config_pages_widget.tableView() && d->display_mode == TableView) {
-        d->config_pages_widget.tableView()->horizontalHeader()->hide();
-        d->config_pages_widget.tableView()->sortByColumn(1,Qt::AscendingOrder);
-    } else if (d->config_pages_widget.treeView() && d->display_mode == TreeView) {
-        //d->config_pages_widget.treeView()->setRootIsDecorated(false);
-        d->config_pages_widget.treeView()->sortByColumn(1,Qt::AscendingOrder);
+        // Set up the table or tree view:
+        if (d->obs_widget.tableView() && d->display_mode == DisplayLeftItemViewTable) {
+            d->obs_widget.tableView()->horizontalHeader()->hide();
+            d->obs_widget.tableView()->sortByColumn(1,Qt::AscendingOrder);
+        } else if (d->obs_widget.treeView() && d->display_mode == DisplayLeftItemViewTree) {
+            //d->config_pages_obs_widget.treeView()->setRootIsDecorated(false);
+            d->obs_widget.treeView()->sortByColumn(1,Qt::AscendingOrder);
+        }
     }
 
     d->initialized = true;
@@ -294,15 +412,15 @@ bool Qtilities::CoreGui::ConfigurationWidget::applyAllPages() const {
 }
 
 bool Qtilities::CoreGui::ConfigurationWidget::hasPage(const QString& page_name) const {
-    for (int i = 0; i < d->config_pages.subjectCount(); ++i) {
+    for (int i = 0; i < d->config_pages_obs.subjectCount(); ++i) {
         // Check if its just a normal config page:
-        IConfigPage* config_page = qobject_cast<IConfigPage*> (d->config_pages.subjectAt(i));
+        IConfigPage* config_page = qobject_cast<IConfigPage*> (d->config_pages_obs.subjectAt(i));
         if (config_page){
             if (config_page->configPageTitle() == page_name)
                 return true;
         }
         // Check if its a grouped config page:
-        GroupedConfigPage* grouped_config_page = qobject_cast<GroupedConfigPage*> (d->config_pages.subjectAt(i));
+        GroupedConfigPage* grouped_config_page = qobject_cast<GroupedConfigPage*> (d->config_pages_obs.subjectAt(i));
         if (grouped_config_page){
             if (grouped_config_page->hasConfigPage(page_name))
                 return true;
@@ -313,15 +431,15 @@ bool Qtilities::CoreGui::ConfigurationWidget::hasPage(const QString& page_name) 
 }
 
 IConfigPage* Qtilities::CoreGui::ConfigurationWidget::getPage(const QString& page_name) const {
-    for (int i = 0; i < d->config_pages.subjectCount(); ++i) {
+    for (int i = 0; i < d->config_pages_obs.subjectCount(); ++i) {
         // Check if its just a normal config page:
-        IConfigPage* config_page = qobject_cast<IConfigPage*> (d->config_pages.subjectAt(i));
+        IConfigPage* config_page = qobject_cast<IConfigPage*> (d->config_pages_obs.subjectAt(i));
         if (config_page){
             if (config_page->configPageTitle() == page_name)
                 return config_page;
         }
         // Check if its a grouped config page:
-        GroupedConfigPage* grouped_config_page = qobject_cast<GroupedConfigPage*> (d->config_pages.subjectAt(i));
+        GroupedConfigPage* grouped_config_page = qobject_cast<GroupedConfigPage*> (d->config_pages_obs.subjectAt(i));
         if (grouped_config_page){
             if (grouped_config_page->hasConfigPage(page_name))
                 return grouped_config_page->getConfigPage(page_name);
@@ -339,6 +457,15 @@ bool Qtilities::CoreGui::ConfigurationWidget::categorizedTabDisplay() const {
     return d->categorized_display;
 }
 
+void Qtilities::CoreGui::ConfigurationWidget::handleModeWidgetActiveModeChanged() {
+    IMode* mode = d->mode_widget->modeManager()->activeModeIFace();
+    Q_ASSERT(mode);
+    ConfigPageModeWrapper* wrapper = qobject_cast<ConfigPageModeWrapper*> (mode->objectBase());
+    Q_ASSERT(wrapper);
+    Q_ASSERT(wrapper->configPage());
+    d->activity_filter->setActiveSubject(wrapper->configPage()->objectBase());
+}
+
 void Qtilities::CoreGui::ConfigurationWidget::handleActiveItemChanges(QList<QObject*> active_pages) {
     if (active_pages.count() != 1)
         return;
@@ -354,30 +481,42 @@ void Qtilities::CoreGui::ConfigurationWidget::handleActiveItemChanges(QList<QObj
         } else {
             ui->buttonBox->button(QDialogButtonBox::Apply)->setVisible(config_page->supportsApply());
         }
+
+        #ifdef QTILITIES_NO_HELP
         ui->buttonBox->button(QDialogButtonBox::Help)->setVisible(!config_page->configPageHelpID().isEmpty());
+        #endif
+
         ui->buttonBox->button(QDialogButtonBox::RestoreDefaults)->setVisible(config_page->supportsRestoreDefaults());
-        ui->lblPageHeader->setText(config_page->configPageTitle());
-        if (!config_page->configPageIcon().isNull()) {
-            ui->lblPageIcon->setPixmap(QPixmap(config_page->configPageIcon().pixmap(32,32)));
-            ui->lblPageIcon->setVisible(true);
-        } else
-            ui->lblPageIcon->setVisible(false);
 
-        if (ui->configWidget->layout())
-            delete ui->configWidget->layout();
-
-        // Create new layout with new widget
-        QBoxLayout* layout = new QBoxLayout(QBoxLayout::LeftToRight,ui->configWidget);
-        layout->setMargin(0);
         d->active_widget = config_page->configPageWidget();
-        layout->addWidget(d->active_widget);
-        if (d->active_widget) {
-            d->active_widget->show();
-//            if (d->active_widget->layout())
-//                d->active_widget->layout()->setMargin(0);
-        } else {
-            d->active_widget = new QLabel(tr("Failed to find configuartion page for selected item."));
-            d->active_widget->show();
+        if (d->display_mode & DisplayLeftItemViews) {
+            ui->lblPageHeader->setText(config_page->configPageTitle());
+            if (!config_page->configPageIcon().isNull()) {
+                ui->lblPageIcon->setPixmap(QPixmap(config_page->configPageIcon().pixmap(32,32)));
+                ui->lblPageIcon->setVisible(true);
+            } else
+                ui->lblPageIcon->setVisible(false);
+
+            if (ui->configWidget->layout())
+                delete ui->configWidget->layout();
+
+            // Create new layout with new widget
+            QBoxLayout* layout = new QBoxLayout(QBoxLayout::LeftToRight,ui->configWidget);
+            layout->setMargin(0);
+
+            layout->addWidget(d->active_widget);
+            if (d->active_widget) {
+                d->active_widget->show();
+    //            if (d->active_widget->layout())
+    //                d->active_widget->layout()->setMargin(0);
+            } else {
+                d->active_widget = new QLabel(tr("Failed to find configuartion page for selected item."));
+                d->active_widget->show();
+            }
+        } else if (d->display_mode & DisplayModeWidgetViews) {
+            disconnect(d->mode_widget->modeManager(),SIGNAL(activeModeChanged(int,int)),this,SLOT(handleModeWidgetActiveModeChanged()));
+            d->mode_widget->modeManager()->setActiveMode(config_page->configPageTitle());
+            connect(d->mode_widget->modeManager(),SIGNAL(activeModeChanged(int,int)),this,SLOT(handleModeWidgetActiveModeChanged()),Qt::UniqueConnection);
         }
     }
 }
@@ -394,12 +533,13 @@ void Qtilities::CoreGui::ConfigurationWidget::handleActiveGroupedPageChanged(ICo
         ui->buttonBox->button(QDialogButtonBox::Apply)->setVisible(d->apply_all_pages_visible);
     else
         ui->buttonBox->button(QDialogButtonBox::Apply)->setVisible(new_active_grouped_page->supportsApply());
+    #ifdef QTILITIES_NO_HELP
     ui->buttonBox->button(QDialogButtonBox::Help)->setVisible(!new_active_grouped_page->configPageHelpID().isEmpty());
+    #endif
     ui->buttonBox->button(QDialogButtonBox::RestoreDefaults)->setVisible(new_active_grouped_page->supportsRestoreDefaults());
 }
 
-void Qtilities::CoreGui::ConfigurationWidget::changeEvent(QEvent *e)
-{
+void Qtilities::CoreGui::ConfigurationWidget::changeEvent(QEvent *e) {
     QWidget::changeEvent(e);
     switch (e->type()) {
     case QEvent::LanguageChange:
@@ -411,23 +551,26 @@ void Qtilities::CoreGui::ConfigurationWidget::changeEvent(QEvent *e)
 }
 
 void Qtilities::CoreGui::ConfigurationWidget::setActivePage(const QString& active_page_name) {
-    QObject* page = d->config_pages.subjectReference(active_page_name);
+    if (!d->initialized) {
+        LOG_DEBUG(QString("%1 - called before initialize() was called."));
+        return;
+    }
+
+    QObject* page = d->config_pages_obs.subjectReference(active_page_name);
     if (page) {
         QList<QObject*> active_pages;
         active_pages << page;
         d->activity_filter->setActiveSubjects(active_pages);
-        d->config_pages_widget.selectObjects(active_pages);
         return;
     } else {
         // Check if its in a grouped config page:
-        for (int i = 0; i < d->config_pages.subjectCount(); ++i) {
-            GroupedConfigPage* grouped_config_page = qobject_cast<GroupedConfigPage*> (d->config_pages.subjectAt(i));
+        for (int i = 0; i < d->config_pages_obs.subjectCount(); ++i) {
+            GroupedConfigPage* grouped_config_page = qobject_cast<GroupedConfigPage*> (d->config_pages_obs.subjectAt(i));
             if (grouped_config_page){
                 if (grouped_config_page->hasConfigPage(active_page_name)) {
                     QList<QObject*> active_pages;
                     active_pages << grouped_config_page;
                     d->activity_filter->setActiveSubjects(active_pages);
-                    d->config_pages_widget.selectObjects(active_pages);
 
                     // Now select the correct tab in the grouped config page:
                     grouped_config_page->setActivePage(active_page_name);
@@ -471,8 +614,8 @@ Qtilities::CoreGui::Interfaces::IConfigPage* Qtilities::CoreGui::ConfigurationWi
 void Qtilities::CoreGui::ConfigurationWidget::on_buttonBox_clicked(QAbstractButton *button) {
     if (ui->buttonBox->button(QDialogButtonBox::Apply) == button || ui->buttonBox->button(QDialogButtonBox::Ok) == button) {
         if (d->apply_all_pages) {
-            for (int i = 0; i < d->config_pages.subjectCount(); ++i) {
-                IConfigPage* config_page = qobject_cast<IConfigPage*> (d->config_pages.subjectAt(i));
+            for (int i = 0; i < d->config_pages_obs.subjectCount(); ++i) {
+                IConfigPage* config_page = qobject_cast<IConfigPage*> (d->config_pages_obs.subjectAt(i));
                 if (config_page){
                     config_page->configPageApply();
                     emit appliedPage(config_page);
@@ -506,30 +649,34 @@ void Qtilities::CoreGui::ConfigurationWidget::on_buttonBox_clicked(QAbstractButt
 }
 
 void Qtilities::CoreGui::ConfigurationWidget::addPageIconProperty(IConfigPage *config_page) {
-    if (!config_page)
-        return;
+    if (d->display_mode & DisplayLeftItemViews) {
+        if (!config_page)
+            return;
 
-    if (config_page->configPageIcon().isNull())
-        return;
+        if (config_page->configPageIcon().isNull())
+            return;
 
-    SharedProperty icon_property(qti_prop_DECORATION,config_page->configPageIcon());
-    ObjectManager::setSharedProperty(config_page->objectBase(),icon_property);
+        SharedProperty icon_property(qti_prop_DECORATION,config_page->configPageIcon());
+        ObjectManager::setSharedProperty(config_page->objectBase(),icon_property);
+    }
 }
 
 void Qtilities::CoreGui::ConfigurationWidget::addPageCategoryProperty(IConfigPage *config_page) {
-    if (!config_page)
-        return;
+    if (d->display_mode & DisplayLeftItemViews) {
+        if (!config_page)
+            return;
 
-    if (config_page->configPageCategory().isEmpty())
-        return;
+        if (config_page->configPageCategory().isEmpty())
+            return;
 
-    if (ObjectManager::propertyExists(config_page->objectBase(),qti_prop_CATEGORY_MAP)) {
-        MultiContextProperty category_property = ObjectManager::getMultiContextProperty(config_page->objectBase(),qti_prop_CATEGORY_MAP);
-        if (category_property.setValue(qVariantFromValue(config_page->configPageCategory()),d->config_pages.observerID()))
-            ObjectManager::setMultiContextProperty(config_page->objectBase(),category_property);
-    } else {
-        MultiContextProperty category_property(qti_prop_CATEGORY_MAP);
-        if (category_property.setValue(qVariantFromValue(config_page->configPageCategory()),d->config_pages.observerID()))
-            ObjectManager::setMultiContextProperty(config_page->objectBase(),category_property);
+        if (ObjectManager::propertyExists(config_page->objectBase(),qti_prop_CATEGORY_MAP)) {
+            MultiContextProperty category_property = ObjectManager::getMultiContextProperty(config_page->objectBase(),qti_prop_CATEGORY_MAP);
+            if (category_property.setValue(qVariantFromValue(config_page->configPageCategory()),d->config_pages_obs.observerID()))
+                ObjectManager::setMultiContextProperty(config_page->objectBase(),category_property);
+        } else {
+            MultiContextProperty category_property(qti_prop_CATEGORY_MAP);
+            if (category_property.setValue(qVariantFromValue(config_page->configPageCategory()),d->config_pages_obs.observerID()))
+                ObjectManager::setMultiContextProperty(config_page->objectBase(),category_property);
+        }
     }
 }

@@ -17,7 +17,7 @@
 namespace Qtilities {
     //! The possible display modes of widgets containing observer widgets.
     /*!
-      \sa Qtilities::CoreGui::ObserverWidget, Qtilities::CoreGui::ConfigurationWidget
+      \sa Qtilities::CoreGui::ObserverWidget
       */
     enum DisplayMode {
         TableView,      /*!< Table view mode. */

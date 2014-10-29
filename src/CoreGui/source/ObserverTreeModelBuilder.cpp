@@ -58,6 +58,12 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::setActiveHints(ObserverHints*
 }
 
 void Qtilities::CoreGui::ObserverTreeModelBuilder::startBuild() {
+    if (!d->root_item) {
+        LOG_DEBUG(QString("%1 = no root item specified.").arg(Q_FUNC_INFO));
+        emit buildCompleted(d->root_item);
+        return;
+    }
+
     d->build_lock.lock();
 
     //QApplication::processEvents();

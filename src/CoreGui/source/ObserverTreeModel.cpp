@@ -1201,27 +1201,28 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
     deleteRootItem();
 
     // The root index display hint determines how we create the root node:
+    QVector<QVariant> columns;
+    columns.push_back("Child Count");
+    columns.push_back("Access");
+    columns.push_back("Type Info");
+    columns.push_back("Object Tree");
     ObserverTreeItem* item_to_send_to_builder = 0;
-    if (model->hints_top_level_observer->rootIndexDisplayHint() == ObserverHints::RootIndexHide) {
-        QVector<QVariant> columns;
-        columns.push_back("Child Count");
-        columns.push_back("Access");
-        columns.push_back("Type Info");
-        columns.push_back("Object Tree");
+    if (model->hints_top_level_observer) {
+        if (model->hints_top_level_observer->rootIndexDisplayHint() == ObserverHints::RootIndexHide) {
+            d->rootItem = new ObserverTreeItem(d_observer,0,columns,ObserverTreeItem::TreeNode);
+            d->rootItem->setObjectName("Root Item");
+            item_to_send_to_builder = d->rootItem;
+        } else if (model->hints_top_level_observer->rootIndexDisplayHint() == ObserverHints::RootIndexDisplayDecorated || model->hints_top_level_observer->rootIndexDisplayHint() == ObserverHints::RootIndexDisplayUndecorated) {
+            d->rootItem = new ObserverTreeItem(0,0,columns,ObserverTreeItem::TreeNode);
+            d->rootItem->setObjectName("Root Item");
+            ObserverTreeItem* top_level_observer_item = new ObserverTreeItem(d_observer,d->rootItem,QVector<QVariant>(),ObserverTreeItem::TreeNode);
+            d->rootItem->appendChild(top_level_observer_item);
+            item_to_send_to_builder = top_level_observer_item;
+        }
+    } else {
         d->rootItem = new ObserverTreeItem(d_observer,0,columns,ObserverTreeItem::TreeNode);
         d->rootItem->setObjectName("Root Item");
         item_to_send_to_builder = d->rootItem;
-    } else if (model->hints_top_level_observer->rootIndexDisplayHint() == ObserverHints::RootIndexDisplayDecorated || model->hints_top_level_observer->rootIndexDisplayHint() == ObserverHints::RootIndexDisplayUndecorated) {
-        QVector<QVariant> columns;
-        columns.push_back("Child Count");
-        columns.push_back("Access");
-        columns.push_back("Type Info");
-        columns.push_back("Object Tree");
-        d->rootItem = new ObserverTreeItem(0,0,columns,ObserverTreeItem::TreeNode);
-        d->rootItem->setObjectName("Root Item");
-        ObserverTreeItem* top_level_observer_item = new ObserverTreeItem(d_observer,d->rootItem,QVector<QVariant>(),ObserverTreeItem::TreeNode);
-        d->rootItem->appendChild(top_level_observer_item);
-        item_to_send_to_builder = top_level_observer_item;
     }
 
     d->tree_rebuild_queued = false;

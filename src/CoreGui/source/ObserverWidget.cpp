@@ -883,8 +883,6 @@ void Qtilities::CoreGui::ObserverWidget::initializePrivate(bool hints_only) {
                     connect(d->tree_model,SIGNAL(dataChanged(const QModelIndex &, const QModelIndex&)),this,SLOT(adaptColumns(const QModelIndex &, const QModelIndex&)));
                     connect(d->tree_model,SIGNAL(expandItemsRequest(QModelIndexList)),SLOT(expandNodes(QModelIndexList)));
                 }
-                d->tree_view->setSortingEnabled(true);
-                d->tree_view->sortByColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),Qt::AscendingOrder);
                 connect(d->tree_model,SIGNAL(selectionParentChanged(Observer*)),SLOT(setTreeSelectionParent(Observer*)),Qt::UniqueConnection);
                 connect(d->tree_model,SIGNAL(selectObjects(QList<QPointer<QObject> >)),SLOT(selectObjects(QList<QPointer<QObject> >)),Qt::UniqueConnection);
                 connect(d->tree_model,SIGNAL(selectObjects(QList<QObject*>)),SLOT(selectObjects(QList<QObject*>)),Qt::UniqueConnection);
@@ -920,6 +918,9 @@ void Qtilities::CoreGui::ObserverWidget::initializePrivate(bool hints_only) {
             if (!d->disable_proxy_models) {               
                 if (!d->custom_tree_proxy_model) {
                     if (!d->tree_proxy_model) {
+                        d->tree_view->setSortingEnabled(true);
+                        d->tree_view->sortByColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),Qt::AscendingOrder);
+
                         QSortFilterProxyModel* new_model = new ObserverTreeModelProxyFilter(this);
                         new_model->setDynamicSortFilter(true);
                         new_model->setFilterKeyColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName));
@@ -928,11 +929,11 @@ void Qtilities::CoreGui::ObserverWidget::initializePrivate(bool hints_only) {
                 } else {
                     d->tree_proxy_model = d->custom_tree_proxy_model;
 
-                    QSortFilterProxyModel* custom_sort_proxy = qobject_cast<QSortFilterProxyModel*> (d->custom_tree_proxy_model);
-                    if (custom_sort_proxy) {
-                        custom_sort_proxy->setDynamicSortFilter(true);
-                        custom_sort_proxy->setFilterKeyColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName));
-                    }
+//                    QSortFilterProxyModel* custom_sort_proxy = qobject_cast<QSortFilterProxyModel*> (d->custom_tree_proxy_model);
+//                    if (custom_sort_proxy) {
+//                        custom_sort_proxy->setDynamicSortFilter(true);
+//                        custom_sort_proxy->setFilterKeyColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName));
+//                    }
                 }
 
                 if (d->tree_proxy_model != d->tree_view->model()) {
@@ -980,7 +981,6 @@ void Qtilities::CoreGui::ObserverWidget::initializePrivate(bool hints_only) {
                     d->table_model->toggleLazyInit(d->lazy_init);
                 }
 
-                d->table_view->setSortingEnabled(true);
                 connect(d->table_view->verticalHeader(),SIGNAL(sectionCountChanged(int,int)),SLOT(resizeTableViewRows()));
                 connect(d->table_view->verticalHeader(),SIGNAL(sectionCountChanged(int,int)),SLOT(resizeColumns()));
 
@@ -1025,19 +1025,14 @@ void Qtilities::CoreGui::ObserverWidget::initializePrivate(bool hints_only) {
             if (!d->disable_proxy_models) {
                 if (!d->custom_table_proxy_model) {
                     if (!d->table_proxy_model) {
+                        d->table_view->setSortingEnabled(true);
                         QSortFilterProxyModel* new_model = new ObserverTableModelProxyFilter(this);
                         new_model->setDynamicSortFilter(true);
                         new_model->setFilterKeyColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName));
                         d->table_proxy_model = new_model;
                     }
-                } else {
-                    QSortFilterProxyModel* custom_sort_proxy = qobject_cast<QSortFilterProxyModel*> (d->custom_table_proxy_model);
-                    if (custom_sort_proxy) {
-                        custom_sort_proxy->setDynamicSortFilter(true);
-                        custom_sort_proxy->setFilterKeyColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName));
-                    }
+                } else
                     d->table_proxy_model = d->custom_table_proxy_model;
-                }
 
                 if (d->table_proxy_model != d->table_view->model()) {
                     d->table_proxy_model->setSourceModel(d->table_model);

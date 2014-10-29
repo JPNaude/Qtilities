@@ -15,6 +15,7 @@
 #include "QtilitiesCoreGui_global.h"
 #include "QtilitiesCoreGuiConstants.h"
 #include "IConfigPage.h"
+#include "IMode.h"
 #include "IGroupedConfigPageInfoProvider.h"
 
 #include <QWidget>
@@ -27,6 +28,65 @@ using namespace Qtilities::CoreGui::Interfaces;
 
 namespace Qtilities {
     namespace CoreGui {
+        // --------------------------------
+        // ConfigurationWidget Implementation
+        // --------------------------------
+        class ConfigPageModeWrapper : public QObject, public IMode
+        {
+            Q_OBJECT
+            Q_INTERFACES(Qtilities::CoreGui::Interfaces::IMode)
+
+        public:
+            explicit ConfigPageModeWrapper(IConfigPage* config_page = 0) {
+                d_config_page = config_page;
+            }
+
+            IConfigPage* configPage() const {
+                return d_config_page;
+            }
+
+            // --------------------------------
+            // IObjectBase Implementation
+            // --------------------------------
+            QObject* objectBase() { return this; }
+            const QObject* objectBase() const { return this; }
+
+            // --------------------------------------------
+            // IMode Implementation
+            // --------------------------------------------
+            QWidget* modeWidget() {
+                if (d_config_page)
+                    return d_config_page->configPageWidget();
+                else
+                    return 0;
+            }
+            void initializeMode() {
+                if (d_config_page)
+                    return d_config_page->configPageInitialize();
+            }
+            QIcon modeIcon() const {
+                if (d_config_page)
+                    return d_config_page->configPageIcon();
+                else
+                    return QIcon();
+            }
+            QString modeName() const {
+                if (d_config_page)
+                    return d_config_page->configPageTitle();
+                else
+                    return QString();
+            }
+            QString contextString() const {
+                if (d_config_page)
+                    return d_config_page->configPageTitle();
+                else
+                    return QString();
+            }
+
+        private:
+            IConfigPage* d_config_page;
+        };
+
         /*!
           \struct ConfigurationWidgetPrivateData
           \brief The ConfigurationWidgetPrivateData struct stores private data used by the ConfigurationWidget class.
@@ -127,9 +187,28 @@ settings.endGroup();
             Q_OBJECT
 
         public:
-            ConfigurationWidget(DisplayMode display_mode = TableView, QWidget *parent = 0);
+            enum DisplayMode {
+                DisplayLeftItemViewTable = 1,
+                DisplayLeftItemViewTree = 2,
+                DisplayLeftItemViews = DisplayLeftItemViewTable | DisplayLeftItemViewTree,
+                DisplayLeftModeWidgetView = 4,
+                DisplayTopModeWidgetView = 8,
+                DisplayRightModeWidgetView = 16,
+                DisplayBottomModeWidgetView = 32,
+                DisplayModeWidgetViews = DisplayLeftModeWidgetView | DisplayTopModeWidgetView | DisplayRightModeWidgetView | DisplayBottomModeWidgetView
+            };
+
+            // This constructor is kept for backward compatibility.
+            ConfigurationWidget(Qtilities::DisplayMode display_mode, QWidget *parent = 0);
+            ConfigurationWidget(ConfigurationWidget::DisplayMode display_mode = DisplayLeftItemViewTable, QWidget *parent = 0);
             ~ConfigurationWidget();
 
+            void showEvent(QShowEvent* event);
+
+        private:
+            void sharedConstruct();
+
+        public:
             //! Initializes the config widget with the given set of config pages.
             void initialize(QList<IConfigPage*> config_pages, QList<IGroupedConfigPageInfoProvider*> grouped_page_info_providers);
             //! Initializes the widget with a list of QObjects. All objects in the list which implements the IConfigPage interface will be added.
@@ -181,11 +260,16 @@ settings.endGroup();
             void appliedPage(IConfigPage* conig_page);
 
         public slots:
+            //! Handles mode changes from the mode widget when using any of the mode widget display modes.
+            void handleModeWidgetActiveModeChanged();
             //! Handles item changes in the page tree.
             void handleActiveItemChanges(QList<QObject*> active_pages);
             //! Handles changes to active grouped pages.
             void handleActiveGroupedPageChanged(IConfigPage* new_active_grouped_page);
             //! Function to set the active page.
+            /*!
+             * \note This function only works when called after initialize() has been called.
+             */
             void setActivePage(const QString& active_page_name);
             //! Function to get the active page name and category.
             QString activePageName() const;
