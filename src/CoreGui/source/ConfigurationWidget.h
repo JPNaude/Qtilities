@@ -28,6 +28,8 @@ using namespace Qtilities::CoreGui::Interfaces;
 
 namespace Qtilities {
     namespace CoreGui {
+        class ModeManager;
+
         // --------------------------------
         // ConfigurationWidget Implementation
         // --------------------------------
@@ -203,6 +205,12 @@ settings.endGroup();
             ConfigurationWidget(ConfigurationWidget::DisplayMode display_mode = DisplayLeftItemViewTable, QWidget *parent = 0);
             ~ConfigurationWidget();
 
+            //! Returns the mode manager use for ModeWidgetView display modes.
+            /*!
+             * Using the mode manager, the order of modes etc. can be controlled.
+             */
+            ModeManager* modeWidgetModeManager();
+
             void showEvent(QShowEvent* event);
 
         private:
@@ -246,7 +254,7 @@ settings.endGroup();
 
               <li>This function was introduced in %Qtilities v1.1.<li>
               */
-            void setCategorizedTabDisplay(bool enabled = true);
+            void setCategorizedTabDisplay(bool enabled = true, bool use_tab_icons = false);
             //! Gets if the configuration widget groups pages with the same categories under tabs in pages named using the name of the category.
             /*!
               \sa setCategorizedTabDisplay()

@@ -87,7 +87,7 @@ QtilitiesCategory Qtilities::CoreGui::GroupedConfigPage::configPageCategory() co
 void Qtilities::CoreGui::GroupedConfigPage::configPageApply() {
     if (d->apply_all) {
         QList<IConfigPage*> values = d->pages.values();
-        for (int i = 0; i < d->pages.count(); ++i) {
+        for (int i = 0; i < values.count(); ++i) {
             values.at(i)->configPageApply();
             emit appliedPage(values.at(i));
         }
@@ -100,9 +100,15 @@ void Qtilities::CoreGui::GroupedConfigPage::configPageApply() {
 }
 
 bool Qtilities::CoreGui::GroupedConfigPage::supportsApply() const {
-    if (d->apply_all)
-        return true;
-    else {
+    if (d->apply_all) {
+        QList<IConfigPage*> values = d->pages.values();
+        for (int i = 0; i < values.count(); ++i) {
+            if (values.at(i)->supportsApply()) {
+                return true;
+            }
+        }
+        return false;
+    } else {
         if (activePage())
             return activePage()->supportsApply();
         else

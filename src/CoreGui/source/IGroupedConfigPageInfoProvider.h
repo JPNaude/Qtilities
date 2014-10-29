@@ -46,6 +46,6 @@ namespace Qtilities {
     }
 }
 
-Q_DECLARE_INTERFACE(Qtilities::CoreGui::Interfaces::IGroupedConfigPageInfoProvider,"com.Qtilities.CoreGui.IGroupedConfigPageInfoProvider/1.0");
+Q_DECLARE_INTERFACE(Qtilities::CoreGui::Interfaces::IGroupedConfigPageInfoProvider,"com.Qtilities.CoreGui.IGroupedConfigPageInfoProvider/1.0")
 
 #endif // I_GROUPED_CONFIG_PAGE_INFO_PROVIDER_H

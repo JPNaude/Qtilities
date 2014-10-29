@@ -63,8 +63,10 @@ struct Qtilities::CoreGui::ConfigurationWidgetPrivateData {
     bool                    apply_all_pages;
     //! During initialization all pages are checked to see if they support Apply. This bool stores if any pages actually did support it.
     bool                    apply_all_pages_visible;
-    //! Indicates if this widgets uses a categorized display.
+    //! Indicates if this widget uses a categorized display.
     bool                    categorized_display;
+    //! Indicates if icons must be used when categorized display is enabled.
+    bool                    categorized_display_use_tab_icons;
 };
 
 Qtilities::CoreGui::ConfigurationWidget::ConfigurationWidget(Qtilities::DisplayMode display_mode, QWidget *parent) :
@@ -93,6 +95,16 @@ Qtilities::CoreGui::ConfigurationWidget::~ConfigurationWidget() {
     if (d->activity_filter)
         d->activity_filter->disconnect(this);
     delete d;
+}
+
+Qtilities::CoreGui::ModeManager *Qtilities::CoreGui::ConfigurationWidget::modeWidgetModeManager() {
+    if (d->display_mode & DisplayModeWidgetViews) {
+        if (d->mode_widget) {
+            return d->mode_widget->modeManager();
+        }
+    }
+
+    return 0;
 }
 
 void Qtilities::CoreGui::ConfigurationWidget::showEvent(QShowEvent* event) {
@@ -220,6 +232,7 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
             // Check if there is already a grouped page for this category (in case initialize() is called twice):
             if (!grouped_config_pages.contains(categories.at(i))) {
                 GroupedConfigPage* grouped_page = new GroupedConfigPage(categories.at(i));
+                grouped_page->setUseTabIcons(d->categorized_display_use_tab_icons);
                 grouped_config_pages[categories.at(i)] = grouped_page;
                 grouped_page->setApplyAll(d->apply_all_pages);
                 connect(grouped_page,SIGNAL(appliedPage(IConfigPage*)),SIGNAL(appliedPage(IConfigPage*)),Qt::UniqueConnection);
@@ -300,23 +313,23 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
                     if (config_page->configPageWidget()->layout()) {
                         if (d->categorized_display && !config_page->configPageCategory().isEmpty()) {
                             if (d->display_mode == DisplayTopModeWidgetView) {
-                                config_page->configPageWidget()->layout()->setContentsMargins(3,3,3,0);
+                                config_page->configPageWidget()->layout()->setContentsMargins(9,3,9,0);
                             } else if (d->display_mode == DisplayRightModeWidgetView) {
-                                config_page->configPageWidget()->layout()->setContentsMargins(3,3,0,0);
+                                config_page->configPageWidget()->layout()->setContentsMargins(9,9,3,0);
                             } else if (d->display_mode == DisplayBottomModeWidgetView) {
-                                config_page->configPageWidget()->layout()->setContentsMargins(3,0,3,3);
+                                config_page->configPageWidget()->layout()->setContentsMargins(9,0,9,3);
                             } else if (d->display_mode == DisplayLeftModeWidgetView) {
-                                config_page->configPageWidget()->layout()->setContentsMargins(0,3,0,0);
+                                config_page->configPageWidget()->layout()->setContentsMargins(3,9,0,0);
                             }
                         } else {
                             if (d->display_mode == DisplayTopModeWidgetView) {
-                                config_page->configPageWidget()->layout()->setContentsMargins(6,6,6,0);
+                                config_page->configPageWidget()->layout()->setContentsMargins(9,3,9,0);
                             } else if (d->display_mode == DisplayRightModeWidgetView) {
-                                config_page->configPageWidget()->layout()->setContentsMargins(6,6,0,0);
+                                config_page->configPageWidget()->layout()->setContentsMargins(9,9,3,0);
                             } else if (d->display_mode == DisplayBottomModeWidgetView) {
-                                config_page->configPageWidget()->layout()->setContentsMargins(6,0,6,0);
+                                config_page->configPageWidget()->layout()->setContentsMargins(6,0,9,3);
                             } else if (d->display_mode == DisplayLeftModeWidgetView) {
-                                config_page->configPageWidget()->layout()->setContentsMargins(0,6,6,0);
+                                config_page->configPageWidget()->layout()->setContentsMargins(3,9,9,0);
                             }
                         }
                     }
@@ -449,8 +462,9 @@ IConfigPage* Qtilities::CoreGui::ConfigurationWidget::getPage(const QString& pag
     return 0;
 }
 
-void Qtilities::CoreGui::ConfigurationWidget::setCategorizedTabDisplay(bool enabled) {
+void Qtilities::CoreGui::ConfigurationWidget::setCategorizedTabDisplay(bool enabled, bool use_tab_icons) {
     d->categorized_display = enabled;
+    d->categorized_display_use_tab_icons = use_tab_icons;
 }
 
 bool Qtilities::CoreGui::ConfigurationWidget::categorizedTabDisplay() const {
@@ -478,8 +492,14 @@ void Qtilities::CoreGui::ConfigurationWidget::handleActiveItemChanges(QList<QObj
 
         if (d->apply_all_pages) {
             ui->buttonBox->button(QDialogButtonBox::Apply)->setVisible(d->apply_all_pages_visible);
+            ui->buttonBox->button(QDialogButtonBox::Cancel)->setVisible(d->apply_all_pages_visible);
+            ui->buttonBox->button(QDialogButtonBox::Ok)->setVisible(d->apply_all_pages_visible);
+            ui->buttonBox->button(QDialogButtonBox::Close)->setVisible(!d->apply_all_pages_visible);
         } else {
             ui->buttonBox->button(QDialogButtonBox::Apply)->setVisible(config_page->supportsApply());
+            ui->buttonBox->button(QDialogButtonBox::Cancel)->setVisible(true);
+            ui->buttonBox->button(QDialogButtonBox::Ok)->setVisible(true);
+            ui->buttonBox->button(QDialogButtonBox::Close)->setVisible(true);
         }
 
         #ifdef QTILITIES_NO_HELP
@@ -529,10 +549,17 @@ void Qtilities::CoreGui::ConfigurationWidget::handleActiveGroupedPageChanged(ICo
     if (d->activity_filter->activeSubjects().front() != sender())
         return;
 
-    if (d->apply_all_pages)
+    if (d->apply_all_pages) {
         ui->buttonBox->button(QDialogButtonBox::Apply)->setVisible(d->apply_all_pages_visible);
-    else
+        ui->buttonBox->button(QDialogButtonBox::Cancel)->setVisible(d->apply_all_pages_visible);
+        ui->buttonBox->button(QDialogButtonBox::Ok)->setVisible(d->apply_all_pages_visible);
+        ui->buttonBox->button(QDialogButtonBox::Close)->setVisible(!d->apply_all_pages_visible);
+    } else {
         ui->buttonBox->button(QDialogButtonBox::Apply)->setVisible(new_active_grouped_page->supportsApply());
+        ui->buttonBox->button(QDialogButtonBox::Cancel)->setVisible(true);
+        ui->buttonBox->button(QDialogButtonBox::Ok)->setVisible(true);
+        ui->buttonBox->button(QDialogButtonBox::Close)->setVisible(true);
+    }
     #ifdef QTILITIES_NO_HELP
     ui->buttonBox->button(QDialogButtonBox::Help)->setVisible(!new_active_grouped_page->configPageHelpID().isEmpty());
     #endif
@@ -636,7 +663,7 @@ void Qtilities::CoreGui::ConfigurationWidget::on_buttonBox_clicked(QAbstractButt
             IConfigPage* config_page = qobject_cast<IConfigPage*> (d->activity_filter->activeSubjects().front());
             config_page->configPageRestoreDefaults();
         }
-    } else if (ui->buttonBox->button(QDialogButtonBox::Cancel) == button) {
+    } else if (ui->buttonBox->button(QDialogButtonBox::Cancel) == button || ui->buttonBox->button(QDialogButtonBox::Close) == button) {
         close();
     } else if (ui->buttonBox->button(QDialogButtonBox::Help) == button) {
         #ifndef QTILITIES_NO_HELP
