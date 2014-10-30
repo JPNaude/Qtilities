@@ -137,6 +137,7 @@ void Qtilities::CoreGui::ConfigurationWidget::sharedConstruct() {
         else if (d->display_mode == DisplayLeftModeWidgetView)
             mode_layout = QtilitiesMainWindow::ModesLeft;
         d->mode_widget = new QtilitiesMainWindow(mode_layout);
+        d->mode_widget->hideTaskSummaryWidget();
         d->mode_widget->modeManager()->setMinimumItemSize(QSize(128,48));
 
         // Layout and placement of observer widget:
