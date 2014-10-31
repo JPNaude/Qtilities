@@ -25,6 +25,7 @@ struct Qtilities::CoreGui::GroupedConfigPageData {
       use_tab_icons(false) {}
 
     QMap<QWidget*,IConfigPage*>     pages;
+    QStringList                     page_order;
     QtilitiesCategory               category;
     bool                            apply_all;
     bool                            use_tab_icons;
@@ -116,6 +117,10 @@ bool Qtilities::CoreGui::GroupedConfigPage::supportsApply() const {
     }
 }
 
+void Qtilities::CoreGui::GroupedConfigPage::setPageOrder(const QStringList &page_order) {
+    d->page_order = page_order;
+}
+
 void Qtilities::CoreGui::GroupedConfigPage::addConfigPage(IConfigPage *page) {
     if (hasConfigPage(page))
         return;
@@ -123,7 +128,6 @@ void Qtilities::CoreGui::GroupedConfigPage::addConfigPage(IConfigPage *page) {
     if (!page->configPageWidget())
         return;
 
-    addPageTab(page);
     d->pages[page->configPageWidget()] = page;
 }
 
@@ -150,11 +154,31 @@ bool Qtilities::CoreGui::GroupedConfigPage::hasConfigPage(const QString &page_ti
 
 IConfigPage* Qtilities::CoreGui::GroupedConfigPage::getConfigPage(const QString &page_title) const {
     QList<IConfigPage*> values = d->pages.values();
-    for (int i = 0; i < d->pages.count(); ++i) {
+    for (int i = 0; i < values.count(); ++i) {
         if (values.at(i)->configPageTitle() == page_title)
             return values.at(i);
     }
     return 0;
+}
+
+void Qtilities::CoreGui::GroupedConfigPage::constructTabWidget() {
+    QList<IConfigPage*> pages_copy = d->pages.values();
+
+    // Add pages for which the order has been specified:
+    foreach (const QString& page, d->page_order) {
+        for (int i = 0; i < pages_copy.count(); i++) {
+            if (pages_copy.at(i)->configPageTitle() == page) {
+                addPageTab(pages_copy.at(i));
+                pages_copy.removeAt(i);
+                break;
+            }
+        }
+    }
+
+    // Add whatever is left:
+    for (int i = 0; i < pages_copy.count(); i++) {
+        addPageTab(pages_copy.at(i));
+    }
 }
 
 IConfigPage *Qtilities::CoreGui::GroupedConfigPage::activePage() const {

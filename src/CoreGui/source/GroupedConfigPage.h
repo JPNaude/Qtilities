@@ -65,6 +65,8 @@ namespace Qtilities {
             // --------------------------------------------
             // Group Page Specific
             // --------------------------------------------
+            //! Sets the page order.
+            void setPageOrder(const QStringList& page_order);
             //! Adds a IConfigPage to this grouping.
             void addConfigPage(IConfigPage* page);
             //! Removes a IConfigPage from this grouping.
@@ -75,6 +77,8 @@ namespace Qtilities {
             bool hasConfigPage(const QString& page_title) const;
             //! Gets a IConfigPage with the given title.
             IConfigPage* getConfigPage(const QString& page_title) const;
+            //! This function must be called in order for the internal tab widget to be constructed after all needed pages were added using addConfigPage().
+            void constructTabWidget();
 
             //! Returns the current active config page.
             IConfigPage* activePage() const;

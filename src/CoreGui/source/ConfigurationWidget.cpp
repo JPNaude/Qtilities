@@ -244,7 +244,8 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
                 for (int g = 0; g < grouped_page_info_providers.count(); g++) {
                     if (grouped_page_info_providers.at(g)->isProviderForCategory(categories.at(i))) {
                         grouped_page->setConfigPageIcon(grouped_page_info_providers.at(g)->groupedConfigPageIcon(categories.at(i)));
-                        continue;
+                        grouped_page->setPageOrder(grouped_page_info_providers.at(g)->pageOrderForCategory(categories.at(i)));
+                        break;
                     }
                 }
             }
@@ -265,6 +266,18 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
                     if (page_widget->size().height() > max_height)
                         max_height = page_widget->sizeHint().height();
                 }
+            } else {
+                qWarning() << Q_FUNC_INFO << "Could not find grouped category page for category " << itr.value().toString();
+            }
+        }
+
+        // Finally construct tabs in all grouped pages:
+        itr.toFront();
+        while (itr.hasNext()) {
+            itr.next();
+            if (grouped_config_pages.contains(itr.value())) {
+                GroupedConfigPage* group_page_for_category = grouped_config_pages[itr.value()];
+                group_page_for_category->constructTabWidget();
             } else {
                 qWarning() << Q_FUNC_INFO << "Could not find grouped category page for category " << itr.value().toString();
             }
