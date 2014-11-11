@@ -122,6 +122,7 @@ namespace Qtilities {
         public slots:
             void logMessage(const QString& message, Logger::MessageType message_type);
             void clearLog();
+            void setLineWrapMode(QPlainTextEdit::LineWrapMode mode);
 
         private:
             WidgetLoggerEnginePrivateData* d;

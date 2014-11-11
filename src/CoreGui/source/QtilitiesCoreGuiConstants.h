@@ -135,28 +135,32 @@ namespace Qtilities {
             const char * const qti_icon_WARNING_12x12                 = ":/qtilities/coregui/icons/warning_12x12.png";
             //! Icon used for observer access column in observer widgets.
             const char * const qti_icon_ACCESS_16x16                  = ":/qtilities/coregui/icons/access_16x16.png";
+            //! Broom icon.
+            const char * const qti_icon_BROOM_16x16                   = ":/qtilities/coregui/icons/broom_16x16.png";
+            //! Text wrap icon.
+            const char * const qti_icon_LINE_WRAP_16x16               = ":/qtilities/coregui/icons/line_wrap_24x24.png";
             //! Icon used for child count column in observer widgets.
             const char * const qti_icon_CHILD_COUNT_22x22             = ":/qtilities/coregui/icons/child_count_22x22.png";
             //! Icon used for object type column in observer widgets.
-            const char * const qti_icon_TYPE_INFO_22x22                = ":/qtilities/coregui/icons/type_info_22x22.png";
+            const char * const qti_icon_TYPE_INFO_22x22               = ":/qtilities/coregui/icons/type_info_22x22.png";
             //! Icon used to indicate that an observer has locked access.
             const char * const qti_icon_LOCKED_16x16                  = ":/qtilities/coregui/icons/locked_16x16.png";
             //! Icon used to indicate that an observer has read only access.
             const char * const qti_icon_READ_ONLY_16x16               = ":/qtilities/coregui/icons/read_only_16x16.png";
             //! Icon used for search options button in search box widget.
-            const char * const qti_icon_SEARCH_OPTIONS_22x22           = ":/qtilities/coregui/icons/search_options_22x22.png";
+            const char * const qti_icon_SEARCH_OPTIONS_22x22          = ":/qtilities/coregui/icons/search_options_22x22.png";
             //! Icon used for an object property.
-            const char * const qti_icon_PROPERTY_16x16                 = ":/qtilities/coregui/icons/property_icon_16x16.png";
+            const char * const qti_icon_PROPERTY_16x16                = ":/qtilities/coregui/icons/property_icon_16x16.png";
             //! Icon used for an object method (slot).
-            const char * const qti_icon_METHOD_16x16                   = ":/qtilities/coregui/icons/method_icon_16x16.png";
+            const char * const qti_icon_METHOD_16x16                  = ":/qtilities/coregui/icons/method_icon_16x16.png";
             //! Icon used for an object event (signal).
-            const char * const qti_icon_EVENT_16x16                    = ":/qtilities/coregui/icons/event_icon_16x16.png";
+            const char * const qti_icon_EVENT_16x16                   = ":/qtilities/coregui/icons/event_icon_16x16.png";
             //! Folder icon, used for categories in observer widgets in tree mode.
-            const char * const qti_icon_FOLDER_16X16                   = ":/qtilities/coregui/icons/folder_icon_16x16.png";
+            const char * const qti_icon_FOLDER_16X16                  = ":/qtilities/coregui/icons/folder_icon_16x16.png";
             //! Icon used for dynamic side widget remove action.
-            const char * const qti_icon_VIEW_REMOVE_16x16              = ":/qtilities/coregui/icons/view_remove_16x16.png";
+            const char * const qti_icon_VIEW_REMOVE_16x16             = ":/qtilities/coregui/icons/view_remove_16x16.png";
             //! Icon used for dynamic side widget new action.
-            const char * const qti_icon_VIEW_NEW_16x16                 = ":/qtilities/coregui/icons/view_new_16x16.png";
+            const char * const qti_icon_VIEW_NEW_16x16                = ":/qtilities/coregui/icons/view_new_16x16.png";
 
             // --------------------------------
             // Edit Icons
@@ -323,6 +327,7 @@ namespace Qtilities {
             const char * const qti_action_EDIT_COPY                       = "Edit.Copy";
             const char * const qti_action_EDIT_CUT                        = "Edit.Cut";
             const char * const qti_action_EDIT_PASTE                      = "Edit.Paste";
+            const char * const qti_action_EDIT_LINE_WRAP                  = "Edit.LineWrap";
             const char * const qti_action_EDIT_CLEAR                      = "Edit.Clear";
             const char * const qti_action_EDIT_SELECT_ALL                 = "Edit.SelectAll";
             const char * const qti_action_EDIT_FIND                       = "Edit.Find";

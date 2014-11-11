@@ -106,5 +106,8 @@
         <file>qtilities/coregui/icons/file_save_all_22x22.png</file>
         <file>qtilities/coregui/icons/combobox_down_arrow.png</file>
         <file>qtilities/coregui/icons/task_stop_22x22.png</file>
+        <file>qtilities/coregui/icons/broom_16x16.png</file>
+        <file>qtilities/coregui/icons/line_wrap_24x24.png</file>
+        <file>qtilities/coregui/icons/widget_log_freeze_output_16x16.png</file>
     </qresource>
 </RCC>

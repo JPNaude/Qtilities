@@ -110,6 +110,11 @@ void Qtilities::CoreGui::WidgetLoggerEngine::clearLog() {
         d->widget->clear();
 }
 
+void Qtilities::CoreGui::WidgetLoggerEngine::setLineWrapMode(QPlainTextEdit::LineWrapMode mode) {
+    if (d->widget)
+        d->widget->setLineWrapMode(mode);
+}
+
 QPlainTextEdit* Qtilities::CoreGui::WidgetLoggerEngine::plainTextEdit(MessageDisplaysFlag message_display) const {
     return d->widget->plainTextEdit(message_display);
 }

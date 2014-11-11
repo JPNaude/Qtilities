@@ -166,7 +166,11 @@ void Qtilities::Logging::Logger::logMessage(const QString& engine_name, MessageT
     if (!msg8.isNull()) message_contents.push_back(msg8);
     if (!msg9.isNull()) message_contents.push_back(msg9);
 
-//    if (message.toString() == "QFile::seek: IODevice is not open")
+//    if (message.toString().contains("Argument missing"))
+//        int i = 5;
+//    if (message.toString() == "QFile::remove: Empty or null file name")
+//        int i = 5;
+//    else if (message.toString() == "QFile::seek: IODevice is not open")
 //        int i = 5;
 //    else if (message.toString().contains("&other != this"))
 //        int i = 5;
@@ -557,6 +561,9 @@ Qtilities::Logging::AbstractLoggerEngine* Qtilities::Logging::Logger::loggerEngi
 }
 
 Qtilities::Logging::AbstractLoggerEngine *Qtilities::Logging::Logger::loggerEngineReferenceForFile(const QString &file_path) {
+    if (file_path.isEmpty())
+        return 0;
+
     for (int i = 0; i < d->logger_engines.count(); ++i) {
         if (d->logger_engines.at(i)) {
             FileLoggerEngine* fe = qobject_cast<FileLoggerEngine*> (d->logger_engines.at(i));

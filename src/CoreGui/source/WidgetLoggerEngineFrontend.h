@@ -106,6 +106,8 @@ namespace Qtilities {
             void handle_PrintPDF();
             void handle_PrintPreview();
             void handle_Clear();
+            void handle_LineWrap();
+            void handle_FreezeLog();
             void handle_Copy();
             void handle_SearchShortcut();
             void handle_SelectAll();
@@ -158,6 +160,7 @@ namespace Qtilities {
             void appendMessage(const QString& message, Logger::MessageType message_type = Logger::Info);
             void clear();
             void handle_dockVisibilityChanged(bool visible);
+            void setLineWrapMode(QPlainTextEdit::LineWrapMode mode);
 
         private:
             MessagesPlainTextEditTab* plainTextEditTab(WidgetLoggerEngine::MessageDisplaysFlag message_display);

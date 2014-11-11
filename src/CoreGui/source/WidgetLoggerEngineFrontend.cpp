@@ -53,8 +53,11 @@ struct Qtilities::CoreGui::MessagesPlainTextEditTabPrivateData {
         actionSave(0),
         actionFind(0),
         actionSettings(0),
+        actionLineWrap(0),
+        actionFreezeLog(0),
         sep1(0),
         sep2(0),
+        frozen(false),
         central_widget(0) {}
 
     SearchBoxWidget* searchBoxWidget;
@@ -68,9 +71,13 @@ struct Qtilities::CoreGui::MessagesPlainTextEditTabPrivateData {
     QAction* actionSave;
     QAction* actionFind;
     QAction* actionSettings;
+    QAction* actionLineWrap;
+    QAction* actionFreezeLog;
     QAction* sep1;
     QAction* sep2;
 
+    //! Indicates if this widget is frozen.
+    bool frozen;
     //! The IActionProvider interface implementation.
     ActionProvider* action_provider;
     //! The action toolbars list. Contains toolbars created for each category in the action provider.
@@ -174,6 +181,10 @@ Qtilities::CoreGui::MessagesPlainTextEditTab::~MessagesPlainTextEditTab() {
         delete d->actionFind;
     if (d->actionSettings)
         delete d->actionSettings;
+    if (d->actionLineWrap)
+        delete d->actionLineWrap;
+    if (d->actionFreezeLog)
+        delete d->actionFreezeLog;
     if (d->sep1)
         delete d->sep1;
     if (d->sep2)
@@ -204,7 +215,8 @@ QString Qtilities::CoreGui::MessagesPlainTextEditTab::globalMetaType() const {
 
 void Qtilities::CoreGui::MessagesPlainTextEditTab::appendMessage(const QString& message) {
     d->txtLog.appendHtml(message);
-    d->txtLog.verticalScrollBar()->setValue(d->txtLog.verticalScrollBar()->maximum());
+    if (!d->frozen)
+        d->txtLog.verticalScrollBar()->setValue(d->txtLog.verticalScrollBar()->maximum());
     // Note: d->txtLog.ensureCursorVisible() does not work becuase the log is read only and we don't have a cursor.
 }
 
@@ -312,6 +324,31 @@ void Qtilities::CoreGui::MessagesPlainTextEditTab::handle_Clear() {
     d->txtLog.clear();
 }
 
+void MessagesPlainTextEditTab::handle_LineWrap() {
+    if (d->txtLog.lineWrapMode() == QPlainTextEdit::NoWrap) {
+        d->txtLog.setLineWrapMode(QPlainTextEdit::WidgetWidth);
+        if (d->actionLineWrap)
+            d->actionLineWrap->setChecked(true);
+    } else {
+        d->txtLog.setLineWrapMode(QPlainTextEdit::NoWrap);
+        if (d->actionLineWrap)
+            d->actionLineWrap->setChecked(false);
+    }
+}
+
+void MessagesPlainTextEditTab::handle_FreezeLog() {
+    if (d->frozen) {
+        // As we are going to unfreeze it, we scroll to the end.
+        d->txtLog.verticalScrollBar()->setValue(d->txtLog.verticalScrollBar()->maximum());
+        if (d->actionLineWrap)
+            d->actionLineWrap->setChecked(false);
+    } else {
+        if (d->actionLineWrap)
+            d->actionLineWrap->setChecked(true);
+    }
+    d->frozen = !d->frozen;
+}
+
 void Qtilities::CoreGui::MessagesPlainTextEditTab::handle_Copy() {
     d->txtLog.copy();
 }
@@ -369,10 +406,30 @@ void Qtilities::CoreGui::MessagesPlainTextEditTab::constructActions() {
     // ---------------------------
     // Clear
     // ---------------------------
-    d->actionClear = new QAction(QIcon(qti_icon_EDIT_CLEAR_16x16),QObject::tr("Clear"),this);
+    d->actionClear = new QAction(QIcon(qti_icon_BROOM_16x16),QObject::tr("Clear"),this);
     d->action_provider->addAction(d->actionClear,QtilitiesCategory(tr("Log")));
     connect(d->actionClear,SIGNAL(triggered()),SLOT(handle_Clear()));
     command = ACTION_MANAGER->registerAction(qti_action_EDIT_CLEAR,d->actionClear,context);
+    command->setCategory(QtilitiesCategory("Editing"));
+    // ---------------------------
+    // Word Warp
+    // ---------------------------
+    d->actionLineWrap = new QAction(QIcon(qti_icon_LINE_WRAP_16x16),QObject::tr("Wrap Lines"),this);
+    d->actionLineWrap->setCheckable(true);
+    d->actionLineWrap->setChecked(false);
+    d->action_provider->addAction(d->actionLineWrap,QtilitiesCategory(tr("Log")));
+    connect(d->actionLineWrap,SIGNAL(triggered()),SLOT(handle_LineWrap()));
+    command = ACTION_MANAGER->registerAction(qti_action_EDIT_LINE_WRAP,d->actionLineWrap,context);
+    command->setCategory(QtilitiesCategory("Editing"));
+    // ---------------------------
+    // Pause/Resume
+    // ---------------------------
+    d->actionFreezeLog = new QAction(QIcon("://qtilities/coregui/icons/widget_log_freeze_output_16x16.png"),QObject::tr("Freeze Output"),this);
+    d->actionFreezeLog->setCheckable(true);
+    d->actionFreezeLog->setChecked(false);
+    d->action_provider->addAction(d->actionFreezeLog,QtilitiesCategory(tr("Log")));
+    connect(d->actionFreezeLog,SIGNAL(triggered()),SLOT(handle_FreezeLog()));
+    command = ACTION_MANAGER->registerAction("Edit.FreezeOutput",d->actionFreezeLog,context);
     command->setCategory(QtilitiesCategory("Editing"));
     // ---------------------------
     // Find
@@ -429,6 +486,8 @@ void Qtilities::CoreGui::MessagesPlainTextEditTab::constructActions() {
     d->sep1 = new QAction("",0);
     d->sep1->setSeparator(true);
     d->txtLog.addAction(d->sep1);
+    d->txtLog.addAction(d->actionFreezeLog);
+    d->txtLog.addAction(d->actionLineWrap);
     d->txtLog.addAction(d->actionFind);
     d->sep2 = new QAction("",0);
     d->sep2->setSeparator(true);
@@ -668,6 +727,32 @@ void WidgetLoggerEngineFrontend::handle_dockVisibilityChanged(bool visible) {
         if (front_end) {
             CONTEXT_MANAGER->setNewContext(front_end->contextString(),true);
         }
+    }
+}
+
+void WidgetLoggerEngineFrontend::setLineWrapMode(QPlainTextEdit::LineWrapMode mode) {
+    MessagesPlainTextEditTab* plain_text_edit_tab = plainTextEditTab(WidgetLoggerEngine::AllMessagesPlainTextEdit);
+    if (plain_text_edit_tab) {
+        if (plain_text_edit_tab->plainTextEdit()->lineWrapMode() != mode)
+            plain_text_edit_tab->handle_LineWrap();
+    }
+
+    plain_text_edit_tab = plainTextEditTab(WidgetLoggerEngine::IssuesPlainTextEdit);
+    if (plain_text_edit_tab) {
+        if (plain_text_edit_tab->plainTextEdit()->lineWrapMode() != mode)
+            plain_text_edit_tab->handle_LineWrap();
+    }
+
+    plain_text_edit_tab = plainTextEditTab(WidgetLoggerEngine::WarningsPlainTextEdit);
+    if (plain_text_edit_tab) {
+        if (plain_text_edit_tab->plainTextEdit()->lineWrapMode() != mode)
+            plain_text_edit_tab->handle_LineWrap();
+    }
+
+    plain_text_edit_tab = plainTextEditTab(WidgetLoggerEngine::ErrorsPlainTextEdit);
+    if (plain_text_edit_tab) {
+        if (plain_text_edit_tab->plainTextEdit()->lineWrapMode() != mode)
+            plain_text_edit_tab->handle_LineWrap();
     }
 }
 
