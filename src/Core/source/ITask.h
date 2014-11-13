@@ -164,13 +164,28 @@ namespace Qtilities {
                   <i>This function was added in %Qtilities v1.1.</i>
                   */
                 virtual QString elapsedTimeString(int msec = -1, const QString & format = "hh:mm:ss.zzz") const {
-                    QTime ref_time(0,0);
-                    QTime ref_time_elapsed;
+                    int ref_msecs;
                     if (msec == -1)
-                        ref_time_elapsed = ref_time.addMSecs(elapsedTime());
+                        ref_msecs = elapsedTime();
                     else
-                        ref_time_elapsed = ref_time.addMSecs(msec);
-                    return ref_time_elapsed.toString(format);
+                        ref_msecs = msec;
+
+                    QTime ref_time(0,0);
+                    QTime ref_time_elapsed = ref_time.addMSecs(ref_msecs);
+                    QString time_string;
+
+                    if (format.startsWith("hh:") || format.startsWith("h:")) {
+                        uint msecs_24_hrs = 86400000;
+                        div_t divresult = div(ref_msecs,msecs_24_hrs);
+                        if (divresult.quot > 0)
+                            time_string = QString("%1:%2").arg(divresult.quot).arg(ref_time_elapsed.toString(format));
+                        else
+                            time_string = ref_time_elapsed.toString(format);
+                    } else {
+                        time_string = ref_time_elapsed.toString(format);
+                    }
+
+                    return time_string;
                 }
                 //! Signal emitted when the task's elapsed time changes.
                 /*!
