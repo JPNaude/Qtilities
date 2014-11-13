@@ -353,12 +353,15 @@ void Qtilities::Core::QtilitiesProcess::procError(QProcess::ProcessError error) 
 }
 
 void Qtilities::Core::QtilitiesProcess::stopTimedOut() {
-    if (d->timeout > 86400000)
-        logMessage("This process ran longer than the timeout period specified for it.",Logger::Error);
-    else {
-        QTime time(0, 0, 0);
-        logMessage(QString("This process ran longer than the timeout period (%1) specified for it.").arg(time.addMSecs(d->timeout).toString("hh:mm:ss")),Logger::Error);
-    }
+    QTime elapsed_time(0,0);
+    QTime diff_time = elapsed_time.addMSecs(d->timeout);
+
+    uint msecs_24_hrs = 86400000;
+    div_t divresult = div(d->timeout,msecs_24_hrs);
+    if (divresult.quot > 0)
+        logMessage(QString("This process ran longer than the timeout period (%1) specified for it.").arg(QString("%1:%2").arg(divresult.quot).arg(diff_time.toString("hh:mm:ss"))),Logger::Error);
+    else
+        logMessage(QString("This process ran longer than the timeout period (%1) specified for it.").arg(diff_time.toString("hh:mm:ss")),Logger::Error);
     stop();
 }
 

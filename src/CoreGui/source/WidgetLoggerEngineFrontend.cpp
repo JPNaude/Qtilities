@@ -416,7 +416,7 @@ void Qtilities::CoreGui::MessagesPlainTextEditTab::constructActions() {
     // ---------------------------
     d->actionLineWrap = new QAction(QIcon(qti_icon_LINE_WRAP_16x16),QObject::tr("Wrap Lines"),this);
     d->actionLineWrap->setCheckable(true);
-    d->actionLineWrap->setChecked(false);
+    d->actionLineWrap->setChecked(true);
     d->action_provider->addAction(d->actionLineWrap,QtilitiesCategory(tr("Log")));
     connect(d->actionLineWrap,SIGNAL(triggered()),SLOT(handle_LineWrap()));
     command = ACTION_MANAGER->registerAction(qti_action_EDIT_LINE_WRAP,d->actionLineWrap,context);
