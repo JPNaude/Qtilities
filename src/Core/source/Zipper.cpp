@@ -108,10 +108,20 @@ bool Zipper::zipFiles(const QStringList &files, const QString &output_file, QStr
     QFileInfo file_info(output_file);
     QStringList arguments;
     arguments << "a";
-    if (file_info.completeSuffix().isEmpty())
-        arguments << "-tzip";
-    else
-        arguments << "-t" + file_info.completeSuffix();
+
+    if (file_info.completeSuffix().endsWith("zip")) { // Do this to support .SOMETHING_ELSE.zip etc.
+        arguments << "-tzip"; //
+    } else {
+        if (file_info.completeSuffix().isEmpty())
+            arguments << "-tzip";
+        else {
+            if (isValidExtension(file_info.completeSuffix()))
+                arguments << "-t" + file_info.completeSuffix();
+            else
+                arguments << "-tzip";
+        }
+    }
+
     arguments << output_file;
 
     // Build up the ignore list in 7zip format:
@@ -154,16 +164,20 @@ bool Qtilities::Core::Zipper::zipFolder(const QString& source_path, const QStrin
     }
 
     QFileInfo file_info(output_file);
-
     QStringList arguments;
     arguments << "a";
+
     if (file_info.completeSuffix().endsWith("zip")) { // Do this to support .SOMETHING_ELSE.zip etc.
         arguments << "-tzip"; //
     } else {
         if (file_info.completeSuffix().isEmpty())
             arguments << "-tzip";
-        else
-            arguments << "-t" + file_info.completeSuffix();
+        else {
+            if (isValidExtension(file_info.completeSuffix()))
+                arguments << "-t" + file_info.completeSuffix();
+            else
+                arguments << "-tzip";
+        }
     }
 
     arguments << output_file;
