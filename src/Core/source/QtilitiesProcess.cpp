@@ -293,11 +293,11 @@ void Qtilities::Core::QtilitiesProcess::procFinished(int exit_code, QProcess::Ex
     }
 
     if (exit_code != 0) {
-        QString error_string = d->process->errorString();
-        if (error_string != d->default_qprocess_error_string)
-            logError(error_string);
-
         if (d->process_info_messages_enabled) {
+            QString error_string = d->process->errorString();
+            if (error_string != d->default_qprocess_error_string)
+                logError(error_string);
+
             if (exit_status == QProcess::NormalExit)
                 logMessage("Process " + taskName() + " exited normal with code " + QString::number(exit_code),Logger::Error);
             else if (exit_status == QProcess::CrashExit)
