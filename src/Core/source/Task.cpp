@@ -523,10 +523,10 @@ bool Task::stopTask(const QString &message, Logger::MessageType type) {
         logMessage(message,type);
 
     ITask::TaskState old_state = d->task_state;
+    d->task_state = ITask::TaskStopped;
     blockSignals(true);
     completeTask(ITask::TaskFailed);
-    blockSignals(false);
-    d->task_state = ITask::TaskStopped;
+    blockSignals(false);    
     emit stateChanged(d->task_state,old_state);
     emit taskStopped();
     emit taskCompleted(ITask::TaskFailed);
@@ -585,7 +585,7 @@ void Qtilities::Core::Task::addCompletedSubTasks(int number_of_sub_tasks, const 
 }
 
 bool Qtilities::Core::Task::completeTask(ITask::TaskResult result, const QString& message, Logger::MessageType type) {
-    if (d->task_state != ITask::TaskBusy) {
+    if (d->task_state != ITask::TaskBusy && d->task_state != ITask::TaskStopped) {
         LOG_DEBUG("Attempting to complete task which is not busy. Task name: " + d->task_name + ", Task ID: " + QString::number(taskID()));
         return false;
     }
@@ -614,7 +614,8 @@ bool Qtilities::Core::Task::completeTask(ITask::TaskResult result, const QString
     } else
         d->task_result = result; 
 
-    d->task_state = ITask::TaskCompleted;
+    if (d->task_state != ITask::TaskStopped)
+        d->task_state = ITask::TaskCompleted;
     d->task_busy_state = ITask::TaskBusyClean;
 
     if (elapsedTimeChangedNotificationsEnabled())
@@ -625,21 +626,26 @@ bool Qtilities::Core::Task::completeTask(ITask::TaskResult result, const QString
     QString task_name_to_log;
     if (!taskName().isEmpty())
         task_name_to_log = QString("\"%1\" ").arg(taskName());
-    if (d->task_result == ITask::TaskSuccessful)
+    if (d->task_result == ITask::TaskSuccessful) {
         logMessage(QString("Task %1completed successfully (%2).").arg(task_name_to_log).arg(elapsedTimeString()));
-    else if (d->task_result == ITask::TaskSuccessfulWithErrors)
+    } else if (d->task_result == ITask::TaskSuccessfulWithErrors) {
         logMessage(QString("Task %1completed successfully but some warnings and/or errors were logged while the task was busy. See the task log for more information (%2).").arg(task_name_to_log).arg(elapsedTimeString()),Logger::Warning);
-    else if (d->task_result == ITask::TaskSuccessfulWithWarnings)
+    } else if (d->task_result == ITask::TaskSuccessfulWithWarnings) {
         logMessage(QString("Task %1completed successfully but some warnings were logged while the task was busy. See the task log for more information (%2).").arg(task_name_to_log).arg(elapsedTimeString()),Logger::Warning);
-    else if (d->task_result == ITask::TaskFailed)
-        logMessage(QString("Task %1failed. See the task log for more information (%2).").arg(task_name_to_log).arg(elapsedTimeString()),Logger::Error);
+    } else if (d->task_result == ITask::TaskFailed) {
+        if (d->task_state == ITask::TaskStopped)
+            logMessage(QString("Task %1was stopped (%2).").arg(task_name_to_log).arg(elapsedTimeString()),Logger::Info);
+        else
+            logMessage(QString("Task %1failed. See the task log for more information (%2).").arg(task_name_to_log).arg(elapsedTimeString()),Logger::Error);
+    }
 
+    // Note: this signal is blocked when task was stopped in Task::stopTask(). The stopTask() function emits it for us.
     emit stateChanged(d->task_state,old_state);
 
     // Now we check if we must destroy the task:
-    if (d->task_lifetime_flags == Task::LifeTimeManual)
+    if (d->task_lifetime_flags == Task::LifeTimeManual) {
         emit taskCompleted(d->task_result,message,type);
-    else {
+    } else {
         emit taskCompleted(d->task_result,message,type);
         if (d->task_lifetime_flags & Task::LifeTimeDestroyWhenSuccessful && result == ITask::TaskSuccessful)
             deleteLater();
