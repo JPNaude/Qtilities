@@ -357,7 +357,7 @@ void Qtilities::CoreGui::ModeManager::refreshList() {
                 new_item->setFlags(flags);
             }
             new_item->setSizeHint(d->mode_list_widget->sizeHint());
-            new_item->setToolTip(QString(tr("Go to <b>%1</b> mode ")).arg(mode->modeName()));
+            new_item->setToolTip(QString(tr("Go to <b>%1</b> ")).arg(mode->modeName()));
 
             d->mode_list_widget->addItem(new_item);
 
@@ -390,7 +390,7 @@ void Qtilities::CoreGui::ModeManager::refreshList() {
                     flags &= ~Qt::ItemIsEnabled;
                     new_item->setFlags(flags);
                 }
-                new_item->setToolTip(QString(tr("Go to <b>%1</b> mode ")).arg(mode->modeName()));
+                new_item->setToolTip(QString(tr("Go to <b>%1</b> ")).arg(mode->modeName()));
                 new_item->setSizeHint(d->mode_list_widget->sizeHint());
 
                 d->mode_list_widget->addItem(new_item);
