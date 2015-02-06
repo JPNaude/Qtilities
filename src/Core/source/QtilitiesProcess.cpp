@@ -293,7 +293,7 @@ void Qtilities::Core::QtilitiesProcess::procFinished(int exit_code, QProcess::Ex
     }
 
     if (exit_code != 0) {
-        if (d->process_info_messages_enabled) {
+        if (d->process_info_messages_enabled && !d->was_stopped) {
             QString error_string = d->process->errorString();
             if (error_string != d->default_qprocess_error_string)
                 logError(error_string);
