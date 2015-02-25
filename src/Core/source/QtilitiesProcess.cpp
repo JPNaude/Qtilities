@@ -24,7 +24,6 @@ struct Qtilities::Core::QtilitiesProcessPrivateData {
         read_process_buffers(false),
         last_run_buffer_enabled(false),
         process_info_messages_enabled(true),
-        active_message_disabler_count(0),
         ignore_read_buffer_slot(false),
         refresh_frequency(0),
         timeout(-1),
@@ -37,7 +36,7 @@ struct Qtilities::Core::QtilitiesProcessPrivateData {
     QByteArray last_run_buffer;
     bool last_run_buffer_enabled;
     bool process_info_messages_enabled;
-    int active_message_disabler_count;
+    QList<ProcessBufferMessageTypeHint> active_message_disablers;
     bool ignore_read_buffer_slot;
     int refresh_frequency;
     int timeout;
@@ -160,6 +159,7 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program,
         logMessage("");
     }
 
+    d->active_message_disablers.clear();
     clearLastRunBuffer();
     d->was_stopped = false;
     d->process->start(native_program, arguments, mode);
@@ -424,9 +424,9 @@ void Qtilities::Core::QtilitiesProcess::readStandardError() {
 void Qtilities::Core::QtilitiesProcess::processSingleBufferMessage(const QString &buffer_message, Logger::MessageType msg_type) {
     // If logging is disabled, we can skip the processing of the buffer message altogether:
     if (loggingEnabled()) {
-        if (d->buffer_message_type_hints.isEmpty())
+        if (d->buffer_message_type_hints.isEmpty()) {
             logMessage(buffer_message,msg_type);
-        else {
+        } else {
             bool found_match = false;
             bool found_match_is_stopper = false;
 
@@ -437,11 +437,6 @@ void Qtilities::Core::QtilitiesProcess::processSingleBufferMessage(const QString
             while (itr.hasNext()) {
                 ProcessBufferMessageTypeHint hint = itr.next();
                 if (hint.d_regexp.exactMatch(buffer_message)) {
-                    if (d->active_message_disabler_count > 0) {
-                        if (!hint.d_is_enabler && !hint.d_is_disabler)
-                            continue; // In this case, we only match enablers and disablers.
-                    }
-
                     if (hint.d_priority >= highest_matching_hint_priority) {
                         highest_matching_hint_priority = hint.d_priority;
                         matching_hints << hint;
@@ -459,14 +454,38 @@ void Qtilities::Core::QtilitiesProcess::processSingleBufferMessage(const QString
                 ProcessBufferMessageTypeHint hint = itr_log.next();
 //                LOG_DEBUG("-> MATCHING HINT: " + hint.d_regexp.pattern() + ", priority: " + QString::number(hint.d_priority) + ", hint: " + QString::number((int) hint.d_message_type) + ", enabler: " + QString::number((int) hint.d_is_enabler) + ", disabler: " + QString::number((int) hint.d_is_disabler));
                 if (hint.d_priority == highest_matching_hint_priority) {
-                    bool log_this_message = (d->active_message_disabler_count == 0);
+                    bool log_this_message = d->active_message_disablers.isEmpty();
                     if (hint.d_is_enabler) {
-                        --d->active_message_disabler_count;
-                        log_this_message = (d->active_message_disabler_count == 0);
-//                        LOG_DEBUG("--d->active_message_disabler_count, current = " + QString::number(d->active_message_disabler_count));
+//                        LOG_WARNING("0. hint.d_is_enabler = true: " + buffer_message);
+                        d->active_message_disablers.pop_front();
+                        log_this_message = d->active_message_disablers.isEmpty();
+//                        LOG_DEBUG("--d->active_message_disabler_count, current = " + QString::number(d->active_message_disablers.count()));
                     } else if (hint.d_is_disabler) {
-                        ++d->active_message_disabler_count;
-//                        LOG_DEBUG("++d->active_message_disabler_count, current = " + QString::number(d->active_message_disabler_count));
+//                        LOG_WARNING("0. hint.d_is_enabler = false: " + buffer_message);
+                        d->active_message_disablers.push_front(hint);
+                        // Note that we don't set log_this_message. The disabler message must also be logged.
+//                        LOG_DEBUG("++d->active_message_disabler_count, current = " + QString::number(d->active_message_disablers.count()));
+                    }
+
+
+                    // If log_this_message=false, one or more disabler is active.
+                    // We need to now check the d_disabled_unblocked_message_types of all active disablers against hint.d_message_type
+                    // to see if this type is unblocked while disabled:
+//                    LOG_WARNING("XXX - " + buffer_message);
+                    if (!log_this_message) {
+//                        LOG_WARNING("1. log_this_message = false: " + buffer_message);
+                        bool is_unblocked = true;
+                        foreach (const ProcessBufferMessageTypeHint& disabler_hint, d->active_message_disablers) {
+//                            LOG_WARNING(QString("2. disabler_hint.d_disabled_unblocked_message_types = %1, message type = %2").arg(disabler_hint.d_disabled_unblocked_message_types).arg(hint.d_message_type));
+                            if (!(disabler_hint.d_disabled_unblocked_message_types & hint.d_message_type)) {
+//                                LOG_WARNING("2.1 - no match, this message will be blocked! - " + disabler_hint.d_regexp.pattern());
+                                is_unblocked = false;
+                                break;
+                            }
+                        }
+                        if (is_unblocked)
+                            log_this_message = true;
+//                        LOG_WARNING(QString("3. log_this_message = %1").arg(log_this_message));
                     }
 
                     if (hint.d_is_stopper)
@@ -487,8 +506,21 @@ void Qtilities::Core::QtilitiesProcess::processSingleBufferMessage(const QString
                 return;
             }
 
-            if (!found_match && d->active_message_disabler_count == 0)
-                logMessage(buffer_message,msg_type);
+            if (!found_match) {
+                if (d->active_message_disablers.isEmpty()) {
+                    logMessage(buffer_message,msg_type);
+                } else {
+                    bool is_unblocked = true;
+                    foreach (const ProcessBufferMessageTypeHint& disabler_hint, d->active_message_disablers) {
+                        if (!(disabler_hint.d_disabled_unblocked_message_types & msg_type)) {
+                            is_unblocked = false;
+                            break;
+                        }
+                    }
+                    if (is_unblocked)
+                        logMessage(buffer_message,msg_type);
+                }
+            }
         }
     }
 }

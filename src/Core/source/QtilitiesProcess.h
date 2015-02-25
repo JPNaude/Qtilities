@@ -43,6 +43,8 @@ namespace Qtilities {
          *   message as that type of message. Using d_stop_message it is also possible to provide an additional message logged directly after the stopper message
          *   to explain why the stopper caused the process to be stopped. The message type of the stopper message is determined by d_stop_message_type which is Logger::Error
          *   by default.
+         * - d_disabled_unblocked_message_types: allow specific messages through while disablers are active. By default the messages which are unblocked (let through) are Error and Fatal messages.
+         *   This allows errors in the QProcess to still be caught by default, even though disablers are active. It is possible to explicitly set which message types are let through, so if errors and fatals should not be let through, change this property to Logger::None.
          */
         struct ProcessBufferMessageTypeHint {
         public:
@@ -56,6 +58,10 @@ namespace Qtilities {
                 d_is_disabler = false;
                 d_is_stopper = false;
                 d_stop_message_type = Logger::Error;
+
+                d_disabled_unblocked_message_types = 0;
+                d_disabled_unblocked_message_types |= Logger::Error;
+                d_disabled_unblocked_message_types |= Logger::Fatal;
             }
             ProcessBufferMessageTypeHint(const ProcessBufferMessageTypeHint& ref) {
                 d_message_type = ref.d_message_type;
@@ -66,6 +72,7 @@ namespace Qtilities {
                 d_is_stopper = ref.d_is_stopper;
                 d_stop_message = ref.d_stop_message;
                 d_stop_message_type = ref.d_stop_message_type;
+                d_disabled_unblocked_message_types = ref.d_disabled_unblocked_message_types;
             }
             ProcessBufferMessageTypeHint& operator=(const ProcessBufferMessageTypeHint& ref) {
                 if (this==&ref) return *this;
@@ -78,6 +85,7 @@ namespace Qtilities {
                 d_is_stopper = ref.d_is_stopper;
                 d_stop_message = ref.d_stop_message;
                 d_stop_message_type = ref.d_stop_message_type;
+                d_disabled_unblocked_message_types = ref.d_disabled_unblocked_message_types;
 
                 return *this;
             }
@@ -98,6 +106,8 @@ namespace Qtilities {
                     return false;
                 if (d_stop_message_type != ref.d_stop_message_type)
                     return false;
+                if (d_disabled_unblocked_message_types != ref.d_disabled_unblocked_message_types)
+                    return false;
 
                 return true;
             }
@@ -113,6 +123,7 @@ namespace Qtilities {
             bool                        d_is_stopper;
             QString                     d_stop_message;
             Logger::MessageType         d_stop_message_type;
+            Logger::MessageTypeFlags    d_disabled_unblocked_message_types;
         };
 
         /*!
