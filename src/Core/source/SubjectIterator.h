@@ -484,7 +484,7 @@ while (itrB.hasNext()) {
         private:
             const T* d_current;
             const T* d_root;
-            Observer* d_parent_observer;
+            const Observer* d_parent_observer;
             int d_iterator_id;
         };
     }
