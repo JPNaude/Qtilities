@@ -70,3 +70,9 @@ OTHER_FILES = ../doc/doxyfile_website_with_tracking
 #OTHER_FILES = ../doc/win32_website.bat
 #OTHER_FILES = ../doc/win32_website_with_tracking.bat
 #OTHER_FILES = ../doc/Qtilities.qch
+
+includes.path = /usr/local/include/Qtilities
+includes.files = $$PWD/../include/*
+libs.path = /usr/local/lib
+libs.files = $$PWD/../bin/*
+INSTALLS += includes libs
