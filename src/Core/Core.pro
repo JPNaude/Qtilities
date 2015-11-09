@@ -13,6 +13,7 @@ INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCore
 
 CONFIG += qt dll
 QT += core xml
+# Note: xml module is deprecated
 QT -= gui
 
 TARGET = QtilitiesCore$${QTILITIES_LIB_POSTFIX}
