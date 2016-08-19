@@ -11,7 +11,11 @@
 
 TARGET      = Qtilities
 TEMPLATE    = subdirs
-SUBDIRS     = Logging Core CoreGui ExtensionSystem ProjectManagement Testing
+SUBDIRS     = Logging Core CoreGui ExtensionSystem ProjectManagement Plugins Testing Examples Tools
+
+Tools.file = Tools/QtilitiesTools.pro
+Examples.file = Examples/QtilitiesExamples.pro
+Plugins.file = Plugins/QtilitiesPlugins.pro
 
 Core.depends              = Logging
 CoreGui.depends           = Logging \
@@ -27,6 +31,27 @@ Testing.depends           = Logging \
                             CoreGui \
                             ExtensionSystem \
                             ProjectManagement
+
+Examples.depends          = Logging \
+                            Core \
+                            CoreGui \
+                            ExtensionSystem \
+                            ProjectManagement \
+                            Testing
+
+Tools.depends             = Logging \
+                            Core \
+                            CoreGui \
+                            ExtensionSystem \
+                            ProjectManagement \
+                            Testing
+
+Plugins.depends           = Logging \
+                            Core \
+                            CoreGui \
+                            ExtensionSystem \
+                            ProjectManagement \
+                            Testing
 
 TRANSLATIONS = qtilities.ts
 
