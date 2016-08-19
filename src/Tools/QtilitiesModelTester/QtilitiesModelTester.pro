@@ -4,8 +4,9 @@
 # See http://www.qtilities.org/licensing.html for licensing details.
 #
 # ***************************************************************************
-QTILITIES += coregui
-QTILITIES += testing
+QTILITIES += coregui testing
+DEFINES += QTILITIES_TESTING
+
 include(../../Qtilities.pri)
 
 QT       += core

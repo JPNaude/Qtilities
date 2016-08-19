@@ -5,6 +5,7 @@
 #
 # ***************************************************************************
 QTILITIES += testing
+DEFINES += QTILITIES_TESTING
 include(../../Qtilities.pri)
 
 QT += core \
