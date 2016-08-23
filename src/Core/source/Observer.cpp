@@ -147,7 +147,8 @@ Qtilities::Core::Observer::~Observer() {
     LOG_TRACE("Deleting subject filters.");
     int filter_count = observerData->subject_filters.count();
     for (int i = 0; i < filter_count; ++i)
-        delete observerData->subject_filters.at(0);
+        delete observerData->subject_filters.at(i);
+
     observerData->subject_filters.clear();
 
     if (objectName() != QLatin1String(qti_def_GLOBAL_OBJECT_POOL)) {
