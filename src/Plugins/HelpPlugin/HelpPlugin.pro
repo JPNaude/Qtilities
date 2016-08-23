@@ -23,16 +23,16 @@ TEMPLATE = lib
 DEFINES += HELP_PLUGIN_LIBRARY
 CONFIG  += plugin dll
 
-QT += network
+QT += network webengine webenginewidgets help
 
 greaterThan(QT_MAJOR_VERSION, 4) {
-QT += widgets \
-      webkitwidgets \
+QT += webengine \
+      webenginewidgets \
       printsupport
 }
 lessThan(QT_MAJOR_VERSION, 5) {
 CONFIG  += help
-QT += webkit
+QT += webengine
 }
 
 # ------------------------------

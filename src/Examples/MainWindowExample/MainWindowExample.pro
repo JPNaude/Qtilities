@@ -9,7 +9,7 @@ QTILITIES += project_management
 include(../../Qtilities.pri)
 include(../../Dependencies.pri)
 
-QT       += core gui network webkit
+QT       += core gui network webengine
 
 greaterThan(QT_MAJOR_VERSION, 4) {
 QT += widgets \
