@@ -36,12 +36,15 @@ UI_DIR          = $$QTILITIES_TEMP/SessionLogPlugin
 # --------------------------
 # Library Files
 # --------------------------
-HEADERS +=  source/SessionLogPlugin.h \
-            source/SessionLogPlugin_global.h \
+HEADERS +=  \
+            source/SessionLogMode.h \
             source/SessionLogPluginConstants.h \
-            source/SessionLogMode.h
+            source/SessionLogPlugin_global.h \
+            source/SessionLogPlugin.h \
 
-SOURCES +=  source/SessionLogPlugin.cpp \
-            source/SessionLogMode.cpp
+SOURCES +=  \
+            source/SessionLogMode.cpp \
+            source/SessionLogPlugin.cpp \
 
-RESOURCES += resources/SessionLogPlugin.qrc
+RESOURCES += \
+            resources/SessionLogPlugin.qrc \

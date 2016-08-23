@@ -15,7 +15,9 @@ CONFIG     += ordered
 
 # Plugins:
 #SUBDIRS    += PluginTemplate
-SUBDIRS    += SessionLogPlugin
-SUBDIRS    += ProjectManagementPlugin
-SUBDIRS    += DebugPlugin
-SUBDIRS    += HelpPlugin
+SUBDIRS += \
+    DebugPlugin \
+    HelpPlugin \
+    ProjectManagementPlugin \
+    SessionLogPlugin \
+
