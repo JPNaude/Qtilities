@@ -116,13 +116,15 @@ void Qtilities::Testing::TestNamingPolicyFilter::testRejectValidityResolutionPol
     TreeNode node;
     node.enableNamingControl(ObserverHints::ReadOnlyNames,NamingPolicyFilter::ProhibitDuplicateNames,NamingPolicyFilter::Reject,NamingPolicyFilter::Reject);
 
-    QVERIFY(node.subjectCount() == 0);
+    QCOMPARE(node.subjectCount(), 0);
     node.addItem("A");
-    QVERIFY(node.subjectCount() == 1);
+    QCOMPARE(node.subjectCount(), 1);
     node.addItem("B");
-    QVERIFY(node.subjectCount() == 2);
-    node.addItem("");
-    QVERIFY(node.subjectCount() == 2);
+    QCOMPARE(node.subjectCount(), 2);
+
+    QString huge(512, 'C');
+    node.addItem(huge);
+    QCOMPARE(node.subjectCount(), 2);
 }
 
 void Qtilities::Testing::TestNamingPolicyFilter::testProcessingCycleValidationChecks() {
@@ -142,8 +144,9 @@ void Qtilities::Testing::TestNamingPolicyFilter::testProcessingCycleValidationCh
     QVERIFY(node.subjectCount() == 2);
 
     filter->setProcessingCycleValidationChecks(NamingPolicyFilter::Validity);
-    node.addItem("");
-    QVERIFY(node.subjectCount() == 2);
+    QString huge(512, 'C');
+    node.addItem(huge);
+    QCOMPARE(node.subjectCount(), 2);
     node.addItem("A");
     QVERIFY(node.subjectCount() == 3);
 
