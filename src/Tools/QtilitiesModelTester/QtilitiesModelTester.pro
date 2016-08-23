@@ -9,9 +9,7 @@ DEFINES += QTILITIES_TESTING
 
 include(../../Qtilities.pri)
 
-QT       += core
-QT       += gui
-QT       += xml
+QT       += core gui xml
 
 greaterThan(QT_MAJOR_VERSION, 4) {
 QT += widgets \
@@ -42,6 +40,11 @@ UI_DIR          = $$QTILITIES_TEMP/QtilitiesModelTester
 SOURCES += main.cpp
 RC_FILE = rc_file.rc
 
-SOURCES         += modeltest.cpp dynamictreemodel.cpp
-HEADERS         += modeltest.h dynamictreemodel.h
+SOURCES         += \
+    dynamictreemodel.cpp \
+    modeltest.cpp \
+
+HEADERS         += \
+    dynamictreemodel.h \
+    modeltest.h \
 

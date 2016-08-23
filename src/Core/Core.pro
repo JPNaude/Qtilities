@@ -30,83 +30,87 @@ UI_DIR = $$QTILITIES_TEMP/Core
 # --------------------------
 # Qtilities Core Files
 # --------------------------
-HEADERS += source/QtilitiesCore_global.h \
+HEADERS += \
+    ../Common/Qtilities.h \
+    source/AbstractSubjectFilter.h \
+    source/ActivityPolicyFilter.h \
+    source/ContextManager.h \
+    source/Factory.h \
+    source/FileLocker.h \
+    source/FileSetInfo.h \
+    source/FileUtils.h \
+    source/GenericProperty.h \
+    source/GenericPropertyManager.h \
+    source/IAvailablePropertyProvider.h \
+    source/IContext.h \
+    source/IContextManager.h \
+    source/IExportableFormatting.h \
+    source/IExportable.h \
+    source/IExportableObserver.h \
+    source/IFactoryProvider.h \
+    source/IIterator.h \
+    source/IModificationNotifier.h \
+    source/InstanceFactoryInfo.h \
+    source/IObjectBase.h \
+    source/IObjectManager.h \
+    source/ITaskContainer.h \
+    source/ITask.h \
+    source/ObjectManager.h \
+    source/ObserverData.h \
+    source/ObserverDotWriter.h \
+    source/Observer.h \
+    source/ObserverHints.h \
+    source/ObserverMimeData.h \
+    source/ObserverRelationalTable.h \
+    source/PointerList.h \
+    source/QtilitiesCategory.h \
     source/QtilitiesCoreApplication.h \
     source/QtilitiesCoreApplication_p.h \
     source/QtilitiesCoreConstants.h \
-    source/Observer.h \
-    source/PointerList.h \
-    source/ObserverData.h \
-    source/AbstractSubjectFilter.h \
-    source/ActivityPolicyFilter.h \
-    source/ObjectManager.h \
-    source/QtilitiesPropertyChangeEvent.h \
-    source/ObserverMimeData.h \
-    source/IObjectManager.h \
-    source/SubjectTypeFilter.h \
-    source/IExportable.h \
-    source/IFactoryProvider.h \
-    source/ObserverRelationalTable.h \
-    source/Factory.h \
-    source/IModificationNotifier.h \
-    source/IContext.h \
-    source/IContextManager.h \
-    source/ContextManager.h \
-    source/IObjectBase.h \
-    source/ObserverHints.h \
-    source/SubjectFilterTemplate.h \
-    source/QtilitiesCategory.h \
-    source/IExportableFormatting.h \
-    ../Common/Qtilities.h \
+    source/QtilitiesCore_global.h \
     source/QtilitiesFileInfo.h \
-    source/ObserverDotWriter.h \
-    source/VersionInformation.h \
-    source/InstanceFactoryInfo.h \
+    source/QtilitiesProcess.h \
+    source/QtilitiesPropertyChangeEvent.h \
     source/QtilitiesProperty.h \
-    source/IIterator.h \
+    source/SubjectFilterTemplate.h \
     source/SubjectIterator.h \
-    source/TreeIterator.h \
-    source/IExportableObserver.h \
-    source/ITask.h \
+    source/SubjectTypeFilter.h \
     source/Task.h \
     source/TaskManager.h \
-    source/ITaskContainer.h \
-    source/FileUtils.h \
-    source/QtilitiesProcess.h \
-    source/FileSetInfo.h \
-    source/FileLocker.h \
-    source/IAvailablePropertyProvider.h \
-    source/GenericProperty.h \
-    source/GenericPropertyManager.h \
-    source/Zipper.h
+    source/TreeIterator.h \
+    source/VersionInformation.h \
+    source/Zipper.h \
 
-SOURCES += source/QtilitiesCoreApplication.cpp \
-    source/QtilitiesCoreApplication_p.cpp \
-    source/Observer.cpp \
+
+SOURCES += \
     source/ActivityPolicyFilter.cpp \
-    source/ObjectManager.cpp \
-    source/QtilitiesPropertyChangeEvent.cpp \
-    source/SubjectTypeFilter.cpp \
-    source/ObserverData.cpp \
-    source/ObserverRelationalTable.cpp \
     source/ContextManager.cpp \
-    source/ObserverHints.cpp \
-    source/SubjectFilterTemplate.cpp \
-    source/QtilitiesCategory.cpp \
-    source/PointerList.cpp \
-    source/QtilitiesFileInfo.cpp \
-    source/ObserverDotWriter.cpp \
-    source/VersionInformation.cpp \
-    source/InstanceFactoryInfo.cpp \
-    source/QtilitiesProperty.cpp \
-    source/IExportable.cpp \
-    source/TaskManager.cpp \
-    source/ITaskContainer.cpp \
-    source/Task.cpp \
-    source/FileUtils.cpp \
-    source/QtilitiesProcess.cpp \
-    source/FileSetInfo.cpp \
     source/FileLocker.cpp \
+    source/FileSetInfo.cpp \
+    source/FileUtils.cpp \
     source/GenericProperty.cpp \
     source/GenericPropertyManager.cpp \
-    source/Zipper.cpp
+    source/IExportable.cpp \
+    source/InstanceFactoryInfo.cpp \
+    source/ITaskContainer.cpp \
+    source/ObjectManager.cpp \
+    source/Observer.cpp \
+    source/ObserverData.cpp \
+    source/ObserverDotWriter.cpp \
+    source/ObserverHints.cpp \
+    source/ObserverRelationalTable.cpp \
+    source/PointerList.cpp \
+    source/QtilitiesCategory.cpp \
+    source/QtilitiesCoreApplication.cpp \
+    source/QtilitiesCoreApplication_p.cpp \
+    source/QtilitiesFileInfo.cpp \
+    source/QtilitiesProcess.cpp \
+    source/QtilitiesPropertyChangeEvent.cpp \
+    source/QtilitiesProperty.cpp \
+    source/SubjectFilterTemplate.cpp \
+    source/SubjectTypeFilter.cpp \
+    source/Task.cpp \
+    source/TaskManager.cpp \
+    source/VersionInformation.cpp \
+    source/Zipper.cpp \
+

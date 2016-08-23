@@ -49,27 +49,31 @@ UI_DIR          = $$QTILITIES_TEMP/HelpPlugin
 contains(DEFINES, QTILITIES_NO_HELP) {
     # Do nothing here for now.
 } else {
-HEADERS += source/HelpPlugin.h \
-           source/HelpPlugin_global.h \
-           source/HelpPluginConstants.h \
-           source/HelpMode.h \
+HEADERS += \
+           source/Browser.h \
            source/ContentWidgetFactory.h \
+           source/HelpMode.h \
+           source/HelpPluginConfig.h \
+           source/HelpPluginConstants.h \
+           source/HelpPlugin_global.h \
+           source/HelpPlugin.h \
            source/IndexWidgetFactory.h \
            source/SearchWidgetFactory.h \
-           source/HelpPluginConfig.h \
-           source/Browser.h
 
-SOURCES += source/HelpPlugin.cpp \
-           source/HelpMode.cpp \
+SOURCES += \
+           source/Browser.cpp \
            source/ContentWidgetFactory.cpp \
+           source/HelpMode.cpp \
+           source/HelpPluginConfig.cpp \
+           source/HelpPlugin.cpp \
            source/IndexWidgetFactory.cpp \
            source/SearchWidgetFactory.cpp \
-           source/HelpPluginConfig.cpp \
-           source/Browser.cpp
 
-FORMS   += source/HelpPluginConfig.ui
+FORMS   += \
+    source/HelpPluginConfig.ui \
 
-RESOURCES += resources/resources.qrc
+RESOURCES += \
+    resources/resources.qrc \
 }
 
 
