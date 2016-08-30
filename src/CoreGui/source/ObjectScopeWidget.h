@@ -63,7 +63,6 @@ namespace Qtilities {
         class QTILITIES_CORE_GUI_SHARED_EXPORT ObjectScopeWidget : public QWidget, public IContext {
             Q_OBJECT
             Q_DISABLE_COPY(ObjectScopeWidget)
-            Q_ENUMS(ColumnIDs)
             Q_INTERFACES(Qtilities::Core::Interfaces::IContext)
 
         public:
@@ -75,6 +74,7 @@ namespace Qtilities {
                 UsesInstanceNameColumn = 1,
                 OwnerColumn = 2
             };
+            Q_ENUM(ColumnIDs)
 
             //! When true, the object name will be shown above the object scope table.
             void setNameVisible(bool visible);

@@ -111,7 +111,6 @@ int main(int argc, char *argv[])
         class QTILITIES_CORE_GUI_SHARED_EXPORT QtilitiesMainWindow : public QMainWindow
         {
             Q_OBJECT
-            Q_ENUMS(ModeLayout)
 
         public:
             //! The possible places where modes can be displayed.
@@ -126,7 +125,7 @@ int main(int argc, char *argv[])
                 ModesLeft = 8          /*!< Display modes as a vertical list in the left of the widget. */
             };
             Q_DECLARE_FLAGS(ModeLayoutFlags, ModeLayout)
-            Q_FLAGS(ModeLayoutFlags)
+            Q_FLAG(ModeLayoutFlags)
 
             QtilitiesMainWindow(ModeLayout modeLayout = ModesNone, QWidget * parent = 0, Qt::WindowFlags flags = 0);
             ~QtilitiesMainWindow();

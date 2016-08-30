@@ -73,9 +73,8 @@ namespace Qtilities {
                 DefaultDisplays             = AllMessagesPlainTextEdit,
                 DefaultTaskDisplays         = AllMessagesPlainTextEdit | IssuesPlainTextEdit
             };
-            Q_ENUMS(MessageDisplays)
             Q_DECLARE_FLAGS(MessageDisplaysFlag, MessageDisplays)
-            Q_FLAGS(MessageDisplaysFlag)
+            Q_FLAG(MessageDisplaysFlag)
 
             //! Constructor for WidgetLoggerEngine
             /*!

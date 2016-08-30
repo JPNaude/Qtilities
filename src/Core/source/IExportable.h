@@ -264,6 +264,8 @@ int main(int argc, char *argv[])
 
               */
             class QTILIITES_CORE_SHARED_EXPORT IExportable : virtual public IObjectBase {
+                Q_GADGET
+
             public:
                 IExportable();
                 virtual ~IExportable() {}
@@ -278,8 +280,7 @@ int main(int argc, char *argv[])
                     XML = 2        /*!< XML exporting using QDomDocument. \sa exportXml(), importXml() */
                 };
                 Q_DECLARE_FLAGS(ExportModeFlags, ExportMode)
-                Q_FLAGS(ExportModeFlags)
-                Q_ENUMS(ExportMode)
+                Q_FLAG(ExportModeFlags)
 
                 //! The possible results of an export/import operation.
                 enum Result {
@@ -294,8 +295,8 @@ int main(int argc, char *argv[])
                     FailedResult = Failed | FailedContinue | VersionTooNew | VersionTooOld  /*!< Failed operation. */
                 };
                 Q_DECLARE_FLAGS(ExportResultFlags, Result)
-                Q_FLAGS(ExportResultFlags)
-                Q_ENUMS(Result)
+                Q_FLAG(ExportResultFlags)
+
 
                 //! Provides information about the export format(s) supported by your implementation of IExportable.
                 /*!

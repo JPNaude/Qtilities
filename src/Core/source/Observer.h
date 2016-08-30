@@ -120,10 +120,6 @@ observerWidget.show();
             Q_INTERFACES(Qtilities::Core::Interfaces::IExportable)
             Q_INTERFACES(Qtilities::Core::Interfaces::IExportableObserver)
             Q_INTERFACES(Qtilities::Core::Interfaces::IModificationNotifier)
-            Q_ENUMS(SubjectChangeIndication)
-            Q_ENUMS(ObjectOwnership)
-            Q_ENUMS(EvaluationResult)
-            Q_ENUMS(AccessMode)
 
             Q_PROPERTY(QString Name READ observerName)
             Q_PROPERTY(QString Description READ observerDescription)
@@ -149,6 +145,8 @@ observerWidget.show();
                 IsParentObserver,           /*!< Only used during detachment. Indicates that the observer is the parent of the object. This result takes priority over the other possible results. The use case is where the Object Manager attempts to move objects between observers. When attempting to move objects between two observers it will not move subjects which returns this during their detachment validation. */
                 LastScopedObserver          /*!< Only used during detachment. Indicates that the observer is the last scoped parent of the object. This result takes priority over the other possible results except IsParentObserver. The use case is where the Object Manager attempts to move objects between observers. When attempting to move objects between two observers it will not move subjects which returns this during their detachment validation. */
             };
+            Q_ENUM(EvaluationResult)
+
             //! The possible indications that can be returned when the number of subjects in the observer changes.
             /*!
               \sa numberOfSubjectsChanged()
@@ -158,6 +156,8 @@ observerWidget.show();
                 SubjectRemoved,             /*!< Indicates that subjects were removed. */
                 CyclicProcess               /*!< Indicates that the number of subjects changed during a cyclic process. The subject count can either be less or more than before the cyclic operation. \sa startProcessingCycle(), endProcessingCycle() */
             };
+            Q_ENUM(SubjectChangeIndication)
+
             //! The possible ownerships with which subjects can be attached to an observer.
             /*!
               See the \ref object_lifetimes section of the \ref page_observers article for a detailed discussion.
@@ -358,6 +358,8 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
 \note QWidget's parent must be another QWidget, thus these rules don't apply to QWidgets.
                 */
             };
+            Q_ENUM(ObjectOwnership)
+
             //! Function which returns a string associated with a specific ObjectOwnership.
             static QString objectOwnershipToString(ObjectOwnership ownership);
             //! Function which returns the ObjectOwnership associated with a string.
@@ -372,6 +374,8 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
                 LockedAccess = 2,           /*!< The observer is read only and locked. Item views presenting this observer to the user will respect the LockedAccess mode and will not display the contents of the observer to the user. */
                 InvalidAccess = 3           /*!< An invalid access mode. This access mode is returned in functions where the access mode is requested for a category that does not exist, for example categoryAccessMode(). */
             };
+            Q_ENUM(AccessMode)
+
             //! Function which returns a string associated with a specific AccessMode.
             static QString accessModeToString(AccessMode access_mode);
             //! Function which returns the AccessMode associated with a string.
@@ -386,6 +390,8 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
                 DeleteImmediately = 0,     /*!< When subjects are deleted by this observer, the normal \p delete operator is used. */
                 DeleteLater = 1            /*!< When subjects are deleted by this observer, deleteLater() are called on them. */
             };
+            Q_ENUM(ObjectDeletionPolicy)
+
             //! Function which returns a string associated with a specific ObjectDeletionPolicy.
             static QString objectDeletionPolicyToString(ObjectDeletionPolicy object_deletion_policy);
             //! Function which returns the ObjectDeletionPolicy associated with a string.
@@ -399,6 +405,8 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
                 GlobalScope = 0,            /*!< The global access mode is used for all categories when categories are used. */
                 CategorizedScope = 1        /*!< Access modes are category specific. */
             };
+            Q_ENUM(AccessModeScope)
+
             //! Function which returns a string associated with a specific AccessModeScope.
             static QString accessModeScopeToString(AccessModeScope access_mode_scope);
             //! Function which returns the AccessModeScope associated with a string.

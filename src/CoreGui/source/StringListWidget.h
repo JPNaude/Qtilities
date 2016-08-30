@@ -49,7 +49,6 @@ namespace Qtilities {
         class QTILITIES_CORE_GUI_SHARED_EXPORT StringListWidget : public QMainWindow
         {
             Q_OBJECT
-            Q_ENUMS(ListType)
 
         public:
             //! The possible types of items which are listed in the string list widget.
@@ -58,6 +57,7 @@ namespace Qtilities {
                 FilePaths            = 1, /*!< File paths. */
                 Directories          = 2  /*!< Directories. */
             };           
+            Q_ENUM(ListType)
 
             StringListWidget(const QStringList& string_list = QStringList(), Qt::ToolBarArea toolbar_area = Qt::TopToolBarArea, QWidget * parent = 0, Qt::WindowFlags flags = 0);
             ~StringListWidget();

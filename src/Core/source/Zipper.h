@@ -78,7 +78,6 @@ and http://sevenzip.sourceforge.jp/chm/cmdline/commands/
 class QTILIITES_CORE_SHARED_EXPORT Zipper : public QObject
 {
     Q_OBJECT
-    Q_ENUMS(ZipMode)
 
 public:
     /*!
@@ -126,6 +125,8 @@ public:
         CopyMode = 0,       /*!< Only do a copy, uses the -mx0 switch. */
         CompressMode = 1    /*!< Does a compression, uses the default settings. */
     };
+    Q_ENUM(ZipMode)
+
     //! Convenience function to zip a folder to a file.
     /*!
      * It is possible to control whether the filenames in the archive will contain the folder_path prefix. For example:

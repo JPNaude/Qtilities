@@ -54,7 +54,6 @@ namespace Qtilities {
         class QTILITIES_CORE_GUI_SHARED_EXPORT ObjectPropertyBrowser : public QWidget
         {
             Q_OBJECT
-            Q_ENUMS(BrowserType)
 
         public:
             //! This enumeration contains all the possible modes in which the property editor can be used.
@@ -72,6 +71,7 @@ namespace Qtilities {
                                     \image latex property_editor_button_browser.eps "Property Browser (Button Browser Mode)" width=3in
                                     */
             };
+            Q_ENUM(BrowserType)
 
             ObjectPropertyBrowser(BrowserType browser_type = TreeBrowser, QWidget *parent = 0);
             ~ObjectPropertyBrowser();

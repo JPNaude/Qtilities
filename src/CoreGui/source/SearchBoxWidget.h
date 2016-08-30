@@ -81,11 +81,6 @@ searchBoxWidget->setPlainTextEditor(myTextEdit);
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT SearchBoxWidget : public QWidget {
             Q_OBJECT
-            Q_ENUMS(WidgetMode)
-            Q_ENUMS(SearchStringChangedNotificationMode)
-            Q_ENUMS(WidgetTarget)
-            Q_ENUMS(ButtonFlag)
-            Q_ENUMS(SearchOption)
 
         public:
             //! An enumeration which is used to indicate in which mode the widget must be used.
@@ -93,17 +88,23 @@ searchBoxWidget->setPlainTextEditor(myTextEdit);
                 SearchOnly,             /*!< The widget will only show search related items. */
                 SearchAndReplace        /*!< The widget will show both show search and replace related items. */
             };
+            Q_ENUM(WidgetMode)
+
             //! An enumeration which defines when notifications about changes to the search string is emitted.
             enum SearchStringChangedNotificationMode {
                 NotifyOnChange,         /*!< Notifications will be done everytime that the search string changed. */
                 NotifyOnReturn          /*!< Notifications will be done only when the user presses return. */
             };
+            Q_ENUM(SearchStringChangedNotificationMode)
+
             //! An enumeration which is used to indicate the target on which the search and place operations must be performed.
             enum WidgetTarget {
                 ExternalTarget,         /*!< External target. Will emit needed signals for external target to connect to. This is the default. */
                 TextEdit,               /*!< Text edit set using setTextEdit(). */
                 PlainTextEdit           /*!< Plain text edit set using setPlainTextEdit(). */
             };
+            Q_ENUM(WidgetTarget)
+
             //! An enumeration which is used to indicate which buttons should be visible in the widget.
             enum ButtonFlag {
                 NoButtons = 0,              /*!< No buttons will be visible in the widget. */
@@ -115,7 +116,8 @@ searchBoxWidget->setPlainTextEditor(myTextEdit);
                 AllButtons = NextButtons | PreviousButtons | HideButtonDown | SearchOptionsButton
             };
             Q_DECLARE_FLAGS(ButtonFlags, ButtonFlag)
-            Q_FLAGS(ButtonFlags)
+            Q_ENUM(ButtonFlag)
+
             //! An enumeration which indicates which search options must be present in the widget.
             enum SearchOption {
                 NoSearchOption = 0,     /*!< Indicates that no search options must be visible. */
@@ -127,7 +129,7 @@ searchBoxWidget->setPlainTextEditor(myTextEdit);
                 AllSearchOptions = CaseSensitive | WholeWordsOnly | RegEx
             };
             Q_DECLARE_FLAGS(SearchOptions, SearchOption)
-            Q_FLAGS(SearchOptions)
+            Q_FLAG(SearchOptions)
 
             //! Constructs a search box widget using the paramaters to customize the look of the widget.
             SearchBoxWidget(SearchOptions search_options = AllSearchOptions,

@@ -26,7 +26,6 @@ namespace Qtilities {
         class qti_private_LoggerEnginesTableModel : public QAbstractTableModel
         {
             Q_OBJECT
-            Q_ENUMS(ColumnIDs)
 
         public:
             qti_private_LoggerEnginesTableModel(QObject* parent = 0);
@@ -35,6 +34,7 @@ namespace Qtilities {
             enum ColumnIDs {
                 NameColumn = 0
             };
+            Q_ENUM(ColumnIDs)
 
             virtual Qt::ItemFlags flags(const QModelIndex &index) const;
             virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
