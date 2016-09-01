@@ -23,36 +23,36 @@ int Qtilities::Testing::TestSubjectTypeFilter::execTest(int argc, char ** argv) 
 void Qtilities::Testing::TestSubjectTypeFilter::testSubjectTypeFiltering() {
     TreeNode node("node");
     SubjectTypeFilter* subject_type_filter = node.setChildType("Test Type");
-    QVERIFY(subject_type_filter->inverseFilteringEnabled() == true);
+    QVERIFY(subject_type_filter->inverseFilteringEnabled());
 
-    QVERIFY(node.subjectCount() == 0);
+    QCOMPARE(node.subjectCount(), 0);
     QObject* obj = new QObject;
     obj->setObjectName("Object1");
     node.attachSubject(obj);
-    QVERIFY(node.subjectCount() == 1);
+    QCOMPARE(node.subjectCount(), 1);
     node.detachSubject(obj);
-    QVERIFY(node.subjectCount() == 0);
+    QCOMPARE(node.subjectCount(), 0);
 
     TreeItem* tree_item = new TreeItem("TreeItem");
     node.attachSubject(tree_item);
-    QVERIFY(node.subjectCount() == 1);
+    QCOMPARE(node.subjectCount(), 1);
     node.detachAll();
-    QVERIFY(node.subjectCount() == 0);
+    QCOMPARE(node.subjectCount(), 0);
 
     subject_type_filter->addSubjectType(SubjectTypeInfo("Qtilities::CoreGui::TreeItem","Qtilities tree item"));
     node.attachSubject(tree_item);
-    QVERIFY(node.subjectCount() == 0);
+    QCOMPARE(node.subjectCount(), 0);
     subject_type_filter->enableInverseFiltering(false);
     node.attachSubject(tree_item);
-    QVERIFY(node.subjectCount() == 1);
+    QCOMPARE(node.subjectCount(), 1);
     node.detachAll();
-    QVERIFY(node.subjectCount() == 0);
+    QCOMPARE(node.subjectCount(), 0);
 
     obj = new QObject;
     obj->setObjectName("Object2");
     node.attachSubject(obj);
-    QVERIFY(node.subjectCount() == 0);
+    QCOMPARE(node.subjectCount(), 0);
     subject_type_filter->addSubjectType(SubjectTypeInfo("QObject","Normal QObject"));
     node.attachSubject(obj);
-    QVERIFY(node.subjectCount() == 1);
+    QCOMPARE(node.subjectCount(), 1);
 }

@@ -31,21 +31,21 @@ void Qtilities::Testing::TestTreeIterator::testIterationForwardSimple() {
 
     TreeIterator itr(rootNode);
     QStringList testList;
-    QVERIFY(itr.current() == rootNode);
+    QCOMPARE(itr.current(), rootNode);
     testList << itr.current()->objectName();
     while (itr.hasNext()) {
         QObject* obj = itr.next();
-        QVERIFY(obj);
+        QVERIFY(obj != 0);
         testList << obj->objectName();
     }
 
-    QVERIFY(itr.first() == rootNode);
-    QVERIFY(itr.last() == last);
-    QVERIFY(itr.hasNext() == false);
-    QVERIFY(itr.hasPrevious() == true);
-    QVERIFY(testList.count() == 7);
+    QCOMPARE(itr.first(), rootNode);
+    QCOMPARE(itr.last(), last);
+    QVERIFY(!itr.hasNext());
+    QVERIFY(itr.hasPrevious());
+    QCOMPARE(testList.count(), 7);
     for (int i = 0; i < testList.count(); ++i) {
-        QVERIFY(testList.at(i).compare(QString::number(i+1)) == 0);
+        QCOMPARE(testList.at(i), QString::number(i+1));
     }
 }
 
@@ -62,21 +62,21 @@ void Qtilities::Testing::TestTreeIterator::testIterationForwardComplexA() {
 
     TreeIterator itr(rootNode);
     QStringList testList;
-    QVERIFY(itr.current() == rootNode);
+    QCOMPARE(itr.current(), rootNode);
     testList << itr.current()->objectName();
     while (itr.hasNext()) {
         QObject* obj = itr.next();
-        QVERIFY(obj);
+        QVERIFY(obj != 0);
         testList << obj->objectName();
     }
 
-    QVERIFY(itr.first() == rootNode);
-    QVERIFY(itr.last() == last);
-    QVERIFY(itr.hasNext() == false);
-    QVERIFY(itr.hasPrevious() == true);
-    QVERIFY(testList.count() == 9);
+    QCOMPARE(itr.first(), rootNode);
+    QCOMPARE(itr.last(), last);
+    QVERIFY(!itr.hasNext());
+    QVERIFY(itr.hasPrevious());
+    QCOMPARE(testList.count(), 9);
     for (int i = 0; i < testList.count(); ++i) {
-        QVERIFY(testList.at(i).compare(QString::number(i+1)) == 0);
+        QCOMPARE(testList.at(i), QString::number(i+1));
     }
 }
 
@@ -91,7 +91,7 @@ void Qtilities::Testing::TestTreeIterator::testIterationForwardComplexB() {
 
     TreeIterator itr(rootNode);
     QStringList testList;
-    QVERIFY(itr.current() == rootNode);
+    QCOMPARE(itr.current(), rootNode);
     testList << itr.current()->objectName();
     while (itr.hasNext()) {
         QObject* obj = itr.next();
@@ -103,13 +103,13 @@ void Qtilities::Testing::TestTreeIterator::testIterationForwardComplexB() {
         }
     }
 
-    QVERIFY(itr.first() == rootNode);
-    QVERIFY(itr.last() == last);
-    QVERIFY(itr.hasNext() == false);
-    QVERIFY(itr.hasPrevious() == true);
-    QVERIFY(testList.count() == 7);
+    QCOMPARE(itr.first(), rootNode);
+    QCOMPARE(itr.last(), last);
+    QVERIFY(!itr.hasNext());
+    QVERIFY(itr.hasPrevious());
+    QCOMPARE(testList.count(), 7);
     for (int i = 0; i < testList.count(); ++i) {
-        QVERIFY(testList.at(i).compare(QString::number(i+1)) == 0);
+        QCOMPARE(testList.at(i), QString::number(i+1));
     }
 }
 
@@ -145,7 +145,7 @@ void Qtilities::Testing::TestTreeIterator::testIterationForwardMultipleParentsA(
     // Now try to iterate through tree A:
     TreeIterator itr(rootNodeA);
     QStringList testList;
-    QVERIFY(itr.current() == rootNodeA);
+    QCOMPARE(itr.current(), rootNodeA);
     testList << itr.current()->objectName();
     while (itr.hasNext()) {
         QObject* obj = itr.next();
@@ -157,13 +157,13 @@ void Qtilities::Testing::TestTreeIterator::testIterationForwardMultipleParentsA(
         }
     }
 
-    QVERIFY(itr.first() == rootNodeA);
-    QVERIFY(itr.last() == lastA);
-    QVERIFY(itr.hasNext() == false);
-    QVERIFY(itr.hasPrevious() == true);
-    QVERIFY(testList.count() == 4);
+    QCOMPARE(itr.first(), rootNodeA);
+    QCOMPARE(itr.last(), lastA);
+    QVERIFY(!itr.hasNext());
+    QVERIFY(itr.hasPrevious());
+    QCOMPARE(testList.count(), 4);
     for (int i = 0; i < testList.count(); ++i) {
-        QVERIFY(testList.at(i).compare("A" + QString::number(i+1)) == 0);
+        QCOMPARE(testList.at(i), QString("A" + QString::number(i+1)));
     }
 }
 
@@ -194,7 +194,7 @@ void Testing::TestTreeIterator::testIterationForwardMultipleParentsB() {
     // Now try to iterate through tree A:
     TreeIterator itr(rootNodeA);
     QStringList testList;
-    QVERIFY(itr.current() == rootNodeA);
+    QCOMPARE(itr.current(), rootNodeA);
     testList << itr.current()->objectName();
     while (itr.hasNext()) {
         QObject* obj = itr.next();
@@ -207,11 +207,11 @@ void Testing::TestTreeIterator::testIterationForwardMultipleParentsB() {
         }
     }
 
-    QVERIFY(itr.first() == rootNodeA);
-    QVERIFY(itr.last() == last);
-    QVERIFY(itr.hasNext() == false);
-    QVERIFY(itr.hasPrevious() == true);
-    QVERIFY(testList.count() == 20);
+    QCOMPARE(itr.first(), rootNodeA);
+    QCOMPARE(itr.last(), last);
+    QVERIFY(!itr.hasNext());
+    QVERIFY(itr.hasPrevious());
+    QCOMPARE(testList.count(), 20);
 }
 
 void Testing::TestTreeIterator::testIterationBackwardsMultipleParentsB() {
@@ -241,7 +241,7 @@ void Testing::TestTreeIterator::testIterationBackwardsMultipleParentsB() {
     // Now try to iterate through tree A:
     TreeIterator itr(rootNodeA);
     QStringList testList;
-    QVERIFY(itr.last() == last);
+    QCOMPARE(itr.last(), last);
     testList << itr.current()->objectName();
     while (itr.hasPrevious()) {
         QObject* obj = itr.previous();
@@ -249,10 +249,10 @@ void Testing::TestTreeIterator::testIterationBackwardsMultipleParentsB() {
         testList << obj->objectName();
     }
 
-    QVERIFY(itr.first() == rootNodeA);
-    QVERIFY(itr.hasNext() == true);
-    QVERIFY(itr.hasPrevious() == false);
-    QVERIFY(testList.count() == 20);
+    QCOMPARE(itr.first(), rootNodeA);
+    QVERIFY(itr.hasNext());
+    QVERIFY(!itr.hasPrevious());
+    QCOMPARE(testList.count(), 20);
 }
 
 void Qtilities::Testing::TestTreeIterator::testIterationBackwardSimple() {
@@ -266,7 +266,7 @@ void Qtilities::Testing::TestTreeIterator::testIterationBackwardSimple() {
 
     TreeIterator itr(rootNode);
     QStringList testList;
-    QVERIFY(itr.last() == last);
+    QCOMPARE(itr.last(), last);
     testList << itr.current()->objectName();
     while (itr.hasPrevious()) {
         QObject* obj = itr.previous();
@@ -274,15 +274,15 @@ void Qtilities::Testing::TestTreeIterator::testIterationBackwardSimple() {
         testList << obj->objectName();
     }
 
-    QVERIFY(itr.first() == rootNode);
-    QVERIFY(itr.hasNext() == true);
-    QVERIFY(itr.hasPrevious() == false);
-    QVERIFY(itr.last() == last);
-    QVERIFY(testList.count() == 7);
+    QCOMPARE(itr.first(), rootNode);
+    QVERIFY(itr.hasNext());
+    QVERIFY(!itr.hasPrevious());
+    QCOMPARE(itr.last(), last);
+    QCOMPARE(testList.count(), 7);
     int compare_value = 0;
     for (int i = testList.count()-1; i >= 0; i--) {
         ++compare_value;
-        QVERIFY(testList.at(i).compare(QString::number(compare_value)) == 0);
+        QCOMPARE(testList.at(i), QString::number(compare_value));
     }
 }
 
@@ -299,7 +299,7 @@ void Qtilities::Testing::TestTreeIterator::testIterationBackwardComplexA() {
 
     TreeIterator itr(rootNode);
     QStringList testList;
-    QVERIFY(itr.last() == last);
+    QCOMPARE(itr.last(), last);
     testList << itr.current()->objectName();
     while (itr.hasPrevious()) {
         QObject* obj = itr.previous();
@@ -307,15 +307,15 @@ void Qtilities::Testing::TestTreeIterator::testIterationBackwardComplexA() {
         testList << obj->objectName();
     }
 
-    QVERIFY(itr.first() == rootNode);
-    QVERIFY(itr.hasNext() == true);
-    QVERIFY(itr.hasPrevious() == false);
-    QVERIFY(itr.last() == last);
-    QVERIFY(testList.count() == 9);
+    QCOMPARE(itr.first(), rootNode);
+    QVERIFY(itr.hasNext());
+    QVERIFY(!itr.hasPrevious());
+    QCOMPARE(itr.last(), last);
+    QCOMPARE(testList.count(), 9);
     int compare_value = 0;
     for (int i = testList.count()-1; i >= 0; i--) {
         ++compare_value;
-        QVERIFY(testList.at(i).compare(QString::number(compare_value)) == 0);
+        QCOMPARE(testList.at(i), QString::number(compare_value));
     }
 }
 
@@ -351,7 +351,7 @@ void Testing::TestTreeIterator::testIterationForwardMultipleParentsC() {
 
     TreeIterator itr(rootNode);
     QStringList testList;
-    QVERIFY(itr.last() == nodeL1_3);
+    QCOMPARE(itr.last(), nodeL1_3);
     testList << itr.current()->objectName();
     while (itr.hasPrevious()) {
         QObject* obj = itr.previous();
@@ -359,11 +359,11 @@ void Testing::TestTreeIterator::testIterationForwardMultipleParentsC() {
         testList << obj->objectName();
     }
 
-    QVERIFY(itr.first() == rootNode);
-    QVERIFY(itr.hasNext() == true);
-    QVERIFY(itr.hasPrevious() == false);
-    QVERIFY(itr.last() == nodeL1_3);
-    QVERIFY(testList.count() == 11);
+    QCOMPARE(itr.first(), rootNode);
+    QVERIFY(itr.hasNext());
+    QVERIFY(!itr.hasPrevious());
+    QCOMPARE(itr.last(), nodeL1_3);
+    QCOMPARE(testList.count(), 11);
 //    int compare_value = 0;
 //    for (int i = testList.count()-1; i >= 0; i--) {
 //        ++compare_value;

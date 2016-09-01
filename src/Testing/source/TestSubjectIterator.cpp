@@ -37,11 +37,11 @@ void Qtilities::Testing::TestSubjectIterator::testIterationSimpleFromStart() {
         testList << itr.next()->objectName();
     }
 
-    QVERIFY(testList.count() == 4);
-    QVERIFY(testList.at(0).compare("1") == 0);
-    QVERIFY(testList.at(1).compare("2") == 0);
-    QVERIFY(testList.at(2).compare("3") == 0);
-    QVERIFY(testList.at(3).compare("4") == 0);
+    QCOMPARE(testList.count(), 4);
+    QCOMPARE(testList.at(0), QString("1"));
+    QCOMPARE(testList.at(1), QString("2"));
+    QCOMPARE(testList.at(2), QString("3"));
+    QCOMPARE(testList.at(3), QString("4"));
 }
 
 void Qtilities::Testing::TestSubjectIterator::testIterationSimpleFromMiddle() {
@@ -58,9 +58,9 @@ void Qtilities::Testing::TestSubjectIterator::testIterationSimpleFromMiddle() {
         testList << itr.next()->objectName();
     }
 
-    QVERIFY(testList.count() == 2);
-    QVERIFY(testList.at(0).compare("2") == 0);
-    QVERIFY(testList.at(1).compare("3") == 0);
+    QCOMPARE(testList.count(), 2);
+    QCOMPARE(testList.at(0), QString("2"));
+    QCOMPARE(testList.at(1), QString("3"));
 }
 
 void Qtilities::Testing::TestSubjectIterator::testIterationComplex() {
@@ -86,10 +86,10 @@ void Qtilities::Testing::TestSubjectIterator::testIterationComplex() {
         testListA << itrA.next()->objectName();
     }
 
-    QVERIFY(testListA.count() == 3);
-    QVERIFY(testListA.at(0).compare("1") == 0);
-    QVERIFY(testListA.at(1).compare("2") == 0);
-    QVERIFY(testListA.at(2).compare("3") == 0);
+    QCOMPARE(testListA.count(), 3);
+    QCOMPARE(testListA.at(0), QString("1"));
+    QCOMPARE(testListA.at(1), QString("2"));
+    QCOMPARE(testListA.at(2), QString("3"));
 
     // If we want to iterate through the subjects in nodeB:
     SubjectIterator<QObject> itrB(nodeB,SubjectIterator<QObject>::IterateChildren);
@@ -101,11 +101,11 @@ void Qtilities::Testing::TestSubjectIterator::testIterationComplex() {
         testListB << itrB.next()->objectName();
     }
 
-    QVERIFY(testListB.count() == 4);
-    QVERIFY(testListB.at(0).compare("4") == 0);
-    QVERIFY(testListB.at(1).compare("5") == 0);
-    QVERIFY(testListB.at(2).compare("2") == 0);
-    QVERIFY(testListB.at(3).compare("6") == 0);
+    QCOMPARE(testListB.count(), 4);
+    QCOMPARE(testListB.at(0), QString("4"));
+    QCOMPARE(testListB.at(1), QString("5"));
+    QCOMPARE(testListB.at(2), QString("2"));
+    QCOMPARE(testListB.at(3), QString("6"));
 
     // If we want to iterate through the subjects in nodeB:
     SubjectIterator<QObject> itrC(shared_item,nodeB);
@@ -117,9 +117,9 @@ void Qtilities::Testing::TestSubjectIterator::testIterationComplex() {
         testListC << itrC.next()->objectName();
     }
 
-    QVERIFY(testListC.count() == 2);
-    QVERIFY(testListC.at(0).compare("2") == 0);
-    QVERIFY(testListC.at(1).compare("6") == 0);
+    QCOMPARE(testListC.count(), 2);
+    QCOMPARE(testListC.at(0), QString("2"));
+    QCOMPARE(testListC.at(1), QString("6"));
 
     // If we want to iterate through the subjects in nodeB:
     SubjectIterator<QObject> itrD(shared_item,nodeA);
@@ -131,16 +131,16 @@ void Qtilities::Testing::TestSubjectIterator::testIterationComplex() {
         testListD << itrD.next()->objectName();
     }
 
-    QVERIFY(testListD.count() == 2);
-    QVERIFY(testListD.at(0).compare("2") == 0);
-    QVERIFY(testListD.at(1).compare("3") == 0);
+    QCOMPARE(testListD.count(), 2);
+    QCOMPARE(testListD.at(0), QString("2"));
+    QCOMPARE(testListD.at(1), QString("3"));
 }
 
 void Qtilities::Testing::TestSubjectIterator::testIterationObserverWithoutChildren() {
     TreeNode* node = new TreeNode;
     SubjectIterator<QObject> itr(node,SubjectIterator<QObject>::IterateChildren);
-    QVERIFY(itr.hasNext() == false);
-    QVERIFY(itr.hasPrevious() == false);
+    QVERIFY(!itr.hasNext());
+    QVERIFY(!itr.hasPrevious());
     QVERIFY(itr.first() == 0);
     QVERIFY(itr.last() == 0);
     QVERIFY(itr.current() == 0);

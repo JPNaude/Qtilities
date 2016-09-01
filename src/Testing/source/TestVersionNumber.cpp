@@ -192,35 +192,35 @@ void Qtilities::Testing::TestVersionNumber::testOperatorSmallerEqual() {
 
 void Qtilities::Testing::TestVersionNumber::testToString() {
     VersionNumber ver(1,2,3);
-    QVERIFY(ver.toString().compare("1.2.3") == 0);
+    QCOMPARE(ver.toString(), QString("1.2.3"));
     ver.setDevelopmentStage(VersionNumber::DevelopmentStageServicePack);
     ver.setVersionDevelopmentStage(1);
-    QVERIFY(ver.toString().compare(QString("1.2.3%1%2").arg(VersionNumber::defaultDevelopmentStageIdentifer(VersionNumber::DevelopmentStageServicePack)).arg(ver.versionDevelopmentStage())) == 0);
+    QCOMPARE(ver.toString(), QString("1.2.3%1%2").arg(VersionNumber::defaultDevelopmentStageIdentifer(VersionNumber::DevelopmentStageServicePack)).arg(ver.versionDevelopmentStage()));
     ver.setDevelopmentStage(VersionNumber::DevelopmentStageReleaseCandidate);
     ver.setDevelopmentStageIdentifier(" Release Candidate ");
     ver.setVersionDevelopmentStage(2);
-    QVERIFY(ver.toString().compare("1.2.3 Release Candidate 2") == 0);
+    QCOMPARE(ver.toString(), QString("1.2.3 Release Candidate 2"));
     ver.setVersionDevelopmentStage(0);
     ver.setFieldWidthMinor(3);
-    QVERIFY(ver.toString().compare("1.002.3") == 0);
+    QCOMPARE(ver.toString(), QString("1.002.3"));
     ver.setFieldWidthRevision(3);
-    QVERIFY(ver.toString().compare("1.002.003") == 0);
+    QCOMPARE(ver.toString(), QString("1.002.003"));
 
     ver.setIsVersionRevisionUsed(false);
-    QVERIFY(ver.toString().compare("1.002") == 0);
+    QCOMPARE(ver.toString(), QString("1.002"));
     ver.setIsVersionMinorUsed(false);
-    QVERIFY(ver.toString().compare("1") == 0);
+    QCOMPARE(ver.toString(), QString("1"));
 
     VersionNumber ver1(1,12,103);
-    QVERIFY(ver1.toString().compare("1.12.103") == 0);
+    QCOMPARE(ver1.toString(), QString("1.12.103"));
     ver1.setFieldWidthMinor(3);
-    QVERIFY(ver1.toString().compare("1.012.103") == 0);
+    QCOMPARE(ver1.toString(), QString("1.012.103"));
     ver1.setFieldWidthRevision(3);
-    QVERIFY(ver1.toString().compare("1.012.103") == 0);
+    QCOMPARE(ver1.toString(), QString("1.012.103"));
 
     ver1.setIsVersionRevisionUsed(false);
-    QVERIFY(ver1.toString().compare("1.012") == 0);
+    QCOMPARE(ver1.toString(), QString("1.012"));
     ver1.setIsVersionMinorUsed(false);
-    QVERIFY(ver1.toString().compare("1") == 0);
+    QCOMPARE(ver1.toString(), QString("1"));
 }
 

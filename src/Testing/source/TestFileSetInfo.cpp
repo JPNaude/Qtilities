@@ -39,5 +39,5 @@ void Qtilities::Testing::TestFileSetInfo::testGetHash() {
     FileSetInfo fsi;
     fsi.addFile(QApplication::applicationDirPath() + "/test_text.txt");
     fsi.addFile(QApplication::applicationDirPath() + "/test_binary.bin");
-    QVERIFY(fsi.fileSetHash() == 210687302);
+    QCOMPARE(fsi.fileSetHash(), 210687302);
 }
