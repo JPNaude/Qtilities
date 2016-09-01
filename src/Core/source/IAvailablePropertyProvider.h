@@ -90,7 +90,7 @@ namespace Qtilities {
 
                 return *this;
             }
-            bool operator==(const PropertySpecification& ref) {
+            bool operator==(const PropertySpecification& ref) const {
                 if (d_displayed_name != ref.d_displayed_name)
                     return false;
                 if (d_property_name != ref.d_property_name)
@@ -116,7 +116,7 @@ namespace Qtilities {
 
                 return true;
             }
-            bool operator!=(const PropertySpecification& ref) {
+            bool operator!=(const PropertySpecification& ref) const {
                 return !(*this==ref);
             }
             /*!

@@ -43,8 +43,8 @@ namespace Qtilities {
             RelationalTableEntry();
             RelationalTableEntry(int visitorID, int sessionID, const QString& name, int ownership, QObject* obj = 0);
             RelationalTableEntry(const RelationalTableEntry& other);
-            bool operator==(const RelationalTableEntry& other);
-            bool operator!=(const RelationalTableEntry& other);
+            bool operator==(const RelationalTableEntry& other) const;
+            bool operator!=(const RelationalTableEntry& other) const;
 
             //! Get the parents of the entry.
             QList<int> parents() const;
@@ -235,10 +235,10 @@ for (int i = 0; i < table.count(); i++) {
             ObserverRelationalTable();
             ~ObserverRelationalTable();
 
-            bool operator==(const ObserverRelationalTable& other) {
+            bool operator==(const ObserverRelationalTable& other) const {
                 return compare(other);
             }
-            bool operator!=(const ObserverRelationalTable& other) {
+            bool operator!=(const ObserverRelationalTable& other) const {
                 return !compare(other);
             }
 
@@ -253,7 +253,7 @@ for (int i = 0; i < table.count(); i++) {
               entries in the tables must be the same and each entry must be exactly the same (except for d_sessionID and
               d_previousSessionID).
               */
-            bool compare(ObserverRelationalTable table);
+            bool compare(ObserverRelationalTable table) const;
             //! Returns the number of entries in the table.
             int count() const;
             //! Returns the entry with the given visitor ID.

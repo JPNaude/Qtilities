@@ -52,7 +52,7 @@ namespace Qtilities {
 
                 return *this;
             }
-            bool operator==(const SubjectTypeInfo& ref) {
+            bool operator==(const SubjectTypeInfo& ref) const {
                 if (d_meta_type != ref.d_meta_type)
                     return false;
                 if (d_name != ref.d_name)
@@ -60,7 +60,7 @@ namespace Qtilities {
 
                 return true;
             }
-            bool operator!=(const SubjectTypeInfo& ref) {
+            bool operator!=(const SubjectTypeInfo& ref) const {
                 return !(*this==ref);
             }
 
@@ -89,7 +89,7 @@ namespace Qtilities {
 
                 return *this;
             }
-            bool operator==(const PropertyDiffInfo& ref) {
+            bool operator==(const PropertyDiffInfo& ref) const {
                 if (d_added_properties != ref.d_added_properties)
                     return false;
                 if (d_removed_properties != ref.d_removed_properties)
@@ -113,7 +113,7 @@ namespace Qtilities {
                     return true;
                 return false;
             }
-            bool operator!=(const PropertyDiffInfo& ref) {
+            bool operator!=(const PropertyDiffInfo& ref) const {
                 return !(*this==ref);
             }
 

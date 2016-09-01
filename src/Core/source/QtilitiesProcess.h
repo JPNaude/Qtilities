@@ -89,7 +89,7 @@ namespace Qtilities {
 
                 return *this;
             }
-            bool operator==(const ProcessBufferMessageTypeHint& ref) {
+            bool operator==(const ProcessBufferMessageTypeHint& ref) const {
                 if (d_message_type != ref.d_message_type)
                     return false;
                 if (d_regexp != ref.d_regexp)
@@ -111,7 +111,7 @@ namespace Qtilities {
 
                 return true;
             }
-            bool operator!=(const ProcessBufferMessageTypeHint& ref) {
+            bool operator!=(const ProcessBufferMessageTypeHint& ref) const {
                 return !(*this==ref);
             }
 
