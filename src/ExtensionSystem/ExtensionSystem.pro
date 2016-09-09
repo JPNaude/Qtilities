@@ -11,7 +11,8 @@ include(../Qtilities.pri)
 INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesExtensionSystem
 
 CONFIG += qt dll
-QT += xml gui
+QT += core xml gui
+# Note: xml module is deprecated
 
 greaterThan(QT_MAJOR_VERSION, 4) { QT += widgets printsupport }
 
@@ -30,16 +31,21 @@ UI_DIR = $$QTILITIES_TEMP/ExtensionSystem
 # --------------------------
 # Extension Library Files
 # --------------------------
-HEADERS += source/ExtensionSystemCore.h \
-        source/ExtensionSystem_global.h \
-        source/ExtensionSystemConstants.h \
-        source/IPlugin.h \
+HEADERS += \
         source/ExtensionSystemConfig.h \
+        source/ExtensionSystemConstants.h \
+        source/ExtensionSystemCore.h \
+        source/ExtensionSystem_global.h \
+        source/IPlugin.h \
         source/PluginInfoWidget.h \
-        source/PluginTreeModel.h
-SOURCES += source/ExtensionSystemCore.cpp \
+        source/PluginTreeModel.h \
+
+SOURCES += \
         source/ExtensionSystemConfig.cpp \
+        source/ExtensionSystemCore.cpp \
         source/PluginInfoWidget.cpp \
-        source/PluginTreeModel.cpp
-FORMS   += source/ExtensionSystemConfig.ui \
-        source/PluginInfoWidget.ui
+        source/PluginTreeModel.cpp \
+
+FORMS   += \
+        source/ExtensionSystemConfig.ui \
+        source/PluginInfoWidget.ui \

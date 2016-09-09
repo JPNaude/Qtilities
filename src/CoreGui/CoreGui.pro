@@ -11,7 +11,8 @@ include(../Qtilities.pri)
 INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCoreGui
 
 CONFIG += qt dll
-QT += xml gui
+QT += core xml gui
+# Note: xml module is deprecated
 
 greaterThan(QT_MAJOR_VERSION, 4) { QT += widgets printsupport }
 
@@ -29,157 +30,167 @@ UI_DIR = $$QTILITIES_TEMP/CoreGui
 # Files only included when Qt Property Browser solution is present
 # --------------------------
 contains(DEFINES, QTILITIES_PROPERTY_BROWSER) {
-    HEADERS += source/ObjectPropertyBrowser.h \
-               source/ObjectDynamicPropertyBrowser.h
-    SOURCES += source/ObjectPropertyBrowser.cpp \
-               source/ObjectDynamicPropertyBrowser.cpp
+    HEADERS += \
+        source/ObjectPropertyBrowser.h \
+        source/ObjectDynamicPropertyBrowser.h \
+
+    SOURCES += \
+        source/ObjectPropertyBrowser.cpp \
+        source/ObjectDynamicPropertyBrowser.cpp \
 }
 
 # --------------------------
 # Qtilities Core Gui Files
 # --------------------------
 RESOURCES += \
-    resources/CoreGui.qrc
-HEADERS += source/QtilitiesCoreGui_global.h \
+    resources/CoreGui.qrc \
+
+HEADERS += \
+    source/AboutWindow.h \
+    source/AbstractObserverItemModel.h \
+    source/AbstractTreeItem.h \
+    source/ActionContainer.h \
+    source/ActionManager.h \
+    source/ActionProvider.h \
+    source/AddDynamicPropertyWizard.h \
+    source/ClipboardManager.h \
+    source/CodeEditor.h \
+    source/CodeEditorWidgetConfig.h \
+    source/CodeEditorWidget.h \
+    source/CommandEditor.h \
+    source/Command.h \
+    source/CommandTreeModel.h \
+    source/ConfigurationWidget.h \
+    source/DynamicSideWidgetViewer.h \
+    source/DynamicSideWidgetWrapper.h \
+    source/GenericPropertyBrowser.h \
+    source/GenericPropertyPathEditor.h \
+    source/GenericPropertyPathEditorListWrapper.h \
+    source/GenericPropertyTypeManagers.h \
+    source/GroupedConfigPage.h \
+    source/IActionManager.h \
+    source/IActionProvider.h \
+    source/IClipboard.h \
+    source/IConfigPage.h \
+    source/IGroupedConfigPageInfoProvider.h \
+    source/IMode.h \
+    source/INamingPolicyDialog.h \
+    source/ISideViewerWidget.h \
+    source/LoggerConfigWidget.h \
+    source/LoggerEnginesTableModel.h \
+    source/LoggerGui.h \
+    source/ModeListWidget.h \
+    source/ModeManager.h \
+    source/NamingPolicyFilter.h \
+    source/NamingPolicyInputDialog.h \
+    source/ObjectHierarchyNavigator.h \
+    source/ObjectScopeWidget.h \
+    source/ObserverTableModel.h \
+    source/ObserverTableModelProxyFilter.h \
+    source/ObserverTreeItem.h \
+    source/ObserverTreeModelBuilder.h \
+    source/ObserverTreeModel.h \
+    source/ObserverTreeModelProxyFilter.h \
+    source/ObserverWidget.h \
     source/QtilitiesApplication.h \
     source/QtilitiesApplication_p.h \
     source/QtilitiesCoreGuiConstants.h \
-    source/ObserverWidget.h \
-    source/NamingPolicyInputDialog.h \
-    source/NamingPolicyFilter.h \
-    source/AbstractObserverItemModel.h \
-    source/ObjectScopeWidget.h \
-    source/ObjectHierarchyNavigator.h \
-    source/ObserverTreeItem.h \
-    source/SearchBoxWidget.h \
-    source/IActionProvider.h \
-    source/ActionProvider.h \
-    source/LoggerConfigWidget.h \
-    source/WidgetLoggerEngine.h \
-    source/WidgetLoggerEngineFrontend.h \
-    source/Command.h \
-    source/ActionContainer.h \
-    source/ActionManager.h \
-    source/ClipboardManager.h \
-    source/CommandEditor.h \
-    source/IActionManager.h \
-    source/IClipboard.h \
-    source/LoggerGui.h \
-    source/LoggerEnginesTableModel.h \
-    source/ConfigurationWidget.h \
-    source/IConfigPage.h \
-    source/AboutWindow.h \
-    source/DynamicSideWidgetViewer.h \
-    source/IMode.h \
-    source/ISideViewerWidget.h \
-    source/DynamicSideWidgetWrapper.h \
+    source/QtilitiesCoreGui_global.h \
     source/QtilitiesMainWindow.h \
-    source/CodeEditor.h \
-    source/CodeEditorWidget.h \
-    source/CodeEditorWidgetConfig.h \
-    source/TreeNode.h \
-    source/AbstractTreeItem.h \
-    source/TreeItem.h \
-    source/ObserverTreeModelProxyFilter.h \
+    source/SearchBoxWidget.h \
+    source/SideViewerWidgetFactory.h \
+    source/SideWidgetFileSystem.h \
+    source/SingleTaskWidget.h \
+    source/StringListWidget.h \
+    source/TaskManagerGui.h \
+    source/TaskSummaryWidget.h \
     source/TreeFileItem.h \
     source/TreeItemBase.h \
-    source/SideWidgetFileSystem.h \
-    source/ModeManager.h \
-    source/SideViewerWidgetFactory.h \
-    source/ModeListWidget.h \
-    source/ObserverTableModel.h \
-    source/ObserverTreeModel.h \
-    source/StringListWidget.h \
-    source/CommandTreeModel.h \
-    source/INamingPolicyDialog.h \
-    source/ObserverTreeModelBuilder.h \
-    source/TaskManagerGui.h \
-    source/SingleTaskWidget.h \
-    source/TaskSummaryWidget.h \
-    source/ObserverTableModelProxyFilter.h \
-    source/GroupedConfigPage.h \
-    source/IGroupedConfigPageInfoProvider.h \
-    source/AddDynamicPropertyWizard.h \
-    source/GenericPropertyBrowser.h \
-    source/GenericPropertyTypeManagers.h \
-    source/GenericPropertyPathEditor.h \
-    source/GenericPropertyPathEditorListWrapper.h
+    source/TreeItem.h \
+    source/TreeNode.h \
+    source/WidgetLoggerEngineFrontend.h \
+    source/WidgetLoggerEngine.h \
 
-SOURCES += source/QtilitiesApplication.cpp \
-    source/QtilitiesApplication_p.cpp \
-    source/ObserverWidget.cpp \
-    source/NamingPolicyInputDialog.cpp \
-    source/NamingPolicyFilter.cpp \
+
+SOURCES += \
+    source/AboutWindow.cpp \
     source/AbstractObserverItemModel.cpp \
-    source/ObjectScopeWidget.cpp \
-    source/ObjectHierarchyNavigator.cpp \
-    source/ObserverTreeItem.cpp \
-    source/SearchBoxWidget.cpp \
-    source/ActionProvider.cpp \
-    source/LoggerConfigWidget.cpp \
-    source/WidgetLoggerEngine.cpp \
-    source/WidgetLoggerEngineFrontend.cpp \
-    source/Command.cpp \
+    source/AbstractTreeItem.cpp \
     source/ActionContainer.cpp \
     source/ActionManager.cpp \
+    source/ActionProvider.cpp \
+    source/AddDynamicPropertyWizard.cpp \
     source/ClipboardManager.cpp \
+    source/CodeEditor.cpp \
+    source/CodeEditorWidgetConfig.cpp \
+    source/CodeEditorWidget.cpp \
+    source/Command.cpp \
     source/CommandEditor.cpp \
-    source/LoggerEnginesTableModel.cpp \
+    source/CommandTreeModel.cpp \
     source/ConfigurationWidget.cpp \
-    source/AboutWindow.cpp \
     source/DynamicSideWidgetViewer.cpp \
     source/DynamicSideWidgetWrapper.cpp \
-    source/QtilitiesMainWindow.cpp \
-    source/CodeEditor.cpp \
-    source/CodeEditorWidget.cpp \
-    source/CodeEditorWidgetConfig.cpp \
-    source/TreeNode.cpp \
-    source/AbstractTreeItem.cpp \
-    source/TreeItem.cpp \
+    source/GenericPropertyBrowser.cpp \
+    source/GenericPropertyPathEditor.cpp \
+    source/GenericPropertyPathEditorListWrapper.cpp \
+    source/GenericPropertyTypeManagers.cpp \
+    source/GroupedConfigPage.cpp \
+    source/LoggerConfigWidget.cpp \
+    source/LoggerEnginesTableModel.cpp \
+    source/ModeListWidget.cpp \
+    source/ModeManager.cpp \
+    source/NamingPolicyFilter.cpp \
+    source/NamingPolicyInputDialog.cpp \
+    source/ObjectHierarchyNavigator.cpp \
+    source/ObjectScopeWidget.cpp \
+    source/ObserverTableModel.cpp \
+    source/ObserverTableModelProxyFilter.cpp \
+    source/ObserverTreeItem.cpp \
+    source/ObserverTreeModelBuilder.cpp \
+    source/ObserverTreeModel.cpp \
     source/ObserverTreeModelProxyFilter.cpp \
+    source/ObserverWidget.cpp \
+    source/QtilitiesApplication.cpp \
+    source/QtilitiesApplication_p.cpp \
+    source/QtilitiesMainWindow.cpp \
+    source/SearchBoxWidget.cpp \
+    source/SideViewerWidgetFactory.cpp \
+    source/SideWidgetFileSystem.cpp \
+    source/SingleTaskWidget.cpp \
+    source/StringListWidget.cpp \
+    source/TaskManagerGui.cpp \
+    source/TaskSummaryWidget.cpp \
     source/TreeFileItem.cpp \
     source/TreeItemBase.cpp \
-    source/SideWidgetFileSystem.cpp \
-    source/ModeManager.cpp \
-    source/SideViewerWidgetFactory.cpp \
-    source/ModeListWidget.cpp \
-    source/ObserverTableModel.cpp \
-    source/ObserverTreeModel.cpp \
-    source/StringListWidget.cpp \
-    source/CommandTreeModel.cpp \
-    source/ObserverTreeModelBuilder.cpp \
-    source/TaskManagerGui.cpp \
-    source/SingleTaskWidget.cpp \
-    source/TaskSummaryWidget.cpp \
-    source/ObserverTableModelProxyFilter.cpp \
-    source/GroupedConfigPage.cpp \
-    source/AddDynamicPropertyWizard.cpp \
-    source/GenericPropertyBrowser.cpp \
-    source/GenericPropertyTypeManagers.cpp \
-    source/GenericPropertyPathEditor.cpp \
-    source/GenericPropertyPathEditorListWrapper.cpp
+    source/TreeItem.cpp \
+    source/TreeNode.cpp \
+    source/WidgetLoggerEngine.cpp \
+    source/WidgetLoggerEngineFrontend.cpp \
 
-FORMS += source/ObserverWidget.ui \
-    source/NamingPolicyInputDialog.ui \
-    source/ObjectScopeWidget.ui \
-    source/ObjectHierarchyNavigator.ui \
-    source/SearchBoxWidget.ui \
-    source/LoggerConfigWidget.ui \
+
+FORMS += \
+    source/AboutWindow.ui \
+    source/CodeEditorWidgetConfig.ui \
+    source/CodeEditorWidget.ui \
     source/CommandEditor.ui \
     source/ConfigurationWidget.ui \
-    source/AboutWindow.ui \
     source/DynamicSideWidgetViewer.ui \
     source/DynamicSideWidgetWrapper.ui \
-    source/QtilitiesMainWindow.ui \
-    source/CodeEditorWidget.ui \
-    source/CodeEditorWidgetConfig.ui \
-    source/SideWidgetFileSystem.ui \
-    source/StringListWidget.ui \
-    source/SingleTaskWidget.ui \
-    source/TaskSummaryWidget.ui \
-    source/GroupedConfigPage.ui \
+    source/GenericPropertyPathEditorListWrapper.ui \
     source/GenericPropertyPathEditor.ui \
-    source/GenericPropertyPathEditorListWrapper.ui
+    source/GroupedConfigPage.ui \
+    source/LoggerConfigWidget.ui \
+    source/NamingPolicyInputDialog.ui \
+    source/ObjectHierarchyNavigator.ui \
+    source/ObjectScopeWidget.ui \
+    source/ObserverWidget.ui \
+    source/QtilitiesMainWindow.ui \
+    source/SearchBoxWidget.ui \
+    source/SideWidgetFileSystem.ui \
+    source/SingleTaskWidget.ui \
+    source/StringListWidget.ui \
+    source/TaskSummaryWidget.ui \
+
 
 # --------------------------
 # Files only included when Qtilities help is defined to be present.
@@ -193,6 +204,10 @@ contains(DEFINES, QTILITIES_NO_HELP) {
     lessThan(QT_MAJOR_VERSION, 5) {
         CONFIG  += help
     }
-    HEADERS += source/HelpManager.h
-    SOURCES += source/HelpManager.cpp
+
+    HEADERS += \
+        source/HelpManager.h \
+
+    SOURCES += \
+        source/HelpManager.cpp \
 }

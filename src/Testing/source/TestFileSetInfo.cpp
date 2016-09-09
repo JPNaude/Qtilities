@@ -38,6 +38,10 @@ int Qtilities::Testing::TestFileSetInfo::execTest(int argc, char ** argv) {
 void Qtilities::Testing::TestFileSetInfo::testGetHash() {
     FileSetInfo fsi;
     fsi.addFile(QApplication::applicationDirPath() + "/test_text.txt");
+
+    int hash1 = fsi.fileSetHash();
     fsi.addFile(QApplication::applicationDirPath() + "/test_binary.bin");
-    QCOMPARE(fsi.fileSetHash(), 210687302);
+
+    int hash2 = fsi.fileSetHash();
+    QVERIFY(hash1 != hash2);
 }

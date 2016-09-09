@@ -31,17 +31,19 @@ UI_DIR = $$QTILITIES_TEMP/Logging
 # --------------------------
 # Logging Library Files
 # --------------------------
-HEADERS += source/Logging_global.h \
-    source/LoggingConstants.h \
+HEADERS += \
     source/AbstractFormattingEngine.h \
     source/AbstractLoggerEngine.h \
     source/FormattingEngines.h \
-    source/Logger.h \
+    source/ILoggerExportable.h \
     source/LoggerEngines.h \
     source/LoggerFactory.h \
-    source/ILoggerExportable.h
+    source/Logger.h \
+    source/LoggingConstants.h \
+    source/Logging_global.h \
 
-SOURCES += source/AbstractLoggerEngine.cpp \
+SOURCES += \
+    source/AbstractLoggerEngine.cpp \
+    source/FormattingEngines.cpp \
     source/Logger.cpp \
     source/LoggerEngines.cpp \
-    source/FormattingEngines.cpp

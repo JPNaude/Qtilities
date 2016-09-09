@@ -121,7 +121,9 @@ void Qtilities::Testing::TestNamingPolicyFilter::testRejectValidityResolutionPol
     QCOMPARE(node.subjectCount(), 1);
     node.addItem("B");
     QCOMPARE(node.subjectCount(), 2);
-    node.addItem("");
+
+    QString huge(512, 'C');
+    node.addItem(huge);
     QCOMPARE(node.subjectCount(), 2);
 }
 
@@ -142,7 +144,10 @@ void Qtilities::Testing::TestNamingPolicyFilter::testProcessingCycleValidationCh
     QCOMPARE(node.subjectCount(), 2);
 
     filter->setProcessingCycleValidationChecks(NamingPolicyFilter::Validity);
-    node.addItem("");
+
+    QString huge(512, 'C');
+    node.addItem(huge);
+
     QCOMPARE(node.subjectCount(), 2);
     node.addItem("A");
     QCOMPARE(node.subjectCount(), 3);

@@ -36,10 +36,10 @@ UI_DIR          = $$QTILITIES_TEMP/ProjectManagementPlugin
 # --------------------------
 # Library Files
 # --------------------------
-HEADERS +=  source/ProjectManagementPlugin.h \
+HEADERS +=  \
+            source/ProjectManagementPluginConstants.h \
             source/ProjectManagementPlugin_global.h \
-            source/ProjectManagementPluginConstants.h
+            source/ProjectManagementPlugin.h \
 
-SOURCES +=  source/ProjectManagementPlugin.cpp
-
-RESOURCES +=
+SOURCES +=  \
+            source/ProjectManagementPlugin.cpp \

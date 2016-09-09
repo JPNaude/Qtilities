@@ -203,9 +203,9 @@ QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::
     }
 }
 
-#define QtilitiesApp ((Qtilities::Core::QtilitiesCoreApplication *) QCoreApplication::instance())
-#define OBJECT_MANAGER ((Qtilities::Core::QtilitiesCoreApplication *) QCoreApplication::instance())->objectManager()
-#define CONTEXT_MANAGER ((Qtilities::Core::QtilitiesCoreApplication *) QCoreApplication::instance())->contextManager()
-#define TASK_MANAGER ((Qtilities::Core::QtilitiesCoreApplication *) QCoreApplication::instance())->taskManager()
+#define QtilitiesApp static_cast<Qtilities::Core::QtilitiesCoreApplication *>(QCoreApplication::instance())
+#define OBJECT_MANAGER static_cast<Qtilities::Core::QtilitiesCoreApplication *>(QCoreApplication::instance())->objectManager()
+#define CONTEXT_MANAGER static_cast<Qtilities::Core::QtilitiesCoreApplication *>(QCoreApplication::instance())->contextManager()
+#define TASK_MANAGER static_cast<Qtilities::Core::QtilitiesCoreApplication *>(QCoreApplication::instance())->taskManager()
 
 #endif // QTILITIES_CORE_H
