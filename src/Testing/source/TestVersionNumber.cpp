@@ -14,6 +14,8 @@
 #include <QtilitiesCore>
 using namespace QtilitiesCore;
 
+// The boolean expressions in this test look a little weird because we're
+// ensuring that their overloads actually work as expected.
 int Qtilities::Testing::TestVersionNumber::execTest(int argc, char ** argv) {
     return QTest::qExec(this,argc,argv);
 }
@@ -190,37 +192,43 @@ void Qtilities::Testing::TestVersionNumber::testOperatorSmallerEqual() {
     QVERIFY(ver5 <= ver1);
 }
 
+// For some reason, I get a link error when using QCOMPARE with ver.toString()
+// and a string literal:
+//
+//     undefined symbol: _ZN5QTest8qCompareI7QStringA6_cEEbRKT_RKT0_PKcSA_SA_i
+//
+// But QStringLiteral is apparently the "proper" thing to use anyway.
 void Qtilities::Testing::TestVersionNumber::testToString() {
     VersionNumber ver(1,2,3);
-    QVERIFY(ver.toString().compare("1.2.3") == 0);
+    QCOMPARE(ver.toString(), QStringLiteral("1.2.3"));
     ver.setDevelopmentStage(VersionNumber::DevelopmentStageServicePack);
     ver.setVersionDevelopmentStage(1);
-    QVERIFY(ver.toString().compare(QString("1.2.3%1%2").arg(VersionNumber::defaultDevelopmentStageIdentifer(VersionNumber::DevelopmentStageServicePack)).arg(ver.versionDevelopmentStage())) == 0);
+    QCOMPARE(ver.toString(), QStringLiteral("1.2.3%1%2").arg(VersionNumber::defaultDevelopmentStageIdentifer(VersionNumber::DevelopmentStageServicePack)).arg(ver.versionDevelopmentStage()));
     ver.setDevelopmentStage(VersionNumber::DevelopmentStageReleaseCandidate);
     ver.setDevelopmentStageIdentifier(" Release Candidate ");
     ver.setVersionDevelopmentStage(2);
-    QVERIFY(ver.toString().compare("1.2.3 Release Candidate 2") == 0);
+    QCOMPARE(ver.toString(), QStringLiteral("1.2.3 Release Candidate 2"));
     ver.setVersionDevelopmentStage(0);
     ver.setFieldWidthMinor(3);
-    QVERIFY(ver.toString().compare("1.002.3") == 0);
+    QCOMPARE(ver.toString(), QStringLiteral("1.002.3"));
     ver.setFieldWidthRevision(3);
-    QVERIFY(ver.toString().compare("1.002.003") == 0);
+    QCOMPARE(ver.toString(), QStringLiteral("1.002.003"));
 
     ver.setIsVersionRevisionUsed(false);
-    QVERIFY(ver.toString().compare("1.002") == 0);
+    QCOMPARE(ver.toString(), QStringLiteral("1.002"));
     ver.setIsVersionMinorUsed(false);
-    QVERIFY(ver.toString().compare("1") == 0);
+    QCOMPARE(ver.toString(), QStringLiteral("1"));
 
     VersionNumber ver1(1,12,103);
-    QVERIFY(ver1.toString().compare("1.12.103") == 0);
+    QCOMPARE(ver1.toString(), QStringLiteral("1.12.103"));
     ver1.setFieldWidthMinor(3);
-    QVERIFY(ver1.toString().compare("1.012.103") == 0);
+    QCOMPARE(ver1.toString(), QStringLiteral("1.012.103"));
     ver1.setFieldWidthRevision(3);
-    QVERIFY(ver1.toString().compare("1.012.103") == 0);
+    QCOMPARE(ver1.toString(), QStringLiteral("1.012.103"));
 
     ver1.setIsVersionRevisionUsed(false);
-    QVERIFY(ver1.toString().compare("1.012") == 0);
+    QCOMPARE(ver1.toString(), QStringLiteral("1.012"));
     ver1.setIsVersionMinorUsed(false);
-    QVERIFY(ver1.toString().compare("1") == 0);
+    QCOMPARE(ver1.toString(), QStringLiteral("1"));
 }
 

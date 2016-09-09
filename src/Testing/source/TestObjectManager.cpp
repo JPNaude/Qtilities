@@ -43,13 +43,13 @@ void Qtilities::Testing::TestObjectManager::testCloneAndRemoveDynamicProperties(
     // Test before cloning:
     // 1. Get the shared property:
     SharedProperty check_shared_property = ObjectManager::getSharedProperty(source_obj,"Shared Property");
-    QVERIFY(test_shared_property == check_shared_property);
+    QCOMPARE(test_shared_property, check_shared_property);
     // 2. Get the multi context property:
     MultiContextProperty check_multi_context_property = ObjectManager::getMultiContextProperty(source_obj,"Multi Context Property");
-    QVERIFY(test_multi_context_property == check_multi_context_property);
+    QCOMPARE(test_multi_context_property, check_multi_context_property);
     // 3. Get the normal QVariant property
     QVariant check_normal_variant = source_obj->property("Normal Property");
-    QVERIFY(test_normal_variant == check_normal_variant);
+    QCOMPARE(test_normal_variant, check_normal_variant);
 
     // Do the clone:
     ObjectManager::cloneObjectProperties(source_obj,target_obj);
@@ -58,15 +58,15 @@ void Qtilities::Testing::TestObjectManager::testCloneAndRemoveDynamicProperties(
     // 1. Get the shared property:
     QVERIFY(ObjectManager::propertyExists(target_obj,"Shared Property"));
     SharedProperty return_shared_property = ObjectManager::getSharedProperty(target_obj,"Shared Property");
-    QVERIFY(test_shared_property == return_shared_property);
+    QCOMPARE(test_shared_property, return_shared_property);
     // 2. Get the multi context property:
     QVERIFY(ObjectManager::propertyExists(target_obj,"Multi Context Property"));
     MultiContextProperty return_multi_context_property = ObjectManager::getMultiContextProperty(target_obj,"Multi Context Property");
-    QVERIFY(test_multi_context_property == return_multi_context_property);
+    QCOMPARE(test_multi_context_property, return_multi_context_property);
     // 3. Get the normal QVariant property
     QVERIFY(ObjectManager::propertyExists(target_obj,"Normal Property"));
     QVariant return_normal_variant = target_obj->property("Normal Property");
-    QVERIFY(test_normal_variant == return_normal_variant);
+    QCOMPARE(test_normal_variant, return_normal_variant);
 
     // Test removing:
     ObjectManager::removeDynamicProperties(target_obj);
@@ -139,10 +139,10 @@ void Qtilities::Testing::TestObjectManager::testCompareDynamicPropertiesDiff() {
 
     PropertyDiffInfo diff;
     QVERIFY(!ObjectManager::compareDynamicProperties(obj1,obj2,ObjectManager::SharedProperties,&diff));
-    QVERIFY(diff.d_added_properties.count() == 1);
-    QVERIFY(diff.d_added_properties.values().at(0) == "5");
-    QVERIFY(diff.d_removed_properties.count() == 0);
-    QVERIFY(diff.d_changed_properties.count() == 0);
+    QCOMPARE(diff.d_added_properties.count(), 1);
+    QCOMPARE(diff.d_added_properties.values().at(0), QString("5"));
+    QCOMPARE(diff.d_removed_properties.count(), 0);
+    QCOMPARE(diff.d_changed_properties.count(), 0);
 
     SharedProperty test_shared_property2("Shared Property",QVariant(5));
     ObjectManager::setSharedProperty(obj2,test_shared_property2);
@@ -158,10 +158,10 @@ void Qtilities::Testing::TestObjectManager::testCompareDynamicPropertiesDiff() {
     QVERIFY(!ObjectManager::compareDynamicProperties(obj1,obj2));
 
     QVERIFY(!ObjectManager::compareDynamicProperties(obj2,obj1,ObjectManager::MultiContextProperties,&diff));
-    QVERIFY(diff.d_added_properties.count() == 0);
-    QVERIFY(diff.d_removed_properties.count() == 1);
-    QVERIFY(diff.d_removed_properties.values().at(0) == "(1,2)");
-    QVERIFY(diff.d_changed_properties.count() == 0);
+    QCOMPARE(diff.d_added_properties.count(), 0);
+    QCOMPARE(diff.d_removed_properties.count(), 1);
+    QCOMPARE(diff.d_removed_properties.values().at(0), QString("(1,2)"));
+    QCOMPARE(diff.d_changed_properties.count(), 0);
 
     MultiContextProperty test_multi_context_property2("Multi Context Property");
     test_multi_context_property2.setValue(QVariant(1),1);
@@ -181,10 +181,10 @@ void Qtilities::Testing::TestObjectManager::testCompareDynamicPropertiesDiff() {
     QVERIFY(ObjectManager::propertyExists(obj2,"Normal Property"));
 
     QVERIFY(!ObjectManager::compareDynamicProperties(obj1,obj2,ObjectManager::NonQtilitiesProperties,&diff));
-    QVERIFY(diff.d_added_properties.count() == 0);
-    QVERIFY(diff.d_removed_properties.count() == 0);
-    QVERIFY(diff.d_changed_properties.count() == 1);
-    QVERIFY(diff.d_changed_properties.values().at(0) == "5,10");
+    QCOMPARE(diff.d_added_properties.count(), 0);
+    QCOMPARE(diff.d_removed_properties.count(), 0);
+    QCOMPARE(diff.d_changed_properties.count(), 1);
+    QCOMPARE(diff.d_changed_properties.values().at(0), QString("5,10"));
 }
 
 void Qtilities::Testing::TestObjectManager::testMoveSubjects() {

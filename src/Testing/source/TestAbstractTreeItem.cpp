@@ -23,26 +23,26 @@ void Qtilities::Testing::TestAbstractTreeItem::testCategoryOperations() {
     TreeNode tree_node2;
 
     // Set the category without being attached to any observer:
-    QVERIFY(tree_item.setCategory(QtilitiesCategory("Test Category")) == false);
-    QVERIFY(tree_node.attachSubject(&tree_item) == true);
+    QVERIFY(!tree_item.setCategory(QtilitiesCategory("Test Category")));
+    QVERIFY(tree_node.attachSubject(&tree_item));
 
     // Set the category with one parent:
-    QVERIFY(tree_item.setCategory(QtilitiesCategory("Test Category")) == true);
+    QVERIFY(tree_item.setCategory(QtilitiesCategory("Test Category")));
 
     // Get the category for tree_node context:
-    QVERIFY(tree_item.getCategoryString() == "Test Category");
-    QVERIFY(tree_item.getCategoryString("::",tree_node.observerID()) == "Test Category");
+    QCOMPARE(tree_item.getCategoryString(), QString("Test Category"));
+    QCOMPARE(tree_item.getCategoryString("::",tree_node.observerID()), QString("Test Category"));
 
     // Remove the category:
     tree_item.removeCategory(tree_node.observerID());
 
     // Attach to multiple observers: (already attached to tree_node)
-    QVERIFY(tree_node2.attachSubject(&tree_item) == true);
+    QVERIFY(tree_node2.attachSubject(&tree_item));
 
     // Set the category with one parent:
-    QVERIFY(tree_item.setCategory(QtilitiesCategory("Test Category")) == false);
-    QVERIFY(tree_item.setCategory(QtilitiesCategory("Test Category 1"),tree_node.observerID()) == true);
-    QVERIFY(tree_item.setCategory(QtilitiesCategory("Test Category 2"),tree_node2.observerID()) == true);
-    QVERIFY(tree_item.getCategoryString("::",tree_node.observerID()) == "Test Category 1");
-    QVERIFY(tree_item.getCategoryString("::",tree_node2.observerID()) == "Test Category 2");
+    QVERIFY(!tree_item.setCategory(QtilitiesCategory("Test Category")));
+    QVERIFY(tree_item.setCategory(QtilitiesCategory("Test Category 1"),tree_node.observerID()));
+    QVERIFY(tree_item.setCategory(QtilitiesCategory("Test Category 2"),tree_node2.observerID()));
+    QCOMPARE(tree_item.getCategoryString("::",tree_node.observerID()), QString("Test Category 1"));
+    QCOMPARE(tree_item.getCategoryString("::",tree_node2.observerID()), QString("Test Category 2"));
 }

@@ -53,7 +53,7 @@ void Qtilities::Testing::BenchmarkTests::benchmarkObserverExport_1_0_1_0() {
     obj_source->setExportVersion(Qtilities::Qtilities_1_0);
 
     QBENCHMARK {
-        QVERIFY(obj_source->exportXml(&doc,&rootItem) == IExportable::Complete);
+        QCOMPARE(obj_source->exportXml(&doc,&rootItem), IExportable::Complete);
     }
 
     QString docStr = doc.toString(2);
@@ -84,7 +84,7 @@ void Qtilities::Testing::BenchmarkTests::benchmarkObserverImport_1_0_1_0() {
     obj_import_xml->setExportVersion(Qtilities::Qtilities_1_0);
     QList<QPointer<QObject> > import_list;
 
-    QVERIFY(obj_import_xml->importXml(&doc,&rootItem,import_list) == IExportable::Complete);
+    QCOMPARE(obj_import_xml->importXml(&doc,&rootItem,import_list), IExportable::Complete);
 
     file.close();
     delete obj_import_xml;
