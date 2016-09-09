@@ -14,6 +14,8 @@
 #include <QtilitiesCore>
 using namespace QtilitiesCore;
 
+// The boolean expressions in this test look a little weird because we're
+// ensuring that their overloads actually work as expected.
 int Qtilities::Testing::TestVersionNumber::execTest(int argc, char ** argv) {
     return QTest::qExec(this,argc,argv);
 }
