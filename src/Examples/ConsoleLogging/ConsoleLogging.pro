@@ -7,7 +7,7 @@
 QTILITIES += logging
 include(../../Qtilities.pri)
 
-QT       += core
+QT       += core xml
 QT       -= gui
 
 TARGET = LoggingExample

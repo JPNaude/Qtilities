@@ -9,8 +9,7 @@ QTILITIES += project_management
 include(../../Qtilities.pri)
 include(../../Dependencies.pri)
 
-QT       += core
-QT       += gui
+QT       += core gui xml
 
 greaterThan(QT_MAJOR_VERSION, 4) {
 QT += widgets \
@@ -34,7 +33,7 @@ UI_DIR          = $$QTILITIES_TEMP/PropertiesExample
 # --------------------------
 # Application Files
 # --------------------------
-SOURCES += main.cpp 
+SOURCES += main.cpp
 
 RC_FILE = rc_file.rc
 

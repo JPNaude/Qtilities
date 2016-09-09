@@ -13,11 +13,7 @@
 #define BROWSER_H
 
 #include <IMode>
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-#include <QtWebKit>
-#else
-#include <QtWebKitWidgets>
-#endif
+#include <QWebEngineView>
 
 namespace Qtilities {
     namespace Plugins {
@@ -43,7 +39,7 @@ namespace Qtilities {
                     void loadUrl(const QUrl &url = QUrl());
 
                     //! Returns a pointer to the contained QWebView.
-                    QWebView* webView();
+                    QWebEngineView* webView();
 
                 private slots:
                     void handle_loadUrl();

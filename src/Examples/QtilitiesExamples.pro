@@ -12,18 +12,20 @@
 TARGET      = Qtilities
 TEMPLATE    = subdirs
 CONFIG     += ordered
+DEFINES += QTILITIES_TESTING
 
 # Example Applications:
-SUBDIRS    += ConsoleLogging
-SUBDIRS    += ObjectManagement
-SUBDIRS    += BuildingTreeStructures
-SUBDIRS	   += ObserverWidgetExample
-SUBDIRS	   += MainWindowExample
-SUBDIRS	   += ClipboardExample
-SUBDIRS	   += TheBasicsExample
-SUBDIRS	   += ExportingExample
-SUBDIRS	   += TasksExample
-SUBDIRS	   += PropertiesExample
+SUBDIRS += \
+    BuildingTreeStructures \
+    ClipboardExample \
+    ConsoleLogging \
+    ExportingExample \
+    MainWindowExample \
+    ObjectManagement \
+    ObserverWidgetExample \
+    PropertiesExample \
+    TasksExample \
+    TheBasicsExample \
 
 # The tcl scripting example depends on Tcl, thus its commented out by default.
 #SUBDIRS    += TclScriptingExample

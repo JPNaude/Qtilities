@@ -11,7 +11,7 @@ include(../Qtilities.pri)
 INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesProjectManagement
 
 CONFIG += qt dll
-QT += xml gui
+QT += core xml gui
 # Note: xml module is deprecated
 
 greaterThan(QT_MAJOR_VERSION, 4) { QT += widgets printsupport }
@@ -29,21 +29,26 @@ UI_DIR = $$QTILITIES_TEMP/ProjectManagement
 # --------------------------
 # Library Files
 # --------------------------
-HEADERS += source/ProjectManagement_global.h \
-    source/ProjectManagementConstants.h \
-    source/ProjectManager.h \
+HEADERS += \
+    source/CodeEditorProjectItemWrapper.h \
     source/IProject.h \
     source/IProjectItem.h \
+    source/ObserverProjectItemWrapper.h \
     source/Project.h \
     source/ProjectManagementConfig.h \
-    source/ObserverProjectItemWrapper.h \
-    source/CodeEditorProjectItemWrapper.h \
-    source/ProjectsBrowser.h
-SOURCES += source/ProjectManager.cpp \
+    source/ProjectManagementConstants.h \
+    source/ProjectManagement_global.h \
+    source/ProjectManager.h \
+    source/ProjectsBrowser.h \
+
+SOURCES += \
+    source/CodeEditorProjectItemWrapper.cpp \
+    source/ObserverProjectItemWrapper.cpp \
     source/Project.cpp \
     source/ProjectManagementConfig.cpp \
-    source/ObserverProjectItemWrapper.cpp \
-    source/CodeEditorProjectItemWrapper.cpp \
-    source/ProjectsBrowser.cpp
-FORMS += source/ProjectManagementConfig.ui \
-    source/ProjectsBrowser.ui
+    source/ProjectManager.cpp \
+    source/ProjectsBrowser.cpp \
+
+FORMS += \
+    source/ProjectManagementConfig.ui \
+    source/ProjectsBrowser.ui \

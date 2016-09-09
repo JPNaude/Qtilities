@@ -14,6 +14,6 @@ TEMPLATE    = subdirs
 CONFIG     += ordered
 
 # Tools:
-SUBDIRS    += QtilitiesTester
-SUBDIRS    += QtilitiesModelTester
-
+SUBDIRS    += \
+    QtilitiesTester \
+    QtilitiesModelTester \

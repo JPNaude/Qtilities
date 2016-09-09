@@ -7,9 +7,10 @@
 
 #include "Browser.h"
 
-#include <QtWebKit>
 #include <QtGui>
 #include <QtNetwork>
+#include <QWebEngineView>
+#include <QWebEngineSettings>
 
 #include <QtilitiesCoreGui>
 using namespace QtilitiesCoreGui;
@@ -23,7 +24,7 @@ struct Qtilities::Plugins::Help::BrowserData {
         locationBar(0),
         txtLocationEdit(0) {}
 
-    QPointer<QWebView> web_view;
+    QPointer<QWebEngineView> web_view;
     QPushButton* btnSearch;
     QToolButton* btnBack;
     QToolButton* btnForward;
@@ -47,10 +48,10 @@ Qtilities::Plugins::Help::Browser::Browser(const QUrl &url, QWidget* parent) : Q
     d->txtLocationEdit = new QLineEdit;
     d->txtLocationEdit->setReadOnly(true);
 
-    d->web_view = new QWebView;
+    d->web_view = new QWebEngineView;
     QNetworkProxyFactory::setUseSystemConfiguration(true);
     d->web_view->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-    d->web_view->settings()->globalSettings()->setAttribute(QWebSettings::PluginsEnabled, true);
+    d->web_view->settings()->globalSettings()->setAttribute(QWebEngineSettings::PluginsEnabled, true);
     loadUrl(url);
 
     //----------------------
@@ -136,7 +137,7 @@ void Qtilities::Plugins::Help::Browser::loadUrl(const QUrl &url) {
     d->web_view->load(url);
 }
 
-QWebView *Plugins::Help::Browser::webView() {
+QWebEngineView *Plugins::Help::Browser::webView() {
     return d->web_view;
 }
 
@@ -196,12 +197,12 @@ void Qtilities::Plugins::Help::Browser::showSearchBox() {
 }
 
 void Qtilities::Plugins::Help::Browser::handleSearchStringChanged(const QString& search_string) {
-    QWebPage::FindFlags find_flags = 0;
+    QWebEnginePage::FindFlags find_flags = 0;
 
     if (d->searchBoxWidget->caseSensitive())
-        find_flags |= QWebPage::FindCaseSensitively;
+        find_flags |= QWebEnginePage::FindCaseSensitively;
 
-    find_flags |= QWebPage::FindWrapsAroundDocument;
+    //find_flags |= QWebPage::FindWrapsAroundDocument;
     //find_flags |= QWebPage::HighlightAllOccurrences;
 
     d->web_view->findText(search_string,find_flags);
@@ -217,14 +218,14 @@ void Qtilities::Plugins::Help::Browser::handleSearchForward() {
 }
 
 void Qtilities::Plugins::Help::Browser::handleSearchBackwards() {
-    QWebPage::FindFlags find_flags = 0;
+    QWebEnginePage::FindFlags find_flags = 0;
 
     if (d->searchBoxWidget->caseSensitive())
-        find_flags |= QWebPage::FindCaseSensitively;
+        find_flags |= QWebEnginePage::FindCaseSensitively;
 
-    find_flags |= QWebPage::FindWrapsAroundDocument;
-    find_flags |= QWebPage::HighlightAllOccurrences;
-    find_flags |= QWebPage::FindBackward;
+    //find_flags |= QWebPage::FindWrapsAroundDocument;
+    //find_flags |= QWebEnginePage::HighlightAllOccurrences;
+    find_flags |= QWebEnginePage::FindBackward;
 
     d->web_view->findText(d->searchBoxWidget->currentSearchString(),find_flags);
 }
