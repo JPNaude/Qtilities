@@ -192,37 +192,43 @@ void Qtilities::Testing::TestVersionNumber::testOperatorSmallerEqual() {
     QVERIFY(ver5 <= ver1);
 }
 
+// For some reason, I get a link error when using QCOMPARE with ver.toString()
+// and a string literal:
+//
+//     undefined symbol: _ZN5QTest8qCompareI7QStringA6_cEEbRKT_RKT0_PKcSA_SA_i
+//
+// But QStringLiteral is apparently the "proper" thing to use anyway.
 void Qtilities::Testing::TestVersionNumber::testToString() {
     VersionNumber ver(1,2,3);
-    QCOMPARE(ver.toString(), QString("1.2.3"));
+    QCOMPARE(ver.toString(), QStringLiteral("1.2.3"));
     ver.setDevelopmentStage(VersionNumber::DevelopmentStageServicePack);
     ver.setVersionDevelopmentStage(1);
-    QCOMPARE(ver.toString(), QString("1.2.3%1%2").arg(VersionNumber::defaultDevelopmentStageIdentifer(VersionNumber::DevelopmentStageServicePack)).arg(ver.versionDevelopmentStage()));
+    QCOMPARE(ver.toString(), QStringLiteral("1.2.3%1%2").arg(VersionNumber::defaultDevelopmentStageIdentifer(VersionNumber::DevelopmentStageServicePack)).arg(ver.versionDevelopmentStage()));
     ver.setDevelopmentStage(VersionNumber::DevelopmentStageReleaseCandidate);
     ver.setDevelopmentStageIdentifier(" Release Candidate ");
     ver.setVersionDevelopmentStage(2);
-    QCOMPARE(ver.toString(), QString("1.2.3 Release Candidate 2"));
+    QCOMPARE(ver.toString(), QStringLiteral("1.2.3 Release Candidate 2"));
     ver.setVersionDevelopmentStage(0);
     ver.setFieldWidthMinor(3);
-    QCOMPARE(ver.toString(), QString("1.002.3"));
+    QCOMPARE(ver.toString(), QStringLiteral("1.002.3"));
     ver.setFieldWidthRevision(3);
-    QCOMPARE(ver.toString(), QString("1.002.003"));
+    QCOMPARE(ver.toString(), QStringLiteral("1.002.003"));
 
     ver.setIsVersionRevisionUsed(false);
-    QCOMPARE(ver.toString(), QString("1.002"));
+    QCOMPARE(ver.toString(), QStringLiteral("1.002"));
     ver.setIsVersionMinorUsed(false);
-    QCOMPARE(ver.toString(), QString("1"));
+    QCOMPARE(ver.toString(), QStringLiteral("1"));
 
     VersionNumber ver1(1,12,103);
-    QCOMPARE(ver1.toString(), QString("1.12.103"));
+    QCOMPARE(ver1.toString(), QStringLiteral("1.12.103"));
     ver1.setFieldWidthMinor(3);
-    QCOMPARE(ver1.toString(), QString("1.012.103"));
+    QCOMPARE(ver1.toString(), QStringLiteral("1.012.103"));
     ver1.setFieldWidthRevision(3);
-    QCOMPARE(ver1.toString(), QString("1.012.103"));
+    QCOMPARE(ver1.toString(), QStringLiteral("1.012.103"));
 
     ver1.setIsVersionRevisionUsed(false);
-    QCOMPARE(ver1.toString(), QString("1.012"));
+    QCOMPARE(ver1.toString(), QStringLiteral("1.012"));
     ver1.setIsVersionMinorUsed(false);
-    QCOMPARE(ver1.toString(), QString("1"));
+    QCOMPARE(ver1.toString(), QStringLiteral("1"));
 }
 
