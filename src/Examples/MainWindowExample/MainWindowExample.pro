@@ -9,15 +9,11 @@ QTILITIES += project_management
 include(../../Qtilities.pri)
 include(../../Dependencies.pri)
 
-QT       += core
-QT       += gui
-QT += network
-QT += webkit
+QT       += core gui network webengine
 
 greaterThan(QT_MAJOR_VERSION, 4) {
 QT += widgets \
-      printsupport \
-      help
+      printsupport
 }
 lessThan(QT_MAJOR_VERSION, 5) {
 CONFIG  += help

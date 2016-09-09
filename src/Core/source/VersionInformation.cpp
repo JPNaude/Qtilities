@@ -129,21 +129,21 @@ Qtilities::Core::VersionNumber& Qtilities::Core::VersionNumber::operator=(const 
     return *this;
 }
 
-bool Qtilities::Core::VersionNumber::operator>(const VersionNumber& ref) {
+bool Qtilities::Core::VersionNumber::operator>(const VersionNumber& ref) const {
     if (*this == ref)
         return false;
     else
         return !(*this < ref);
 }
 
-bool Qtilities::Core::VersionNumber::operator>=(const VersionNumber& ref) {
+bool Qtilities::Core::VersionNumber::operator>=(const VersionNumber& ref) const {
     if (*this==ref)
         return true;
     else
         return (*this > ref);
 }
 
-bool Qtilities::Core::VersionNumber::operator<(const VersionNumber& ref) {
+bool Qtilities::Core::VersionNumber::operator<(const VersionNumber& ref) const {
     if (*this == ref)
         return false;
 
@@ -207,7 +207,7 @@ bool Qtilities::Core::VersionNumber::operator<(const VersionNumber& ref) {
     return false;
 }
 
-bool Qtilities::Core::VersionNumber::operator<=(const VersionNumber& ref) {
+bool Qtilities::Core::VersionNumber::operator<=(const VersionNumber& ref) const {
     if (*this==ref)
         return true;
     else

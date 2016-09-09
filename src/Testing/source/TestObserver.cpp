@@ -34,7 +34,7 @@ void Qtilities::Testing::TestObserver::testRecursiveAttachmentContained() {
     // Now create and add a contained observer:
     TreeNode* containedNode = new TreeNode("Contained Node");
     containedNode->setParent(item);
-    QVERIFY(containedNode->attachSubject(rootNode) == false);
+    QVERIFY(!containedNode->attachSubject(rootNode));
 }
 
 void Qtilities::Testing::TestObserver::testAttachWithObserverLimit() {
@@ -298,7 +298,7 @@ void Qtilities::Testing::TestObserver::testTreeCountContainment() {
     containedNode->setParent(item);
 
     LOG_INFO(QString::number(rootNode->treeCount()));
-    QVERIFY(rootNode->treeCount() == 11);
+    QCOMPARE(rootNode->treeCount(), 11);
 }
 
 void Qtilities::Testing::TestObserver::testTreeAtContainment() {
@@ -320,7 +320,7 @@ void Qtilities::Testing::TestObserver::testTreeAtContainment() {
     containedNode->setParent(item);
 
     LOG_INFO(QString::number(rootNode->treeCount()));
-    QVERIFY(rootNode->treeAt(10) == test_item);
+    QCOMPARE(rootNode->treeAt(10), test_item);
 }
 
 void Qtilities::Testing::TestObserver::testTreeContainsContainment() {
@@ -348,7 +348,7 @@ void Qtilities::Testing::TestObserver::testTreeContainsContainment() {
     containedNode->setParent(item);
 
     foreach (QObject* obj, children)
-        QVERIFY(rootNode->treeContains(obj) == true);
+        QVERIFY(rootNode->treeContains(obj));
 }
 
 void Qtilities::Testing::TestObserver::testTreeChildrenContainment() {
@@ -377,7 +377,7 @@ void Qtilities::Testing::TestObserver::testTreeChildrenContainment() {
 
     QList<QObject*> children_verify = rootNode->treeChildren();
     foreach (QObject* obj, children)
-        QVERIFY(children_verify.contains(obj) == true);
+        QVERIFY(children_verify.contains(obj));
 }
 
 void Qtilities::Testing::TestObserver::testCountModificationStateChanges() {

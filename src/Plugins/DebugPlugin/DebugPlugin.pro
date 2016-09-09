@@ -22,6 +22,7 @@ TEMPLATE = lib
 DEFINES += DEBUG_PLUGIN_LIBRARY
 CONFIG += plugin dll
 
+QT += xml
 greaterThan(QT_MAJOR_VERSION, 4) {
 QT += widgets \
       printsupport \
@@ -42,12 +43,14 @@ UI_DIR          = $$QTILITIES_TEMP/DebugPlugin
 # --------------------------
 # Library Files
 # --------------------------
-HEADERS += source/DebugPlugin.h \
-           source/DebugPlugin_global.h \
-           source/DebugPluginConstants.h
+HEADERS += \
+    source/DebugPluginConstants.h \
+    source/DebugPlugin_global.h \
+    source/DebugPlugin.h \
 
-SOURCES += source/DebugPlugin.cpp
+SOURCES += \
+    source/DebugPlugin.cpp \
 
 RESOURCES += \
-    resources/DebugPlugin.qrc
+    resources/DebugPlugin.qrc \
 

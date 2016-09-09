@@ -251,9 +251,9 @@ QtilitiesApplication::initialize();
 #if defined(QtilitiesApp)
 #undef QtilitiesApp
 #endif
-#define QtilitiesApp ((Qtilities::CoreGui::QtilitiesApplication *) QApplication::instance())
-#define ACTION_MANAGER ((Qtilities::CoreGui::QtilitiesApplication *) QApplication::instance())->actionManager()
-#define CLIPBOARD_MANAGER ((Qtilities::CoreGui::QtilitiesApplication *) QApplication::instance())->clipboardManager()
-#define HELP_MANAGER ((Qtilities::CoreGui::QtilitiesApplication *) QApplication::instance())->helpManager()
+#define QtilitiesApp static_cast<Qtilities::CoreGui::QtilitiesApplication *>(QApplication::instance())
+#define ACTION_MANAGER static_cast<Qtilities::CoreGui::QtilitiesApplication *>(QApplication::instance())->actionManager()
+#define CLIPBOARD_MANAGER static_cast<Qtilities::CoreGui::QtilitiesApplication *>(QApplication::instance())->clipboardManager()
+#define HELP_MANAGER static_cast<Qtilities::CoreGui::QtilitiesApplication *>(QApplication::instance())->helpManager()
 
 #endif // QTILITIES_APPLICATION_H
