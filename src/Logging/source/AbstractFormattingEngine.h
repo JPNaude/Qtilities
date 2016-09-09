@@ -48,7 +48,7 @@ namespace Qtilities {
 
                 return *this;
             }
-            bool operator==(const CustomFormattingHint& ref) {
+            bool operator==(const CustomFormattingHint& ref) const {
                 if (d_hint != ref.d_hint)
                     return false;
                 if (d_message_type_flags != ref.d_message_type_flags)
@@ -58,7 +58,7 @@ namespace Qtilities {
 
                 return true;
             }
-            bool operator!=(const CustomFormattingHint& ref) {
+            bool operator!=(const CustomFormattingHint& ref) const {
                 return !(*this==ref);
             }
 

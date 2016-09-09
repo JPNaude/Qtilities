@@ -80,7 +80,7 @@ Qtilities::Core::RelationalTableEntry::RelationalTableEntry(const RelationalTabl
     d->obj = other.object();
 }
 
-bool Qtilities::Core::RelationalTableEntry::operator==(const RelationalTableEntry& other) {
+bool Qtilities::Core::RelationalTableEntry::operator==(const RelationalTableEntry& other) const {
     bool equal = true;
     if (equal)
         equal = (d->children == other.children());
@@ -97,7 +97,7 @@ bool Qtilities::Core::RelationalTableEntry::operator==(const RelationalTableEntr
     return equal;
 }
 
-bool Qtilities::Core::RelationalTableEntry::operator!=(const RelationalTableEntry& other) {
+bool Qtilities::Core::RelationalTableEntry::operator!=(const RelationalTableEntry& other) const {
     return !(*this==other);
 }
 
@@ -378,7 +378,7 @@ void Qtilities::Core::ObserverRelationalTable::refresh() {
     constructTable(d->observer);
 }
 
-bool Qtilities::Core::ObserverRelationalTable::compare(ObserverRelationalTable other) {
+bool Qtilities::Core::ObserverRelationalTable::compare(ObserverRelationalTable other) const {
     bool result = true;
 
     // Check for the same amount of items first.
