@@ -118,7 +118,7 @@ code_editor.codeEditor()->setReadOnly(true);
                 ActionAllHints = ActionNoHints | ActionOpenFile | ActionSaveFile | ActionSaveFileAs | ActionPrint | ActionPrintPreview | ActionPrintPDF | ActionUndo | ActionRedo | ActionCut | ActionCopy | ActionPaste |ActionClear | ActionSelectAll | ActionFind
             };
             Q_DECLARE_FLAGS(ActionFlags, ActionFlag)
-            Q_FLAGS(ActionFlags)
+            Q_FLAG(ActionFlags)
             //! The possible display flags of the code editor widget.
             /*!
               \sa displayFlagsHint()
@@ -131,7 +131,7 @@ code_editor.codeEditor()->setReadOnly(true);
                 AllDisplayFlagHint = Editor | SearchBox | ActionToolBar
             };
             Q_DECLARE_FLAGS(DisplayFlags, DisplayFlag)
-            Q_FLAGS(DisplayFlags)
+            Q_FLAG(DisplayFlags)
 
             //! Defines how the editor should handle a situation where the open file is removed outside of the editor.
             enum FileRemovedOutsideHandlingPolicy {

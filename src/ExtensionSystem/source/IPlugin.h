@@ -54,7 +54,7 @@ namespace Qtilities {
                     InActive = 4                /*!< The plugin was loaded but not initialized. \sa ExtensionSystemCore::setInactivePlugins().  */
                 };
                 Q_DECLARE_FLAGS(PluginStateFlags, PluginState)
-                Q_FLAGS(PluginStateFlags)
+                Q_FLAG(PluginStateFlags)
 
                 //! Function which returns a string associated with a the plugin's state.
                 QString pluginStateString() const {

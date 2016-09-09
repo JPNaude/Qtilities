@@ -56,7 +56,7 @@ namespace Qtilities {
                 ExportAllItems             = ExportData | ExportVisitorIDs | ExportRelationalData
             };
             Q_DECLARE_FLAGS(ExportItemFlags, ExportItem)
-            Q_FLAGS(ExportItemFlags)
+            Q_FLAG(ExportItemFlags)
 
             ObserverData(Observer* obs, const QString& observer_name) : IObjectBase(), IExportable(), subject_limit(-1),
                 subject_id_counter(0),

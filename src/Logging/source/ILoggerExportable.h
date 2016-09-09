@@ -32,8 +32,8 @@ namespace Qtilities {
                 virtual ~ILoggerExportable() {}
 
                 enum ExportMode { Binary };
-                Q_DECLARE_FLAGS(ExportModeFlags, ExportMode);
-                Q_FLAGS(ExportModeFlags);
+                Q_DECLARE_FLAGS(ExportModeFlags, ExportMode)
+                Q_FLAG(ExportModeFlags)
 
                 //! Provides information about the export format(s) supported by your implementation of ILoggerExportable.
                 virtual ExportModeFlags supportedFormats() const = 0;

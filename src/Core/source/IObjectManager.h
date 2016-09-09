@@ -48,7 +48,7 @@ namespace Qtilities {
                     AllPropertyTypes = MultiContextProperties | SharedProperties | QtilitiesInternalProperties | NonQtilitiesProperties
                 };
                 Q_DECLARE_FLAGS(PropertyTypeFlags, PropertyTypes)
-                Q_FLAGS(PropertyTypeFlags)
+                Q_FLAG(PropertyTypeFlags)
 
                 IObjectManager(QObject* parent = 0) : QObject(parent) {}
                 virtual ~IObjectManager() {}

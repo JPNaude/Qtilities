@@ -50,8 +50,8 @@ namespace Qtilities {
                     FilterDisabled = 1,     /*!< Filter disabled actions, thus only enabled actions will be returned. */
                     FilterHidden = 2        /*!< Filter hidden actions, thus only visible actions will be returned. */
                 };
-                Q_DECLARE_FLAGS(ActionFilterFlags, ActionFilter);
-                Q_FLAGS(ActionFilterFlags);
+                Q_DECLARE_FLAGS(ActionFilterFlags, ActionFilter)
+                Q_FLAG(ActionFilterFlags)
 
                 //! A list of all the actions provided through the interface.
                 /*!
