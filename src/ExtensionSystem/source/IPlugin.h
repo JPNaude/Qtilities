@@ -35,6 +35,8 @@ namespace Qtilities {
               */
             class EXTENSION_SYSTEM_SHARED_EXPORT IPlugin : virtual public IObjectBase
             {
+                Q_GADGET
+
             public:
                 IPlugin() {
                     d_state = Functional;

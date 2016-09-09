@@ -42,6 +42,8 @@ namespace Qtilities {
           */
         class QTILIITES_CORE_SHARED_EXPORT ObserverData : public IExportable
         {
+            Q_GADGET
+
         public:
             //! The possible export flags used during extended observer exports.
             /*!

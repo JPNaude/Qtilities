@@ -25,6 +25,8 @@ namespace Qtilities {
             \brief Logger engines can implement this interface if they are able to export and reconstruct themselves.
               */
             class LOGGING_SHARED_EXPORT ILoggerExportable {
+                Q_GADGET
+
             public:
                 ILoggerExportable() {}
                 virtual ~ILoggerExportable() {}

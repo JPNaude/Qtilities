@@ -38,6 +38,8 @@ namespace Qtilities {
             returned by objectBase().
               */
             class QTILIITES_CORE_SHARED_EXPORT IModificationNotifier : virtual public IObjectBase {
+                Q_GADGET
+
             public:
                 IModificationNotifier() : d_isModified(false) {}
                 virtual ~IModificationNotifier() {}

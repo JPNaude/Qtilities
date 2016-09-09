@@ -35,6 +35,8 @@ namespace Qtilities {
             For more information see ActionProvider.
               */
             class QTILITIES_CORE_GUI_SHARED_EXPORT IActionProvider : virtual public IObjectBase {
+                Q_GADGET
+
             public:
                 IActionProvider() {}
                 virtual ~IActionProvider() {}
