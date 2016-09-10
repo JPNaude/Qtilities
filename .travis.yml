@@ -38,8 +38,8 @@ install:
   - if [ "$QT_BASE" = "56" ]; then sudo apt-get install -qq qt56base; source /opt/qt56/bin/qt56-env.sh; fi
 
 script:
-  - qmake -r
-  - make
+  - qmake -Wall src/Qtilities.pro
+  - make -j$(nproc)
   # Check that everything built correctly:
   - make check
   # Now lets execute the app to see that it runs ok:
