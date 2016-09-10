@@ -43,13 +43,14 @@ script:
   - cd src
   - qmake -r -Wall 
   - make -j$(nproc)
-  - tree
   # Check that everything built correctly:
   - make check
   # Now lets execute the app to see that it runs ok:
   #- ./hello_world
   - cd ..
-
+  - cd bin
+  - tree
+  
 branches:
   only:
   - master
