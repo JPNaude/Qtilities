@@ -27,8 +27,8 @@ Qtilities::CoreGui::qti_private_AboutWindow::qti_private_AboutWindow(QWidget *pa
     ui->setupUi(this);
     setWindowTitle(tr("About ") + "Qtilities");
     ui->labelVersion->setText("v" + QtilitiesCoreApplicationPrivate::instance()->qtilitiesVersionString() + " (Built on " + QLatin1String(__DATE__) + " at " + QLatin1String(__TIME__) + ")");
-    ui->labelWebsite->setText("<a href=\"http://www.qtilities.org\">http://www.qtilities.org</a>");
-    ui->labelCopyright->setText(tr("Copyright") + " 2009-2013, Jaco Naudé");
+    //ui->labelWebsite->setText("<a href=\"http://www.qtilities.org\">https://github.com/JPNaude/Qtilities</a>");
+    ui->labelCopyright->setText(tr("Copyright") + " 2009-2016, Jaco Naudé");
 
     // Put the widget in the center of the screen
     QRect qrect = QApplication::desktop()->availableGeometry(this);
