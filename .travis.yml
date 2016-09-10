@@ -40,10 +40,12 @@ install:
 
 script:
   - pwd
-  - cd src
+  - cd /opt/qt51
+  - tree
+  - cd /home/travis/build/JPNaude/Qtilities/src
+  #- cd src
   - qmake -r -Wall 
   # Do a tree dump to see
-  - tree
   - make -j$(nproc)
   - tree
   # Check that everything built correctly:
