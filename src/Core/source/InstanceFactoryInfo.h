@@ -70,7 +70,7 @@ namespace Qtilities {
             }
             virtual ~InstanceFactoryInfo() {}
 
-            bool operator==(const InstanceFactoryInfo& ref) {
+            bool operator==(const InstanceFactoryInfo& ref) const {
                 if (d_factory_tag != ref.d_factory_tag)
                     return false;
                 if (d_instance_tag != ref.d_instance_tag)
@@ -82,7 +82,7 @@ namespace Qtilities {
 
                 return true;
             }
-            bool operator!=(const InstanceFactoryInfo& ref) {
+            bool operator!=(const InstanceFactoryInfo& ref) const {
                 return !(*this==ref);
             }
             InstanceFactoryInfo& operator=(const InstanceFactoryInfo& ref) {

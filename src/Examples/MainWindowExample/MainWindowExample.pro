@@ -9,15 +9,7 @@ QTILITIES += project_management
 include(../../Qtilities.pri)
 include(../../Dependencies.pri)
 
-QT       += core gui network webkit
-
-greaterThan(QT_MAJOR_VERSION, 4) {
-QT += widgets \
-      printsupport
-}
-lessThan(QT_MAJOR_VERSION, 5) {
-CONFIG  += help
-}
+QT       += core gui network webengine widgets printsupport help
 
 TARGET = MainWindowExample
 CONFIG   -= app_bundle

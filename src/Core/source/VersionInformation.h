@@ -153,22 +153,22 @@ example2_from_string.setIsVersionRevisionUsed(false);
             /*!
              * \note Minor and revision numbers are only considered if both VersionNumbers use them.
              */
-            bool operator>(const VersionNumber& ref);
+            bool operator>(const VersionNumber& ref) const;
             //! Operator overload to check if one VersionNumber to bigger than or equal to another VersionNumber.
             /*!
              * \note Minor and revision numbers are only considered if both VersionNumbers use them.
              */
-            bool operator>=(const VersionNumber& ref);
+            bool operator>=(const VersionNumber& ref) const;
             //! Operator overload to check if one VersionNumber to smaller than another VersionNumber.
             /*!
              * \note Minor and revision numbers are only considered if both VersionNumbers use them.
              */
-            bool operator<(const VersionNumber& ref);
+            bool operator<(const VersionNumber& ref) const;
             //! Operator overload to check if one VersionNumber to smaller than or equal to another VersionNumber.
             /*!
              * \note Minor and revision numbers are only considered if both VersionNumbers use them.
              */
-            bool operator<=(const VersionNumber& ref);
+            bool operator<=(const VersionNumber& ref) const;
 
             //! Is null means the version is 0.0.0, this will be the case when object is constructed with default constructor.
             bool isNull() const;

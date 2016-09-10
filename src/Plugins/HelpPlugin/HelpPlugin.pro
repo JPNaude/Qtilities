@@ -23,17 +23,7 @@ TEMPLATE = lib
 DEFINES += HELP_PLUGIN_LIBRARY
 CONFIG  += plugin dll
 
-QT += network
-
-greaterThan(QT_MAJOR_VERSION, 4) {
-QT += widgets \
-      webkitwidgets \
-      printsupport
-}
-lessThan(QT_MAJOR_VERSION, 5) {
-CONFIG  += help
-QT += webkit
-}
+QT += core gui widgets network webengine webenginewidgets help printsupport
 
 # ------------------------------
 # Temp Output Paths
