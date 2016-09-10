@@ -51,7 +51,7 @@ script:
   - cd bin
   - tree
   - cp Tools/QtilitiesTester/QtilitiesTester .
-  - ./QtilitiesTester -silent
+  #- ./QtilitiesTester -silent
   
 branches:
   only:
