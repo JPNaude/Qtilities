@@ -51,6 +51,6 @@ HEADERS += \
 SOURCES += \
     source/DebugPlugin.cpp \
 
-RESOURCES += \
-    resources/DebugPlugin.qrc \
+#RESOURCES += \
+#    resources/DebugPlugin.qrc \
 
