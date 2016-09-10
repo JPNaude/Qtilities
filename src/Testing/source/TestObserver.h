@@ -50,8 +50,6 @@ namespace Qtilities {
             // -----------------------------
             //! Tests recursive attachment.
             void testRecursiveAttachment();
-            //! Tests recursive attachment where the tree was constructed using the containment approach.
-            void testRecursiveAttachmentContained();
             //! Tests attachment where the subject has the qti_prop_OBSERVER_LIMIT property set.
             void testAttachWithObserverLimit();
             //! Tests the subject limit functionality Observer.
@@ -82,19 +80,11 @@ namespace Qtilities {
             void testTreeContains();
             //! A test which tests treeChildren() function.
             void testTreeChildren();
-            //! A test which tests treeCount() function where the tree was constructed using the containment approach.
-            void testTreeCountContainment();
-            //! A test which tests treeAt() function where the tree was constructed using the containment approach.
-            void testTreeAtContainment();
-            //! A test which tests treeAt() function where the tree was constructed using the containment approach.
-            void testTreeContainsContainment();
-            //! A test which tests treeChildren() function where the tree was constructed using the containment approach.
-            void testTreeChildrenContainment();
 
             // -----------------------------
             // Modification state tests.
             // -----------------------------
-            //! A test which counts the number of modification state changed signal emissions for a specific test case..
+            //! A test which counts the number of modification state changed signal emissions for a specific test case.
             void testCountModificationStateChanges();
         };
     }
