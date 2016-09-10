@@ -27,7 +27,7 @@
 #include <QPushButton>
 #include <QMutex>
 #include <QVariant>
-#include <QRegularExpressionValidator>
+#include <QRegExpValidator>
 #include <QCoreApplication>
 #include <QDomDocument>
 
@@ -53,8 +53,8 @@ Qtilities::CoreGui::NamingPolicyFilter::NamingPolicyFilter(QObject* parent) : Ab
     d->validity_resolution_policy = NamingPolicyFilter::PromptUser;
     d->processing_cycle_validation_check_flags = NamingPolicyFilter::AllChecks;
     d->validation_check_flags = NamingPolicyFilter::AllChecks;
-    const QRegularExpression default_expression(".{1,255}",QRegularExpression::CaseInsensitiveOption);
-    QRegularExpressionValidator* default_validator = new QRegularExpressionValidator(default_expression,0);
+    const QRegExp default_expression(".{1,255}",Qt::CaseInsensitive);
+    QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0);
     d->validator = default_validator;
     d->name_dialog = 0;
 
