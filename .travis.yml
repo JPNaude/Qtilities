@@ -50,7 +50,7 @@ script:
   - cd ..
   - cd bin
   - tree
-  - cd Tools/QtilitiesTester
+  - cp Tools/QtilitiesTester/QtilitiesTester .
   - ./QtilitiesTester -silent
   
 branches:
