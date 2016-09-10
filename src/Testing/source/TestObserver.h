@@ -85,7 +85,7 @@ namespace Qtilities {
             // Modification state tests.
             // -----------------------------
             //! A test which counts the number of modification state changed signal emissions for a specific test case.
-            void testCountModificationStateChanges();
+            //void testCountModificationStateChanges();
         };
     }
 }
