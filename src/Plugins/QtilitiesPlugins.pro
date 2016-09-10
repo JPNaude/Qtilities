@@ -15,9 +15,20 @@ CONFIG     += ordered
 
 # Plugins:
 #SUBDIRS    += PluginTemplate
+
 SUBDIRS += \
     DebugPlugin \
-    HelpPlugin \
     ProjectManagementPlugin \
-    SessionLogPlugin \
+    SessionLogPlugin
 
+unix {
+#SUBDIRS += HelpPlugin
+}
+
+win32-g++ {
+# Qt WebEngine uses the Chromium browser. Unfortunately, Chromium only supports MSVC 2013, so on Windows the HelpPlugin is only supported with Qt for MSVC 2013.
+}
+
+win32-msvc* {
+#SUBDIRS += HelpPlugin
+}
