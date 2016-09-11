@@ -27,5 +27,5 @@ SUBDIRS += \
     TasksExample \
     TheBasicsExample \
 
-# The tcl scripting example depends on Tcl, thus its commented out by default.
-#SUBDIRS    += TclScriptingExample
+# Will be revised in another pull request --JTG
+#    TclScriptingExample \

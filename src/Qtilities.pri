@@ -46,6 +46,9 @@ unix {
 
 #****************************************************************************
 # Build Options:
+#   You may define any of these on the qmake commandline with
+#   "DEFINES+=THE_DEFINE_TO_ADD".
+#
 #   *************************************************************************
 #   Dependencies:
 #   *************************************************************************
@@ -68,7 +71,8 @@ include(Dependencies.pri)
 #
 #   When defined, the CoreGui library does not contain the HELP_MANAGER,
 #   removing the dependency on QtHelp. Also, the Help Plugin does not
-#   contain anything when defined.
+#   contain anything when defined. To remove this definition, add
+#   "-after DEFINES-=QTILITIES_NO_HELP" to the qmake command-line.
 DEFINES += QTILITIES_NO_HELP
 #****************************************************************************
 
@@ -88,8 +92,9 @@ win32-msvc* {
     CONFIG += msvc_mp
 
     # The following makes sure .pdb files are generated in release mode in
-    # order to debug stack traces in release mode. Comment this if not desired.
-    QMAKE_LFLAGS_RELEASE += /MAP
+    # order to debug stack traces in release mode. If not desired, add
+    # "-after QMAKE_LFLAGS_RELEASE -= /MAP /debug /opt:ref" to the qmake build
+    # command.
     QMAKE_CFLAGS_RELEASE += /Zi
     QMAKE_LFLAGS_RELEASE += /debug /opt:ref
 }

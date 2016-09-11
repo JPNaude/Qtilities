@@ -19,7 +19,8 @@
 # libraries are placed, including Qtilities. It assumes you have a folder
 # for Qtilities with a trunk or specific version which you attempt to build.
 # Thus all dependencies are expected two levels up from the Qtilities
-# build directory.
+# build directory.  If you need to change this, you can add
+# "-after QTILITIES_DEPENDENCIES=${somewhere_else}" to the qmake build command.
 #****************************************************************************
 QTILITIES_DEPENDENCIES  = $$PWD/../../
 
@@ -35,7 +36,9 @@ QTILITIES_DEPENDENCIES  = $$PWD/../../
 # GenericPropertyManager
 # GenericPropertyBrowser
 # They all depend on the Qt Property Browser Solution.
-# DEFINES += QTILITIES_PROPERTY_BROWSER
+#
+# When building Qtilities, you can add "DEFINES+=QTILITIES_PROPERTY_BROWSER" to
+# qmake's command-line arguments to enable this integration.
 # --------------------------
 contains(DEFINES, QTILITIES_PROPERTY_BROWSER) {
     DEFINES += QT_QTPROPERTYBROWSER_IMPORT
@@ -65,11 +68,13 @@ contains(DEFINES, QTILITIES_PROPERTY_BROWSER) {
 # Builds Qtilities with the Conan library integrated into the unit testing module.
 # Note that this integration was only tested in Qt 4.7.x, since Conan v1.0.2 requires
 # Qt 4.7.x and higher.
-# DEFINES += QTILITIES_CONAN
 #
-# The Conan library is released under GPL v3.0. Therefore, when uncommenting
-# the above DEFINE, the Testing library (which links against Conan) is not released
-# under the normal Qtilities license found at http://www.qtilities.org/licensing.html
+# When building Qtilities, you can add "DEFINES+=QTILITIES_CONAN" to qmake's
+# command-line arguments to enable this integration.
+#
+# The Conan library is released under GPL v3.0. Therefore, when using the above
+# DEFINE, the Testing library (which links against Conan) is not released under
+# the normal Qtilities license found at http://www.qtilities.org/licensing.html
 # It is released under the following license:
 #
 # Under this license the Testing Library is free software: you can
