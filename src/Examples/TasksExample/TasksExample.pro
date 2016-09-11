@@ -32,12 +32,20 @@ UI_DIR          = $$QTILITIES_TEMP/TasksExample
 # --------------------------
 # Application Files
 # --------------------------
-SOURCES += main.cpp \
-        ExampleMode.cpp
+SOURCES += \
+    main.cpp \
+    ExampleMode.cpp \
 
-HEADERS += ExampleMode.h
+HEADERS += \
+    ExampleMode.h \
 
-FORMS   += ExampleMode.ui
+FORMS   += \
+    ExampleMode.ui \
 
-RC_FILE = rc_file.rc
+OTHER_FILES += \
+    rc_file.rc \
+    qtilities_icon_white.ico \
+
+RC_FILE = \
+    rc_file.rc \
 

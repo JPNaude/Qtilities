@@ -34,60 +34,60 @@ UI_DIR = $$QTILITIES_TEMP/Testing
 # --------------------------
 contains(DEFINES, QTILITIES_TESTING) {
     HEADERS += \
-            source/BenchmarkTests.h \
-            source/TestAbstractTreeItem.h \
-            source/TestActivityPolicyFilter.h \
-            source/TestExporting.h \
-            source/TestingConstants.h \
-            source/Testing_global.h \
-            source/TestNamingPolicyFilter.h \
-            source/TestObjectManager.h \
-            source/TestObserver.h \
-            source/TestObserverRelationalTable.h \
-            source/TestSubjectIterator.h \
-            source/TestSubjectTypeFilter.h \
-            source/TestTask.h \
-            source/TestTreeFileItem.h \
-            source/TestTreeIterator.h \
-            source/TestVersionNumber.h \
+        source/BenchmarkTests.h \
+        source/TestAbstractTreeItem.h \
+        source/TestActivityPolicyFilter.h \
+        source/TestExporting.h \
+        source/TestingConstants.h \
+        source/Testing_global.h \
+        source/TestNamingPolicyFilter.h \
+        source/TestObjectManager.h \
+        source/TestObserver.h \
+        source/TestObserverRelationalTable.h \
+        source/TestSubjectIterator.h \
+        source/TestSubjectTypeFilter.h \
+        source/TestTask.h \
+        source/TestTreeFileItem.h \
+        source/TestTreeIterator.h \
+        source/TestVersionNumber.h \
 
     SOURCES += \
-            source/BenchmarkTests.cpp \
-            source/TestAbstractTreeItem.cpp \
-            source/TestActivityPolicyFilter.cpp \
-            source/TestExporting.cpp \
-            source/TestNamingPolicyFilter.cpp \
-            source/TestObjectManager.cpp \
-            source/TestObserver.cpp \
-            source/TestObserverRelationalTable.cpp \
-            source/TestSubjectIterator.cpp \
-            source/TestSubjectTypeFilter.cpp \
-            source/TestTask.cpp \
-            source/TestTreeFileItem.cpp \
-            source/TestTreeIterator.cpp \
-            source/TestVersionNumber.cpp \
+        source/BenchmarkTests.cpp \
+        source/TestAbstractTreeItem.cpp \
+        source/TestActivityPolicyFilter.cpp \
+        source/TestExporting.cpp \
+        source/TestNamingPolicyFilter.cpp \
+        source/TestObjectManager.cpp \
+        source/TestObserver.cpp \
+        source/TestObserverRelationalTable.cpp \
+        source/TestSubjectIterator.cpp \
+        source/TestSubjectTypeFilter.cpp \
+        source/TestTask.cpp \
+        source/TestTreeFileItem.cpp \
+        source/TestTreeIterator.cpp \
+        source/TestVersionNumber.cpp \
 }
 
 # --------------------------
 # Extension Library Files
 # --------------------------
 HEADERS += \
-        source/DebugWidget.h \
-        source/DropableListWidget.h \
-        source/FunctionCallAnalyzer.h \
-        source/ITestable.h \
-        source/TestFileSetInfo.h \
-        source/TestFrontend.h \
-        source/TestingConstants.h \
-        source/Testing_global.h \
+    source/DebugWidget.h \
+    source/DropableListWidget.h \
+    source/FunctionCallAnalyzer.h \
+    source/ITestable.h \
+    source/TestFileSetInfo.h \
+    source/TestFrontend.h \
+    source/TestingConstants.h \
+    source/Testing_global.h \
 
 SOURCES += \
-        source/DebugWidget.cpp \
-        source/DropableListWidget.cpp \
-        source/FunctionCallAnalyzer.cpp \
-        source/TestFileSetInfo.cpp \
-        source/TestFrontend.cpp \
+    source/DebugWidget.cpp \
+    source/DropableListWidget.cpp \
+    source/FunctionCallAnalyzer.cpp \
+    source/TestFileSetInfo.cpp \
+    source/TestFrontend.cpp \
 
 FORMS += \
-        source/TestFrontend.ui \
-        source/DebugWidget.ui \
+    source/DebugWidget.ui \
+    source/TestFrontend.ui \

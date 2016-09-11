@@ -38,24 +38,24 @@ UI_DIR          = $$QTILITIES_TEMP/HelpPlugin
 # --------------------------
 !contains(DEFINES, QTILITIES_NO_HELP) {
 HEADERS += \
-           source/Browser.h \
-           source/ContentWidgetFactory.h \
-           source/HelpMode.h \
-           source/HelpPluginConfig.h \
-           source/HelpPluginConstants.h \
-           source/HelpPlugin_global.h \
-           source/HelpPlugin.h \
-           source/IndexWidgetFactory.h \
-           source/SearchWidgetFactory.h \
+    source/Browser.h \
+    source/ContentWidgetFactory.h \
+    source/HelpMode.h \
+    source/HelpPluginConfig.h \
+    source/HelpPluginConstants.h \
+    source/HelpPlugin_global.h \
+    source/HelpPlugin.h \
+    source/IndexWidgetFactory.h \
+    source/SearchWidgetFactory.h \
 
 SOURCES += \
-           source/Browser.cpp \
-           source/ContentWidgetFactory.cpp \
-           source/HelpMode.cpp \
-           source/HelpPluginConfig.cpp \
-           source/HelpPlugin.cpp \
-           source/IndexWidgetFactory.cpp \
-           source/SearchWidgetFactory.cpp \
+    source/Browser.cpp \
+    source/ContentWidgetFactory.cpp \
+    source/HelpMode.cpp \
+    source/HelpPluginConfig.cpp \
+    source/HelpPlugin.cpp \
+    source/IndexWidgetFactory.cpp \
+    source/SearchWidgetFactory.cpp \
 
 FORMS   += \
     source/HelpPluginConfig.ui \

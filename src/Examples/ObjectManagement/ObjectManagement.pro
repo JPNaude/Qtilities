@@ -29,15 +29,24 @@ UI_DIR          = $$QTILITIES_TEMP/ObjectManagementExample
 # --------------------------
 # Application Files
 # --------------------------
-HEADERS += ObjectManagementModeWidget.h \
-    ObjectManagementMode.h
+HEADERS += \
+    ObjectManagementModeWidget.h \
+    ObjectManagementMode.h \
 
-SOURCES += main.cpp \
+SOURCES += \
+    main.cpp \
     ObjectManagementModeWidget.cpp \
-    ObjectManagementMode.cpp
+    ObjectManagementMode.cpp \
 
-FORMS += ObjectManagementModeWidget.ui
+FORMS += \
+    ObjectManagementModeWidget.ui \
 
 RESOURCES += \
-    ObjectManagementExample.qrc
-RC_FILE = rc_file.rc
+    ObjectManagementExample.qrc \
+
+OTHER_FILES += \
+    rc_file.rc \
+    qtilities_icon_white.ico \
+
+RC_FILE = \
+    rc_file.rc \
