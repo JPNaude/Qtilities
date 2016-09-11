@@ -37,11 +37,11 @@ UI_DIR          = $$QTILITIES_TEMP/QtilitiesModelTester
 # --------------------------
 # Application Files
 # --------------------------
-SOURCES += main.cpp
 RC_FILE = rc_file.rc
 
 SOURCES         += \
     dynamictreemodel.cpp \
+    main.cpp \
     modeltest.cpp \
 
 HEADERS         += \
