@@ -94,6 +94,12 @@ testFrontend.show();
             //! Adds a test to the list of tests.
             void addTest(ITestable* test, QtilitiesCategory category = QtilitiesCategory());
 
+            //! Execute the active tests.
+            void execute();
+
+            //! Returns the number of tests with errors from the last on_btnExecute_clicked() call.
+            int numberOfFailedTests() const;
+
         private slots:
             void on_btnExecute_clicked();
             void on_btnShowLog_clicked();

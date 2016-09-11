@@ -1,4 +1,6 @@
-Introduction
+[![Build Status](https://travis-ci.org/JPNaude/Qtilities.svg?branch=master)](https://travis-ci.org/JPNaude/Qtilities)
+
+Introduction  
 ------------
 
 Qtilities is a set of well documented and mature Qt C++ libraries which provides building blocks for Qt applications, allowing rapid application development. The project consists of different modules which provide features which are common to a wide range of Qt applications, with the main goal of making common things easier to do. 
@@ -22,11 +24,9 @@ For any questions or comments, please use any of the resources below:
 * Bug Tracker: http://github.com/JPNaude/Qtilities/issues
 * Discussions & Mailing List: http://groups.google.com/group/qtilities?hl=en?hl=en
 
-A good place to get updates and general information about the project is to follow Qtilities on twitter: http://twitter.com/#!/qtilities
-
 Licensing
 ---------
 Qtilities is available under GPL, LGPL and a commercial licensing scheme. For more information, please see http://jpnaude.github.io/Qtilities/page_licensing.html.
 
-Copyright (c) 2009-2013, Jaco Naudé
+Copyright (c) 2009-2016, Jaco Naudé
 

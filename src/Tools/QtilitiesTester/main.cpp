@@ -61,10 +61,10 @@ int main(int argc, char *argv[])
     // ---------------------------------------------
     // Create and register the tests that we want to use:
     // ---------------------------------------------
+    #ifdef QTILITIES_TESTING
     TestVersionNumber* testVersionNumber = new TestVersionNumber;
     testFrontend.addTest(testVersionNumber,QtilitiesCategory("Qtilities::Core","::"));
 
-    #ifdef QTILITIES_TESTING
     TestSubjectIterator* testSubjectIterator = new TestSubjectIterator;
     testFrontend.addTest(testSubjectIterator,QtilitiesCategory("Qtilities::Core","::"));
 
@@ -77,8 +77,8 @@ int main(int argc, char *argv[])
     TestObserverRelationalTable* testObserverRelationalTable = new TestObserverRelationalTable;
     testFrontend.addTest(testObserverRelationalTable,QtilitiesCategory("Qtilities::Core","::"));
 
-    TestExporting* testExporting = new TestExporting;
-    testFrontend.addTest(testExporting,QtilitiesCategory("Qtilities::General","::"));
+    //TestExporting* testExporting = new TestExporting;
+    //testFrontend.addTest(testExporting,QtilitiesCategory("Qtilities::General","::"));
 
     TestObjectManager* testObjectManager = new TestObjectManager;
     testFrontend.addTest(testObjectManager,QtilitiesCategory("Qtilities::Core","::"));
@@ -113,5 +113,11 @@ int main(int argc, char *argv[])
     // ---------------------------------------------
     testFrontend.show();
 
-    return a.exec();
+    if (a.arguments().contains(QLatin1String("-silent"))) {
+        // Everything is selected by default
+        testFrontend.execute();
+        return testFrontend.numberOfFailedTests();
+    } else {
+        return a.exec();
+    }
 }

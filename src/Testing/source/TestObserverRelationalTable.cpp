@@ -33,21 +33,21 @@ void Qtilities::Testing::TestObserverRelationalTable::testVisitorIDs() {
 
     // The VISITOR_ID property should not exist on any objects:
     foreach (QObject* obj, children)
-        QVERIFY(ObjectManager::propertyExists(obj,qti_prop_VISITOR_ID) == false);
+        QVERIFY(!ObjectManager::propertyExists(obj,qti_prop_VISITOR_ID));
 
     // Construct relational table:
     ObserverRelationalTable* table = new ObserverRelationalTable(rootNode);
 
     // Now check that all children got the VISITOR_ID property:
     foreach (QObject* obj, children)
-        QVERIFY(ObjectManager::propertyExists(obj,qti_prop_VISITOR_ID) == true);
+        QVERIFY(ObjectManager::propertyExists(obj,qti_prop_VISITOR_ID));
 
     // Now delete the table:
     delete table;
 
     // Now check that the VISITOR_ID property was removed from all objects:
     foreach (QObject* obj, children)
-        QVERIFY(ObjectManager::propertyExists(obj,qti_prop_VISITOR_ID) == false);
+        QVERIFY(!ObjectManager::propertyExists(obj,qti_prop_VISITOR_ID));
 }
 
 void Qtilities::Testing::TestObserverRelationalTable::testCompare() {
@@ -63,25 +63,25 @@ void Qtilities::Testing::TestObserverRelationalTable::testCompare() {
 
     ObserverRelationalTable tableA(observerA);
     ObserverRelationalTable tableB(observerA);
-    QVERIFY(tableA.compare(tableB) == true);
+    QVERIFY(tableA.compare(tableB));
 
     TreeItem* shared_item = parentNode2->addItem("Child 5");
 
     // The tables should not have changed yet:
-    QVERIFY(tableA.compare(tableB) == true);
+    QVERIFY(tableA.compare(tableB));
     tableA.refresh();
     // Now A should be up to date and B not:
-    QVERIFY(tableA.compare(tableB) == false);
+    QVERIFY(!tableA.compare(tableB));
     tableB.refresh();
     // Now both should be up to date:
-    QVERIFY(tableA.compare(tableB) == true);
+    QVERIFY(tableA.compare(tableB));
 
     // Check difference in object relationships
     parentNode1->addItem(shared_item);
     tableA.refresh();
-    QVERIFY(tableA.compare(tableB) == false);
+    QVERIFY(!tableA.compare(tableB));
     tableB.refresh();
-    QVERIFY(tableA.compare(tableB) == true);
+    QVERIFY(tableA.compare(tableB));
     //LOG_INFO("TestObserverRelationalTable::testCompare() end:");
 }
 

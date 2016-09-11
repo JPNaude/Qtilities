@@ -22,19 +22,7 @@ void Qtilities::Testing::TestObserver::testRecursiveAttachment() {
     // Example tree using tree node classes to simplify test:
     TreeNode* rootNode = new TreeNode("Root");
     TreeNode* childNode = rootNode->addNode("Parent 1");
-    QVERIFY(childNode->attachSubject(rootNode) == false);
-}
-
-void Qtilities::Testing::TestObserver::testRecursiveAttachmentContained() {
-    // Example tree using tree node classes to simplify test:
-    TreeNode* rootNode = new TreeNode("Root");
-    TreeNode* childNode = rootNode->addNode("Parent Node");
-    TreeItem* item = childNode->addItem("Child Item");
-
-    // Now create and add a contained observer:
-    TreeNode* containedNode = new TreeNode("Contained Node");
-    containedNode->setParent(item);
-    QVERIFY(!containedNode->attachSubject(rootNode));
+    QVERIFY(!childNode->attachSubject(rootNode));
 }
 
 void Qtilities::Testing::TestObserver::testAttachWithObserverLimit() {
@@ -44,8 +32,8 @@ void Qtilities::Testing::TestObserver::testAttachWithObserverLimit() {
 
     Observer observer1;
     Observer observer2;
-    QVERIFY(observer1.attachSubject(obj) == true);
-    QVERIFY(observer2.attachSubject(obj) == false);
+    QVERIFY(observer1.attachSubject(obj));
+    QVERIFY(!observer2.attachSubject(obj));
 }
 
 void Qtilities::Testing::TestObserver::testSubjectLimit() {
@@ -55,8 +43,8 @@ void Qtilities::Testing::TestObserver::testSubjectLimit() {
     QVERIFY(node.addItem("Item 1") != 0);
     QVERIFY(node.addItem("Item 2") != 0);
     QVERIFY(node.addItem("Item 3") == 0);
-    QVERIFY(node.setSubjectLimit(1) == false);
-    QVERIFY(node.setSubjectLimit(3) == true);
+    QVERIFY(!node.setSubjectLimit(1));
+    QVERIFY(node.setSubjectLimit(3));
     QVERIFY(node.addItem("Item 3") != 0);
 }
 
@@ -220,7 +208,7 @@ void Qtilities::Testing::TestObserver::testTreeCount() {
     parentNode2->addItem("Child 4");
     parentNode2->addItem("Child 5");
 
-    QVERIFY(rootNode->treeCount() == 7);
+    QCOMPARE(rootNode->treeCount(), 7);
 }
 
 void Qtilities::Testing::TestObserver::testTreeAt() {
@@ -234,7 +222,7 @@ void Qtilities::Testing::TestObserver::testTreeAt() {
     parentNode2->addItem("Child 4");
     TreeItem* item = parentNode2->addItem("Child 5");
 
-    QVERIFY(rootNode->treeAt(6) == item);
+    QCOMPARE(rootNode->treeAt(6), item);
 }
 
 void Qtilities::Testing::TestObserver::testTreeContains() {
@@ -252,7 +240,7 @@ void Qtilities::Testing::TestObserver::testTreeContains() {
     children << parentNode2->addItem("Child 5");
 
     foreach (QObject* obj, children)
-        QVERIFY(rootNode->treeContains(obj) == true);
+        QVERIFY(rootNode->treeContains(obj));
 }
 
 void Qtilities::Testing::TestObserver::testTreeChildren() {
@@ -271,155 +259,54 @@ void Qtilities::Testing::TestObserver::testTreeChildren() {
 
     QList<QObject*> children_verify = rootNode->treeChildren();
     foreach (QObject* obj, children)
-        QVERIFY(children_verify.contains(obj) == true);
+        QVERIFY(children_verify.contains(obj));
 
     QList<QObject*> nodes_verify = rootNode->treeChildren("Qtilities::CoreGui::TreeNode");
-    QVERIFY(nodes_verify.count() == 2);
+    QCOMPARE(nodes_verify.count(), 2);
     QList<QObject*> items_verify = rootNode->treeChildren("Qtilities::CoreGui::TreeItem");
-    QVERIFY(items_verify.count() == 5);
+    QCOMPARE(items_verify.count(), 5);
 }
 
-void Qtilities::Testing::TestObserver::testTreeCountContainment() {
-    // Example tree using tree node classes to simplify test:
-    TreeNode* rootNode = new TreeNode("Root");
-    TreeNode* parentNode1 = rootNode->addNode("Parent 1");
-    TreeNode* parentNode2 = rootNode->addNode("Parent 2");
-    parentNode1->addItem("Child 1");
-    parentNode1->addItem("Child 2");
-    parentNode2->addItem("Child 3");
-    parentNode2->addItem("Child 4");
-    TreeItem* item = parentNode2->addItem("Child 5");
+//void Qtilities::Testing::TestObserver::testCountModificationStateChanges() {
+//    TreeNode node("testCountModificationStateChangesNode");
+//    QSignalSpy spy(&node, SIGNAL(modificationStateChanged(bool)));
 
-    // Now create and add a contained observer:
-    TreeNode* containedNode = new TreeNode("Contained Node");
-    containedNode->addItem("Contained Item 1");
-    containedNode->addItem("Contained Item 2");
-    containedNode->addItem("Contained Item 3");
-    containedNode->setParent(item);
+//    node.addItem("1");
+//    node.setModificationState(false);
+//    node.addItem("2");
+//    node.addItem("3");
+//    //LOG_INFO("testCountModificationStateChanges: Signal Spy: modificationStateChanged(bool) -> count: " + QString::number(spy.count()));
+//    QCOMPARE(spy.count(), 3);
 
-    LOG_INFO(QString::number(rootNode->treeCount()));
-    QCOMPARE(rootNode->treeCount(), 11);
-}
+//    spy.clear();
 
-void Qtilities::Testing::TestObserver::testTreeAtContainment() {
-    // Example tree using tree node classes to simplify test:
-    TreeNode* rootNode = new TreeNode("Root");
-    TreeNode* parentNode1 = rootNode->addNode("Parent 1");
-    TreeNode* parentNode2 = rootNode->addNode("Parent 2");
-    parentNode1->addItem("Child 1");
-    parentNode1->addItem("Child 2");
-    parentNode2->addItem("Child 3");
-    parentNode2->addItem("Child 4");
-    TreeItem* item = parentNode2->addItem("Child 5");
+//    node.startProcessingCycle();
+//    node.addItem("4");
+//    node.addItem("5");
+//    node.addItem("6");
+//    TreeNode* nodeA = node.addNode("A");
+//    nodeA->addItem("7");
+//    TreeNode* nodeB = node.addNode("B");
+//    nodeB->addItem("8");
 
-    // Now create and add a contained observer:
-    TreeNode* containedNode = new TreeNode("Contained Node");
-    containedNode->addItem("Contained Item 1");
-    containedNode->addItem("Contained Item 2");
-    TreeItem* test_item = containedNode->addItem("Contained Item 3");
-    containedNode->setParent(item);
+//    node.endProcessingCycle();
+//    //LOG_INFO("testCountModificationStateChanges: Signal Spy: modificationStateChanged(bool) -> count: " + QString::number(spy.count()));
+//    QCOMPARE(spy.count(), 1);
 
-    LOG_INFO(QString::number(rootNode->treeCount()));
-    QCOMPARE(rootNode->treeAt(10), test_item);
-}
+//    node.saveToFile("testCountModificationStateChanges.xml");
+//    node.deleteAll();
+//    spy.clear();
+//    node.loadFromFile("testCountModificationStateChanges.xml");
+//    //LOG_INFO("testCountModificationStateChanges: Signal Spy: modificationStateChanged(bool) -> count: " + QString::number(spy.count()));
+//    QCOMPARE(spy.count(), 1);
+//    spy.clear();
 
-void Qtilities::Testing::TestObserver::testTreeContainsContainment() {
-    // Example tree using tree node classes to simplify test:
-    QList<QObject*> children;
-    TreeNode* rootNode = new TreeNode("Root");
-    TreeNode* parentNode1 = rootNode->addNode("Parent 1");
-    children << parentNode1;
-    TreeNode* parentNode2 = rootNode->addNode("Parent 2");
-    children << parentNode2;
-    children << parentNode1->addItem("Child 1");
-    children << parentNode1->addItem("Child 2");
-    children << parentNode2->addItem("Child 3");
-    children << parentNode2->addItem("Child 4");
-    TreeItem* item = parentNode2->addItem("Child 5");
-    children << item;
-
-    // Now create and add a contained observer:
-    TreeNode* containedNode = new TreeNode("Contained Node");
-    children << containedNode;
-    children << containedNode->addItem("Contained Item 1");
-    children << containedNode->addItem("Contained Item 2");
-    children << containedNode->addItem("Contained Item 3");
-
-    containedNode->setParent(item);
-
-    foreach (QObject* obj, children)
-        QVERIFY(rootNode->treeContains(obj));
-}
-
-void Qtilities::Testing::TestObserver::testTreeChildrenContainment() {
-    // Example tree using tree node classes to simplify test:
-    QList<QObject*> children;
-    TreeNode* rootNode = new TreeNode("Root");
-    TreeNode* parentNode1 = rootNode->addNode("Parent 1");
-    children << parentNode1;
-    TreeNode* parentNode2 = rootNode->addNode("Parent 2");
-    children << parentNode2;
-    children << parentNode1->addItem("Child 1");
-    children << parentNode1->addItem("Child 2");
-    children << parentNode2->addItem("Child 3");
-    children << parentNode2->addItem("Child 4");
-    TreeItem* item = parentNode2->addItem("Child 5");
-    children << item;
-
-    // Now create and add a contained observer:
-    TreeNode* containedNode = new TreeNode("Contained Node");
-    children << containedNode;
-    children << containedNode->addItem("Contained Item 1");
-    children << containedNode->addItem("Contained Item 2");
-    children << containedNode->addItem("Contained Item 3");
-
-    containedNode->setParent(item);
-
-    QList<QObject*> children_verify = rootNode->treeChildren();
-    foreach (QObject* obj, children)
-        QVERIFY(children_verify.contains(obj));
-}
-
-void Qtilities::Testing::TestObserver::testCountModificationStateChanges() {
-    TreeNode node("testCountModificationStateChangesNode");
-    QSignalSpy spy(&node, SIGNAL(modificationStateChanged(bool)));
-
-    node.addItem("1");
-    node.setModificationState(false);
-    node.addItem("2");
-    node.addItem("3");
-    //LOG_INFO("testCountModificationStateChanges: Signal Spy: modificationStateChanged(bool) -> count: " + QString::number(spy.count()));
-    QCOMPARE(spy.count(), 3);
-
-    spy.clear();
-
-    node.startProcessingCycle();
-    node.addItem("4");
-    node.addItem("5");
-    node.addItem("6");
-    TreeNode* nodeA = node.addNode("A");
-    nodeA->addItem("7");
-    TreeNode* nodeB = node.addNode("B");
-    nodeB->addItem("8");
-
-    node.endProcessingCycle();
-    //LOG_INFO("testCountModificationStateChanges: Signal Spy: modificationStateChanged(bool) -> count: " + QString::number(spy.count()));
-    QCOMPARE(spy.count(), 1);
-
-    node.saveToFile("testCountModificationStateChanges.xml");
-    node.deleteAll();
-    spy.clear();
-    node.loadFromFile("testCountModificationStateChanges.xml");
-    //LOG_INFO("testCountModificationStateChanges: Signal Spy: modificationStateChanged(bool) -> count: " + QString::number(spy.count()));
-    QCOMPARE(spy.count(), 1);
-    spy.clear();
-
-    node.deleteAll();
-    spy.clear();
-    //node.startProcessingCycle();
-    node.loadFromFile("testCountModificationStateChanges.xml");
-    //node.endProcessingCycle();
-    //LOG_INFO("testCountModificationStateChanges: Signal Spy: modificationStateChanged(bool) -> count: " + QString::number(spy.count()));
-    QCOMPARE(spy.count(), 1);
-    spy.clear();
-}
+//    node.deleteAll();
+//    spy.clear();
+//    //node.startProcessingCycle();
+//    node.loadFromFile("testCountModificationStateChanges.xml");
+//    //node.endProcessingCycle();
+//    //LOG_INFO("testCountModificationStateChanges: Signal Spy: modificationStateChanged(bool) -> count: " + QString::number(spy.count()));
+//    QCOMPARE(spy.count(), 1);
+//    spy.clear();
+//}

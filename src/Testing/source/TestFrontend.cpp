@@ -27,6 +27,8 @@ struct Qtilities::Testing::TestFrontendPrivateData {
     int                     argc;
     QPointer<QWidget>       log_widget;
     bool                    multiple_tests;
+    int                     success_count;
+    int                     error_count;
 
     QAction*                actionInvertSelection;
     QAction*                actionSetAllActive;
@@ -41,6 +43,8 @@ Qtilities::Testing::TestFrontend::TestFrontend(int argc, char ** argv, QWidget *
     d = new TestFrontendPrivateData;
     d->argc = argc;
     d->argv = argv;
+    d->error_count = 0;
+    d->success_count = 0;
     d->multiple_tests = false;
     setWindowTitle(tr("Application Tester"));
 
@@ -96,10 +100,17 @@ void Qtilities::Testing::TestFrontend::addTest(ITestable* test, QtilitiesCategor
     d->tests_observer_widget.viewExpandAll();
 }
 
-void Qtilities::Testing::TestFrontend::on_btnExecute_clicked()
-{
-    int success_count = 0;
-    int error_count = 0;
+void Testing::TestFrontend::execute() {
+    on_btnExecute_clicked();
+}
+
+int Testing::TestFrontend::numberOfFailedTests() const {
+    return d->error_count;
+}
+
+void Qtilities::Testing::TestFrontend::on_btnExecute_clicked() {
+    d->success_count = 0;
+    d->error_count = 0;
 
     time_t start,end;
     time(&start);
@@ -126,11 +137,11 @@ void Qtilities::Testing::TestFrontend::on_btnExecute_clicked()
             if (test->execTest(d->argc,d->argv) == 0) {
                 SharedProperty property(qti_prop_DECORATION,QVariant(QIcon(qti_icon_SUCCESS_12x12)));
                 ObjectManager::setSharedProperty(active_tests.at(i), property);
-                ++success_count;
+                ++d->success_count;
             } else {
                 SharedProperty property(qti_prop_DECORATION,QVariant(QIcon(qti_icon_ERROR_12x12)));
                 ObjectManager::setSharedProperty(active_tests.at(i), property);
-                ++error_count;
+                ++d->error_count;
             }
         }
     }
@@ -138,7 +149,7 @@ void Qtilities::Testing::TestFrontend::on_btnExecute_clicked()
     QApplication::restoreOverrideCursor();
     time(&end);
     double diff = difftime(end,start);
-    ui->txtResults->setText(QString(tr("Testing completed in %1 seconds: %2 passed, %3 failed.")).arg(diff).arg(success_count).arg(error_count));
+    ui->txtResults->setText(QString(tr("Testing completed in %1 seconds: %2 passed, %3 failed.")).arg(diff).arg(d->success_count).arg(d->error_count));
     d->multiple_tests = true;
 }
 

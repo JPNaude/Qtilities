@@ -8,7 +8,15 @@ QTILITIES += extension_system project_management
 include(../../Qtilities.pri)
 include(../../Dependencies.pri)
 
-QT       += core gui network webengine widgets printsupport help
+QT       += core gui network
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+QT += widgets \
+      printsupport
+}
+lessThan(QT_MAJOR_VERSION, 5) {
+CONFIG  += help
+}
 
 TARGET = MainWindowExample
 CONFIG   -= app_bundle
