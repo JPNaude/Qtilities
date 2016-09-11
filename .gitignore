@@ -50,3 +50,5 @@ Makefile
 gitKey*
 *.pdb
 child/
+*.autosave
+build
