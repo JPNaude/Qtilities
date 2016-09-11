@@ -106,4 +106,8 @@ includes.path = /usr/local/include/Qtilities
 includes.files = $$PWD/../include/*
 libs.path = /usr/local/lib
 libs.files = $$PWD/../bin/*
-INSTALLS += includes libs
+
+documentation.path = /usr/local/doc/$$TARGET
+documentation.files = $$PWD/../doc/sources/*
+
+INSTALLS += includes libs documentation
