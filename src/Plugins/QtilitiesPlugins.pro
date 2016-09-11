@@ -14,10 +14,10 @@ TEMPLATE    = subdirs
 CONFIG     += ordered
 
 # Plugins:
-#SUBDIRS    += PluginTemplate
 SUBDIRS += \
     DebugPlugin \
     HelpPlugin \
+    PluginTemplate \
     ProjectManagementPlugin \
     SessionLogPlugin \
 
