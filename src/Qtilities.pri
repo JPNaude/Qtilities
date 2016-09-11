@@ -79,9 +79,8 @@ DEFINES += QTILITIES_NO_HELP
 #****************************************************************************
 # Include paths
 #****************************************************************************
-INCLUDEPATH         +=$$QTILITIES_INCLUDE
-CONFIG              += ordered qt
-CONFIG              += exceptions rtti
+INCLUDEPATH         += $$QTILITIES_INCLUDE
+CONFIG              += ordered qt exceptions rtti
 
 #****************************************************************************
 # Compiler directives
@@ -95,8 +94,8 @@ win32-msvc* {
     # order to debug stack traces in release mode. If not desired, add
     # "-after QMAKE_LFLAGS_RELEASE -= /MAP /debug /opt:ref" to the qmake build
     # command.
+    QMAKE_LFLAGS_RELEASE += /MAP /debug /opt:ref
     QMAKE_CFLAGS_RELEASE += /Zi
-    QMAKE_LFLAGS_RELEASE += /debug /opt:ref
 }
 
 #****************************************************************************
@@ -107,12 +106,8 @@ contains( QTILITIES, testing ) {
     #message( "Using Testing Module..." )
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesTesting
     LIBS += -L$$QTILITIES_BIN -lQtilitiesTesting$${QTILITIES_LIB_POSTFIX}
-    
-    QTILITIES += logging
-    QTILITIES += core
-    QTILITIES += coregui
-    QTILITIES += extension_system
-    QTILITIES += project_management
+
+    QTILITIES += logging core coregui extension_system project_management
 }
 
 contains( QTILITIES, project_management ) {
@@ -120,9 +115,7 @@ contains( QTILITIES, project_management ) {
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesProjectManagement
     LIBS += -L$$QTILITIES_BIN -lQtilitiesProjectManagement$${QTILITIES_LIB_POSTFIX}
 
-    QTILITIES += logging
-    QTILITIES += core
-    QTILITIES += coregui
+    QTILITIES += logging core coregui
 }
 
 contains( QTILITIES, extension_system ) {
@@ -130,9 +123,7 @@ contains( QTILITIES, extension_system ) {
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesExtensionSystem
     LIBS += -L$$QTILITIES_BIN -lQtilitiesExtensionSystem$${QTILITIES_LIB_POSTFIX}
 
-    QTILITIES += logging
-    QTILITIES += core
-    QTILITIES += coregui
+    QTILITIES += logging core coregui
 }
 
 contains( QTILITIES, coregui ) {
@@ -140,8 +131,7 @@ contains( QTILITIES, coregui ) {
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCoreGui
     LIBS += -L$$QTILITIES_BIN -lQtilitiesCoreGui$${QTILITIES_LIB_POSTFIX}
 
-    QTILITIES += logging
-    QTILITIES += core
+    QTILITIES += logging core
 }
 
 contains( QTILITIES, core ) {

@@ -36,9 +36,7 @@ UI_DIR          = $$QTILITIES_TEMP/HelpPlugin
 # --------------------------
 # Library Files
 # --------------------------
-contains(DEFINES, QTILITIES_NO_HELP) {
-    # Do nothing here for now.
-} else {
+!contains(DEFINES, QTILITIES_NO_HELP) {
 HEADERS += \
            source/Browser.h \
            source/ContentWidgetFactory.h \

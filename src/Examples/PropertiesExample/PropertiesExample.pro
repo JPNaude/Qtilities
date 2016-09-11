@@ -4,8 +4,7 @@
 # See http://www.qtilities.org/licensing.html for licensing details.
 #
 # ***************************************************************************
-QTILITIES += extension_system
-QTILITIES += project_management
+QTILITIES += extension_system project_management
 include(../../Qtilities.pri)
 include(../../Dependencies.pri)
 

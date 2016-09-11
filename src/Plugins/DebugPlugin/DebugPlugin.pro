@@ -6,9 +6,7 @@
 # ***************************************************************************
 # Qtilities Debug Plugin Library
 # ***************************************************************************
-QTILITIES += extension_system
-QTILITIES += project_management
-QTILITIES += testing
+QTILITIES += extension_system project_management testing
 include(../../Qtilities.pri)
 
 CONFIG(debug, debug|release) {

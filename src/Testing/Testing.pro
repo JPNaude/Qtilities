@@ -6,8 +6,7 @@
 # ***************************************************************************
 # Qtilities Testing Library
 # ***************************************************************************
-QTILITIES += project_management
-QTILITIES += extension_system
+QTILITIES += project_management extension_system
 include(../Qtilities.pri)
 INCLUDEPATH += $$QTILITIES_INCLUDE/Testing
 

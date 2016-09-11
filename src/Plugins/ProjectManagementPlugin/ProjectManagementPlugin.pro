@@ -6,8 +6,7 @@
 # ***************************************************************************
 # Qtilities Project Management Plugin Library
 # ***************************************************************************
-QTILITIES += extension_system
-QTILITIES += project_management
+QTILITIES += extension_system project_management
 include(../../Qtilities.pri)
 
 CONFIG(debug, debug|release) {
