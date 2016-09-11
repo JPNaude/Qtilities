@@ -102,7 +102,7 @@ OTHER_FILES += \
     ../Readme.md \
 
 
-includes.path = /usr/local/include/Qtilities
+includes.path = /usr/local/include/$$TARGET
 includes.files = $$PWD/../include/*
 libs.path = /usr/local/lib
 libs.files = $$PWD/../bin/*
