@@ -36,6 +36,12 @@ UI_DIR          = $$QTILITIES_TEMP/QtilitiesTester
 # --------------------------
 # Application Files
 # --------------------------
-SOURCES += main.cpp
-RC_FILE = rc_file.rc
+SOURCES += \
+    main.cpp \
 
+OTHER_FILES += \
+    qtilities_icon_white.ico \
+    rc_file.rc \
+
+RC_FILE = \
+    rc_file.rc \

@@ -27,7 +27,8 @@ RCC_DIR = $$QTILITIES_TEMP/CoreGui
 UI_DIR = $$QTILITIES_TEMP/CoreGui
 
 # --------------------------
-# Files only included when Qt Property Browser solution is present
+# Files only included when Qt Property Browser solution is present (see
+# Dependencies.pri for more details)
 # --------------------------
 contains(DEFINES, QTILITIES_PROPERTY_BROWSER) {
     HEADERS += \

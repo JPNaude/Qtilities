@@ -4,8 +4,7 @@
 # See http://www.qtilities.org/licensing.html for licensing details.
 #
 # ***************************************************************************
-QTILITIES += extension_system
-QTILITIES += project_management
+QTILITIES += extension_system project_management
 include(../../Qtilities.pri)
 include(../../Dependencies.pri)
 
@@ -33,7 +32,12 @@ UI_DIR          = $$QTILITIES_TEMP/PropertiesExample
 # --------------------------
 # Application Files
 # --------------------------
-SOURCES += main.cpp
+SOURCES += \
+    main.cpp \
 
-RC_FILE = rc_file.rc
+RC_FILE = \
+    rc_file.rc \
 
+OTHER_FILES += \
+    rc_file.rc \
+    qtilities_icon_white.ico \

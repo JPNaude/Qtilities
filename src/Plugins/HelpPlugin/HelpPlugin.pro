@@ -23,17 +23,7 @@ TEMPLATE = lib
 DEFINES += HELP_PLUGIN_LIBRARY
 CONFIG  += plugin dll
 
-QT += network webengine webenginewidgets help
-
-greaterThan(QT_MAJOR_VERSION, 4) {
-QT += webengine \
-      webenginewidgets \
-      printsupport
-}
-lessThan(QT_MAJOR_VERSION, 5) {
-CONFIG  += help
-QT += webengine
-}
+QT += core gui widgets network webengine webenginewidgets help printsupport
 
 # ------------------------------
 # Temp Output Paths
@@ -46,28 +36,26 @@ UI_DIR          = $$QTILITIES_TEMP/HelpPlugin
 # --------------------------
 # Library Files
 # --------------------------
-contains(DEFINES, QTILITIES_NO_HELP) {
-    # Do nothing here for now.
-} else {
+!contains(DEFINES, QTILITIES_NO_HELP) {
 HEADERS += \
-           source/Browser.h \
-           source/ContentWidgetFactory.h \
-           source/HelpMode.h \
-           source/HelpPluginConfig.h \
-           source/HelpPluginConstants.h \
-           source/HelpPlugin_global.h \
-           source/HelpPlugin.h \
-           source/IndexWidgetFactory.h \
-           source/SearchWidgetFactory.h \
+    source/Browser.h \
+    source/ContentWidgetFactory.h \
+    source/HelpMode.h \
+    source/HelpPluginConfig.h \
+    source/HelpPluginConstants.h \
+    source/HelpPlugin_global.h \
+    source/HelpPlugin.h \
+    source/IndexWidgetFactory.h \
+    source/SearchWidgetFactory.h \
 
 SOURCES += \
-           source/Browser.cpp \
-           source/ContentWidgetFactory.cpp \
-           source/HelpMode.cpp \
-           source/HelpPluginConfig.cpp \
-           source/HelpPlugin.cpp \
-           source/IndexWidgetFactory.cpp \
-           source/SearchWidgetFactory.cpp \
+    source/Browser.cpp \
+    source/ContentWidgetFactory.cpp \
+    source/HelpMode.cpp \
+    source/HelpPluginConfig.cpp \
+    source/HelpPlugin.cpp \
+    source/IndexWidgetFactory.cpp \
+    source/SearchWidgetFactory.cpp \
 
 FORMS   += \
     source/HelpPluginConfig.ui \

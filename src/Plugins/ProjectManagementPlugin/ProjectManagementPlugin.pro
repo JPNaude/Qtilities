@@ -6,8 +6,7 @@
 # ***************************************************************************
 # Qtilities Project Management Plugin Library
 # ***************************************************************************
-QTILITIES += extension_system
-QTILITIES += project_management
+QTILITIES += extension_system project_management
 include(../../Qtilities.pri)
 
 CONFIG(debug, debug|release) {
@@ -37,9 +36,9 @@ UI_DIR          = $$QTILITIES_TEMP/ProjectManagementPlugin
 # Library Files
 # --------------------------
 HEADERS +=  \
-            source/ProjectManagementPluginConstants.h \
-            source/ProjectManagementPlugin_global.h \
-            source/ProjectManagementPlugin.h \
+    source/ProjectManagementPluginConstants.h \
+    source/ProjectManagementPlugin_global.h \
+    source/ProjectManagementPlugin.h \
 
 SOURCES +=  \
-            source/ProjectManagementPlugin.cpp \
+    source/ProjectManagementPlugin.cpp \

@@ -37,11 +37,13 @@ UI_DIR          = $$QTILITIES_TEMP/PluginTemplate
 # --------------------------
 # Library Files
 # --------------------------
-HEADERS += source/PluginTemplate.h \
-           source/PluginTemplate_global.h \
-           source/PluginTemplateConstants.h
+HEADERS += \
+    source/PluginTemplate.h \
+    source/PluginTemplate_global.h \
+    source/PluginTemplateConstants.h \
 
-SOURCES += source/PluginTemplate.cpp
+SOURCES += \
+    source/PluginTemplate.cpp \
 
 RESOURCES += \
-    resources/PluginTemplate.qrc
+    resources/PluginTemplate.qrc \

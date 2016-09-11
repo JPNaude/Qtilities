@@ -31,7 +31,16 @@ UI_DIR = $$QTILITIES_TEMP/ExportingExample
 # --------------------------
 # Application Files
 # --------------------------
-SOURCES += main.cpp \
-    VersionDetails.cpp
-RC_FILE = rc_file.rc
-HEADERS += VersionDetails.h
+SOURCES += \
+    main.cpp \
+    VersionDetails.cpp \
+
+HEADERS += \
+    VersionDetails.h \
+
+RC_FILE = \
+    rc_file.rc \
+
+OTHER_FILES += \
+  rc_file.rc \
+  qtilities_icon_white.ico \

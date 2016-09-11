@@ -33,12 +33,23 @@ UI_DIR = $$QTILITIES_TEMP/ClipboardExample
 # --------------------------
 # Application Files
 # --------------------------
-SOURCES += main.cpp \
+SOURCES += \
+    main.cpp \
     ObserverWidgetConfig.cpp \
     ExtendedObserverTreeModel.cpp \
-    ExtendedObserverTableModel.cpp
-RC_FILE = rc_file.rc
-HEADERS += ObserverWidgetConfig.h \
+    ExtendedObserverTableModel.cpp \
+
+HEADERS += \
+    ObserverWidgetConfig.h \
     ExtendedObserverTreeModel.h \
-    ExtendedObserverTableModel.h
-FORMS += ObserverWidgetConfig.ui
+    ExtendedObserverTableModel.h \
+
+RC_FILE = \
+    rc_file.rc
+
+FORMS += \
+    ObserverWidgetConfig.ui \
+
+OTHER_FILES += \
+    rc_file.rc \
+    qtilities_icon_white.ico \

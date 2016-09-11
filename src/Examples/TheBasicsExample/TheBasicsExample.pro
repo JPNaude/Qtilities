@@ -29,5 +29,12 @@ UI_DIR = $$QTILITIES_TEMP/TheBasicsExample
 # --------------------------
 # Application Files
 # --------------------------
-SOURCES += main.cpp
-RC_FILE = rc_file.rc
+SOURCES += \
+    main.cpp \
+
+OTHER_FILES += \
+    rc_file.rc \
+    qtilities_icon_white.ico \
+
+RC_FILE = \
+    rc_file.rc \

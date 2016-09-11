@@ -94,11 +94,22 @@ OTHER_FILES += \
     ../doc/sources/Whats_New_v1_3.html \
     ../doc/sources/Whats_New_v1_4.html \
     ../doc/sources/Widget_Set.html \
+    "../Getting Started.txt" \
+    ../.gitattributes \
+    ../.gitignore \
+    ../gpl.txt \
+    ../License.txt \
     ../Readme.md \
 
 
-includes.path = /usr/local/include/Qtilities
+# TODO: Make this part more Windows-friendly
+includes.path = /usr/local/include/$$TARGET
 includes.files = $$PWD/../include/*
+
 libs.path = /usr/local/lib
 libs.files = $$PWD/../bin/*
-INSTALLS += includes libs
+
+documentation.path = /usr/local/doc/$$TARGET
+documentation.files = $$PWD/../doc/sources/*
+
+INSTALLS += includes libs documentation
