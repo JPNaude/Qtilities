@@ -30,7 +30,8 @@ RCC_DIR = $$QTILITIES_TEMP/Testing
 UI_DIR = $$QTILITIES_TEMP/Testing
 
 # --------------------------
-# Files only included when Qtilities unit tests must be part of the library
+# Files only included when Qtilities unit tests must be part of the library.
+# To build them, add "DEFINES+=QTILITIES_TESTING" on the qmake command line.
 # --------------------------
 contains(DEFINES, QTILITIES_TESTING) {
     HEADERS += \
