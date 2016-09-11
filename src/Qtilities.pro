@@ -94,6 +94,11 @@ OTHER_FILES += \
     ../doc/sources/Whats_New_v1_3.html \
     ../doc/sources/Whats_New_v1_4.html \
     ../doc/sources/Widget_Set.html \
+    "../Getting Started.txt" \
+    ../.gitattributes \
+    ../.gitignore \
+    ../gpl.txt \
+    ../License.txt \
     ../Readme.md \
 
 
