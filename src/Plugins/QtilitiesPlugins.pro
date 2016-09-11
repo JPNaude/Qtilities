@@ -24,14 +24,14 @@ contains(DEFINES, QTILITIES_NO_HELP) {
     # Do nothing here for now.
 } else {
     greaterThan(QT_MAJOR_VERSION, 4) {
-        QT += help
+        #QT += help
     }
     lessThan(QT_MAJOR_VERSION, 5) {
-        CONFIG  += help
+        #CONFIG  += help
     }
 
     unix {
-        SUBDIRS += HelpPlugin
+        #SUBDIRS += HelpPlugin
     }
 
     win32-g++ {
@@ -41,7 +41,7 @@ contains(DEFINES, QTILITIES_NO_HELP) {
     }
 
     win32-msvc* {
-        SUBDIRS += HelpPlugin
+        #SUBDIRS += HelpPlugin
     }
 }
 
