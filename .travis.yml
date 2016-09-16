@@ -41,7 +41,7 @@ install:
 script:
   - pwd
   - cd src
-  - qmake -r -Wall 
+  - qmake -r -Wall DEFINES+=QTILITIES_TESTING
   - make -j$(nproc)
   # Check that everything built correctly:
   - make check
