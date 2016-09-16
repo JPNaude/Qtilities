@@ -5,6 +5,10 @@
 *.dll
 *.exe
 *.o
+*.obj
+*.out
+*.pch
+*.gch
 *.so
 *.a
 
