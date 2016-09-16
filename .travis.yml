@@ -51,7 +51,7 @@ script:
   - cd bin
   - tree
   - cp Tools/QtilitiesTester/QtilitiesTester .
-  - xvfb-run ./QtilitiesTester -silent
+  - xvfb-run --server-args="-screen 0 1024x768x24" ./QtilitiesTester -silent
   
 branches:
   only:
