@@ -49,7 +49,8 @@ namespace Qtilities {
             QString propertyName(QtProperty* property) const;
             bool contextDependent(QtProperty* property) const;
             bool editable(QtProperty* property) const;
-            QString listSeperatorBackend(QtProperty* property) const;
+            QString listSeparatorBackend(QtProperty* property) const;
+            Q_DECL_DEPRECATED QString listSeperatorBackend(QtProperty* property) const;
             //! Returns the current list values of the property. Only applicable to FileList and PathList properties.
             QStringList listValues(QtProperty* property) const;
             GenericProperty::PropertyType propertyType(QtProperty* property) const;

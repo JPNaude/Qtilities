@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
     QObject::connect(command->action(),SIGNAL(triggered()),&config_widget,SLOT(show()));
     QtilitiesApplication::setConfigWidget(&config_widget);
     file_menu->addAction(command);
-    file_menu->addSeperator();
+    file_menu->addSeparator();
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_FILE_EXIT,QObject::tr("Exit"),QKeySequence(QKeySequence::Close),std_context);
     QObject::connect(command->action(),SIGNAL(triggered()),QCoreApplication::instance(),SLOT(quit()));
     file_menu->addAction(command);
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_REDO,QObject::tr("Redo"),QKeySequence(QKeySequence::Redo));
     command->setCategory(QtilitiesCategory("Editing"));
     edit_menu->addAction(command);
-    edit_menu->addSeperator();
+    edit_menu->addSeparator();
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_COPY,QObject::tr("Copy"),QKeySequence(QKeySequence::Copy));
     command->setCategory(QtilitiesCategory("Editing"));
     edit_menu->addAction(command);
@@ -111,14 +111,14 @@ int main(int argc, char *argv[])
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_PASTE,QObject::tr("Paste"),QKeySequence(QKeySequence::Paste));
     command->setCategory(QtilitiesCategory("Editing"));
     edit_menu->addAction(command);
-    edit_menu->addSeperator();
+    edit_menu->addSeparator();
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_SELECT_ALL,QObject::tr("Select All"),QKeySequence(QKeySequence::SelectAll));
     command->setCategory(QtilitiesCategory("Editing"));
     edit_menu->addAction(command);
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_CLEAR,QObject::tr("Clear"));
     command->setCategory(QtilitiesCategory("Editing"));
     edit_menu->addAction(command);
-    edit_menu->addSeperator();
+    edit_menu->addSeparator();
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_FIND,QObject::tr("Find"),QKeySequence(QKeySequence::Find));
     edit_menu->addAction(command);
 

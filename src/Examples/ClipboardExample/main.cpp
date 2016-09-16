@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 
     QObject::connect(command->action(),SIGNAL(triggered()),config_widget,SLOT(show()));
     edit_menu->addAction(command);
-    edit_menu->addSeperator();
+    edit_menu->addSeparator();
     // Register action placeholders for the copy, cut and paste actions:
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_COPY,QObject::tr("Copy"),QKeySequence(QKeySequence::Copy));
     command->setCategory(QtilitiesCategory("Editing"));

@@ -102,7 +102,7 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
         Command* command = ACTION_MANAGER->command(qti_action_PROJECTS_SAVE_AS);
         file_menu->addAction(command,PROJECT_MANAGER->projectMenuItemsBeforeCommand());
     }
-    file_menu->addSeperator(PROJECT_MANAGER->projectMenuItemsBeforeCommand());
+    file_menu->addSeparator(PROJECT_MANAGER->projectMenuItemsBeforeCommand());
     // ---------------------------
     // Recent Projects Menu
     // ---------------------------

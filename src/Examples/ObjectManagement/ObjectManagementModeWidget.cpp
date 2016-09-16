@@ -104,7 +104,7 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     Command* command = ACTION_MANAGER->registerAction("Example.PopulateObserver",d->actionAddExampleObjects,context);
     command->setCategory(QtilitiesCategory(QApplication::applicationName()));
     file_menu->addAction(command,qti_action_FILE_EXIT);
-    file_menu->addSeperator(qti_action_FILE_EXIT);
+    file_menu->addSeparator(qti_action_FILE_EXIT);
 
     d->dot_file_action = new QAction("Create Dot Graph",this);
     connect(d->dot_file_action,SIGNAL(triggered()),SLOT(createDotFile()));
@@ -130,7 +130,7 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     command->setCategory(QtilitiesCategory(QApplication::applicationName()));
     file_menu->addAction(command,qti_action_FILE_EXIT);
 
-    file_menu->addSeperator(qti_action_FILE_EXIT);
+    file_menu->addSeparator(qti_action_FILE_EXIT);
 
     // ---------------------------
     // Initialize widget control toolbar and actions

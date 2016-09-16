@@ -162,10 +162,10 @@ sure that categories are handled the same way everywhere. Some usages in %Qtilit
             QtilitiesCategory(const QString& category_level_name = QString());
             //! Constructs a QtilitiesCategory object.
             /*!
-              \param category_levels A QString containing a list of categories seperated by the \p seperator parameter.
-              \param seperator The seperator string used to split the \p category_levels parameter.
+              \param category_levels A QString containing a list of categories seperated by the \p separator parameter.
+              \param separator The separator string used to split the \p category_levels parameter.
               */
-            QtilitiesCategory(const QString& category_levels, const QString& seperator);
+            QtilitiesCategory(const QString& category_levels, const QString& separator);
             //! Creates a QtilitiesCategory object from a QStringList.
             QtilitiesCategory(const QStringList& category_name_list);
             QtilitiesCategory(QDataStream &ds, Qtilities::ExportVersion version) : IObjectBase(), IExportable() {
