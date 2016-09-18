@@ -43,7 +43,6 @@ namespace Qtilities {
         class QTILIITES_CORE_SHARED_EXPORT AbstractSubjectFilter : public QObject, virtual public IExportable
         {
             Q_OBJECT
-            Q_ENUMS(EvaluationResult)
 
             friend class Observer;
 
@@ -63,6 +62,7 @@ namespace Qtilities {
                 Conditional,    /*!< Validation is conditional. %Examples of this is when the user still needs to decide how to rename an object, thus it is not possible to know before hand what the result will be. */
                 Rejected        /*!< Validation failed. */
             };
+            Q_ENUM(EvaluationResult)
 
             //! Returns the name of the subject filter.
             virtual QString filterName() const = 0;

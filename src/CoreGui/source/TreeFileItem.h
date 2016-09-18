@@ -55,7 +55,6 @@ namespace Qtilities {
         {
             Q_OBJECT
             Q_INTERFACES(Qtilities::Core::Interfaces::IExportable)
-            Q_ENUMS(PathDisplay)
 
         public:
             //! This enumeration provides the possible ways that tree file items can be displayed.
@@ -67,6 +66,7 @@ namespace Qtilities {
                 DisplayFilePath,        /*!< Display filePath(). */
                 DisplayActualFilePath   /*!< Display actualFilePath(). */
             };
+            Q_ENUM(PathDisplay)
 
             //! Constructs a TreeFileItem object.
             /*!

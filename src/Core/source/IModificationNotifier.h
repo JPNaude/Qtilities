@@ -38,6 +38,8 @@ namespace Qtilities {
             returned by objectBase().
               */
             class QTILIITES_CORE_SHARED_EXPORT IModificationNotifier : virtual public IObjectBase {
+                Q_GADGET
+
             public:
                 IModificationNotifier() : d_isModified(false) {}
                 virtual ~IModificationNotifier() {}
@@ -49,7 +51,7 @@ namespace Qtilities {
                     NotifySubjects  = 2   /*!< Notify all subjects about the new state. The new state will be set on all subjects as well. */
                 };
                 Q_DECLARE_FLAGS(NotificationTargets, NotificationTarget)
-                Q_FLAGS(NotificationTargets)
+                Q_FLAG(NotificationTargets)
 
                 //! Indicates the modification state of the object.
                 virtual bool isModified() const = 0;

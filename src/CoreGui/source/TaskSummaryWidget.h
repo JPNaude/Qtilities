@@ -78,7 +78,8 @@ task_summary_widget.findCurrentTasks();
                 DisplayOnlyBusyTasks                                = 0,  /*!< Only busy tasks and tasks which are not busy but can be started (canStart()) are shown will be displayed. */
                 DisplayAllTasks                                     = 1   /*!< All tasks registered in the global object pool will be displayed. */
             };
-            Q_ENUMS(TaskDisplayOptions)
+            Q_ENUM(TaskDisplayOptions)
+
             //! Indicates how the TaskSummaryWidget should be shown when no SingleTaskWidget items are present.
             /*!
               Default is HideSummaryWidget.
@@ -87,7 +88,8 @@ task_summary_widget.findCurrentTasks();
                 HideSummaryWidget                                   = 0,  /*!< Hide the summary widget when no tasks are present. */
                 ShowSummaryWidget                                   = 1   /*!< Show the summary widget when no tasks are present. */
             };
-            Q_ENUMS(TaskDisplayOptions)
+            Q_ENUM(TaskDisplayOptions)
+
             //! The possible ways that SingleTaskWidget widgets can be removed from the summary widget.
             /*!
               In addition to the available remove options listed, tasks will always be removed when they are deleted.
@@ -102,9 +104,8 @@ task_summary_widget.findCurrentTasks();
                 RemoveWhenStopped                                   = 8,  /*!< Remove tasks when they are stopped. */
                 RemoveDefault                                       = RemoveWhenCompletedSuccessfully
             };
-            Q_ENUMS(TaskRemoveOption)
             Q_DECLARE_FLAGS(TaskRemoveOptionFlags, TaskRemoveOption)
-            Q_FLAGS(TaskRemoveOptionFlags)
+            Q_FLAG(TaskRemoveOptionFlags)
 
             TaskSummaryWidget(TaskRemoveOption remove_options = RemoveDefault, TaskDisplayOptions display_options = DisplayOnlyBusyTasks, QWidget * parent = 0);
             ~TaskSummaryWidget();

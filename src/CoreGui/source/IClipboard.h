@@ -107,7 +107,6 @@ if (observer_mime_data) {
             class QTILITIES_CORE_GUI_SHARED_EXPORT IClipboard : public QObject, virtual public IObjectBase
             {
                 Q_OBJECT
-                Q_ENUMS(ClipboardOrigin)
 
             public:
                 IClipboard(QObject* parent = 0) : QObject(parent) {}
@@ -122,6 +121,7 @@ if (observer_mime_data) {
                     CutAction,          /*!< A cut action changed the clipboard. */
                     Unspecified         /*!< An unspecified action changed the clipboard. */
                 };
+                Q_ENUM(ClipboardOrigin)
 
                 //! Gives information about the data which was placed in the clipboard.
                 virtual ClipboardOrigin clipboardOrigin() = 0;

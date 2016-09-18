@@ -49,7 +49,6 @@ namespace Qtilities {
         class PROJECT_MANAGEMENT_SHARED_EXPORT ProjectManager : public QObject, public IModificationNotifier, public ITaskContainer
         {
             Q_OBJECT
-            Q_ENUMS(ModifiedProjectsHandlingPolicy)
             Q_INTERFACES(Qtilities::Core::Interfaces::IModificationNotifier)
 
         public:
@@ -59,6 +58,8 @@ namespace Qtilities {
                 TaskOpenProject   = 1,  /*!< Open project task with progress information for openProject(). Enabled by deafult. */
                 TaskCloseProject   = 2  /*!< Close project task with progress information for closeProject(). Enabled by deafult. */
             };
+            Q_ENUM(ContainedTasks)
+
             //! ContainedTasks to string conversion function.
             QString taskNameToString(ContainedTasks task_name) const {
                 if (task_name == TaskSaveProject)
@@ -75,6 +76,7 @@ namespace Qtilities {
                 ExecNormal   = 0,       /*!< Normal operation, prompt user when feedback or input action is required. */
                 ExecSilent   = 1        /*!< Silent, do not prompt user when feedback or input action is required. Operate on defaults and if no defaults exists, fails. */
             };
+            Q_ENUM(ExecStyle)
 
             static ProjectManager* instance();
             ~ProjectManager();
@@ -87,6 +89,7 @@ namespace Qtilities {
                 PromptUser = 0,     /*!< All observer operations are available to the user (Attachment, Detachement etc.). */
                 AutoSave   = 1      /*!< The observer is read only to the user. */
             };
+            Q_ENUM(ModifiedProjectsHandlingPolicy)
 
             // ---------------------------------------
             // Functions related to project types

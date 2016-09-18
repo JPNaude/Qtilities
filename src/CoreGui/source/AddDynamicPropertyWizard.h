@@ -50,7 +50,7 @@ namespace Qtilities {
                 ConstructDoNotAdd      = 1 << 2  /*!< Constructs the property, but don't add it to the property to the object set using
                                                       setObject(). Instead, the constructed property can be obtained through constructedProperty(). */
             };
-            Q_ENUMS(PropertyCreationHint)
+            Q_ENUM(PropertyCreationHint)
 
             explicit AddDynamicPropertyWizard(PropertyCreationHint property_creation_hint = ConstructAndAdd, QWidget *parent = 0);
             virtual ~AddDynamicPropertyWizard();

@@ -43,13 +43,6 @@ namespace Qtilities {
             Q_OBJECT
             Q_INTERFACES(Qtilities::Core::Interfaces::ITask)
 
-//            Q_ENUMS(ITask::TaskState)
-//            Q_ENUMS(ITask::TaskResult)
-//            Q_ENUMS(ITask::TaskType)
-//            Q_ENUMS(ITask::TaskStopAction)
-//            Q_ENUMS(ITask::TaskRemoveAction)
-//            Q_ENUMS(ITask::TaskState)
-
             // Add properties to task to simplify debugging in Qtilities Debug widget:
             Q_PROPERTY(QString Name READ taskName)
             Q_PROPERTY(QString DisplayName READ displayName)
@@ -80,8 +73,8 @@ namespace Qtilities {
                 LifeTimeDestroyWhenCompleted                = LifeTimeDestroyWhenSuccessful | LifeTimeDestroyWhenSuccessfullWithWarnings | LifeTimeDestroyWhenStopped | LifeTimeDestroyWhenFailed  /*!< The task will destroy itself when completed, independent of the state if completed in. */
             };
             Q_DECLARE_FLAGS(TaskLifeTimeFlags, TaskLifeTime)
-            Q_FLAGS(TaskLifeTimeFlags)
-            Q_ENUMS(TaskLifeTime)
+            Q_FLAG(TaskLifeTimeFlags)
+
 
             //! Default constructor
             /*!

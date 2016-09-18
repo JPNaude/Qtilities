@@ -35,7 +35,6 @@ namespace Qtilities {
         class QTILITIES_CORE_GUI_SHARED_EXPORT GenericPropertyBrowser : public QMainWindow
         {
             Q_OBJECT
-            Q_ENUMS(BrowserType)
 
         public:
             //! This enumeration contains all the possible modes in which the property editor can be used.
@@ -44,6 +43,7 @@ namespace Qtilities {
                 GroupBoxBrowser,
                 ButtonBrowser
             };
+            Q_ENUM(BrowserType)
 
             GenericPropertyBrowser(GenericPropertyManager* property_manager, BrowserType browser_type = TreeBrowser, QWidget *parent = 0);
             ~GenericPropertyBrowser();

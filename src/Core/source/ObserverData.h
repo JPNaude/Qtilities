@@ -42,6 +42,8 @@ namespace Qtilities {
           */
         class QTILIITES_CORE_SHARED_EXPORT ObserverData : public IExportable
         {
+            Q_GADGET
+
         public:
             //! The possible export flags used during extended observer exports.
             /*!
@@ -54,7 +56,7 @@ namespace Qtilities {
                 ExportAllItems             = ExportData | ExportVisitorIDs | ExportRelationalData
             };
             Q_DECLARE_FLAGS(ExportItemFlags, ExportItem)
-            Q_FLAGS(ExportItemFlags)
+            Q_FLAG(ExportItemFlags)
 
             ObserverData(Observer* obs, const QString& observer_name) : IObjectBase(), IExportable(), subject_limit(-1),
                 subject_id_counter(0),

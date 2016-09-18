@@ -40,13 +40,14 @@ namespace Qtilities {
         class QTILIITES_CORE_SHARED_EXPORT FileUtils : public QObject, public ITaskContainer {
             Q_OBJECT
             Q_INTERFACES(Qtilities::Core::Interfaces::ITaskContainer)
-            Q_ENUMS(ContainedTasks)
 
         public:
             //! Access names for tasks provided by FileUtils.
             enum ContainedTasks {
                 TaskFindFilesUnderDir   = 0  /*!< The task which allows monitoring of the findFilesUnderDir() function's progress. */
             };
+            Q_ENUM(ContainedTasks)
+
             //! ContainedTasks to string conversion function.
             QString taskNameToString(ContainedTasks task_name) const {
                 if (task_name == TaskFindFilesUnderDir)

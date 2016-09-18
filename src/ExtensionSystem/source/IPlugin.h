@@ -35,6 +35,8 @@ namespace Qtilities {
               */
             class EXTENSION_SYSTEM_SHARED_EXPORT IPlugin : virtual public IObjectBase
             {
+                Q_GADGET
+
             public:
                 IPlugin() {
                     d_state = Functional;
@@ -52,7 +54,7 @@ namespace Qtilities {
                     InActive = 4                /*!< The plugin was loaded but not initialized. \sa ExtensionSystemCore::setInactivePlugins().  */
                 };
                 Q_DECLARE_FLAGS(PluginStateFlags, PluginState)
-                Q_FLAGS(PluginStateFlags)
+                Q_FLAG(PluginStateFlags)
 
                 //! Function which returns a string associated with a the plugin's state.
                 QString pluginStateString() const {

@@ -127,9 +127,6 @@ if (ObjectManager::propertyExists(obj,qti_prop_NAME)) {
         {
             Q_OBJECT
             Q_INTERFACES(Qtilities::Core::Interfaces::IModificationNotifier)
-            Q_ENUMS(UniquenessPolicy)
-            Q_ENUMS(ResolutionPolicy)
-            Q_ENUMS(ValidityCheckResult)
 
             friend class NamingPolicyInputDialog;
 
@@ -156,6 +153,8 @@ if (ObjectManager::propertyExists(obj,qti_prop_NAME)) {
                 ProhibitDuplicateNames,                 /*!< Prohibit duplicate names (checking for duplicate names done in a case in-sensitive way). */
                 ProhibitDuplicateNamesCaseSensitive     /*!< Prohibit duplicate names (checking for duplicate names done in a case sensitive way). */
             };
+            Q_ENUM(UniquenessPolicy)
+
             //! Function which returns a string associated with a specific UniquenessPolicy.
             static QString uniquenessPolicyToString(UniquenessPolicy uniqueness_policy);
             //! Function which returns the UniquenessPolicy associated with a string.
@@ -170,6 +169,8 @@ if (ObjectManager::propertyExists(obj,qti_prop_NAME)) {
                 Replace = 2,                /*!< Replace the conflicting object with the current object. This option will only work when the conflicting object is only observed in the context to which the naming policy filter is attached. If this is the case, the replacement operation will delete the conflicting object and attach the new object to the observer. \note The Replace policy is only usable when duplicate names are encountered, not invalid names. For invalid names Reject will be used. */
                 Reject = 3                  /*!< Reject unacceptable names.*/
             };
+            Q_ENUM(ResolutionPolicy)
+
             //! Function which returns a string associated with a specific ResolutionPolicy.
             static QString resolutionPolicyToString(ResolutionPolicy resolution_policy);
             //! Function which returns the ResolutionPolicy associated with a string.
@@ -185,7 +186,8 @@ if (ObjectManager::propertyExists(obj,qti_prop_NAME)) {
                 AllChecks = Validity | Uniqueness /*!< All checks are performed. */
             };
             Q_DECLARE_FLAGS(ValidationCheckFlags, ValidationCheck)
-            Q_FLAGS(ValidationCheckFlags)
+            Q_FLAG(ValidationCheckFlags)
+
             //! Function which returns a string associated with a specific ValidationCheckFlags.
             static QString validationCheckFlagsToString(ValidationCheckFlags validation_checks);
             //! Function which returns the ValidationCheckFlags associated with a string.
@@ -200,7 +202,7 @@ if (ObjectManager::propertyExists(obj,qti_prop_NAME)) {
                 Invalid = 2             /*!< The name is invalid in this context. \sa setValidator(), getValidator(). */
             };
             Q_DECLARE_FLAGS(NameValidity, ValidityCheckResult)
-            Q_FLAGS(NameValidity)
+            Q_FLAG(NameValidity)
 
             // --------------------------------
             // Factory Interface Implementation

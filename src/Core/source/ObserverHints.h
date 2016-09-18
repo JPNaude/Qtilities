@@ -51,17 +51,6 @@ namespace Qtilities {
             Q_OBJECT
             Q_INTERFACES(Qtilities::Core::Interfaces::IModificationNotifier)
             Q_INTERFACES(Qtilities::Core::Interfaces::IExportable)
-            Q_ENUMS(DisplayFlag)
-            Q_ENUMS(NamingControl)
-            Q_ENUMS(ActivityDisplay)
-            Q_ENUMS(ActivityControl)
-            Q_ENUMS(ItemSelectionControl)
-            Q_ENUMS(HierarchicalDisplay)
-            Q_ENUMS(ItemViewColumn)
-            Q_ENUMS(DragDropHint)
-            Q_ENUMS(ModificationStateDisplayHint)
-            Q_ENUMS(CategoryEditingHint)
-            Q_ENUMS(RootIndexDisplayHint)
 
         public:
             // --------------------------------
@@ -96,6 +85,8 @@ namespace Qtilities {
                 SelectionUseSelectedContext = 2         /*!< Use the selected observer's context. Only enforced when a single selection is present in an ObserverWidget tree. When more items are selected
                                                              SelectionUseParentContext will be used */
             };
+            Q_ENUM(ObserverSelectionContext)
+
             //! Function which returns a string associated with a specific ObserverSelectionContext.
             static QString observerSelectionContextToString(ObserverSelectionContext observer_selection_context);
             //! Function which returns the ObserverSelectionContext associated with a string.
@@ -109,6 +100,8 @@ namespace Qtilities {
                 ReadOnlyNames = 1,          /*!< Names cannot be edited in item views viewing this observer. */
                 EditableNames = 2           /*!< Names are editable in item views viewing this observer. */
             };
+            Q_ENUM(NamingControl)
+
             //! Function which returns a string associated with a specific NamingControl.
             static QString namingControlToString(NamingControl naming_control);
             //! Function which returns the NamingControl associated with a string.
@@ -122,6 +115,8 @@ namespace Qtilities {
                 NoActivityDisplay = 1,      /*!< The activity of items are not displayed in item views viewing this observer. */
                 CheckboxActivityDisplay = 2 /*!< If the observer has an ActivityPolicyFilter subject filter installed, a check box which shows the activity of subjects are shown in item views viewing this observer. */
             };
+            Q_ENUM(ActivityDisplay)
+
             //! Function which returns a string associated with a specific ActivityDisplay.
             static QString activityDisplayToString(ActivityDisplay activity_display);
             //! Function which returns the ActivityDisplay associated with a string.
@@ -136,6 +131,8 @@ namespace Qtilities {
                 FollowSelection = 2,        /*!< The activity of subjects follows the selection of the user in item views viewing this observer. To use this option, ItemSelectionControl must be set to SelectableItems. */
                 CheckboxTriggered = 3       /*!< The activity of subjects can be changed by checking or unchecking the checkbox appearing next to subject in item views viewing this observer. To use this option, ActivityDisplay must be set to CheckboxActivityDisplay. */
             };
+            Q_ENUM(ActivityControl)
+
             //! Function which returns a string associated with a specific ActivityControl.
             static QString activityControlToString(ActivityControl activity_control);
             //! Function which returns the ActivityControl associated with a string.
@@ -149,6 +146,8 @@ namespace Qtilities {
                 SelectableItems = 1,            /*!< Items are selectable by the user in item views viewing this observer. */
                 NonSelectableItems = 2          /*!< Items are not selectable by the user in item views viewing this observer. */
             };
+            Q_ENUM(ItemSelectionControl)
+
             //! Function which returns a string associated with a specific ItemSelectionControl.
             static QString itemSelectionControlToString(ItemSelectionControl item_selection_control);
             //! Function which returns the ItemSelectionControl associated with a string.
@@ -162,6 +161,8 @@ namespace Qtilities {
                 FlatHierarchy = 1,              /*!< The hierarchy of items under an observer is flat. Thus categories are not displayed. */
                 CategorizedHierarchy = 2        /*!< Item are grouped by their category */
             };
+            Q_ENUM(HierarchicalDisplay)
+
             //! Function which returns a string associated with a specific HierarchicalDisplay.
             static QString hierarchicalDisplayToString(HierarchicalDisplay hierarchical_display);
             //! Function which returns the HierarchicalDisplay associated with a string.
@@ -181,7 +182,7 @@ namespace Qtilities {
                 ColumnAllHints = ColumnNameHint | ColumnChildCountHint | ColumnTypeInfoHint | ColumnAccessHint | ColumnCategoryHint /*!< All columns, except ColumnIDHint. */
             };
             Q_DECLARE_FLAGS(ItemViewColumnFlags, ItemViewColumn)
-            Q_FLAGS(ItemViewColumnFlags)
+            Q_FLAG(ItemViewColumnFlags)
             //! Function which returns a string associated with a specific ItemViewColumnFlags.
             static QString itemViewColumnFlagsToString(ItemViewColumnFlags item_view_column_flags);
             //! Function which returns the ItemViewColumnFlags associated with a string.
@@ -200,7 +201,8 @@ namespace Qtilities {
                 AllDisplayFlagHint = ItemView | NavigationBar | PropertyBrowser | ActionToolBar | DynamicPropertyBrowser
             };
             Q_DECLARE_FLAGS(DisplayFlags, DisplayFlag)
-            Q_FLAGS(DisplayFlags)
+            Q_FLAG(DisplayFlags)
+
             //! Function which returns a string associated with a specific DisplayFlags.
             static QString displayFlagsToString(DisplayFlags display_flags);
             //! Function which returns the DisplayFlags associated with a string.
@@ -229,7 +231,8 @@ namespace Qtilities {
                 ActionAllHints = ActionRemoveItem | ActionRemoveAll | ActionDeleteItem | ActionDeleteAll | ActionNewItem | ActionRefreshView | ActionPushUp | ActionPushUpNew | ActionPushDown | ActionPushDownNew | ActionSwitchView | ActionCopyItem | ActionCutItem | ActionPasteItem | ActionFindItem /*!< All actions. */
             };
             Q_DECLARE_FLAGS(ActionHints, ActionItem)
-            Q_FLAGS(ActionHints)
+            Q_FLAG(ActionHints)
+
             //! Function which returns a string associated with a specific ActionHints.
             static QString actionHintsToString(ActionHints actions_hints);
             //! Function which returns the ActionHints associated with a string.
@@ -249,7 +252,8 @@ namespace Qtilities {
                 AllDragDrop = AcceptDrops | AllowDrags
             };
             Q_DECLARE_FLAGS(DragDropFlags, DragDropHint)
-            Q_FLAGS(DragDropFlags)
+            Q_FLAG(DragDropFlags)
+
             //! Function which returns a string associated with a specific DragDropFlags.
             static QString dragDropFlagsToString(DragDropFlags drag_drop_flags);
             //! Function which returns the DragDropFlags associated with a string.
@@ -262,6 +266,8 @@ namespace Qtilities {
                 NoModificationStateDisplayHint = 0,         /*!< No modification state display hint. The modification state is not displayed in any way. */
                 CharacterModificationStateDisplay = 1       /*!< The modification state of items is displayed by appending a specific character "*" to names of modified items. */
             };
+            Q_ENUM(ModificationStateDisplayHint)
+
             //! Function which returns a string associated with a specific ModificationStateDisplayHint.
             static QString modificationStateDisplayToString(ModificationStateDisplayHint modification_display);
             //! Function which returns the ModificationStateDisplayHint associated with a string.
@@ -289,7 +295,8 @@ node->displayHints()->setDragDropHint(ObserverHints::AllowDrags);
                 CategoriesAcceptSubjectDrops = 8    /*!< Categories accept subject(s) dropped onto them and assigns the dropped category to the subject(s). */
             };
             Q_DECLARE_FLAGS(CategoryEditingFlags, CategoryEditingHint)
-            Q_FLAGS(CategoryEditingFlags)
+            Q_FLAG(CategoryEditingFlags)
+
             //! Function which returns a string associated with a specific CategoryEditingFlags.
             static QString categoryEditingFlagsToString(CategoryEditingFlags category_editing_flags);
             //! Function which returns the CategoryEditingFlags associated with a string.
@@ -310,6 +317,8 @@ node->displayHints()->setDragDropHint(ObserverHints::AllowDrags);
                 RootIndexDisplayUndecorated  = 2 /*!< Display the root index but don't decorate it. See QTreeView::rootIsDecorated() for more details on decoration. An example tree displayed using this hint can be seen below: \image html observer_hints_root_index_display_undecorated.jpg "Tree Displayed Using RootIndexDisplayUndecorated" */
 
             };
+            Q_ENUM(RootIndexDisplayHint)
+
             //! Function which returns a string associated with a specific RootIndexDisplayHint.
             /*!
               *<i>This function was added in %Qtilities v1.2.</i>

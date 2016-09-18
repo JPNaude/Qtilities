@@ -25,13 +25,15 @@ namespace Qtilities {
             \brief Logger engines can implement this interface if they are able to export and reconstruct themselves.
               */
             class LOGGING_SHARED_EXPORT ILoggerExportable {
+                Q_GADGET
+
             public:
                 ILoggerExportable() {}
                 virtual ~ILoggerExportable() {}
 
                 enum ExportMode { Binary };
-                Q_DECLARE_FLAGS(ExportModeFlags, ExportMode);
-                Q_FLAGS(ExportModeFlags);
+                Q_DECLARE_FLAGS(ExportModeFlags, ExportMode)
+                Q_FLAG(ExportModeFlags)
 
                 //! Provides information about the export format(s) supported by your implementation of ILoggerExportable.
                 virtual ExportModeFlags supportedFormats() const = 0;

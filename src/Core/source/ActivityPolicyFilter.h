@@ -51,9 +51,6 @@ ActivityPolicyFilter* activity_filter = tree_node->enableActivityControl(Observe
         {
             Q_OBJECT
             Q_INTERFACES(Qtilities::Core::Interfaces::IModificationNotifier)
-            Q_ENUMS(ActivityPolicy)
-            Q_ENUMS(MinimumActivityPolicy)
-            Q_ENUMS(NewSubjectActivityPolicy)
 
         public:
             ActivityPolicyFilter(QObject* parent = 0);
@@ -98,6 +95,8 @@ ActivityPolicyFilter* activity_filter = tree_node->enableActivityControl(Observe
                 UniqueActivity,     /*!< Only one subject can be active at any time. */
                 MultipleActivity    /*!< Multiple subjects can be active at any time. */
             };
+            Q_ENUM(ActivityPolicy)
+
             //! Function which returns a string associated with a specific ActivityPolicy.
             static QString activityPolicyToString(ActivityPolicy activity_policy);
             //! Function which returns the ActivityPolicy associated with a string.
@@ -129,6 +128,8 @@ ActivityPolicyFilter* activity_filter = tree_node->enableActivityControl(Observe
                 ParentIgnoreActivity,     /*!< This filter does not track or care about the activity of its observer parent. */
                 ParentFollowActivity      /*!< This filter tracks the activity of its observer parent. */
             };
+            Q_ENUM(ParentTrackingPolicy)
+
             //! Function which returns a string associated with a specific ParentTrackingPolicy.
             static QString parentTrackingPolicyToString(ParentTrackingPolicy parent_tracking_policy);
             //! Function which returns the ParentTrackingPolicy associated with a string.
@@ -141,6 +142,8 @@ ActivityPolicyFilter* activity_filter = tree_node->enableActivityControl(Observe
                 AllowNoneActive,    /*!< All subjects can be incative at the same time. */
                 ProhibitNoneActive  /*!< There should at least be one active subject at any time, unless no subjects are attached to the observer context in which the filter is installed */
             };
+            Q_ENUM(MinimumActivityPolicy)
+
             //! Function which returns a string associated with a specific MinimumActivityPolicy.
             static QString minimumActivityPolicyToString(MinimumActivityPolicy minimum_activity_policy);
             //! Function which returns the MinimumActivityPolicy associated with a string.
@@ -153,6 +156,8 @@ ActivityPolicyFilter* activity_filter = tree_node->enableActivityControl(Observe
                 SetNewActive,       /*!< New subjects are automatically set to be active. */
                 SetNewInactive      /*!< New subjects are automatically set to be inactive. */
             };
+            Q_ENUM(NewSubjectActivityPolicy)
+
             //! Function which returns a string associated with a specific NewSubjectActivityPolicy.
             static QString newSubjectActivityPolicyToString(NewSubjectActivityPolicy new_subject_activity_policy);
             //! Function which returns the NewSubjectActivityPolicy associated with a string.

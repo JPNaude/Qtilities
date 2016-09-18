@@ -54,7 +54,8 @@ namespace Qtilities {
                                                        handled by Qtilities::Core::Task::logMessage(), the engine itself however won't have
                                                        a WidgetLoggerEngine assigned to it. Usefull in console applications. */
             };
-            Q_ENUMS(TaskLogInitialization)
+            Q_ENUM(TaskLogInitialization)
+
             //! Gets the task log initialization used by TaskManagerGui.
             /*!
               \sa setTaskLogInitializationMode

@@ -61,13 +61,13 @@ namespace Qtilities {
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT qti_private_ObjectInfoTreeWidget : public QTreeWidget {
             Q_OBJECT
-            Q_ENUMS(MetaCategory)
 
         public:
             qti_private_ObjectInfoTreeWidget(QWidget *parent = 0);
             virtual ~qti_private_ObjectInfoTreeWidget();
 
             enum MetaCategory { Event, Property, Method, Dependancy, Source };
+            Q_ENUM(MetaCategory)
 
             //! Sets the QMap which contains the object references of objects to be displayed in the tree as keys and the names by which these objects are known in the script backend as values.
             virtual void setObjectMap(QMap<QPointer<QObject>, QString> object_map);

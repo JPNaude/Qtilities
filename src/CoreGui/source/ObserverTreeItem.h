@@ -34,7 +34,6 @@ namespace Qtilities {
         class ObserverTreeItem : public QObject
         {
             Q_OBJECT
-            Q_ENUMS(TreeItemType)
 
         public:
             //! The possible types of items which can be part of the constructed observer tree.
@@ -46,7 +45,7 @@ namespace Qtilities {
                 AllItemTypes        = TreeItem | TreeNode | CategoryItem
             };
             Q_DECLARE_FLAGS(TreeItemTypeFlags, TreeItemType)
-            Q_FLAGS(TreeItemTypeFlags)
+            Q_FLAG(TreeItemTypeFlags)
 
             ObserverTreeItem(QObject* obj = 0, ObserverTreeItem *parent = 0, const QVector<QVariant> &data = QVector<QVariant>(), TreeItemType type = InvalidType);
             ObserverTreeItem(const ObserverTreeItem& ref);
