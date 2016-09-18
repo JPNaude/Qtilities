@@ -208,7 +208,7 @@ int main(int argc, char *argv[])
     Command* command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_FILE_SETTINGS,QObject::tr("Settings"),QKeySequence(),std_context);
     QObject::connect(command->action(),SIGNAL(triggered()),config_widget,SLOT(show()));
     file_menu->addAction(command);
-    file_menu->addSeperator();
+    file_menu->addSeparator();
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_FILE_EXIT,QObject::tr("Exit"),QKeySequence(QKeySequence::Close),std_context);
     QObject::connect(command->action(),SIGNAL(triggered()),QCoreApplication::instance(),SLOT(quit()));
     file_menu->addAction(command);

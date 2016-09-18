@@ -38,7 +38,8 @@ namespace Qtilities {
             void setItemFilter(const QString& file_filter);
             void setEditable(bool editable);
             void setPropertyName(const QString& name);
-            void setListSeperatorBackend(const QString& list_seperator);
+            Q_DECL_DEPRECATED void setListSeperatorBackend(const QString& list_seperator);
+            void setListSeparatorBackend(const QString& list_separator);
             void setDefaultOpenPath(const QString& default_open_path);
             void setCurrentValues(const QStringList& current_values);
 
@@ -54,7 +55,7 @@ namespace Qtilities {
             QString d_file_filter;
             QString d_default_open_path;
             GenericProperty::PropertyType d_property_type;
-            QString d_list_seperator_backend;
+            QString d_list_separator_backend;
             QStringList d_current_values;
             bool d_editable;
             QString d_property_name;

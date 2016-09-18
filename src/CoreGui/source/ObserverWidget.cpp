@@ -123,7 +123,7 @@ struct Qtilities::CoreGui::ObserverWidgetData {
         actionFilterNodes(0),
         actionFilterItems(0),
         actionFilterCategories(0),
-        actionFilterTypeSeperator(0),
+        actionFilterTypeSeparator(0),
         last_display_flags(ObserverHints::NoDisplayFlagsHint),
         current_column_visibility(ObserverHints::ColumnNoHints),
         column_visibility_initialized(false),
@@ -270,7 +270,7 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     QAction* actionFilterNodes;
     QAction* actionFilterItems;
     QAction* actionFilterCategories;
-    QAction* actionFilterTypeSeperator;
+    QAction* actionFilterTypeSeparator;
 
     //! This hint keeps track of the previously used activeHints()->displayFlagsHint(). If it changed, the toolbars will be reconstructed in the refreshActionToolBar() function.
     ObserverHints::DisplayFlags last_display_flags;
@@ -1956,7 +1956,7 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
             d->actionFilterCategories->setVisible(false);
             d->actionFilterNodes->setVisible(false);
             d->actionFilterItems->setVisible(false);
-            d->actionFilterTypeSeperator->setVisible(false);
+            d->actionFilterTypeSeparator->setVisible(false);
         }
         // Remove & Delete All Actions
         if (d->selection_parent_observer_context) {
@@ -1987,7 +1987,7 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
             d->actionFilterCategories->setVisible(true);
             d->actionFilterNodes->setVisible(true);
             d->actionFilterItems->setVisible(true);
-            d->actionFilterTypeSeperator->setVisible(true);
+            d->actionFilterTypeSeparator->setVisible(true);
         }
     }
 
@@ -3244,7 +3244,7 @@ void Qtilities::CoreGui::ObserverWidget::toggleSearchBox() {
 
         QMenu* search_options_menu = d->searchBoxWidget->searchOptionsMenu();
         if (search_options_menu) {
-            d->actionFilterTypeSeperator = search_options_menu->addSeparator();
+            d->actionFilterTypeSeparator = search_options_menu->addSeparator();
             d->actionFilterNodes = new QAction(tr("Filter Nodes"),this);
             d->actionFilterNodes->setCheckable(true);
             connect(d->actionFilterNodes,SIGNAL(triggered()),SLOT(handleSearchItemTypesChanged()));
@@ -3261,7 +3261,7 @@ void Qtilities::CoreGui::ObserverWidget::toggleSearchBox() {
                 d->actionFilterCategories->setVisible(false);
                 d->actionFilterNodes->setVisible(false);
                 d->actionFilterItems->setVisible(false);
-                d->actionFilterTypeSeperator->setVisible(false);
+                d->actionFilterTypeSeparator->setVisible(false);
             }
 
             setSearchBoxCheckedItemFilters(d->search_item_filter_flags);

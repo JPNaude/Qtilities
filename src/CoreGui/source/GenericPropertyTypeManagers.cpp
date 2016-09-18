@@ -72,10 +72,14 @@ bool PathPropertyManager::editable(QtProperty *property) const {
 }
 
 QString PathPropertyManager::listSeperatorBackend(QtProperty *property) const {
+    return listSeparatorBackend(property);
+}
+
+QString PathPropertyManager::listSeparatorBackend(QtProperty *property) const {
     if (propertyToData.contains(property)) {
         QPointer<GenericProperty> generic_property = propertyToData[property];
         if (generic_property)
-            return generic_property->listSeperatorBackend();
+            return generic_property->listSeparatorBackend();
     }
     return "|";
 }
@@ -178,7 +182,7 @@ QWidget *FileEditorFactory::createEditor(PathPropertyManager *manager, QtPropert
         editor->setText(manager->value(property));
     else if (manager->propertyType(property) == GenericProperty::TypeFileList || manager->propertyType(property) == GenericProperty::TypePathList) {
         editor->setCurrentValues(manager->listValues(property));
-        editor->setListSeperatorBackend(manager->listSeperatorBackend(property));
+        editor->setListSeparatorBackend(manager->listSeparatorBackend(property));
     }
 
     connect(editor,SIGNAL(valueChanged(QString)),SLOT(slotSetValue(QString)));

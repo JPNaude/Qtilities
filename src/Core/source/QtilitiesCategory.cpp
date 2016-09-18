@@ -83,8 +83,8 @@ Qtilities::Core::QtilitiesCategory::QtilitiesCategory(const QString& category_le
     //d_category_icon = 0;
 }
 
-Qtilities::Core::QtilitiesCategory::QtilitiesCategory(const QString& category_levels, const QString& seperator) : IExportable() {
-    QStringList category_name_list = category_levels.split(seperator,QString::SkipEmptyParts);
+Qtilities::Core::QtilitiesCategory::QtilitiesCategory(const QString& category_levels, const QString& separator) : IExportable() {
+    QStringList category_name_list = category_levels.split(separator,QString::SkipEmptyParts);
     foreach(QString level,category_name_list) {
         if (level.trimmed().length() > 0)
             addLevel(level);

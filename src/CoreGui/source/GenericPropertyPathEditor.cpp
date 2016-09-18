@@ -31,7 +31,7 @@ GenericPropertyPathEditor::GenericPropertyPathEditor(GenericProperty::PropertyTy
     ui->setupUi(this);
     d_default_open_path = QtilitiesApplication::applicationSessionPath();
     d_property_type = property_type;
-    d_list_seperator_backend = "|";
+    d_list_separator_backend = "|";
     d_editable = true;
 
     if (d_property_type == GenericProperty::TypeFile || d_property_type == GenericProperty::TypePath)
@@ -64,7 +64,11 @@ void GenericPropertyPathEditor::setPropertyName(const QString &name) {
 }
 
 void GenericPropertyPathEditor::setListSeperatorBackend(const QString &list_seperator) {
-    d_list_seperator_backend = list_seperator;
+    setListSeparatorBackend(list_seperator);
+}
+
+void GenericPropertyPathEditor::setListSeparatorBackend(const QString &list_separator) {
+    d_list_separator_backend = list_separator;
 }
 
 void GenericPropertyPathEditor::setDefaultOpenPath(const QString &default_open_path) {
@@ -73,7 +77,7 @@ void GenericPropertyPathEditor::setDefaultOpenPath(const QString &default_open_p
 
 void GenericPropertyPathEditor::setCurrentValues(const QStringList &current_values) {
     d_current_values = current_values;
-    setText(d_current_values.join(d_list_seperator_backend));
+    setText(d_current_values.join(d_list_separator_backend));
 }
 
 void GenericPropertyPathEditor::on_btnBrowse_clicked() {
@@ -107,7 +111,7 @@ void GenericPropertyPathEditor::on_btnBrowse_clicked() {
             dialog.setWindowTitle(d_property_name);
 
         if (dialog.exec()) {
-            ui->txtEditor->setText(string_list_widget->stringList().join(d_list_seperator_backend));
+            ui->txtEditor->setText(string_list_widget->stringList().join(d_list_separator_backend));
         }
     } else if (d_property_type == GenericProperty::TypePathList) {
         StringListWidget* string_list_widget = new StringListWidget;
@@ -124,13 +128,13 @@ void GenericPropertyPathEditor::on_btnBrowse_clicked() {
             dialog.setWindowTitle(d_property_name);
 
         if (dialog.exec()) {
-            ui->txtEditor->setText(string_list_widget->stringList().join(d_list_seperator_backend));
+            ui->txtEditor->setText(string_list_widget->stringList().join(d_list_separator_backend));
         }
     }
 }
 
 void GenericPropertyPathEditor::handleValueChanged(const QString &value) {
-    d_current_values = value.split(d_list_seperator_backend,QString::SkipEmptyParts);
+    d_current_values = value.split(d_list_separator_backend,QString::SkipEmptyParts);
     emit valueChanged(value);
 }
 

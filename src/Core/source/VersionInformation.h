@@ -133,7 +133,7 @@ example2_from_string.setIsVersionRevisionUsed(false);
              * \param revision The revision number.
              */
             VersionNumber(int major, int minor = 0, int revision = 0, int stage_version = 0, DevelopmentStage development_stage = DevelopmentStageNone);
-            VersionNumber(const QString& version, const QString& seperator = ".", DevelopmentStage develoment_stage = DevelopmentStageNone, const QString& stage_identifier = QString());
+            VersionNumber(const QString& version, const QString& separator = ".", DevelopmentStage develoment_stage = DevelopmentStageNone, const QString& stage_identifier = QString());
             VersionNumber(const VersionNumber& ref);
             virtual ~VersionNumber();
 
@@ -242,17 +242,17 @@ example2_from_string.setIsVersionRevisionUsed(false);
 
             //! Returns a string represenation of the complete VersionNumber, thus the major, minor and revision parts of the version.
             /*!
-              \param seperator By default this is a point, thus ".". In some cases it is desirable to use a custom field seperator. For example as an underscore "_" can be desirable when the version information must be appended to a file name.
+              \param separator By default this is a point, thus ".". In some cases it is desirable to use a custom field separator. For example as an underscore "_" can be desirable when the version information must be appended to a file name.
               */
-            virtual QString toString(const QString& seperator = ".") const;
+            virtual QString toString(const QString& separator = ".") const;
             //! Gets the version information from a string represenation, thus the major, minor and revision parts of the version.
             /*!
               \param version The version string.
-              \param seperator By default this is a point, thus ".". In some cases it is desirable to use a custom field seperator. For example as an underscore "_" can be desirable when the version information must be appended to a file name.
+              \param separator By default this is a point, thus ".". In some cases it is desirable to use a custom field separator. For example as an underscore "_" can be desirable when the version information must be appended to a file name.
 
               This function keeps the used parts of the version, thus it does not change that.
               */
-            virtual void fromString(const QString& version, const QString& seperator = ".", const QString& stage_identifier = QString(), DevelopmentStage stage_type = DevelopmentStageNone);
+            virtual void fromString(const QString& version, const QString& separator = ".", const QString& stage_identifier = QString(), DevelopmentStage stage_type = DevelopmentStageNone);
 
         private:
             VersionNumberPrivateData* d;
@@ -311,7 +311,7 @@ version_info << VersionNumber(2,0,0);
             /*!
               This function will construct a VersionNumber object from the string and check if it is supported.
               */
-            bool isSupportedVersion(const QString& version_string, const QString& seperator = ".") const;
+            bool isSupportedVersion(const QString& version_string, const QString& separator = ".") const;
             //! Returns a QStringList with the string representations of all supported versions.
             QStringList supportedVersionString() const;
             //! Overload << operator so more supported versions can be streamed easily.

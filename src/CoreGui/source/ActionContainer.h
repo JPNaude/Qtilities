@@ -42,11 +42,14 @@ namespace Qtilities {
               \param before Inserts the action before the action represented by before.
               */
             virtual void addAction(Command *action, const QString &before = QString()) = 0;
-            //! Adds a seperator to the action container. If the action container is a menu bar, this call does nothing.
+            //! Adds a separator to the action container. If the action container is a menu bar, this call does nothing.
             /*!
-              \param before Inserts the seperator before the action represented by before.
+              \param before Inserts the separator before the action represented by before.
+              \deprecated Use \ref addSeparator instead, that one's spelled properly.
               */
-            virtual void addSeperator(const QString &before = QString()) = 0;
+            Q_DECL_DEPRECATED virtual void addSeperator(const QString &before = QString()) = 0;
+
+            virtual void addSeparator(const QString &before = QString()) { addSeperator(before); }
 
             //! The menu bar associated with this action container. If the action container is a menu bar, 0 is returned.
             virtual QMenuBar *menuBar() const = 0;
@@ -82,7 +85,7 @@ namespace Qtilities {
             // --------------------------------
             QMenu *menu() const;
             void addAction(Command *command, const QString &before = QString());
-            void addSeperator(const QString &before = QString());
+            Q_DECL_DEPRECATED void addSeperator(const QString &before = QString());
             QMenuBar *menuBar() const;
             void addMenu(ActionContainer *menu, const QString &before = QString());
 

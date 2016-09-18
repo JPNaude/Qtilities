@@ -269,7 +269,7 @@ namespace Qtilities {
 
             //! Gets the value string of the property.
             /*!
-              \note If the value is a list, it is always seperated usign listBasedSeperator().
+              \note If the value is a list, it is always separated usign listBasedSeparator().
               \note When a boolean value, case insensitive variantions of "true" and "false" are used for both set and get sides.
               */
             QString valueString() const;
@@ -288,7 +288,7 @@ namespace Qtilities {
             bool compareValue(GenericProperty* property);
             //! Gets the QVariant value of the property, in the correct type.
             /*!
-              \note If the value is a list, it is always seperated usign listBasedSeperator().
+              \note If the value is a list, it is always seperated usign listBasedSeparator().
               */
             QVariant value() const;
             //! Sets the QVariant value of the property.
@@ -397,14 +397,21 @@ namespace Qtilities {
 
             //! Checks if the property matches its default value.
             bool matchesDefault() const;
-            //! Gets the backend list seperator of this property.
-            QString listSeperatorBackend() const;
-            //! Sets the backend list seperator of this property.
-            void setListSeperatorBackend(const QString& sep);
-            //! Gets the storage list seperator of this property.
-            QString listSeperatorStorage() const;
-            //! Sets the backend list seperator of this property.
-            void setListSeperatorStorage(const QString& sep);
+            //! Gets the backend list separator of this property.
+            QString listSeparatorBackend() const;
+            Q_DECL_DEPRECATED QString listSeperatorBackend() const;
+
+            //! Sets the backend list separator of this property.
+            void setListSeparatorBackend(const QString& sep);
+            Q_DECL_DEPRECATED void setListSeperatorBackend(const QString& sep);
+
+            //! Gets the storage list separator of this property.
+            QString listSeparatorStorage() const;
+            Q_DECL_DEPRECATED QString listSeperatorStorage() const;
+
+            //! Sets the backend list separator of this property.
+            void setListSeparatorStorage(const QString& sep);
+            Q_DECL_DEPRECATED void setListSeperatorStorage(const QString& sep);
 
             // --------------------------------
             // Macro Related
@@ -500,7 +507,7 @@ namespace Qtilities {
             int intValue() const;
             void setDoubleValue(double value);
             double doubleValue() const;
-            //! The value will be joined using the backend storage seperator which is , by default.
+            //! The value will be joined using the backend storage separator which is , by default.
             void setFileList(const QStringList& list);
             //! Adds files to the current files in this property if it is of type TypeFileList.
             void addFiles(const QStringList& list);
@@ -514,11 +521,11 @@ namespace Qtilities {
             QString path() const;
             //! Sets the path of this property if it is of type TypePath.
             void setPath(const QString& file_name);
-            //! The value will be split using the backend storage seperator which is , by default.
+            //! The value will be split using the backend storage separator which is , by default.
             QStringList fileList() const;
             //! Returns the file list string in the format specified, only for properties of type TypeFileList.
             QString fileListString(FileListStringFormat format = FileListStringFormat_0) const;
-            //! The value will be split using the backend storage seperator which is , by default.
+            //! The value will be split using the backend storage separator which is , by default.
             QStringList pathList() const;
             //! Returns the file list string in the format specified, only for properties of type TypePathList.
             QString pathListString(FileListStringFormat format = FileListStringFormat_0) const;
@@ -556,10 +563,10 @@ namespace Qtilities {
             The position in the list below represents the column in which information is expected:
             - Name
             - Type
-            - List based seperator in backend process.
-            - Default Value - List based values seperated by d->list_storage_seperator
+            - List based separator in backend process.
+            - Default Value - List based values seperated by d->list_storage_separator
             - Level
-            - Category - Multiple levels seperated by d->list_storage_seperator
+            - Category - Multiple levels seperated by d->list_storage_separator
             - Default Editable
             - Default Visible
             - Switch Name
@@ -567,7 +574,7 @@ namespace Qtilities {
             - Int Max
             - Int Min
             - Int Step
-            - Enum Possible Values = Seperated by d->list_storage_seperator
+            - Enum Possible Values = Seperated by d->list_storage_separator
             - String RegExp Pattern
             - String RegExp Pattern Syntax (true of false)
             - String RegExp Case Sensitive: (int) QRegExp::PatternSyntax.
