@@ -27,7 +27,7 @@ before_install:
   - if [ "$QT_BASE" = "55" ]; then sudo add-apt-repository ppa:beineri/opt-qt551-trusty -y; fi
   - if [ "$QT_BASE" = "56" ]; then sudo add-apt-repository ppa:beineri/opt-qt56-trusty -y; fi
   - sudo apt-get update -qq
-  - sudo apt-get install tree
+  - sudo apt-get install tree xvfb
 
 install:
   - if [ "$QT_BASE" = "48" ]; then sudo apt-get install -qq opt-qt4-qmake opt-qt4-dev-tools; source /opt/qt-4.8/bin/qt-4.8-env.sh; fi
@@ -41,7 +41,7 @@ install:
 script:
   - pwd
   - cd src
-  - qmake -r -Wall 
+  - qmake -r -Wall DEFINES+=QTILITIES_TESTING
   - make -j$(nproc)
   # Check that everything built correctly:
   - make check
@@ -51,7 +51,7 @@ script:
   - cd bin
   - tree
   - cp Tools/QtilitiesTester/QtilitiesTester .
-  #- ./QtilitiesTester -silent
+  - xvfb-run --server-args="-screen 0 1024x768x24" ./QtilitiesTester -silent
   
 branches:
   only:
