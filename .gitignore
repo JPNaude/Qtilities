@@ -5,6 +5,10 @@
 *.dll
 *.exe
 *.o
+*.obj
+*.out
+*.pch
+*.gch
 *.so
 *.a
 
@@ -50,3 +54,5 @@ Makefile
 gitKey*
 *.pdb
 child/
+*.autosave
+build
